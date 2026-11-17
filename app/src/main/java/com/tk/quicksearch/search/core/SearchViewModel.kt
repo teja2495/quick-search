@@ -526,7 +526,7 @@ class SearchViewModel(
         viewModelScope.launch {
             ReminderRepository.changes.drop(1).collect {
                 handlers.pinningHandler.refreshPinnedReminders()
-                refreshSecondarySearches()
+                handlers.secondarySearchOrchestrator.refreshSections(_resultsState.value.query, setOf(SearchSection.REMINDERS, SearchSection.NOTED))
                 // The reminders shortcut's list with no query reloads on its own path.
                 if (_resultsState.value.query.isBlank() && lockedAliasSearchSection == SearchSection.REMINDERS) {
                     refreshAliasRecentItems(SearchSection.REMINDERS)

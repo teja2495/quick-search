@@ -89,6 +89,7 @@ class ReminderRepository(context: Context) {
     fun searchReminders(
         query: String,
         includePastReminders: Boolean,
+        resultLimit: Int = Int.MAX_VALUE,
     ): List<ReminderInfo> {
         val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query.trim())
         if (normalizedQuery.isBlank()) return emptyList()
@@ -101,6 +102,7 @@ class ReminderRepository(context: Context) {
                 if (SearchRankingUtils.isOtherMatch(priority)) null else reminder to priority
             }
             .sortedWith(compareBy<Pair<ReminderInfo, Int>> { it.second }.thenBy { it.first.dueMillis })
+            .take(resultLimit)
             .map { it.first }
             .toList()
     }
@@ -358,7 +360,13 @@ class ReminderRepository(context: Context) {
         notifyChanged()
     }
 
-    private fun readReminders(): List<ReminderInfo> = parseReminders(preferences.getRemindersJson())
+    private fun readReminders(): List<ReminderInfo> {
+        val raw = preferences.getRemindersJson()
+        // Preferences hand back the same string until the next write, so this is usually an
+        // identity check; only a changed value is parsed again.
+        parsedCache?.let { (cachedRaw, reminders) -> if (cachedRaw === raw || cachedRaw == raw) return reminders }
+        return parseReminders(raw).also { parsedCache = raw to it }
+    }
 
     private fun writeReminders(reminders: List<ReminderInfo>) {
         preferences.setRemindersJson(serializeReminders(reminders))
@@ -366,6 +374,12 @@ class ReminderRepository(context: Context) {
 
     companion object {
         const val SNOOZE_MILLIS = 30L * 60L * 1000L
+
+        /** Most reminders a regular search returns; the collapsed card shows only the first. */
+        const val SEARCH_RESULT_LIMIT = 25
+
+        /** The last reminders JSON read and its parsed reminders, shared by every repository. */
+        @Volatile private var parsedCache: Pair<String, List<ReminderInfo>>? = null
 
         /** When [reminder] joins At a Glance: from the morning for an undated one, else ahead of its time. */
         fun glanceVisibleFromMillis(reminder: ReminderInfo): Long =

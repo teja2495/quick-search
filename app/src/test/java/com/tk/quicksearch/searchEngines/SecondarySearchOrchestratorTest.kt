@@ -9,6 +9,8 @@ import com.tk.quicksearch.search.core.UnifiedSectionSearchConfig
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.FileType
+import com.tk.quicksearch.search.models.ReminderInfo
+import java.time.LocalDate
 import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
@@ -145,6 +147,58 @@ class SecondarySearchOrchestratorTest {
         assertFalse(harness.state.isSecondarySearchInProgress)
     }
 
+    @Test
+    fun `section refresh searches only that section and applies its rows`() = runTest {
+        var reminderTitle = "before"
+        val harness =
+            Harness(this) { UnifiedSearchResults(reminderResults = listOf(reminder(reminderTitle))) }
+
+        harness.search("rem")
+        advanceUntilIdle()
+        reminderTitle = "after"
+        harness.refresh(setOf(SearchSection.REMINDERS))
+        advanceUntilIdle()
+
+        val refreshConfig = harness.dataSource.configs.last()
+        assertEquals(setOf(SearchSection.REMINDERS), refreshConfig.filterValues { it.shouldSearch }.keys)
+        assertEquals(listOf("after"), harness.state.reminderResults.map { it.title })
+    }
+
+    @Test
+    fun `section refresh during a running search restarts the full search`() = runTest {
+        val harness =
+            Harness(this) {
+                delay(500)
+                UnifiedSearchResults()
+            }
+
+        harness.search("rem")
+        advanceTimeBy(100)
+        harness.refresh(setOf(SearchSection.REMINDERS))
+        advanceUntilIdle()
+
+        val lastSearched = harness.dataSource.configs.last().filterValues { it.shouldSearch }.keys
+        assertTrue(lastSearched.size > 1)
+    }
+
+    @Test
+    fun `section refresh result is dropped once a newer query starts`() = runTest {
+        val harness =
+            Harness(this) { query ->
+                if (query == "rem") delay(300)
+                UnifiedSearchResults(reminderResults = listOf(reminder(query)))
+            }
+
+        harness.search("rem")
+        advanceUntilIdle()
+        harness.refresh(setOf(SearchSection.REMINDERS))
+        advanceTimeBy(100)
+        harness.search("remind")
+        advanceUntilIdle()
+
+        assertEquals(listOf("remind"), harness.state.reminderResults.map { it.title })
+    }
+
     private class Harness(
         scope: TestScope,
         disabledSections: Set<SearchSection> = emptySet(),
@@ -170,6 +224,10 @@ class SecondarySearchOrchestratorTest {
         fun search(query: String) {
             state = state.copy(query = query)
             orchestrator.performSecondarySearches(query)
+        }
+
+        fun refresh(sections: Set<SearchSection>) {
+            orchestrator.refreshSections(state.query, sections)
         }
     }
 
@@ -245,6 +303,14 @@ class SecondarySearchOrchestratorTest {
                 lookupKey = name,
                 displayName = name,
                 phoneNumbers = emptyList(),
+            )
+
+        fun reminder(title: String) =
+            ReminderInfo(
+                reminderId = title.hashCode().toLong().let { if (it <= 0L) -it + 1L else it },
+                title = title,
+                date = LocalDate.of(2030, 1, 1),
+                timeMinutes = null,
             )
 
         fun app(name: String) =

@@ -17,9 +17,13 @@ import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.other.OtherSearchItemRegistry
 import com.tk.quicksearch.search.noted.withoutQuickNoteWhileNoted
+import com.tk.quicksearch.search.data.NotesRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SearchViewModelManagementApiDelegate internal constructor(
     private val scope: CoroutineScope,
@@ -444,20 +448,32 @@ class SearchViewModelManagementApiDelegate internal constructor(
         }
     }
 
-    fun stageDeleteNote(noteInfo: NoteInfo): NoteInfo? {
-        val deleted = notesRepository().stageDelete(noteInfo.noteId) ?: return null
+    suspend fun stageDeleteNote(noteInfo: NoteInfo): NoteInfo? {
+        val deleted =
+            withContext(Dispatchers.IO) { notesRepository().stageDelete(noteInfo.noteId) } ?: return null
+        // Drop the row right away; the refresh below reloads both lists from storage.
+        updateUiState { state ->
+            state.copy(
+                noteResults = state.noteResults.filterNot { it.noteId == deleted.noteId },
+                pinnedNotes = state.pinnedNotes.filterNot { it.noteId == deleted.noteId },
+            )
+        }
         refreshNotesState()
         return deleted
     }
 
     fun undoDeleteNote(noteId: Long) {
-        notesRepository().undoDelete(noteId)
-        refreshNotesState()
+        scope.launch(Dispatchers.IO) {
+            notesRepository().undoDelete(noteId)
+            refreshNotesState()
+        }
     }
 
     fun finalizeDeleteNote(noteId: Long) {
-        notesRepository().finalizeDelete(noteId)
-        refreshNotesState()
+        scope.launch(Dispatchers.IO) {
+            notesRepository().finalizeDelete(noteId)
+            refreshNotesState()
+        }
     }
 
     fun setNoteTrigger(noteInfo: NoteInfo, trigger: ResultTrigger?) {
@@ -662,31 +678,54 @@ class SearchViewModelManagementApiDelegate internal constructor(
         refreshNotesState()
     }
 
+    private val refreshNotesLock = Any()
+    private var refreshNotesJob: Job? = null
+
+    /**
+     * Reloads notes on IO and applies them; reads happen before the state lock is taken. A newer
+     * refresh replaces one still running, so an older read never lands last.
+     */
     private fun refreshNotesState() {
-        val repository = notesRepository()
-        val allNotes = repository.getAllNotes()
-        val pinnedIds = repository.getPinnedNoteIds()
-        val pinnedNotes =
-            allNotes
-                .filter { pinnedIds.contains(it.noteId) }
-                .sortedByPinnedOrder(repository.getPinnedNoteOrder()) { it.noteId }
-        updateUiState { state ->
-            val refreshedResults =
-                (
-                    if (state.query.isBlank()) {
+        synchronized(refreshNotesLock) {
+            refreshNotesJob?.cancel()
+            refreshNotesJob =
+                scope.launch(Dispatchers.IO) {
+                    val repository = notesRepository()
+                    val allNotes = repository.getAllNotes()
+                    val pinnedIds = repository.getPinnedNoteIds()
+                    val pinnedNotes =
                         allNotes
-                    } else {
-                        repository.searchNotes(
-                            query = state.query,
-                            includeContent =
-                                state.detectedAliasSearchSection == SearchSection.NOTES,
+                            .filter { pinnedIds.contains(it.noteId) }
+                            .sortedByPinnedOrder(repository.getPinnedNoteOrder()) { it.noteId }
+                    val snapshot = resultsStateProvider()
+                    val query = snapshot.query
+                    val isNotesAlias = snapshot.detectedAliasSearchSection == SearchSection.NOTES
+                    val refreshedResults =
+                        (
+                            if (query.isBlank()) {
+                                allNotes
+                            } else {
+                                repository.searchNotes(
+                                    query = query,
+                                    includeContent = isNotesAlias,
+                                    resultLimit =
+                                        if (isNotesAlias) {
+                                            NotesRepository.ALIAS_SEARCH_RESULT_LIMIT
+                                        } else {
+                                            NotesRepository.SEARCH_RESULT_LIMIT
+                                        },
+                                )
+                            }
+                        ).withoutQuickNoteWhileNoted(repository)
+                    ensureActive()
+                    updateUiState { state ->
+                        state.copy(
+                            // The query moved on while reading; its own search fills the results.
+                            noteResults = if (state.query == query) refreshedResults else state.noteResults,
+                            pinnedNotes = pinnedNotes,
                         )
                     }
-                ).withoutQuickNoteWhileNoted(repository)
-            state.copy(
-                noteResults = refreshedResults,
-                pinnedNotes = pinnedNotes,
-            )
+                }
         }
     }
 

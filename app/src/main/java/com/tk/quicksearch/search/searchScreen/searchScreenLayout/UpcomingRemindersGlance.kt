@@ -91,6 +91,8 @@ import com.tk.quicksearch.shared.ui.components.AppTextButton
 private val UpcomingReminderDismissSize = 28.dp
 private const val DAY_MILLIS = 24L * 60L * 60L * 1000L
 private const val REMINDER_NOW_WINDOW_MILLIS = 60L * 1000L
+private const val GLANCE_TICK_MILLIS = 60L * 1000L
+private const val GLANCE_TICK_SLACK_MILLIS = 50L
 private const val DONE_UNDO_WINDOW_MILLIS = 4_000L
 
 /**
@@ -148,19 +150,28 @@ internal fun rememberUpcomingRemindersGlance(enabled: Boolean): UpcomingReminder
         }
         // Home stays composed while another app is in front; only poll while it can be seen.
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            // Noted's tasks change only with a change signal or on resume, both of which restart
+            // this effect, so read them once here and only re-filter them as time passes.
+            val allNotedTasks =
+                withContext(Dispatchers.IO) {
+                    if (reminderPreferences.isShowUpcomingRemindersEnabled()) NotedGlanceTasks.all(context) else emptyList()
+                }
             while (true) {
                 nowMillis = System.currentTimeMillis()
                 reminders = withContext(Dispatchers.IO) { repository.getHomeCardReminders(nowMillis) }
                 notedTasks =
                     withContext(Dispatchers.IO) {
-                        NotedGlanceTasks.load(
+                        NotedGlanceTasks.visibleAt(
                             context,
+                            allNotedTasks,
                             nowMillis,
-                            isShown = reminderPreferences.isShowUpcomingRemindersEnabled(),
                             isTomorrowShown = reminderPreferences.isShowTomorrowRemindersEnabled(),
                         )
                     }
-                delay(10_000)
+                // Due times, lead times, mornings and evenings all fall on whole minutes, and the
+                // row labels count whole minutes from them, so waking on each minute is exact.
+                // Snooze ends arrive through the reminder alarm's change signal.
+                delay(GLANCE_TICK_MILLIS - System.currentTimeMillis() % GLANCE_TICK_MILLIS + GLANCE_TICK_SLACK_MILLIS)
             }
         }
     }

@@ -201,17 +201,17 @@ internal fun rememberRouteUndoActions(
                 },
             )
         }
-    val onDeleteNoteWithUndo: (NoteInfo) -> Unit = noteDelete@{ note ->
-        val staged = viewModel.stageDeleteNote(note) ?: return@noteDelete
-        val label = staged.title.ifBlank { context.getString(R.string.notes_untitled) }
-        var wasUndone = false
-        showUndoSnackbar(
-            context.getString(R.string.toast_excluded_from_results, label),
-        ) {
-            wasUndone = true
-            viewModel.undoDeleteNote(staged.noteId)
-        }
+    val onDeleteNoteWithUndo: (NoteInfo) -> Unit = { note ->
         snackbarScope.launch {
+            val staged = viewModel.stageDeleteNote(note) ?: return@launch
+            val label = staged.title.ifBlank { context.getString(R.string.notes_untitled) }
+            var wasUndone = false
+            showUndoSnackbar(
+                context.getString(R.string.toast_excluded_from_results, label),
+            ) {
+                wasUndone = true
+                viewModel.undoDeleteNote(staged.noteId)
+            }
             kotlinx.coroutines.delay(2_500L)
             if (!wasUndone) {
                 viewModel.finalizeDeleteNote(staged.noteId)

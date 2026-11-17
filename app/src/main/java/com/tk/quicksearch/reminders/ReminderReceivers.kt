@@ -6,6 +6,10 @@ import android.content.Context
 import android.content.Intent
 import com.tk.quicksearch.customInfo.CustomInfoScheduler
 import com.tk.quicksearch.search.data.ReminderRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 /** Fires when a reminder is due and posts its notification. */
 class ReminderAlarmReceiver : BroadcastReceiver() {
@@ -43,8 +47,17 @@ class ReminderRescheduleReceiver : BroadcastReceiver() {
             Intent.ACTION_TIMEZONE_CHANGED,
             AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED,
             -> {
-                ReminderScheduler.rescheduleAll(context)
-                CustomInfoScheduler.rescheduleAll(context)
+                // Every alarm is re-registered, so keep that off the main thread.
+                val appContext = context.applicationContext
+                val pending = goAsync()
+                CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                    try {
+                        ReminderScheduler.rescheduleAll(appContext)
+                        CustomInfoScheduler.rescheduleAll(appContext)
+                    } finally {
+                        pending.finish()
+                    }
+                }
             }
         }
     }

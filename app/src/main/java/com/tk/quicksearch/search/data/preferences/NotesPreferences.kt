@@ -33,6 +33,13 @@ class NotesPreferences(
         prefs.edit().putString(BasePreferences.KEY_NOTES_DATA, json).apply()
     }
 
+    /** Removes the legacy JSON copy of every note; Room holds the notes. */
+    fun clearNotesJson() {
+        if (prefs.contains(BasePreferences.KEY_NOTES_DATA)) {
+            prefs.edit().remove(BasePreferences.KEY_NOTES_DATA).apply()
+        }
+    }
+
     fun nextNoteId(): Long {
         val next = prefs.getLong(BasePreferences.KEY_NOTE_ID_COUNTER, 1L)
         prefs.edit().putLong(BasePreferences.KEY_NOTE_ID_COUNTER, next + 1L).apply()

@@ -347,7 +347,9 @@ fun reminderRelativeDateLabel(reminder: ReminderInfo): String =
 @Composable
 fun reminderScheduleLabel(reminder: ReminderInfo): String {
     val context = LocalContext.current
-    val dateText = SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(Date(reminder.dayStartMillis))
+    val locale = Locale.getDefault()
+    val dateFormat = remember(locale) { SimpleDateFormat("EEE, MMM d", locale) }
+    val dateText = dateFormat.format(Date(reminder.dayStartMillis))
     val schedule =
         if (reminder.hasTime) {
             "$dateText • ${DateFormat.getTimeFormat(context).format(Date(reminder.dueMillis))}"

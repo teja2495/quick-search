@@ -209,7 +209,7 @@ internal interface SearchViewModelManagementApi {
     fun movePinnedNote(noteInfo: NoteInfo, moveUp: Boolean) =
         managementApiDelegate.movePinnedNote(noteInfo, moveUp)
 
-    fun stageDeleteNote(noteInfo: NoteInfo): NoteInfo? = managementApiDelegate.stageDeleteNote(noteInfo)
+    suspend fun stageDeleteNote(noteInfo: NoteInfo): NoteInfo? = managementApiDelegate.stageDeleteNote(noteInfo)
 
     fun undoDeleteNote(noteId: Long) = managementApiDelegate.undoDeleteNote(noteId)
 

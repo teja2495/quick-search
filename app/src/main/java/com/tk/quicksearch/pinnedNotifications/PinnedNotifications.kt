@@ -308,13 +308,25 @@ object PinnedNotifications {
     private fun separateActions(context: Context): List<CustomWidgetButtonAction> =
         readActions(context, SeparateActionsKey)
 
-    private fun readActions(context: Context, key: String): List<CustomWidgetButtonAction> =
-        context.getSharedPreferences(PreferencesName, Context.MODE_PRIVATE)
-            .getString(key, null)
-            ?.let { raw -> runCatching { JSONArray(raw) }.getOrNull() }
-            ?.let { array -> List(array.length()) { index -> CustomWidgetButtonAction.fromJson(array.optString(index)) } }
-            ?.filterNotNull()
-            .orEmpty()
+    private fun readActions(context: Context, key: String): List<CustomWidgetButtonAction> {
+        val raw =
+            context.getSharedPreferences(PreferencesName, Context.MODE_PRIVATE).getString(key, null)
+                ?: return emptyList()
+        // Note rows ask on every recomposition, and these arrays embed whole note bodies. Preferences
+        // return the same string until the next write, so reuse the last parse of it.
+        parsedActions[key]?.let { (cachedRaw, actions) ->
+            if (cachedRaw === raw || cachedRaw == raw) return actions
+        }
+        val actions =
+            runCatching { JSONArray(raw) }.getOrNull()
+                ?.let { array -> List(array.length()) { index -> CustomWidgetButtonAction.fromJson(array.optString(index)) } }
+                ?.filterNotNull()
+                .orEmpty()
+        parsedActions[key] = raw to actions
+        return actions
+    }
+
+    private val parsedActions = java.util.concurrent.ConcurrentHashMap<String, Pair<String, List<CustomWidgetButtonAction>>>()
 
     private fun saveActions(context: Context, actions: List<CustomWidgetButtonAction>) {
         save(context, ActionsKey, actions)

@@ -10,6 +10,7 @@ import com.tk.quicksearch.search.data.preferences.AppShortcutPreferences
 import com.tk.quicksearch.search.data.preferences.BasePreferences
 import com.tk.quicksearch.search.data.preferences.CustomLlmProviderPreferences
 import com.tk.quicksearch.search.data.preferences.GeminiPreferences
+import com.tk.quicksearch.search.data.preferences.NotesPreferences
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.data.ReminderRepository
@@ -151,11 +152,12 @@ object SettingsBackupManager {
     ) {
         val includeApiKeys = options.includes(ExportItem.API_KEYS)
         val userPreferences = UserAppPreferences(context)
+        val notes = if (options.includes(ExportItem.NOTES)) NotesRepository(context).getAllNotes() else null
         val payload =
             JSONObject()
                 .put(FIELD_FORMAT_VERSION, FORMAT_VERSION)
                 .put(FIELD_EXPORTED_AT_EPOCH_MS, System.currentTimeMillis())
-                .put(FIELD_PREFERENCES, buildPreferencesJson(context, options))
+                .put(FIELD_PREFERENCES, buildPreferencesJson(context, options, notes))
                 .put(
                     FIELD_SELECTED_EXPORT_ITEMS,
                     JSONArray(options.selectedItems.map { it.name }.sorted()),
@@ -169,8 +171,8 @@ object SettingsBackupManager {
                             serializeCustomLlmProviders(CustomLlmProviderPreferences(context).getProviders()),
                         )
                     }
-                    if (options.includes(ExportItem.NOTES)) {
-                        put(FIELD_NOTES, serializeNotes(NotesRepository(context).getAllNotes()))
+                    if (notes != null) {
+                        put(FIELD_NOTES, serializeNotes(notes))
                     }
                     if (options.includes(ExportItem.BOOKMARKS)) {
                         put(FIELD_BOOKMARKS, BookmarkBackupCodec.serialize(BookmarkRepository(context).getAll()))
@@ -299,14 +301,25 @@ object SettingsBackupManager {
 
         if (selectedExportItems == null || ExportItem.NOTES in selectedExportItems) {
             val notesStore = NotesRoomStore(context)
+            // Older backups carry notes only as the legacy JSON in the preferences section. Read it
+            // from the backup itself: the app no longer keeps that copy in its preferences.
+            val legacyNotesJson =
+                preferencesJson
+                    .optJSONObject(BasePreferences.PREFS_NAME)
+                    ?.optJSONObject(BasePreferences.KEY_NOTES_DATA)
+                    ?.takeIf { it.optString(FIELD_TYPE) == TYPE_STRING }
+                    ?.optString(FIELD_VALUE)
             val notes =
                 root.optJSONArray(FIELD_NOTES)?.let(::parseNotes)
-                    ?: notesStore.parseLegacySnapshot(
-                        context.getSharedPreferences(BasePreferences.PREFS_NAME, Context.MODE_PRIVATE)
-                            .getString(BasePreferences.KEY_NOTES_DATA, null).orEmpty(),
-                    )
-            notesStore.replaceFromBackup(notes)
-            requestNoteWidgetsRefresh(context)
+                    ?: legacyNotesJson?.let(notesStore::parseLegacySnapshot)
+                    // A full restore replaces everything, notes included; a partial one without
+                    // notes in it leaves the current notes alone.
+                    ?: if (selectedExportItems == null) emptyList() else null
+            if (notes != null) {
+                notesStore.replaceFromBackup(notes)
+                requestNoteWidgetsRefresh(context)
+            }
+            NotesPreferences(context).clearNotesJson()
         }
 
         // Only backups that carry bookmarks replace them; older backups leave the current ones alone.
@@ -357,6 +370,7 @@ object SettingsBackupManager {
     private fun buildPreferencesJson(
         context: Context,
         options: ExportOptions,
+        notes: List<NoteInfo>?,
     ): JSONObject {
         val preferencesJson = JSONObject()
         collectEligiblePreferenceNames(context)
@@ -374,6 +388,13 @@ object SettingsBackupManager {
                             prefEntriesJson.put(key, serialized)
                         }
                     }
+                // Notes live in Room. Keep the legacy JSON copy in the backup so builds that read
+                // notes only from the preferences section restore them too.
+                if (prefName == BasePreferences.PREFS_NAME && notes != null) {
+                    serializePreferenceValue(NotesRoomStore.serializeLegacySnapshot(notes))?.let {
+                        prefEntriesJson.put(BasePreferences.KEY_NOTES_DATA, it)
+                    }
+                }
                 if (prefEntriesJson.length() > 0) {
                     preferencesJson.put(prefName, prefEntriesJson)
                 }

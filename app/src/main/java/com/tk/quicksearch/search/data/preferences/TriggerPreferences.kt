@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.data.preferences
 
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import org.json.JSONObject
+import java.util.concurrent.ConcurrentHashMap
 import android.content.Context
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
 
@@ -67,6 +68,16 @@ class TriggerPreferences(
 
     private fun readTriggerValue(stored: Any?): ResultTrigger? {
         if (stored !is String) return null
+        // Search reads every trigger on each keystroke and result rows read theirs on each
+        // recomposition; the stored strings rarely change, so parse each distinct one once.
+        parsedTriggers[stored]?.let { return it.trigger }
+        val parsed = parseTriggerValue(stored)
+        if (parsedTriggers.size >= MAX_PARSED_TRIGGERS) parsedTriggers.clear()
+        parsedTriggers[stored] = ParsedTrigger(parsed)
+        return parsed
+    }
+
+    private fun parseTriggerValue(stored: String): ResultTrigger? {
         return runCatching {
             val json = JSONObject(stored)
             val word = json.optString(KEY_WORD).trim()
@@ -260,7 +271,12 @@ class TriggerPreferences(
     ): String =
         "${BasePreferences.KEY_TRIGGER_CONTACT_ACTION_PREFIX}$contactId$KEY_SEPARATOR${action.toSerializedString()}"
 
+    private class ParsedTrigger(val trigger: ResultTrigger?)
+
     private companion object {
+        const val MAX_PARSED_TRIGGERS = 512
+        val parsedTriggers = ConcurrentHashMap<String, ParsedTrigger>()
+
         // Shared by every BasePreferences.KEY_TRIGGER_*_PREFIX.
         const val KEY_TRIGGER_COMMON_PREFIX = "trigger_"
         const val KEY_SEPARATOR = "|"

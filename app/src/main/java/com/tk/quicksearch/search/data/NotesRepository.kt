@@ -10,8 +10,6 @@ import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.models.SecondaryRankingSignal
 import com.tk.quicksearch.search.notes.NotesTextUtils
 import com.tk.quicksearch.widgets.utils.requestNoteWidgetsRefresh
-import org.json.JSONArray
-import org.json.JSONObject
 import java.util.Locale
 
 class NotesRepository(
@@ -26,19 +24,34 @@ class NotesRepository(
 
     fun getAllNotes(): List<NoteInfo> {
         val quickNoteId = ensureQuickNoteExists().noteId
-        val pinnedIds = getPinnedNoteIds()
-        return readNotes()
-            .sortedWith(
-                compareByDescending<NoteInfo> { it.noteId == quickNoteId }
-                    .thenByDescending { pinnedIds.contains(it.noteId) }
-                    .thenByDescending { it.updatedAtMillis }
-                    .thenBy { it.title.lowercase(Locale.getDefault()) },
-            )
+        val pinnedIds = notesPreferences.getPinnedNoteIds()
+        return readNotes().sortedWith(allNotesOrder(quickNoteId, pinnedIds))
     }
+
+    /** Pinned notes in [getAllNotes] order, read by id rather than loading every note. */
+    fun getPinnedNotes(): List<NoteInfo> {
+        val pinnedIds = notesPreferences.getPinnedNoteIds()
+        if (pinnedIds.isEmpty()) return emptyList()
+        val quickNoteId = ensureQuickNoteExists().noteId
+        return notesStore.getByIds(pinnedIds).sortedWith(allNotesOrder(quickNoteId, pinnedIds))
+    }
+
+    private fun allNotesOrder(quickNoteId: Long, pinnedIds: Set<Long>): Comparator<NoteInfo> =
+        compareByDescending<NoteInfo> { it.noteId == quickNoteId }
+            .thenByDescending { pinnedIds.contains(it.noteId) }
+            .thenByDescending { it.updatedAtMillis }
+            .thenBy { it.title.lowercase(Locale.getDefault()) }
 
     fun getNoteById(noteId: Long): NoteInfo? {
         ensureQuickNoteExists()
         return notesStore.getById(noteId)
+    }
+
+    /** The notes with these ids, in no particular order; one database read for all of them. */
+    fun getNotesByIds(noteIds: Collection<Long>): List<NoteInfo> {
+        if (noteIds.isEmpty()) return emptyList()
+        ensureQuickNoteExists()
+        return notesStore.getByIds(noteIds)
     }
 
     fun searchNotes(
@@ -47,24 +60,28 @@ class NotesRepository(
         noteOpenCounts: Map<Long, Int> = emptyMap(),
         secondaryRankingSignal: SecondaryRankingSignal = SecondaryRankingSignal.DEFAULT,
         includeContent: Boolean = false,
+        resultLimit: Int = Int.MAX_VALUE,
     ): List<NoteInfo> {
         val quickNoteId = ensureQuickNoteExists().noteId
         val normalizedQuery = NotesTextUtils.normalize(query)
         if (normalizedQuery.isBlank()) return getAllNotes()
 
-        val pinnedIds = getPinnedNoteIds()
+        val pinnedIds = notesPreferences.getPinnedNoteIds()
         val triggerMatchingIds = triggerPreferences.findNotesWithMatchingTrigger(query)
         return readNotes()
             .mapNotNull { note ->
                 val normalizedTitle = NotesTextUtils.normalize(note.title)
                 val titleStartsWith = normalizedTitle.startsWith(normalizedQuery)
-                val titleContains = normalizedTitle.contains(normalizedQuery)
+                val titleContains = titleStartsWith || normalizedTitle.contains(normalizedQuery)
+                val triggerMatches = triggerMatchingIds.contains(note.noteId)
+                // The body only decides the score when neither the trigger nor the title matched.
                 val bodyContains =
                     includeContent &&
+                        !titleContains &&
+                        !triggerMatches &&
                         NotesTextUtils.normalize(
                             NotesTextUtils.toSearchablePlainText(note.markdownContent),
                         ).contains(normalizedQuery)
-                val triggerMatches = triggerMatchingIds.contains(note.noteId)
                 if (!titleContains && !bodyContains && !triggerMatches) {
                     return@mapNotNull null
                 }
@@ -88,13 +105,18 @@ class NotesRepository(
                             SecondaryRankingSignal.NONE -> 0
                         }
                     }.thenBy { it.first.title.lowercase(Locale.getDefault()) },
-            ).map { it.first }
+            ).asSequence()
+            .take(resultLimit)
+            .map { it.first }
+            .toList()
     }
 
     fun createNote(
         title: String,
         markdownContent: String,
     ): NoteInfo {
+        // Restored or migrated notes can carry ids past the counter; never hand one out twice.
+        notesStore.maxNoteId()?.let { notesPreferences.ensureNoteIdCounterAtLeast(it + 1L) }
         val now = System.currentTimeMillis()
         val note =
             NoteInfo(
@@ -104,8 +126,8 @@ class NotesRepository(
                 createdAtMillis = now,
                 updatedAtMillis = now,
             )
-        val notes = readNotes().toMutableList().apply { add(note) }
-        writeNotes(notes)
+        notesStore.upsert(note)
+        onNotesWritten()
         return note
     }
 
@@ -115,10 +137,7 @@ class NotesRepository(
         markdownContent: String,
     ): NoteInfo? {
         val quickNoteId = ensureQuickNoteExists().noteId
-        val notes = readNotes().toMutableList()
-        val index = notes.indexOfFirst { it.noteId == noteId }
-        if (index == -1) return null
-        val current = notes[index]
+        val current = notesStore.getById(noteId) ?: return null
         val updated =
             current.copy(
                 title =
@@ -130,27 +149,26 @@ class NotesRepository(
                 markdownContent = markdownContent,
                 updatedAtMillis = System.currentTimeMillis(),
             )
-        notes[index] = updated
-        writeNotes(notes)
+        notesStore.upsert(updated)
+        onNotesWritten()
         PinnedNotifications.updatePinnedNote(appContext, updated)
         return updated
     }
 
     fun stageDelete(noteId: Long): NoteInfo? {
         if (isQuickNote(noteId)) return null
-        val notes = readNotes().toMutableList()
-        val note = notes.firstOrNull { it.noteId == noteId } ?: return null
+        val note = notesStore.getById(noteId) ?: return null
         pendingDeletesByNoteId[noteId] = note
-        writeNotes(notes.filterNot { it.noteId == noteId })
+        notesStore.deleteById(noteId)
+        onNotesWritten()
         return note
     }
 
     fun undoDelete(noteId: Long): NoteInfo? {
         val pending = pendingDeletesByNoteId.remove(noteId) ?: return null
-        val notes = readNotes().toMutableList()
-        if (notes.none { it.noteId == noteId }) {
-            notes.add(pending)
-            writeNotes(notes)
+        if (notesStore.getById(noteId) == null) {
+            notesStore.upsert(pending)
+            onNotesWritten()
         }
         return pending
     }
@@ -189,27 +207,21 @@ class NotesRepository(
         }
     }
 
-    private fun writeNotes(notes: List<NoteInfo>) {
-        notesStore.replaceAll(notes)
-        val jsonArray = JSONArray()
-        notes.forEach { note ->
-            jsonArray.put(
-                JSONObject()
-                    .put(FIELD_NOTE_ID, note.noteId)
-                    .put(FIELD_TITLE, note.title)
-                    .put(FIELD_MARKDOWN, note.markdownContent)
-                    .put(FIELD_CREATED_AT, note.createdAtMillis)
-                    .put(FIELD_UPDATED_AT, note.updatedAtMillis),
-            )
-        }
-        notesPreferences.setNotesJson(jsonArray.toString())
+    private fun onNotesWritten() {
         requestNoteWidgetsRefresh(appContext)
     }
 
     private fun ensureQuickNoteExists(): NoteInfo {
-        val notes = readNotes().toMutableList()
-        var changed = false
         val storedQuickNoteId = notesPreferences.getQuickNoteId()
+        // Usual case: the stored Quick Note exists with its title, so one row answers it. Anything
+        // else falls through to the full check below, which repairs it.
+        if (storedQuickNoteId > 0L) {
+            notesStore.getById(storedQuickNoteId)
+                ?.takeIf { it.title == quickNoteTitle }
+                ?.let { return it }
+        }
+        val notes = readNotes()
+        var changed = false
 
         var quickNote =
             notes.firstOrNull { it.noteId == storedQuickNoteId && storedQuickNoteId > 0L }
@@ -225,7 +237,6 @@ class NotesRepository(
                     createdAtMillis = now,
                     updatedAtMillis = now,
                 )
-            notes.add(quickNote)
             changed = true
         } else if (quickNote.title != quickNoteTitle) {
             val updatedQuickNote =
@@ -233,10 +244,6 @@ class NotesRepository(
                     title = quickNoteTitle,
                     updatedAtMillis = System.currentTimeMillis(),
                 )
-            val quickNoteIndex = notes.indexOfFirst { it.noteId == quickNote.noteId }
-            if (quickNoteIndex >= 0) {
-                notes[quickNoteIndex] = updatedQuickNote
-            }
             quickNote = updatedQuickNote
             changed = true
         }
@@ -246,17 +253,18 @@ class NotesRepository(
         }
 
         if (changed) {
-            writeNotes(notes)
+            notesStore.upsert(quickNote)
+            onNotesWritten()
         }
 
         return quickNote
     }
 
-    private companion object {
-        const val FIELD_NOTE_ID = "noteId"
-        const val FIELD_TITLE = "title"
-        const val FIELD_MARKDOWN = "markdown"
-        const val FIELD_CREATED_AT = "createdAtMillis"
-        const val FIELD_UPDATED_AT = "updatedAtMillis"
+    companion object {
+        /** Most notes a regular search returns; the collapsed card shows only the first. */
+        const val SEARCH_RESULT_LIMIT = 25
+
+        /** Most notes the Notes alias search returns. */
+        const val ALIAS_SEARCH_RESULT_LIMIT = 500
     }
 }

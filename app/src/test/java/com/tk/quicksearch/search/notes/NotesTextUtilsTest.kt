@@ -27,4 +27,56 @@ class NotesTextUtilsTest {
     fun `returns null when note body does not match`() {
         assertNull(NotesTextUtils.matchCenteredPreview("note body", "missing"))
     }
+
+    private val fakeLinkPattern = Regex("""https?://\S+""")
+
+    private fun fakeFindLinks(text: String): List<NotesTextUtils.LinkRange> =
+        fakeLinkPattern.findAll(text).map { NotesTextUtils.LinkRange(it.range.first, it.range.last + 1, it.value) }.toList()
+
+    private fun assertIncrementalMatchesFullScan(before: String, after: String) {
+        val incremental =
+            NotesTextUtils.updateLinkRanges(before, fakeFindLinks(before), after, ::fakeFindLinks)
+        assertEquals("$before -> $after", fakeFindLinks(after), incremental)
+    }
+
+    @Test
+    fun `incremental link ranges match a full rescan`() {
+        val base = "intro http://a.example\nmiddle line\nend http://b.example tail"
+        listOf(
+            base,
+            base.replace("middle", "middle http://c.example"),
+            base.replace("intro ", ""),
+            base.replace("\nmiddle line", ""),
+            base.replace("middle line\n", "middle line\n\n"),
+            base.replace("http://b.example", "http://bb.example"),
+            "x" + base,
+            base + " http://d.example",
+            "",
+            "http://only.example",
+        ).forEach { after ->
+            assertIncrementalMatchesFullScan(base, after)
+            assertIncrementalMatchesFullScan(after, base)
+        }
+    }
+
+    @Test
+    fun `typing character by character keeps link ranges exact`() {
+        val target = "call http://x.example now\nsecond http://y.example\nthird"
+        var text = ""
+        var links = emptyList<NotesTextUtils.LinkRange>()
+        for (char in target) {
+            val next = text + char
+            links = NotesTextUtils.updateLinkRanges(text, links, next, ::fakeFindLinks)
+            text = next
+            assertEquals(fakeFindLinks(text), links)
+        }
+        // Delete from the middle back to the start.
+        while (text.isNotEmpty()) {
+            val cut = text.length / 2
+            val next = text.removeRange(cut, cut + 1)
+            links = NotesTextUtils.updateLinkRanges(text, links, next, ::fakeFindLinks)
+            text = next
+            assertEquals(fakeFindLinks(text), links)
+        }
+    }
 }

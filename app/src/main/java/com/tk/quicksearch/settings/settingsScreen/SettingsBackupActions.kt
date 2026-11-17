@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
+import com.tk.quicksearch.search.data.notes.NotesRoomStore
 import com.tk.quicksearch.search.data.preferences.BasePreferences
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
@@ -56,10 +57,7 @@ internal fun loadExportSelectionState(context: Context): ExportSelectionState {
         }
     val hasNotes =
         FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES) &&
-            run {
-                val notesJson = userPrefs.getString(BasePreferences.KEY_NOTES_DATA, null).orEmpty()
-                notesJson.isNotBlank() && notesJson != "[]"
-            }
+            NotesRoomStore(context).hasAny()
     val hasCustomCalendarEvents =
         run {
             val eventsJson = userPrefs.getString(BasePreferences.KEY_CUSTOM_CALENDAR_EVENTS_DATA, null).orEmpty()

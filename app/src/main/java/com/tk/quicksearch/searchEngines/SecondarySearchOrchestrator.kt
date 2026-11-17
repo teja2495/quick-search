@@ -66,6 +66,7 @@ class SecondarySearchOrchestrator(
     },
 ) {
     private var searchJob: Job? = null
+    private var sectionRefreshJob: Job? = null
     private val queryVersion = AtomicLong(0L)
 
     // Track query prefixes that yielded no results to avoid redundant searches.
@@ -119,6 +120,44 @@ class SecondarySearchOrchestrator(
             return
         }
         performSecondarySearchesInternal(query)
+    }
+
+    /** Re-runs only [sections] after their data changed; a search still running restarts whole instead. */
+    fun refreshSections(query: String, sections: Set<SearchSection>) {
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isBlank()) return
+        if (!isOnMainThread()) return scope.launch(mainDispatcher) { refreshSections(query, sections) }.let {}
+        if (searchJob?.isActive == true) return performSecondarySearchesInternal(query)
+        val state = currentStateProvider()
+        val searched =
+            sections.filterTo(mutableSetOf()) { section ->
+                trimmedQuery.length >= SearchSectionRegistry.definitionFor(section).minimumQueryLength &&
+                    hasPermissionForSection(state, section) &&
+                    (section !in sectionManager.disabledSections || isSectionEnabledForTopMatches(state, section))
+            }
+        if (searched.isEmpty()) return
+        val config =
+            SearchSectionRegistry.secondarySearchDefinitions.associate { d ->
+                val search = d.section in searched
+                d.section to UnifiedSectionSearchConfig(search, search && state.fuzzySearchEnabled && supportsFuzzySecondarySearch(d.section))
+            }
+        val version = queryVersion.get()
+        sectionRefreshJob?.cancel()
+        sectionRefreshJob =
+            scope.launch(workerDispatcher) {
+                unifiedSearchHandler.performSearch(
+                    trimmedQuery, state.enabledFileTypes, config, state.showFolders, state.showSystemFiles,
+                    aliasSection = state.detectedAliasSearchSection?.takeIf { it in searched },
+                    sectionSearchDelayMillis = emptyMap(),
+                ) { result, recencyIndex ->
+                    if (result.section !in searched) return@performSearch
+                    withContext(mainDispatcher) {
+                        if (version != queryVersion.get()) return@withContext
+                        updateNoResultTracking(result.section, true, trimmedQuery, result.hasResults())
+                        uiStateUpdater { it.withSecondarySectionResult(result, recencyIndex) }
+                    }
+                }
+            }
     }
 
     private fun performSecondarySearchesInternal(query: String) {

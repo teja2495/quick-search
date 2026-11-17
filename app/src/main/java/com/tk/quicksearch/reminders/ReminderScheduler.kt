@@ -64,7 +64,11 @@ object ReminderScheduler {
         val now = System.currentTimeMillis()
         val repository = ReminderRepository(context)
         val snoozedUntil = repository.getSnoozedUntil()
-        repository.getAllReminders().forEach { schedule(context, it, now, snoozedUntil[it.reminderId]) }
+        repository.getAllReminders()
+            // Done reminders and past ones not snoozed past now have no alarm to set; skipping them
+            // saves two system calls each for a long reminder history.
+            .filter { !it.isDone && (it.dueMillis > now || (snoozedUntil[it.reminderId] ?: 0L) > now) }
+            .forEach { schedule(context, it, now, snoozedUntil[it.reminderId]) }
         ReminderRepository.notifyChanged()
     }
 

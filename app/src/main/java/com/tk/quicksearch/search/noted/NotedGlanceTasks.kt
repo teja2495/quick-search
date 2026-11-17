@@ -41,9 +41,23 @@ internal object NotedGlanceTasks {
         isTomorrowShown: Boolean,
     ): List<NotedGlanceTask> {
         if (!isShown || !isEnabled(context)) return emptyList()
+        return visibleAt(context, all(context), nowMillis, isTomorrowShown)
+    }
+
+    /**
+     * The tasks of [tasks] (from [all]) that At a Glance shows at [nowMillis], so a caller can read
+     * Noted once and re-filter as time passes. Reads only preferences.
+     */
+    fun visibleAt(
+        context: Context,
+        tasks: List<NotedGlanceTask>,
+        nowMillis: Long,
+        isTomorrowShown: Boolean,
+    ): List<NotedGlanceTask> {
+        if (tasks.isEmpty()) return emptyList()
         val showTomorrow = isTomorrowShown && GlanceTiming.isEvening(nowMillis)
         val hiddenUntil = ReminderPreferences(context).getNotedHiddenUntil()
-        return all(context).filter { task ->
+        return tasks.filter { task ->
             val reminder = task.reminder
             (hiddenUntil[task.item.id] ?: 0L) <= nowMillis &&
                 (!task.item.isDaysTrack || !reminder.isOverdue(nowMillis)) &&

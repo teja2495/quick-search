@@ -103,8 +103,8 @@ internal class SearchHistoryDelegate(
             val shortcutsByKey = appShortcutSearchHandler.getShortcutsByKeys(shortcutKeys)
             val appSettingsById = appSettingsSearchHandler.getSettingsByIds(appSettingIds)
             val notesById =
-                noteIds
-                    .mapNotNull { notesRepository.getNoteById(it) }
+                notesRepository
+                    .getNotesByIds(noteIds)
                     .filterNot { notesRepository.isQuickNote(it.noteId) }
                     .associateBy { it.noteId }
 
@@ -238,8 +238,8 @@ internal class SearchHistoryDelegate(
             val shortcutsByKey = appShortcutSearchHandler.getShortcutsByKeys(shortcutKeys)
             val appSettingsById = appSettingsSearchHandler.getSettingsByIds(appSettingIds)
             val notesById =
-                noteIds
-                    .mapNotNull { notesRepository.getNoteById(it) }
+                notesRepository
+                    .getNotesByIds(noteIds)
                     .filterNot { notesRepository.isQuickNote(it.noteId) }
                     .associateBy { it.noteId }
 

@@ -459,6 +459,9 @@ class UnifiedSearchHandler(
                                                                                         query = trimmedQuery,
                                                                                         includePastReminders =
                                                                                                 userPreferences.getIncludePastReminders(),
+                                                                                        resultLimit =
+                                                                                                if (aliasSection == SearchSection.REMINDERS) aliasResultLimit
+                                                                                                else ReminderRepository.SEARCH_RESULT_LIMIT,
                                                                                 ),
                                                                         )
                                                                 },
@@ -490,6 +493,9 @@ class UnifiedSearchHandler(
                                                                                         includeContent =
                                                                                                 aliasSection ==
                                                                                                         SearchSection.NOTES,
+                                                                                        resultLimit =
+                                                                                                if (aliasSection == SearchSection.NOTES) aliasResultLimit
+                                                                                                else NotesRepository.SEARCH_RESULT_LIMIT,
                                                                                 ).withoutQuickNoteWhileNoted(notesRepository),
                                                                         )
                                                                 },

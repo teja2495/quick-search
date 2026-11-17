@@ -184,8 +184,7 @@ class PinningHandler(
         val pinnedIds = userPreferences.getPinnedNoteIds()
         if (pinnedIds.isEmpty()) return emptyList()
         return notesRepository
-            .getAllNotes()
-            .filter { pinnedIds.contains(it.noteId) }
+            .getPinnedNotes()
             .sortedByPinnedOrder(userPreferences.getPinnedNoteOrder()) { it.noteId }
     }
 

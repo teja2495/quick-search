@@ -183,7 +183,8 @@ internal fun CompactQuickNoteWidget(
                     bodyInput =
                         it.copy(
                             annotatedString =
-                                NotesTextUtils.buildLinkHighlightedAnnotatedString(
+                                NotesTextUtils.updateLinkHighlightedAnnotatedString(
+                                    bodyInput.annotatedString,
                                     it.text,
                                     linkColor,
                                 ),

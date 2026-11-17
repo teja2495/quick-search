@@ -67,26 +67,98 @@ internal object NotesTextUtils {
 
     fun normalize(value: String): String = SearchTextNormalizer.normalizeForSearch(value.trim())
 
+    /** A detected link: [start] inclusive, [end] exclusive, and the URL it opens. */
+    internal data class LinkRange(val start: Int, val end: Int, val url: String)
+
     fun buildLinkHighlightedAnnotatedString(
         text: String,
         linkColor: Color,
+    ): AnnotatedString = linkAnnotatedString(text, findLinks(text), linkColor)
+
+    /**
+     * [newText] highlighted like [buildLinkHighlightedAnnotatedString], reusing the links of
+     * [previous] outside the edited lines so a keystroke scans only its own paragraph instead of the
+     * whole note. Links never span a line break, so the result matches a full rescan.
+     */
+    fun updateLinkHighlightedAnnotatedString(
+        previous: AnnotatedString,
+        newText: String,
+        linkColor: Color,
     ): AnnotatedString {
-        if (text.isEmpty()) return AnnotatedString("")
+        if (previous.spanStyles.any { it.item.color != linkColor }) {
+            return buildLinkHighlightedAnnotatedString(newText, linkColor)
+        }
+        if (previous.text == newText) return previous
+        val previousLinks =
+            previous
+                .getStringAnnotations(NOTE_LINK_ANNOTATION_TAG, 0, previous.length)
+                .map { LinkRange(it.start, it.end, it.item) }
+        val links = updateLinkRanges(previous.text, previousLinks, newText, ::findLinks)
+        return linkAnnotatedString(newText, links, linkColor)
+    }
+
+    /**
+     * The links of [newText], given [previousLinks] for [previousText]: links outside the lines the
+     * edit touched are kept (shifted past it), and only those lines are passed to [findLinks].
+     */
+    internal fun updateLinkRanges(
+        previousText: String,
+        previousLinks: List<LinkRange>,
+        newText: String,
+        findLinks: (String) -> List<LinkRange>,
+    ): List<LinkRange> {
+        if (previousText == newText) return previousLinks
+        val minLength = minOf(previousText.length, newText.length)
+        var prefix = 0
+        while (prefix < minLength && previousText[prefix] == newText[prefix]) prefix++
+        var suffix = 0
+        while (
+            suffix < minLength - prefix &&
+            previousText[previousText.length - 1 - suffix] == newText[newText.length - 1 - suffix]
+        ) {
+            suffix++
+        }
+        val delta = newText.length - previousText.length
+        val regionStart = if (prefix == 0) 0 else newText.lastIndexOf('\n', prefix - 1) + 1
+        val regionEnd =
+            newText.indexOf('\n', newText.length - suffix).let { if (it < 0) newText.length else it }
+        val previousRegionEnd = regionEnd - delta
+        val before = previousLinks.filter { it.end <= regionStart }
+        val after =
+            previousLinks
+                .filter { it.start >= previousRegionEnd }
+                .map { it.copy(start = it.start + delta, end = it.end + delta) }
+        val edited =
+            findLinks(newText.substring(regionStart, regionEnd))
+                .map { it.copy(start = it.start + regionStart, end = it.end + regionStart) }
+        return (before + edited + after).sortedBy { it.start }
+    }
+
+    private fun findLinks(text: String): List<LinkRange> {
+        if (text.isEmpty()) return emptyList()
         val s = SpannableString(text)
         LinkifyCompat.addLinks(
             s,
             Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES or Linkify.PHONE_NUMBERS,
         )
-        val spans = s.getSpans(0, s.length, URLSpan::class.java)
+        return s.getSpans(0, s.length, URLSpan::class.java).mapNotNull { span ->
+            val start = s.getSpanStart(span)
+            val end = s.getSpanEnd(span)
+            if (start >= 0 && end > start && end <= text.length) LinkRange(start, end, span.url) else null
+        }
+    }
+
+    private fun linkAnnotatedString(
+        text: String,
+        links: List<LinkRange>,
+        linkColor: Color,
+    ): AnnotatedString {
+        if (text.isEmpty()) return AnnotatedString("")
         return buildAnnotatedString {
             append(text)
-            for (span in spans) {
-                val start = s.getSpanStart(span)
-                val end = s.getSpanEnd(span)
-                if (start >= 0 && end > start && end <= text.length) {
-                    addStyle(SpanStyle(color = linkColor), start, end)
-                    addStringAnnotation(NOTE_LINK_ANNOTATION_TAG, span.url, start, end)
-                }
+            for (link in links) {
+                addStyle(SpanStyle(color = linkColor), link.start, link.end)
+                addStringAnnotation(NOTE_LINK_ANNOTATION_TAG, link.url, link.start, link.end)
             }
         }
     }
