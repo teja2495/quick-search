@@ -214,11 +214,7 @@ class UnifiedSearchHandler(
                                 if (canSearchFiles) userPreferences.getFolderBlacklistPatterns()
                                 else emptySet()
                         val recencyIndex =
-                                RecentResultRankingUtils.buildRecencyIndex(
-                                        userPreferences.getRecentResultOpens(),
-                                        userPreferences.getRecentResultOpenCounts(),
-                                        userPreferences.getRecentResultLastOpenedTimes(),
-                                )
+                                userPreferences.getRecentResultRecencyIndex()
                         val secondaryRankingSignal = userPreferences.getSecondaryRankingSignal()
 
                         AppSearchPerformanceLogger.logTiming(

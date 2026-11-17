@@ -103,12 +103,53 @@ class AliasHandler(
         val SEARCH_SECTION_ALIAS_IDS = SearchSectionRegistry.searchSectionAliasIds
     }
 
-    private var aliasCodes: Map<String, String> = emptyMap()
-    private var aliasEnabled: Map<String, Boolean> = emptyMap()
+    // Written from IO (startup load, setAlias) and read on Main per keystroke. Each map is
+    // replaced, never mutated, so readers always see a complete snapshot.
+    @Volatile private var aliasCodes: Map<String, String> = emptyMap()
+    @Volatile private var aliasEnabled: Map<String, Boolean> = emptyMap()
 
-    private var isInitialized = false
+    @Volatile private var isInitialized = false
+    private val loadLock = Any()
+
+    // PackageManager lookups are binder calls; resolve once per load and on resume, never per keystroke.
+    @Volatile private var taskerInstalled = false
+
+    @Volatile private var cachedPrefixAliases: CachedAliasMap<AliasTarget>? = null
+    @Volatile private var cachedSuffixAliases: CachedAliasMap<SearchTarget>? = null
+
+    /**
+     * Alias lookup tables keyed on every input they are built from. The inputs are immutable
+     * snapshots that are replaced on change, so a reference mismatch means the table is stale.
+     */
+    private class CachedAliasMap<T>(
+        val targets: List<SearchTarget>,
+        val aliasCodes: Map<String, String>,
+        val aliasEnabled: Map<String, Boolean>,
+        val hasLlmApiKey: Boolean,
+        val taskerInstalled: Boolean,
+        val aliases: Map<String, T>,
+    ) {
+        fun matches(
+            targets: List<SearchTarget>,
+            aliasCodes: Map<String, String>,
+            aliasEnabled: Map<String, Boolean>,
+            hasLlmApiKey: Boolean,
+            taskerInstalled: Boolean,
+        ): Boolean =
+            this.targets === targets &&
+                this.aliasCodes === aliasCodes &&
+                this.aliasEnabled === aliasEnabled &&
+                this.hasLlmApiKey == hasLlmApiKey &&
+                this.taskerInstalled == taskerInstalled
+    }
+
+    /** Re-checks whether Tasker is installed. Call off the main thread. */
+    fun refreshTaskerInstalled() {
+        taskerInstalled = isTaskerInstalled()
+    }
 
     private fun loadFromPreferences() {
+        taskerInstalled = isTaskerInstalled()
         val targets =
             searchTargetsProvider().ifEmpty {
                 SearchEngine.values().map { SearchTarget.Engine(it) }
@@ -168,7 +209,7 @@ class AliasHandler(
     }
 
     private fun loadTaskerIntentAliases() {
-        if (!isTaskerInstalled()) return
+        if (!taskerInstalled) return
         userPreferences.getTaskerIntentTools().forEach { tool ->
             val alias = userPreferences.getAliasCode(tool.id).orEmpty().trim()
             val normalized = if (isValidGeneralAliasCode(alias)) normalizeShortcutCodeInput(alias) else ""
@@ -207,15 +248,20 @@ class AliasHandler(
     }
 
     private fun ensureInitialized() {
-        if (!isInitialized) {
-            loadFromPreferences()
-            isInitialized = true
+        if (isInitialized) return
+        synchronized(loadLock) {
+            if (!isInitialized) {
+                loadFromPreferences()
+                isInitialized = true
+            }
         }
     }
 
     fun reloadFromPreferences(): ShortcutsState {
-        loadFromPreferences()
-        isInitialized = true
+        synchronized(loadLock) {
+            loadFromPreferences()
+            isInitialized = true
+        }
         return ShortcutsState(
             shortcutsEnabled = true,
             shortcutCodes = aliasCodes,
@@ -351,27 +397,62 @@ class AliasHandler(
         FEATURE_ALIAS_DEFINITIONS.firstOrNull { it.featureId == featureId }
 
     fun detectAliasAtStart(query: String): Pair<String, AliasTarget>? {
-        ensureInitialized()
         if (query.isBlank()) return null
+        // A leading alias needs a word followed by whitespace; skip building the table otherwise.
+        if (query.trimStart().none { it.isWhitespace() }) return null
+        ensureInitialized()
 
-        val aliases = mutableMapOf<String, AliasTarget>()
-        collectLeadingSearchTargetAliases(aliases)
-        collectLeadingFeatureAliases(aliases)
-        collectLeadingSectionAliases(aliases)
-        collectLeadingCustomToolAliases(aliases)
-        collectLeadingTaskerIntentAliases(aliases)
-        val match = AliasParser.detectPrefixAlias(query, aliases) ?: return null
+        val match = AliasParser.detectPrefixAlias(query, leadingAliases()) ?: return null
         return Pair(match.queryWithoutAlias, match.target)
     }
 
-    fun detectSearchEngineAliasAtEnd(query: String): Pair<String, SearchTarget>? {
-        ensureInitialized()
-        if (!userPreferences.isSearchEngineAliasSuffixEnabled()) return null
-        if (query.isBlank()) return null
+    private fun leadingAliases(): Map<String, AliasTarget> {
+        val targets = searchTargetsProvider()
+        val codes = aliasCodes
+        val enabled = aliasEnabled
+        val hasLlmApiKey = aiSearchHandler.hasLlmApiKeyCached()
+        val tasker = taskerInstalled
+        cachedPrefixAliases?.let { cached ->
+            if (cached.matches(targets, codes, enabled, hasLlmApiKey, tasker)) return cached.aliases
+        }
+        val aliases = mutableMapOf<String, AliasTarget>()
+        collectLeadingSearchTargetAliases(aliases, targets, hasLlmApiKey)
+        collectLeadingFeatureAliases(aliases)
+        collectLeadingSectionAliases(aliases, codes, enabled)
+        collectLeadingCustomToolAliases(aliases, codes, enabled)
+        collectLeadingTaskerIntentAliases(aliases, codes, enabled, tasker)
+        cachedPrefixAliases = CachedAliasMap(targets, codes, enabled, hasLlmApiKey, tasker, aliases)
+        return aliases
+    }
 
+    fun detectSearchEngineAliasAtEnd(query: String): Pair<String, SearchTarget>? {
+        if (query.isBlank()) return null
+        if (!userPreferences.isSearchEngineAliasSuffixEnabled()) return null
+        val requireTrailingSpace = userPreferences.isAliasTriggerAfterSpaceEnabled()
+        // The parser needs this trailing space too; skip building the table without it.
+        if (requireTrailingSpace && !query.last().isWhitespace()) return null
+        ensureInitialized()
+
+        val match = AliasParser.detectSuffixAlias(
+            query,
+            trailingAliases(),
+            requireTrailingSpace = requireTrailingSpace,
+        ) ?: return null
+        return Pair(match.queryWithoutAlias, match.target)
+    }
+
+    private fun trailingAliases(): Map<String, SearchTarget> {
+        val targetsSnapshot = searchTargetsProvider()
+        val codes = aliasCodes
+        val enabled = aliasEnabled
+        val hasLlmApiKey = aiSearchHandler.hasLlmApiKeyCached()
+        val tasker = taskerInstalled
+        cachedSuffixAliases?.let { cached ->
+            if (cached.matches(targetsSnapshot, codes, enabled, hasLlmApiKey, tasker)) return cached.aliases
+        }
         val aliases = mutableMapOf<String, SearchTarget>()
         val targets =
-            searchTargetsProvider().ifEmpty {
+            targetsSnapshot.ifEmpty {
                 SearchEngine.values().map { SearchTarget.Engine(it) }
             }
         for (target in targets) {
@@ -388,23 +469,23 @@ class AliasHandler(
             if (aliasCode.isEmpty()) continue
             aliases[aliasCode] = target
         }
-        val match = AliasParser.detectSuffixAlias(
-            query,
-            aliases,
-            requireTrailingSpace = userPreferences.isAliasTriggerAfterSpaceEnabled(),
-        ) ?: return null
-        return Pair(match.queryWithoutAlias, match.target)
+        cachedSuffixAliases = CachedAliasMap(targetsSnapshot, codes, enabled, hasLlmApiKey, tasker, aliases)
+        return aliases
     }
 
-    private fun collectLeadingSearchTargetAliases(aliases: MutableMap<String, AliasTarget>) {
+    private fun collectLeadingSearchTargetAliases(
+        aliases: MutableMap<String, AliasTarget>,
+        targetsSnapshot: List<SearchTarget>,
+        hasLlmApiKey: Boolean,
+    ) {
         val targets =
-            searchTargetsProvider().ifEmpty {
+            targetsSnapshot.ifEmpty {
                 SearchEngine.values().map { SearchTarget.Engine(it) }
             }
         for (target in targets) {
             if (target is SearchTarget.Engine &&
                 target.engine == SearchEngine.DIRECT_SEARCH &&
-                !aiSearchHandler.hasLlmApiKeyCached()
+                !hasLlmApiKey
             ) {
                 continue
             }
@@ -425,29 +506,44 @@ class AliasHandler(
         }
     }
 
-    private fun collectLeadingCustomToolAliases(aliases: MutableMap<String, AliasTarget>) {
-        aliasCodes.forEach { (id, alias) ->
-            if (id.startsWith("custom_tool:") && alias.isNotEmpty() && aliasEnabled[id] == true) {
+    private fun collectLeadingCustomToolAliases(
+        aliases: MutableMap<String, AliasTarget>,
+        codes: Map<String, String>,
+        enabled: Map<String, Boolean>,
+    ) {
+        codes.forEach { (id, alias) ->
+            if (id.startsWith("custom_tool:") && alias.isNotEmpty() && enabled[id] == true) {
                 aliases[alias.lowercase(Locale.getDefault())] = AliasTarget.Feature(id)
             }
         }
     }
 
-    private fun collectLeadingTaskerIntentAliases(aliases: MutableMap<String, AliasTarget>) {
-        if (!isTaskerInstalled()) return
-        aliasCodes.forEach { (id, alias) ->
-            if (id.startsWith("tasker_intent:") && alias.isNotEmpty() && aliasEnabled[id] == true) {
+    private fun collectLeadingTaskerIntentAliases(
+        aliases: MutableMap<String, AliasTarget>,
+        codes: Map<String, String>,
+        enabled: Map<String, Boolean>,
+        tasker: Boolean,
+    ) {
+        if (!tasker) return
+        codes.forEach { (id, alias) ->
+            if (id.startsWith("tasker_intent:") && alias.isNotEmpty() && enabled[id] == true) {
                 aliases[alias.lowercase(Locale.getDefault())] = AliasTarget.Feature(id)
             }
         }
     }
 
-    private fun collectLeadingSectionAliases(aliases: MutableMap<String, AliasTarget>) {
+    private fun collectLeadingSectionAliases(
+        aliases: MutableMap<String, AliasTarget>,
+        codes: Map<String, String>,
+        enabled: Map<String, Boolean>,
+    ) {
         SearchSectionRegistry.orderedDefinitions.forEach { definition ->
             putSectionAlias(
                 aliases = aliases,
                 aliasId = definition.aliasTargetId,
                 section = definition.section,
+                codes = codes,
+                enabled = enabled,
             )
         }
     }
@@ -456,9 +552,11 @@ class AliasHandler(
         aliases: MutableMap<String, AliasTarget>,
         aliasId: String,
         section: SearchSection,
+        codes: Map<String, String>,
+        enabled: Map<String, Boolean>,
     ) {
-        if (aliasEnabled[aliasId] != true) return
-        val aliasCode = aliasCodes[aliasId].orEmpty().lowercase(Locale.getDefault())
+        if (enabled[aliasId] != true) return
+        val aliasCode = codes[aliasId].orEmpty().lowercase(Locale.getDefault())
         if (aliasCode.isEmpty()) return
         aliases[aliasCode] = AliasTarget.Section(section)
     }

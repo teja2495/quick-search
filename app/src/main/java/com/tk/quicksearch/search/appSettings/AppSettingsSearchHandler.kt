@@ -5,7 +5,6 @@ import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination.EXCLUDED_ITEMS
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination.NICKNAMES
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination.TRIGGERS
-import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.search.utils.CachedSearchMatcher
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import com.tk.quicksearch.search.utils.SearchTextCache
@@ -73,14 +72,10 @@ class AppSettingsSearchHandler(
     }
 
     private fun getRecentSettingScores(): Map<String, Int> =
-        RecentResultRankingUtils
-            .buildRecencyIndex(userPreferences.getRecentResultOpens())
-            .appSettingScores
+        userPreferences.getRecentResultRecencyIndex().appSettingScores
 
     private fun getSettingOpenCounts(): Map<String, Int> =
-        RecentResultRankingUtils
-            .buildRecencyIndex(emptyList(), userPreferences.getRecentResultOpenCounts())
-            .appSettingOpenCounts
+        userPreferences.getRecentResultRecencyIndex().appSettingOpenCounts
 
     /**
      * Settings that apply to the current configuration. Each visibility flag is read at most once

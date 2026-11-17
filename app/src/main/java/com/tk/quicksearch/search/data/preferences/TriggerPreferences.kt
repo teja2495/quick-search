@@ -3,7 +3,9 @@ package com.tk.quicksearch.search.data.preferences
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import org.json.JSONObject
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicLong
 import android.content.Context
+import android.content.SharedPreferences
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
 
 data class ResultTrigger(
@@ -15,6 +17,10 @@ class TriggerPreferences(
     context: Context,
 ) : BasePreferences(context) {
     private val customizationStore = SearchCustomizationStore(context)
+
+    init {
+        registerTriggerIndexListener(customizationStore)
+    }
 
     /** Partitions every trigger category from one SharedPreferences snapshot. */
     fun getAllTriggerWordsById(): Map<String, String> {
@@ -99,6 +105,7 @@ class TriggerPreferences(
         val word = trigger?.word?.let(::normalizeWord).orEmpty()
         if (word.isBlank()) {
             customizationStore.putString(key, null)
+            invalidateTriggerWordIndex()
             return
         }
         val json =
@@ -106,6 +113,7 @@ class TriggerPreferences(
                 .put(KEY_WORD, word)
                 .put(KEY_AFTER_SPACE, trigger?.triggerAfterSpace == true)
         customizationStore.putString(key, json.toString())
+        invalidateTriggerWordIndex()
     }
 
     fun getAllAppTriggers(): Map<String, ResultTrigger> =
@@ -253,16 +261,33 @@ class TriggerPreferences(
         val normalizedQuery = normalizeWord(query)
         if (normalizedQuery.isBlank()) return emptySet()
 
-        return customizationStore.snapshot().mapNotNull { (key, value) ->
-            if (!key.startsWith(prefix)) return@mapNotNull null
-            if (excludedPrefix != null && key.startsWith(excludedPrefix)) return@mapNotNull null
-            val trigger = readTriggerValue(value) ?: return@mapNotNull null
-            if (normalizeWord(trigger.word) == normalizedQuery) {
-                parseId(key.removePrefix(prefix))
-            } else {
-                null
+        return triggerWordIndex().mapNotNullTo(LinkedHashSet()) { (key, normalizedWord) ->
+            if (normalizedWord != normalizedQuery) return@mapNotNullTo null
+            if (!key.startsWith(prefix)) return@mapNotNullTo null
+            if (excludedPrefix != null && key.startsWith(excludedPrefix)) return@mapNotNullTo null
+            parseId(key.removePrefix(prefix))
+        }
+    }
+
+    /**
+     * Every stored trigger as (preference key, normalized word). Searches look triggers up on each
+     * query; this avoids copying the whole customization store (nicknames and aliases included)
+     * and re-normalizing every word each time. Rebuilt after any trigger write.
+     */
+    private fun triggerWordIndex(): List<Pair<String, String>> {
+        // Read the version before the data so a concurrent write always forces a rebuild later.
+        val version = triggerIndexVersion.get()
+        cachedTriggerWordIndex?.let { (cachedVersion, index) ->
+            if (cachedVersion == version) return index
+        }
+        val index =
+            customizationStore.snapshot().mapNotNull { (key, value) ->
+                if (!key.startsWith(KEY_TRIGGER_COMMON_PREFIX)) return@mapNotNull null
+                val trigger = readTriggerValue(value) ?: return@mapNotNull null
+                key to normalizeWord(trigger.word)
             }
-        }.toSet()
+        cachedTriggerWordIndex = version to index
+        return index
     }
 
     private fun contactActionTriggerKey(
@@ -276,6 +301,35 @@ class TriggerPreferences(
     private companion object {
         const val MAX_PARSED_TRIGGERS = 512
         val parsedTriggers = ConcurrentHashMap<String, ParsedTrigger>()
+
+        // Process-wide: every instance reads the same customization store.
+        val triggerIndexVersion = AtomicLong()
+
+        @Volatile
+        var cachedTriggerWordIndex: Pair<Long, List<Pair<String, String>>>? = null
+
+        fun invalidateTriggerWordIndex() {
+            triggerIndexVersion.incrementAndGet()
+        }
+
+        // SharedPreferences holds listeners weakly, so keep a strong reference here. It catches
+        // trigger writes that bypass writeTrigger, such as a settings import.
+        val triggerIndexListener =
+            SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                if (key == null || key.startsWith(KEY_TRIGGER_COMMON_PREFIX)) invalidateTriggerWordIndex()
+            }
+
+        @Volatile
+        var triggerIndexListenerRegistered = false
+
+        fun registerTriggerIndexListener(store: SearchCustomizationStore) {
+            if (triggerIndexListenerRegistered) return
+            synchronized(this) {
+                if (triggerIndexListenerRegistered) return
+                store.registerChangeListener(triggerIndexListener)
+                triggerIndexListenerRegistered = true
+            }
+        }
 
         // Shared by every BasePreferences.KEY_TRIGGER_*_PREFIX.
         const val KEY_TRIGGER_COMMON_PREFIX = "trigger_"

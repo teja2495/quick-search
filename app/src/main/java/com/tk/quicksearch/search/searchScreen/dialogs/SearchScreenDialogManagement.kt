@@ -195,8 +195,11 @@ internal fun SearchScreenDialogs(
     }
 
     triggerDialogState?.let { dialogState ->
-        val allTriggerWords = getAllTriggerWordsById()
-        val allAliasWords = getAllAliasWordsById()
+        // Both scan the whole customization store; read once per dialog, not per recomposition.
+        val allTriggerWords =
+            androidx.compose.runtime.remember(dialogState, getAllTriggerWordsById) { getAllTriggerWordsById() }
+        val allAliasWords =
+            androidx.compose.runtime.remember(dialogState, getAllAliasWordsById) { getAllAliasWordsById() }
         when (dialogState) {
             is TriggerDialogState.App ->
                 TriggerDialog(

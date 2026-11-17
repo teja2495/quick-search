@@ -162,6 +162,9 @@ internal class SearchHistoryDelegate(
                         }
                     }
                 }
+            // The lookups above block without suspending, so a replaced refresh still reaches
+            // here; drop it rather than overwrite the newer one's result.
+            ensureActive()
             updateResultsState { it.copy(recentItems = items) }
             StartupTrace.mark("QS.Home.SearchHistoryAvailable")
         }

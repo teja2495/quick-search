@@ -22,6 +22,10 @@ internal class SearchCustomizationStore(context: Context) {
 
     fun snapshot(): Map<String, *> = indexedPrefs.all.filterKeys { it != KEY_SCHEMA_VERSION }
 
+    fun registerChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {
+        indexedPrefs.registerOnSharedPreferenceChangeListener(listener)
+    }
+
     fun getString(key: String): String? =
         indexedPrefs.getString(key, null) ?: legacyPrefs.getString(key, null)?.also { value ->
             indexedPrefs.edit().putString(key, value).apply()

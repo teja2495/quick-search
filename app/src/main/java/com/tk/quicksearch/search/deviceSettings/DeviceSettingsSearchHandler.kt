@@ -4,7 +4,6 @@ import android.content.Context
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
-import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.search.utils.CachedSearchMatcher
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import com.tk.quicksearch.search.utils.SearchTextCache
@@ -191,14 +190,10 @@ class DeviceSettingsSearchHandler(
     }
 
     private fun getRecentSettingScores(): Map<String, Int> =
-        RecentResultRankingUtils
-            .buildRecencyIndex(userPreferences.getRecentResultOpens())
-            .settingScores
+        userPreferences.getRecentResultRecencyIndex().settingScores
 
     private fun getSettingOpenCounts(): Map<String, Int> =
-        RecentResultRankingUtils
-            .buildRecencyIndex(emptyList(), userPreferences.getRecentResultOpenCounts())
-            .settingOpenCounts
+        userPreferences.getRecentResultRecencyIndex().settingOpenCounts
 }
 
 private fun <T, K> List<T>.sortedByPinnedOrder(

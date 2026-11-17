@@ -260,6 +260,8 @@ internal class SearchStartupLifecycleDelegate(
                     loadPinnedAndExcludedCalendarEvents()
                 }
             refreshAppUsageMetadata()
+            // Tasker can be uninstalled while the app is in the background.
+            scope.launch(Dispatchers.IO) { aliasHandler.refreshTaskerInstalled() }
         }
 
         val now = System.currentTimeMillis()

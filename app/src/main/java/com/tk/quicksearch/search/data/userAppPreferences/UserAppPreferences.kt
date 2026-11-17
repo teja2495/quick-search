@@ -280,6 +280,9 @@ class UserAppPreferences(context: Context) : UserAppPreferencesFeatures(context)
     fun getRecentResultOpens(): List<com.tk.quicksearch.search.searchHistory.RecentSearchEntry> =
             recentResultOpensPreferences.getRecentResultOpens()
 
+    fun getRecentResultRecencyIndex(): com.tk.quicksearch.search.utils.RecentResultRankingUtils.RecencyIndex =
+        recentResultOpensPreferences.getRecencyIndex()
+
     fun getRecentResultOpenCounts(): Map<String, Int> =
         recentResultOpensPreferences.getRecentResultOpenCounts()
 

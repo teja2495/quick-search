@@ -8,6 +8,8 @@ data class ParsedAliasMatch<T>(
 )
 
 internal object AliasParser {
+    private val WHITESPACE_REGEX = Regex("\\s+")
+
     fun <T> detectSuffixAlias(
         query: String,
         aliases: Map<String, T>,
@@ -24,7 +26,7 @@ internal object AliasParser {
         val words =
             queryWithoutTrailingWhitespace
                 .trimStart()
-                .split("\\s+".toRegex())
+                .split(WHITESPACE_REGEX)
                 .filter { it.isNotEmpty() }
         if (words.size < 2) return null
         val suffix = words.last().lowercase(Locale.getDefault())

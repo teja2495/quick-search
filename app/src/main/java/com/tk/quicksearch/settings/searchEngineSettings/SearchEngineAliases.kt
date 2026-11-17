@@ -58,14 +58,15 @@ internal fun AliasCodeDisplay(
 ) {
     var showDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val existingTriggerWords =
-        remember(context) {
-            UserAppPreferences(context).getAllTriggerWordsById().values.toList()
-        }
     val isCustomEngine = currentShortcutId?.startsWith("custom:") == true
     val allowAliasDialog = !isCustomEngine
 
     if (showDialog && onCodeChange != null && allowAliasDialog) {
+        // Read only while the dialog is open: settings lists compose one row per engine and tool.
+        val existingTriggerWords =
+            remember(context) {
+                UserAppPreferences(context).getAllTriggerWordsById().values.toList()
+            }
         AddEditAliasDialog(
             currentCode = shortcutCode,
             existingShortcuts = existingShortcuts,

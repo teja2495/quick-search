@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -281,6 +282,8 @@ fun SearchHistorySection(
                     val baseShowDivider =
                         !segmented &&
                             (index < displayItems.lastIndex || showClearAllHistory || showMoreHistoryDivider)
+                    // Keyed so deleting a row doesn't shift remembered row state onto its neighbours.
+                    key(item.entry.stableKey) {
                     ResultSegment(index = firstRowSegment + index, count = segmentCount) {
                     RecentSearchItemRow(
                         item = item,
@@ -317,6 +320,7 @@ fun SearchHistorySection(
                         showWallpaperBackground = showWallpaperBackground,
                         overlayDividerColor = overlayDividerColor,
                     )
+                    }
                     }
                 }
 

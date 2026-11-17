@@ -8,7 +8,6 @@ import com.tk.quicksearch.search.data.appShortcutRepository.isUserCreatedShortcu
 import com.tk.quicksearch.search.data.appShortcutRepository.removeSystemShortcutsForPackage
 import com.tk.quicksearch.search.data.appShortcutRepository.shortcutDisplayName
 import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
-import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.search.utils.CachedSearchMatcher
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import com.tk.quicksearch.search.utils.SearchTextCache
@@ -244,14 +243,10 @@ class AppShortcutSearchHandler(
     }
 
     private fun getRecentShortcutScores(): Map<String, Int> =
-        RecentResultRankingUtils
-            .buildRecencyIndex(userPreferences.getRecentResultOpens())
-            .appShortcutScores
+        userPreferences.getRecentResultRecencyIndex().appShortcutScores
 
     private fun getShortcutOpenCounts(): Map<String, Int> =
-        RecentResultRankingUtils
-            .buildRecencyIndex(emptyList(), userPreferences.getRecentResultOpenCounts())
-            .appShortcutOpenCounts
+        userPreferences.getRecentResultRecencyIndex().appShortcutOpenCounts
 
     private fun normalizeShortcuts(shortcuts: List<StaticShortcut>): List<StaticShortcut> {
         // Chrome/Brave shortcuts are only reliable when served by LauncherApps as the default Home app.
