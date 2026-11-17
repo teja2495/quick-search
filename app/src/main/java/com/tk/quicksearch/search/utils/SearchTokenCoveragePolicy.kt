@@ -43,7 +43,8 @@ object SearchTokenCoveragePolicy {
         )
     }
 
-    private fun areAllTokensCoveredNormalized(
+    /** Same check over text already passed through [SearchTextNormalizer.normalizeForSearch]. */
+    fun areAllTokensCoveredNormalized(
         query: SearchQueryContext,
         normalizedPrimary: String,
         normalizedSupporting: String?,

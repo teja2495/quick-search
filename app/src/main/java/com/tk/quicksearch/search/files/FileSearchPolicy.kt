@@ -61,4 +61,30 @@ object FileSearchPolicy {
             fuzzyMaxEditDistance = fuzzyMaxEditDistance,
         )
     }
+
+    /**
+     * Same result as [areAllQueryTokensCovered], with [normalize] standing in for
+     * [com.tk.quicksearch.search.utils.SearchTextNormalizer.normalizeForSearch] so callers can reuse
+     * normalized names across keystrokes.
+     */
+    fun areAllQueryTokensCovered(
+        query: SearchQueryContext,
+        displayName: String,
+        nickname: String?,
+        fuzzyMinScore: Int,
+        fuzzyMaxEditDistance: Int,
+        normalize: (String) -> String,
+    ): Boolean {
+        if (query.tokens.size <= 1) return true
+        return SearchTokenCoveragePolicy.areAllTokensCoveredNormalized(
+            query = query,
+            normalizedPrimary = normalize(displayName),
+            normalizedSupporting =
+                NicknameUtils.searchText(nickname)
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let(normalize),
+            fuzzyMinScore = fuzzyMinScore,
+            fuzzyMaxEditDistance = fuzzyMaxEditDistance,
+        )
+    }
 }

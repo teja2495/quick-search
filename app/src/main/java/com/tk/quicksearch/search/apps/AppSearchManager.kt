@@ -217,6 +217,7 @@ class AppSearchManager(
         cachedApps = remainingApps
         val remainingKeys = remainingApps.mapTo(mutableSetOf()) { it.launchCountKey() }
         preparedAppSearchData = preparedAppSearchData.filterKeys(remainingKeys::contains)
+        fuzzySearchStrategy.clearCaches()
         noMatchPrefix = null
         onAppsUpdated()
         return true
@@ -330,6 +331,8 @@ class AppSearchManager(
 
     fun refreshNicknames() {
         cachedAppNicknames = userPreferences.getAllAppNicknames()
+        // Entries keyed by old nickname text would otherwise linger until the next catalog rebuild.
+        fuzzySearchStrategy.clearCaches()
     }
 
     fun deriveMatches(
@@ -345,10 +348,10 @@ class AppSearchManager(
             appNicknames = cachedAppNicknames,
             secondaryRankingSignal = userPreferences.getSecondaryRankingSignal(),
             matcher = searchMatcher,
-            preparedAppData = preparedAppSearchData,
+            preparedAppData = preparedAppSearchDataForQuery(),
         )
 
-    /** Query-path variant; runs off the main thread, so it may build missing prepared data. */
+    /** Query-path variant used by the debounced keystroke search. */
     fun deriveMatches(
         queryContext: SearchQueryContext,
         source: List<AppInfo>,
@@ -369,7 +372,8 @@ class AppSearchManager(
 
     /**
      * Until the background rebuild after [initCache] lands, build the prepared data once here
-     * instead of letting every keystroke recompute initials and abbreviations for every app.
+     * instead of letting every keystroke (or derived-state refresh) recompute initials and
+     * abbreviations for every app.
      */
     private fun preparedAppSearchDataForQuery(): Map<String, PreparedAppSearchData> {
         val current = preparedAppSearchData

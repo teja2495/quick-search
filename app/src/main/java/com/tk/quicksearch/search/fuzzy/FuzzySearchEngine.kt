@@ -94,10 +94,14 @@ class FuzzySearchEngine {
 
         for (token in tokens) {
             if (token.length < queryLength) continue
-            val tokenPrefix = token.substring(0, queryLength)
+            // Compares against the token's prefix in place instead of allocating a substring.
             if (
-                levenshteinDistance(normalizedQuery, tokenPrefix) <=
-                    SHORT_QUERY_PREFIX_MAX_EDIT_DISTANCE
+                FuzzyMatcher.isWithinEditDistance(
+                    first = normalizedQuery,
+                    second = token,
+                    secondLength = queryLength,
+                    maxDistance = SHORT_QUERY_PREFIX_MAX_EDIT_DISTANCE,
+                )
             ) {
                 return SHORT_QUERY_PREFIX_TYPO_SCORE
             }
@@ -121,45 +125,5 @@ class FuzzySearchEngine {
         }
 
         return 0
-    }
-
-    private fun levenshteinDistance(
-        first: String,
-        second: String,
-    ): Int {
-        if (first == second) return 0
-        if (first.isEmpty()) return second.length
-        if (second.isEmpty()) return first.length
-
-        var shorter = first
-        var longer = second
-        if (shorter.length > longer.length) {
-            shorter = second
-            longer = first
-        }
-
-        val shorterLength = shorter.length
-        var previous = IntArray(shorterLength + 1) { it }
-        var current = IntArray(shorterLength + 1)
-
-        for (longIndex in 1..longer.length) {
-            current[0] = longIndex
-            val longChar = longer[longIndex - 1]
-
-            for (shortIndex in 1..shorterLength) {
-                val substitutionCost = if (shorter[shortIndex - 1] == longChar) 0 else 1
-                val insertion = current[shortIndex - 1] + 1
-                val deletion = previous[shortIndex] + 1
-                val substitution = previous[shortIndex - 1] + substitutionCost
-
-                current[shortIndex] = minOf(insertion, deletion, substitution)
-            }
-
-            val swap = previous
-            previous = current
-            current = swap
-        }
-
-        return previous[shorterLength]
     }
 }

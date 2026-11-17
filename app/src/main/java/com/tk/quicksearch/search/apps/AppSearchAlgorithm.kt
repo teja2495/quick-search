@@ -73,38 +73,98 @@ object AppSearchAlgorithm {
             } else {
                 0
             }
-        var fuzzyCandidatesScored = 0
-
         val searchBlock = {
-            source
-                .asSequence()
-                .mapNotNull { app ->
-                    // A newer keystroke cancels this search; stop instead of finishing the scan.
-                    ensureActive()
-                    calculateAppMatch(
-                        app = app,
-                        queryContext = queryContext,
-                        fuzzySearchStrategy = fuzzySearchStrategy,
-                        preparedFuzzyQuery = preparedFuzzyQuery,
-                        preparedTokenQueries = preparedTokenQueries,
-                        appNicknames = appNicknames,
+            val matches = ArrayList<AppMatch>()
+            // Apps with no exact match, in source order, kept for the fuzzy pass.
+            val fuzzyPending = if (canUseFuzzySearch) ArrayList<FuzzyCandidate>() else null
+            for (app in source) {
+                // A newer keystroke cancels this search; stop instead of finishing the scan.
+                ensureActive()
+                val appKey = app.launchCountKey()
+                // Archived apps keep their nickname, but it only matches again once they're restored.
+                val nickname = if (app.isArchived) null else appNicknames[appKey]
+                val appData = preparedAppData[appKey] ?: PreparedAppSearchData.from(app)
+                val priority =
+                    AppSearchPolicy.matchPriority(
+                        appName = app.appName,
+                        searchAliases = app.searchAliases,
+                        nickname = nickname,
+                        query = queryContext,
+                        initials = appData.initials,
+                        abbreviationTargets = appData.abbreviationTargets,
                         matcher = matcher,
-                        preparedAppData =
-                            preparedAppData[app.launchCountKey()] ?: PreparedAppSearchData.from(app),
-                        hasFuzzyBudget = { fuzzyCandidatesScored < fuzzyCandidateLimit },
-                        canScoreFuzzyCandidate = {
-                            if (fuzzyCandidatesScored >= fuzzyCandidateLimit) {
-                                false
-                            } else {
-                                fuzzyCandidatesScored += 1
-                                true
-                            }
-                        },
                     )
-                }.sortedWith(createAppComparator(secondaryRankingSignal))
-                .map { it.app }
-                .take(limit)
-                .toList()
+                if (AppSearchPolicy.hasMatch(priority)) {
+                    if (
+                        AppSearchPolicy.areAllQueryTokensCovered(
+                            queryContext,
+                            preparedTokenQueries,
+                            app.appName,
+                            app.searchAliases,
+                            nickname,
+                            appData.initials,
+                            fuzzySearchStrategy,
+                        )
+                    ) {
+                        matches.add(AppMatch(app, priority, 0, false, app.appName.lowercase(Locale.getDefault())))
+                    }
+                } else {
+                    fuzzyPending?.add(FuzzyCandidate(app, appKey, nickname, appData.initials))
+                }
+            }
+
+            // Exact matches always sort ahead of fuzzy ones, so once they fill the limit no fuzzy
+            // match can be shown and the typo checks below would be wasted work.
+            if (fuzzyPending != null && matches.size < limit) {
+                var fuzzyCandidatesScored = 0
+                for (candidate in fuzzyPending) {
+                    ensureActive()
+                    // Once the fuzzy budget is spent no further candidate can score.
+                    if (fuzzyCandidatesScored >= fuzzyCandidateLimit) break
+                    val match =
+                        fuzzySearchStrategy.scoreTypoCandidate(
+                            preparedQuery = preparedFuzzyQuery,
+                            app = candidate.app,
+                            appKey = candidate.appKey,
+                            nickname = candidate.nickname,
+                            initials = candidate.initials,
+                            canScore = {
+                                if (fuzzyCandidatesScored >= fuzzyCandidateLimit) {
+                                    false
+                                } else {
+                                    fuzzyCandidatesScored += 1
+                                    true
+                                }
+                            },
+                        ) ?: continue
+                    if (
+                        AppSearchPolicy.areAllQueryTokensCovered(
+                            queryContext,
+                            preparedTokenQueries,
+                            candidate.app.appName,
+                            candidate.app.searchAliases,
+                            candidate.nickname,
+                            candidate.initials,
+                            fuzzySearchStrategy,
+                        )
+                    ) {
+                        matches.add(
+                            AppMatch(
+                                candidate.app,
+                                match.priority,
+                                match.score,
+                                true,
+                                candidate.app.appName.lowercase(Locale.getDefault()),
+                            ),
+                        )
+                    }
+                }
+            }
+
+            // Stable sort: exact and fuzzy matches never compare equal, so collecting them in two
+            // passes yields the same order as the former single interleaved pass.
+            matches.sortWith(createAppComparator(secondaryRankingSignal))
+            matches.asSequence().map { it.app }.take(limit).toList()
         }
 
         if (!canUseFuzzySearch) return searchBlock()
@@ -117,6 +177,13 @@ object AppSearchAlgorithm {
         )
     }
 
+    private class FuzzyCandidate(
+        val app: AppInfo,
+        val appKey: String,
+        val nickname: String?,
+        val initials: List<String>,
+    )
+
     private data class AppMatch(
         val app: AppInfo,
         val priority: Int,
@@ -124,78 +191,6 @@ object AppSearchAlgorithm {
         val isFuzzy: Boolean,
         val alphabeticalKey: String,
     )
-
-    private fun calculateAppMatch(
-        app: AppInfo,
-        queryContext: SearchQueryContext,
-        fuzzySearchStrategy: FuzzyAppSearchStrategy,
-        preparedFuzzyQuery: PreparedAppFuzzyQuery,
-        preparedTokenQueries: Map<String, PreparedAppFuzzyQuery>,
-        appNicknames: Map<String, String>,
-        matcher: SearchMatcher,
-        preparedAppData: PreparedAppSearchData,
-        hasFuzzyBudget: () -> Boolean,
-        canScoreFuzzyCandidate: () -> Boolean,
-    ): AppMatch? {
-        // Archived apps keep their nickname, but it only matches again once they're restored.
-        val nickname = if (app.isArchived) null else appNicknames[app.launchCountKey()]
-        val initials = preparedAppData.initials
-        val priority =
-            AppSearchPolicy.matchPriority(
-                appName = app.appName,
-                searchAliases = app.searchAliases,
-                nickname = nickname,
-                query = queryContext,
-                initials = initials,
-                abbreviationTargets = preparedAppData.abbreviationTargets,
-                matcher = matcher,
-            )
-        if (AppSearchPolicy.hasMatch(priority)) {
-            if (
-                !AppSearchPolicy.areAllQueryTokensCovered(
-                    queryContext,
-                    preparedTokenQueries,
-                    app.appName,
-                    app.searchAliases,
-                    nickname,
-                    initials,
-                    fuzzySearchStrategy,
-                )
-            ) {
-                return null
-            }
-            return AppMatch(app, priority, 0, false, app.appName.lowercase(Locale.getDefault()))
-        }
-
-        // Once the fuzzy budget is spent no further candidate can score, so skip the typo checks.
-        if (!hasFuzzyBudget()) return null
-
-        val match =
-            fuzzySearchStrategy.scoreTypoCandidate(
-                preparedQuery = preparedFuzzyQuery,
-                app = app,
-                nickname = nickname,
-                initials = initials,
-                canScore = canScoreFuzzyCandidate,
-            )
-
-        return match?.let {
-            if (
-                !AppSearchPolicy.areAllQueryTokensCovered(
-                    queryContext,
-                    preparedTokenQueries,
-                    app.appName,
-                    app.searchAliases,
-                    nickname,
-                    initials,
-                    fuzzySearchStrategy,
-                )
-            ) {
-                return null
-            }
-            AppMatch(app, it.priority, it.score, true, app.appName.lowercase(Locale.getDefault()))
-        }
-    }
 
     private fun createAppComparator(secondaryRankingSignal: SecondaryRankingSignal): Comparator<AppMatch> {
         return Comparator { first, second ->

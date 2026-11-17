@@ -50,6 +50,24 @@ internal class UnifiedResultRanker(private val userPreferences: UserAppPreferenc
         private companion object {
                 const val CONTACT_FUZZY_CANDIDATE_BUFFER_MULTIPLIER = 10
                 const val FILE_FUZZY_CANDIDATE_BUFFER_MULTIPLIER = 10
+                const val FILE_NORMALIZED_NAME_CACHE_MAX_ENTRIES = 2_000
+        }
+
+        /**
+         * Normalized file names and nicknames for fuzzy scoring. Files repeat across keystrokes, so
+         * this avoids re-running Unicode normalization and regex replacement for each one. Cleared
+         * when it grows past its cap so it stays bounded.
+         */
+        private val normalizedFileTexts = java.util.concurrent.ConcurrentHashMap<String, String>()
+
+        private fun normalizeFileText(text: String): String {
+                normalizedFileTexts[text]?.let { return it }
+                if (normalizedFileTexts.size >= FILE_NORMALIZED_NAME_CACHE_MAX_ENTRIES) {
+                        normalizedFileTexts.clear()
+                }
+                val normalized = SearchTextNormalizer.normalizeForSearch(text)
+                normalizedFileTexts[text] = normalized
+                return normalized
         }
 
         internal fun filterAndRankContacts(
@@ -240,13 +258,8 @@ internal class UnifiedResultRanker(private val userPreferences: UserAppPreferenc
                                 .mapNotNull { file ->
                                         val uriString = file.uri.toString()
                                         val nickname = fileNicknames[uriString]
-                                        val normalizedName =
-                                                SearchTextNormalizer.normalizeForSearch(
-                                                        file.displayName
-                                                )
-                                        val normalizedNickname =
-                                                nickname
-                                                        ?.let { SearchTextNormalizer.normalizeForSearch(it) }
+                                        val normalizedName = normalizeFileText(file.displayName)
+                                        val normalizedNickname = nickname?.let(::normalizeFileText)
                                         val fuzzyScore =
                                                 FuzzyMatcher.score(
                                                         query = queryContext.normalizedQuery,
@@ -263,6 +276,7 @@ internal class UnifiedResultRanker(private val userPreferences: UserAppPreferenc
                                                         nickname = nickname,
                                                         fuzzyMinScore = fuzzyMinScore,
                                                         fuzzyMaxEditDistance = fuzzyMaxEditDistance,
+                                                        normalize = ::normalizeFileText,
                                                 )
                                         ) {
                                                 null

@@ -39,11 +39,21 @@ class FuzzyAppSearchStrategy(
 ) : BaseFuzzySearchStrategy<AppInfo>() {
     private val subsequenceCache = AppNameSubsequence.Cache()
     private val editDistanceTokenCache = ConcurrentHashMap<String, List<String>>()
+    private val alternateNamesCache = ConcurrentHashMap<String, AlternateNamesEntry>()
+
+    /** Joined alternate names for one app, reused while its inputs are the same instances. */
+    private class AlternateNamesEntry(
+        val searchAliases: List<String>,
+        val nickname: String?,
+        val initials: List<String>,
+        val value: String?,
+    )
 
     /** Drops cached per-name data, e.g. for apps that are no longer installed. */
     internal fun clearCaches() {
         subsequenceCache.clear()
         editDistanceTokenCache.clear()
+        alternateNamesCache.clear()
     }
 
     /**
@@ -152,12 +162,13 @@ class FuzzyAppSearchStrategy(
     internal fun scoreTypoCandidate(
         preparedQuery: PreparedAppFuzzyQuery,
         app: AppInfo,
+        appKey: String,
         nickname: String?,
         initials: List<String>,
         canScore: () -> Boolean,
     ): FuzzySearchStrategy.Match<AppInfo>? {
         if (!preparedQuery.policy.enabled) return null
-        val alternateNames = buildAlternateNames(app.searchAliases, nickname, initials)
+        val alternateNames = cachedAlternateNames(appKey, app.searchAliases, nickname, initials)
         var subsequenceScore = -1
         if (!isWithinTypoTolerance(preparedQuery, app.appName, alternateNames)) {
             subsequenceScore = computeSubsequenceScore(preparedQuery, app.appName, app.searchAliases, nickname)
@@ -238,6 +249,31 @@ class FuzzyAppSearchStrategy(
         if (!policy.enabled) return false
         val score = computeScore(preparedToken, appName, alternateNames)
         return score >= policy.minimumScore && isWithinTypoTolerance(preparedToken, appName, alternateNames)
+    }
+
+    /**
+     * Same value as [buildAlternateNames], but reused across keystrokes. The aliases, nickname and
+     * initials come from the catalog, nickname map and prepared app data, which keep the same
+     * instances until they change, so an identity check is enough to detect a stale entry.
+     */
+    private fun cachedAlternateNames(
+        appKey: String,
+        searchAliases: List<String>,
+        nickname: String?,
+        initials: List<String>,
+    ): String? {
+        val cached = alternateNamesCache[appKey]
+        if (
+            cached != null &&
+            cached.searchAliases === searchAliases &&
+            cached.nickname === nickname &&
+            cached.initials === initials
+        ) {
+            return cached.value
+        }
+        val value = buildAlternateNames(searchAliases, nickname, initials)
+        alternateNamesCache[appKey] = AlternateNamesEntry(searchAliases, nickname, initials, value)
+        return value
     }
 
     private fun buildAlternateNames(

@@ -26,16 +26,7 @@ object FuzzyMatcher {
         val trimmedTarget = target.trim()
         if (trimmedQuery.isEmpty() || trimmedTarget.isEmpty()) return 0
         if (trimmedQuery == trimmedTarget) return 100
-        if (maxEditDistance != null &&
-            !hasTokenWithinEditDistance(
-                query = trimmedQuery,
-                target = trimmedTarget,
-                maxDistance = maxEditDistance,
-            )
-        ) {
-            return 0
-        }
-        return tokenSetRatio(trimmedQuery, trimmedTarget)
+        return scoreTrimmed(trimmedQuery, tokenizeUnique(trimmedQuery), trimmedTarget, maxEditDistance)
     }
 
     /**
@@ -47,11 +38,46 @@ object FuzzyMatcher {
         secondaryTarget: String?,
         maxEditDistance: Int? = null,
     ): Int {
-        var bestScore = score(query, primaryTarget, maxEditDistance)
-        if (!secondaryTarget.isNullOrBlank()) {
-            bestScore = maxOf(bestScore, score(query, secondaryTarget, maxEditDistance))
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isEmpty()) return 0
+        // Tokenize the query at most once for both targets.
+        var queryTokens: Tokens? = null
+        var bestScore = 0
+        for (target in arrayOf(primaryTarget, secondaryTarget)) {
+            if (target == null || (target !== primaryTarget && target.isBlank())) continue
+            val trimmedTarget = target.trim()
+            val targetScore =
+                when {
+                    trimmedTarget.isEmpty() -> 0
+                    trimmedQuery == trimmedTarget -> 100
+                    else -> {
+                        val tokens = queryTokens ?: tokenizeUnique(trimmedQuery).also { queryTokens = it }
+                        scoreTrimmed(trimmedQuery, tokens, trimmedTarget, maxEditDistance)
+                    }
+                }
+            bestScore = maxOf(bestScore, targetScore)
         }
         return bestScore
+    }
+
+    /** Scores already-trimmed, non-empty, unequal texts, tokenizing each side only once. */
+    private fun scoreTrimmed(
+        trimmedQuery: String,
+        queryTokens: Tokens,
+        trimmedTarget: String,
+        maxEditDistance: Int?,
+    ): Int {
+        val targetTokens = tokenizeUnique(trimmedTarget)
+        if (maxEditDistance != null &&
+            !hasTokenWithinEditDistance(
+                queryTokens = queryTokens.ordered,
+                targetTokens = targetTokens.ordered,
+                maxDistance = maxEditDistance,
+            )
+        ) {
+            return 0
+        }
+        return tokenSetRatio(trimmedQuery, queryTokens, trimmedTarget, targetTokens)
     }
 
     /**
@@ -125,10 +151,10 @@ object FuzzyMatcher {
 
     private fun tokenSetRatio(
         query: String,
+        queryTokens: Tokens,
         target: String,
+        targetTokens: Tokens,
     ): Int {
-        val queryTokens = tokenizeUnique(query)
-        val targetTokens = tokenizeUnique(target)
         if (queryTokens.ordered.isEmpty() || targetTokens.ordered.isEmpty()) {
             return sequenceRatio(query, target)
         }
@@ -267,16 +293,11 @@ object FuzzyMatcher {
         maxDistance: Int,
     ): Boolean {
         if (query.isBlank() || target.isBlank()) return false
-        val queryTokens = tokenizeUnique(query).ordered
-        val targetTokens = tokenizeUnique(target).ordered
-        if (queryTokens.isEmpty() || targetTokens.isEmpty()) return false
-        for (queryToken in queryTokens) {
-            for (targetToken in targetTokens) {
-                if (kotlin.math.abs(queryToken.length - targetToken.length) > maxDistance) continue
-                if (levenshteinDistance(queryToken, targetToken) <= maxDistance) return true
-            }
-        }
-        return false
+        return hasTokenWithinEditDistance(
+            tokenizeUnique(query).ordered,
+            tokenizeUnique(target).ordered,
+            maxDistance,
+        )
     }
 
     /** The tokens [hasTokenWithinEditDistance] compares, for callers that reuse them across checks. */
@@ -291,12 +312,71 @@ object FuzzyMatcher {
         if (queryTokens.isEmpty() || targetTokens.isEmpty()) return false
         for (queryToken in queryTokens) {
             for (targetToken in targetTokens) {
-                if (kotlin.math.abs(queryToken.length - targetToken.length) > maxDistance) continue
-                if (levenshteinDistance(queryToken, targetToken) <= maxDistance) return true
+                if (isWithinEditDistance(queryToken, targetToken, targetToken.length, maxDistance)) return true
             }
         }
         return false
     }
+
+    /**
+     * Returns whether the Levenshtein distance between [first] and the first [secondLength]
+     * characters of [second] is at most [maxDistance]. Same answer as a full distance computation,
+     * but it stops as soon as the bound can no longer be met and reuses per-thread scratch rows.
+     */
+    internal fun isWithinEditDistance(
+        first: String,
+        second: String,
+        secondLength: Int,
+        maxDistance: Int,
+    ): Boolean {
+        if (maxDistance < 0) return false
+        val firstLength = first.length
+        if (kotlin.math.abs(firstLength - secondLength) > maxDistance) return false
+        if (firstLength == 0 || secondLength == 0) return true
+        if (firstLength == secondLength && first.regionMatches(0, second, 0, secondLength)) return true
+
+        val rows = scratchRows.get()
+        var previous = rows.ensure(0, secondLength + 1)
+        var current = rows.ensure(1, secondLength + 1)
+        for (index in 0..secondLength) previous[index] = index
+
+        for (firstIndex in 1..firstLength) {
+            current[0] = firstIndex
+            var rowMin = firstIndex
+            val firstChar = first[firstIndex - 1]
+            for (secondIndex in 1..secondLength) {
+                val substitutionCost = if (second[secondIndex - 1] == firstChar) 0 else 1
+                val value =
+                    minOf(
+                        current[secondIndex - 1] + 1,
+                        previous[secondIndex] + 1,
+                        previous[secondIndex - 1] + substitutionCost,
+                    )
+                current[secondIndex] = value
+                if (value < rowMin) rowMin = value
+            }
+            // Row minimums never decrease, so once every cell exceeds the bound the result can't recover.
+            if (rowMin > maxDistance) return false
+            val swap = previous
+            previous = current
+            current = swap
+        }
+        return previous[secondLength] <= maxDistance
+    }
+
+    private class ScratchRows {
+        private val rows = arrayOf(IntArray(32), IntArray(32))
+
+        fun ensure(
+            index: Int,
+            size: Int,
+        ): IntArray {
+            if (rows[index].size < size) rows[index] = IntArray(size)
+            return rows[index]
+        }
+    }
+
+    private val scratchRows = ThreadLocal.withInitial(::ScratchRows)
 
     private fun levenshteinDistance(
         first: String,
