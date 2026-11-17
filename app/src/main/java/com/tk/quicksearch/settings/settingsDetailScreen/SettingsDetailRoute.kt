@@ -49,6 +49,7 @@ fun SettingsDetailRoute(
         onBack: () -> Unit,
         viewModel: SearchViewModel,
         detailType: SettingsDetailType,
+        pageSettled: Boolean = true,
         sourceDetailType: SettingsDetailType? = null,
         onNavigateToDetail: (SettingsDetailType) -> Unit = {},
         onNavigateToSearch: () -> Unit = {},
@@ -128,10 +129,15 @@ fun SettingsDetailRoute(
                 )
             }
 
-    DisposableEffect(lifecycleOwner, detailType) {
+    var hasSettled by remember { mutableStateOf(pageSettled) }
+    LaunchedEffect(pageSettled) {
+        if (pageSettled) hasSettled = true
+    }
+    DisposableEffect(lifecycleOwner, detailType, hasSettled) {
+        if (!hasSettled) return@DisposableEffect onDispose { }
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.handleOptionalPermissionChange()
+                viewModel.refreshPermissionSnapshotForVisiblePage()
                 wallpaperPermissionController.onRefreshPermissionState()
             }
             if (
@@ -218,33 +224,21 @@ fun SettingsDetailRoute(
                     },
             )
 
-    // Wait for the fresh system scan before showing the list so it doesn't render cached
-    // shortcuts first and then reshuffle when the refresh lands.
-    var hasRefreshedAppShortcuts by remember { mutableStateOf(false) }
-    LaunchedEffect(detailType) {
-        if (detailType == SettingsDetailType.APP_SHORTCUTS) {
+    // Preview pages can render their shell without scanning packages.
+    val pageData = LocalSettingsPageData.current ?: remember { SettingsPageData() }
+    var hasRefreshedAppShortcuts by remember(detailType) { mutableStateOf(false) }
+    LaunchedEffect(detailType, pageSettled) {
+        if (detailType == SettingsDetailType.APP_SHORTCUTS && pageSettled && !hasRefreshedAppShortcuts) {
             viewModel.refreshAppShortcutsAndAwait()
             hasRefreshedAppShortcuts = true
-        } else {
-            hasRefreshedAppShortcuts = false
         }
     }
 
-    // The package scan runs alongside the shortcut refresh and is redone only when installed apps
-    // change; shortcut edits just re-filter the scanned sources.
-    var appShortcutSources by remember { mutableStateOf<List<AppShortcutSource>?>(null) }
-    LaunchedEffect(detailType, state.allApps) {
-        if (detailType != SettingsDetailType.APP_SHORTCUTS) {
-            appShortcutSources = null
-            return@LaunchedEffect
+    var appShortcutSources by remember(detailType, state.allApps) { mutableStateOf<List<AppShortcutSource>?>(null) }
+    LaunchedEffect(detailType, pageSettled, pageData, state.allApps) {
+        if (detailType == SettingsDetailType.APP_SHORTCUTS && pageSettled && appShortcutSources == null) {
+            appShortcutSources = pageData.appShortcutSources(context.applicationContext, state.allApps)
         }
-        appShortcutSources =
-                withContext(Dispatchers.IO) {
-                    queryAppShortcutSources(
-                            packageManager = context.packageManager,
-                            repositoryApps = state.allApps,
-                    )
-                }
     }
 
     LaunchedEffect(

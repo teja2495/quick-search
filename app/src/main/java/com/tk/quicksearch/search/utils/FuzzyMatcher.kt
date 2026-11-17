@@ -335,7 +335,7 @@ object FuzzyMatcher {
         if (firstLength == 0 || secondLength == 0) return true
         if (firstLength == secondLength && first.regionMatches(0, second, 0, secondLength)) return true
 
-        val rows = scratchRows.get()
+        val rows = requireNotNull(scratchRows.get())
         var previous = rows.ensure(0, secondLength + 1)
         var current = rows.ensure(1, secondLength + 1)
         for (index in 0..secondLength) previous[index] = index

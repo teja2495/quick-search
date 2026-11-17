@@ -127,7 +127,6 @@ fun LaunchOptionsSettings(
                             icon = MaterialSymbols.Layers,
                             actionOnPress = onOpenFloatingButton,
                         )
-                        else -> error("Toggle options are rendered separately")
                     }
                     SettingsSegmentNavigationRow(item = item, index = index, count = options.size)
                 }

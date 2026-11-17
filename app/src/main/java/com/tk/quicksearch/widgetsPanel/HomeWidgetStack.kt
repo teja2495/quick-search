@@ -214,9 +214,9 @@ internal fun HomeWidgetStack(
         if (!showWidgets) editingWidgetId = null
     }
 
-    // While a query hides the widgets, their updates wait; the views stay kept for when they return.
-    DisposableEffect(host, showWidgets) {
-        host.setSuspended(!showWidgets)
+    // Wait for the incoming page to settle, and suspend updates while a query hides the widgets.
+    DisposableEffect(host, showWidgets, showHostedWidgets) {
+        host.setSuspended(!showWidgets || !showHostedWidgets)
         onDispose { }
     }
 

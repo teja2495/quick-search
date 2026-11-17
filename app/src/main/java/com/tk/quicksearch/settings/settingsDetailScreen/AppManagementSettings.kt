@@ -54,6 +54,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.R
@@ -130,81 +132,26 @@ fun AppManagementSettingsSection(
             selectedSortOption = AppSortOption.NAME
         }
     }
-    val appSortMetadataByKey =
-        remember(apps, context) {
-            apps.associate { app ->
-                app.launchCountKey() to loadAppSortMetadata(context, app)
-            }
-        }
+    val pageData = LocalSettingsPageData.current ?: remember { SettingsPageData() }
+    var appSortMetadataByKey by remember(apps) { mutableStateOf<Map<String, AppSortMetadata>?>(null) }
+    LaunchedEffect(pageData, context, apps) {
+        appSortMetadataByKey = pageData.appMetadata(context.applicationContext, apps)
+    }
+
     val selectedCount = selectedAppKeys.size
-    val filteredApps =
-        remember(apps, normalizedSearchQuery, locale) {
-            if (normalizedSearchQuery.isBlank()) {
-                apps
-            } else {
-                apps
-                    .mapNotNull { app ->
-                        val priority =
-                            shortcutMatchPriority(
-                                name = app.appName,
-                                query = normalizedSearchQuery,
-                                locale = locale,
-                            ) ?: return@mapNotNull null
-                        app to priority
-                    }.sortedWith(
-                        compareBy<Pair<AppInfo, com.tk.quicksearch.settings.appShortcutsSettings.ShortcutSearchMatchPriority>> { it.second.ordinal }
-                            .thenBy { it.first.appName.lowercase(locale) },
-                    )
-                    .map { it.first }
-            }
+    var sortedApps by remember(apps) { mutableStateOf<List<AppInfo>?>(null) }
+    val metadataForSort =
+        when (selectedSortOption) {
+            AppSortOption.APK_SIZE, AppSortOption.INSTALLATION_DATE, AppSortOption.LAST_UPDATE, AppSortOption.API_LEVEL ->
+                appSortMetadataByKey
+            else -> emptyMap()
         }
-
-    val sortedApps =
-        remember(filteredApps, selectedSortOption, isSortAscending, appSortMetadataByKey) {
-            val baseComparator =
-                when (selectedSortOption) {
-                    AppSortOption.NAME -> {
-                        compareBy<AppInfo> { it.appName.lowercase(Locale.getDefault()) }
-                    }
-
-                    AppSortOption.APK_SIZE -> {
-                        compareBy<AppInfo> { app -> appSortMetadataByKey[app.launchCountKey()]?.sizeBytes ?: 0L }
-                            .thenBy { it.appName.lowercase(Locale.getDefault()) }
-                    }
-
-                    AppSortOption.MOST_USED -> {
-                        compareByDescending<AppInfo> { it.launchCount }
-                            .thenByDescending { it.totalTimeInForeground }
-                            .thenBy { it.appName.lowercase(Locale.getDefault()) }
-                    }
-
-                    AppSortOption.LEAST_USED -> {
-                        compareBy<AppInfo> { it.launchCount }
-                            .thenBy { it.totalTimeInForeground }
-                            .thenBy { it.appName.lowercase(Locale.getDefault()) }
-                    }
-
-                    AppSortOption.INSTALLATION_DATE -> {
-                        compareBy<AppInfo> { app ->
-                            appSortMetadataByKey[app.launchCountKey()]?.installTimeMillis ?: app.firstInstallTime
-                        }
-                            .thenBy { it.appName.lowercase(Locale.getDefault()) }
-                    }
-
-                    AppSortOption.LAST_UPDATE -> {
-                        compareBy<AppInfo> { app -> appSortMetadataByKey[app.launchCountKey()]?.lastUpdateTimeMillis ?: 0L }
-                            .thenBy { it.appName.lowercase(Locale.getDefault()) }
-                    }
-
-                    AppSortOption.API_LEVEL -> {
-                        compareBy<AppInfo> { app -> appSortMetadataByKey[app.launchCountKey()]?.targetSdk ?: 0 }
-                            .thenBy { it.appName.lowercase(Locale.getDefault()) }
-                    }
-                }
-
-            val comparator = if (isSortAscending) baseComparator else baseComparator.reversed()
-            filteredApps.sortedWith(comparator)
+    LaunchedEffect(apps, normalizedSearchQuery, locale, selectedSortOption, isSortAscending, metadataForSort) {
+        val metadata = metadataForSort ?: return@LaunchedEffect
+        sortedApps = withContext(Dispatchers.Default) {
+            sortManagementApps(apps, normalizedSearchQuery, locale, selectedSortOption, isSortAscending, metadata)
         }
+    }
 
     LaunchedEffect(selectedSortOption, isSortAscending) {
         listState.scrollToItem(0)
@@ -331,10 +278,11 @@ fun AppManagementSettingsSection(
             }
         }
 
+        val displayedApps = sortedApps
         val screenHeight = LocalConfiguration.current.screenHeightDp.dp
         Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                if (sortedApps.isEmpty()) {
+            if (displayedApps != null) Box(modifier = Modifier.fillMaxWidth()) {
+                if (displayedApps.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
                         contentAlignment = Alignment.Center,
@@ -357,7 +305,7 @@ fun AppManagementSettingsSection(
                         ),
                     ) {
                         itemsIndexed(
-                            items = sortedApps,
+                            items = displayedApps,
                             key = { _, app -> app.launchCountKey() },
                         ) { index, app ->
                             val appKey = app.launchCountKey()
@@ -365,7 +313,7 @@ fun AppManagementSettingsSection(
 
                             SegmentedTile(
                                 index = index,
-                                count = sortedApps.size,
+                                count = displayedApps.size,
                                 onClick = { selectedAppForDetails = app },
                                 containerColor = if (appKey in selectedAppKeys) {
                                     AppColors.AccentTintTonal
@@ -374,7 +322,7 @@ fun AppManagementSettingsSection(
                             ) {
                                 AppManagementRow(
                                     app = app,
-                                    apkSizeBytes = appSortMetadataByKey[appKey]?.sizeBytes ?: 0L,
+                                    apkSizeBytes = appSortMetadataByKey?.get(appKey)?.sizeBytes,
                                     iconPackPackage = iconPackPackage,
                                     isSelected = appKey in selectedAppKeys,
                                     checkboxEnabled = canUninstall,
@@ -396,7 +344,7 @@ fun AppManagementSettingsSection(
             if (selectedCount > 0) {
                 ExtendedFloatingActionButton(
                     onClick = {
-                        val queuedApps = sortedApps.filter { it.launchCountKey() in selectedAppKeys }
+                        val queuedApps = sortedApps.orEmpty().filter { it.launchCountKey() in selectedAppKeys }
                         val startUninstallQueue = {
                             val queueKeys = queuedApps.map { it.launchCountKey() }
                             uninstallQueueKeys = queueKeys
@@ -467,7 +415,7 @@ fun AppManagementSettingsSection(
 @Composable
 private fun AppManagementRow(
     app: AppInfo,
-    apkSizeBytes: Long,
+    apkSizeBytes: Long?,
     iconPackPackage: String?,
     isSelected: Boolean,
     checkboxEnabled: Boolean,
@@ -521,10 +469,9 @@ private fun AppManagementRow(
             )
             Text(
                 text =
-                    stringResource(
-                        R.string.settings_app_apk_size_format,
-                        apkSizeBytes.toDouble() / (1024.0 * 1024.0),
-                    ),
+                    apkSizeBytes?.let {
+                        stringResource(R.string.settings_app_apk_size_format, it.toDouble() / (1024.0 * 1024.0))
+                    }.orEmpty(),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -537,4 +484,80 @@ private fun AppManagementRow(
             modifier = Modifier.semantics { contentDescription = app.appName },
         )
     }
+}
+
+private fun sortManagementApps(
+    apps: List<AppInfo>,
+    normalizedSearchQuery: String,
+    locale: Locale,
+    selectedSortOption: AppSortOption,
+    isSortAscending: Boolean,
+    appSortMetadataByKey: Map<String, AppSortMetadata>,
+): List<AppInfo> {
+    val nameKeys = mutableMapOf<String, String>()
+    fun nameKey(app: AppInfo): String = nameKeys.getOrPut(app.appName) { app.appName.lowercase(locale) }
+
+    val filteredApps =
+        if (normalizedSearchQuery.isBlank()) {
+            apps
+        } else {
+            apps
+                .mapNotNull { app ->
+                    val priority =
+                        shortcutMatchPriority(
+                            name = app.appName,
+                            query = normalizedSearchQuery,
+                            locale = locale,
+                        ) ?: return@mapNotNull null
+                    app to priority
+                }.sortedWith(
+                    compareBy<Pair<AppInfo, com.tk.quicksearch.settings.appShortcutsSettings.ShortcutSearchMatchPriority>> { it.second.ordinal }
+                        .thenBy { nameKey(it.first) },
+                )
+                .map { it.first }
+        }
+
+    val baseComparator =
+        when (selectedSortOption) {
+            AppSortOption.NAME -> {
+                compareBy<AppInfo> { nameKey(it) }
+            }
+
+            AppSortOption.APK_SIZE -> {
+                compareBy<AppInfo> { app -> appSortMetadataByKey[app.launchCountKey()]?.sizeBytes ?: 0L }
+                    .thenBy { nameKey(it) }
+            }
+
+            AppSortOption.MOST_USED -> {
+                compareByDescending<AppInfo> { it.launchCount }
+                    .thenByDescending { it.totalTimeInForeground }
+                    .thenBy { nameKey(it) }
+            }
+
+            AppSortOption.LEAST_USED -> {
+                compareBy<AppInfo> { it.launchCount }
+                    .thenBy { it.totalTimeInForeground }
+                    .thenBy { nameKey(it) }
+            }
+
+            AppSortOption.INSTALLATION_DATE -> {
+                compareBy<AppInfo> { app ->
+                    appSortMetadataByKey[app.launchCountKey()]?.installTimeMillis ?: app.firstInstallTime
+                }
+                    .thenBy { nameKey(it) }
+            }
+
+            AppSortOption.LAST_UPDATE -> {
+                compareBy<AppInfo> { app -> appSortMetadataByKey[app.launchCountKey()]?.lastUpdateTimeMillis ?: 0L }
+                    .thenBy { nameKey(it) }
+            }
+
+            AppSortOption.API_LEVEL -> {
+                compareBy<AppInfo> { app -> appSortMetadataByKey[app.launchCountKey()]?.targetSdk ?: 0 }
+                    .thenBy { nameKey(it) }
+            }
+        }
+
+    val comparator = if (isSortAscending) baseComparator else baseComparator.reversed()
+    return filteredApps.sortedWith(comparator)
 }

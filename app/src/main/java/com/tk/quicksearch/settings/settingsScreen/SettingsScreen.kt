@@ -42,7 +42,6 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.AppLanguageManager
-import com.tk.quicksearch.shared.util.isDefaultHomeApp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -68,6 +67,7 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     state: SharedSettingsScreenState,
     callbacks: SharedSettingsScreenCallbacks,
+    isOverlayModeBlockedByLauncher: Boolean,
     hasUsagePermission: Boolean,
     hasContactPermission: Boolean,
     hasFilePermission: Boolean,
@@ -159,7 +159,6 @@ fun SettingsScreen(
                 )
             }
 
-            val isOverlayModeBlockedByLauncher = context.isDefaultHomeApp()
             val overlayModeSubtitleRes =
                 if (isOverlayModeBlockedByLauncher) {
                     R.string.settings_overlay_mode_desc_launcher_blocked

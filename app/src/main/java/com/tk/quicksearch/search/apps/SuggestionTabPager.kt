@@ -122,7 +122,7 @@ internal class SuggestionTabPagerState(
                     towardPeer <= -flingVelocityPx -> false
                     else -> distance >= thresholdPx
                 }
-        if (commit && target != null) {
+        if (commit) {
             swapTo(target, peerSide)
         }
         settle(velocity)

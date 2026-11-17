@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -19,8 +20,10 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.app.MainActivity
+import com.tk.quicksearch.search.core.AccentColorMode
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchUiState
+import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.shared.util.StartupBackgroundPreview
 import com.tk.quicksearch.shared.util.WallpaperUtils
 
@@ -52,6 +55,7 @@ internal fun SearchScreenWallpaperLogic(
     isOverlayPresentation: Boolean = false,
     /** False for surfaces drawn over other content, which need an opaque wallpaper image. */
     allowUnblurredSystemBackdrop: Boolean = true,
+    retainBitmap: Boolean = true,
 ): SearchScreenWallpaperState {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -73,6 +77,7 @@ internal fun SearchScreenWallpaperLogic(
             WallpaperUtils.wallpaperDivisorForBlur(state.wallpaperBlurRadius)
         }
     var wallpaperChangeVersion by remember { mutableIntStateOf(0) }
+    val onWallpaperChanged by rememberUpdatedState(onSystemWallpaperChanged)
 
     DisposableEffect(context, state.backgroundSource) {
         if (state.backgroundSource != BackgroundSource.SYSTEM_WALLPAPER) {
@@ -90,7 +95,7 @@ internal fun SearchScreenWallpaperLogic(
                         if (intent?.action != wallpaperChangedAction) return
                         WallpaperUtils.invalidateWallpaperCache()
                         wallpaperChangeVersion++
-                        onSystemWallpaperChanged?.invoke()
+                        onWallpaperChanged?.invoke()
                     }
                 }
             val filter = IntentFilter(wallpaperChangedAction)
@@ -130,6 +135,8 @@ internal fun SearchScreenWallpaperLogic(
             }
         }
     }
+
+    if (!retainBitmap) return SearchScreenWallpaperState(null, false, false, false)
 
     val shouldUseStartupPreview = wallpaperChangeVersion == 0
     val sourceWallpaperState =
@@ -316,4 +323,14 @@ internal fun SearchScreenWallpaperLogic(
                 !usesSystemWallpaperBackdrop &&
                 !useMonoThemeFallback,
     )
+}
+
+internal fun SearchViewModel.onWallpaperUnavailable() {
+    setWallpaperAvailable(false)
+    if (
+        uiState.value.backgroundSource == BackgroundSource.SYSTEM_WALLPAPER &&
+        uiState.value.accentColorMode == AccentColorMode.FROM_WALLPAPER
+    ) {
+        setAccentColorMode(AccentColorMode.NONE)
+    }
 }

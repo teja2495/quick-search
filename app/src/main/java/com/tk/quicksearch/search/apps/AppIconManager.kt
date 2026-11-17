@@ -285,7 +285,7 @@ fun rememberAppIcon(
 
             if (!includeMonochrome && alternateEntry != null) {
                 AppIconCache.put(cacheKey, alternateEntry)
-                alternateKey?.let(AppIconCache::remove)
+                AppIconCache.remove(alternateKey)
                 value = alternateEntry.toResult()
                 return@produceState
             }
@@ -758,7 +758,6 @@ private suspend fun prefetchAppIconRequestsOnIo(
                 }
             }
         }.awaitAll()
-    Unit
 }
 
 private fun buildCacheKey(

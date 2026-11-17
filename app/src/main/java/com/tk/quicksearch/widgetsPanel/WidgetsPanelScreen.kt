@@ -106,7 +106,7 @@ import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.preferences.NotesPreferences
-import com.tk.quicksearch.search.searchScreen.LocalPageBackdropDrawnByHost
+import com.tk.quicksearch.search.searchScreen.LocalSharedPageWallpaper
 import com.tk.quicksearch.search.searchScreen.searchRoute.SearchScreenWallpaperLogic
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -176,14 +176,12 @@ fun WidgetsPanelScreen(
     val appWidgetHost = remember(appContext) { WidgetPanelHost(appContext, QUICK_SEARCH_WIDGET_HOST_ID) }
     val preferences = remember(appContext) { WidgetsPanelPreferences(appContext) }
     val notesPreferences = remember(appContext) { NotesPreferences(appContext) }
-    // When the navigation host draws the shared backdrop, the panel is transparent like Home and
-    // reads the same wallpaper state. Otherwise its opaque background draws the image itself.
-    val backdropDrawnByHost = LocalPageBackdropDrawnByHost.current
-    val wallpaperState =
-        SearchScreenWallpaperLogic(
-            state = uiState,
-            allowUnblurredSystemBackdrop = backdropDrawnByHost,
-        )
+    val sharedWallpaper = LocalSharedPageWallpaper.current
+    val backdropDrawnByHost = sharedWallpaper != null
+    val wallpaperState = sharedWallpaper ?: SearchScreenWallpaperLogic(
+        state = uiState,
+        allowUnblurredSystemBackdrop = false,
+    )
     val imageBackgroundIsDark =
         remember(wallpaperState.imageBitmap, wallpaperState.usesWallpaperBackground) {
             if (wallpaperState.usesWallpaperBackground && wallpaperState.imageBitmap != null) {
@@ -273,6 +271,7 @@ fun WidgetsPanelScreen(
         appWidgetHost.onWidgetContentChanged = { appWidgetId, hasContent ->
             widgetContentAvailable[appWidgetId] = hasContent
         }
+        appWidgetHost.setSuspended(!showHostedWidgets)
         val stopFollowingLifecycle = appWidgetHost.listenWhileStarted(lifecycle)
         onDispose {
             stopFollowingLifecycle()
@@ -285,6 +284,7 @@ fun WidgetsPanelScreen(
         // Also handle direct entries from the shortcut or overlay, which bypass Home's IME hide.
         keyboardController?.hide()
         withFrameNanos { }
+        appWidgetHost.setSuspended(false)
         showHostedWidgets = true
     }
 

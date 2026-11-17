@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 internal data class SearchRuntimeState(
     var cachedAllSearchableApps: List<AppInfo> = emptyList(),
     @Volatile var startupConfig: StartupPreferencesFacade.StartupConfig? = null,
-    val isAppShortcutsLoadInFlight: AtomicBoolean = AtomicBoolean(false),
     val hasStartedStartupPhases: AtomicBoolean = AtomicBoolean(false),
     @Volatile var resumeNeedsStaticDataRefresh: Boolean = false,
     @Volatile var lastBrowserTargetRefreshMs: Long = 0L,

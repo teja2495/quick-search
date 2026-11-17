@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -129,6 +130,8 @@ open class MainActivity : FragmentActivity() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             voiceSearchHandler.processVoiceInputResult(result, searchViewModel::onQueryChange)
         }
+    private val pageBackdropTrimState = mutableIntStateOf(0)
+    internal val pageBackdropTrimVersion: Int get() = pageBackdropTrimState.intValue
     private val navigationRequest = mutableStateOf<NavigationRequest?>(null)
     // True when the overlay handed off to this activity, so leaving goes back to the overlay.
     private val returnToOverlay = mutableStateOf(false)
@@ -282,16 +285,15 @@ open class MainActivity : FragmentActivity() {
         // As the Home app, BACKGROUND too: every Home press would otherwise redecode icons and wallpaper.
         val isHomeInBackground =
             level == ComponentCallbacks2.TRIM_MEMORY_BACKGROUND && this is HomeActivity && canShowSystemWallpaperBackdrop
-        if (level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW &&
-            level != ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN &&
-            !isHomeInBackground
-        ) {
-            UiSurfaceMemoryManager.clearMemoryCaches()
+        if (level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW && level != ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
+            pageBackdropTrimState.intValue++
+            if (!isHomeInBackground) UiSurfaceMemoryManager.clearMemoryCaches()
         }
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
+        pageBackdropTrimState.intValue++
         UiSurfaceMemoryManager.clearMemoryCaches()
     }
 

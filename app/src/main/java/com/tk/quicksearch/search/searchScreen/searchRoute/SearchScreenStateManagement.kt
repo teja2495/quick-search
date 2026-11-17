@@ -34,6 +34,7 @@ import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.files.FileExtensionQuery
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
+import com.tk.quicksearch.search.searchScreen.LocalSharedPageWallpaper
 import com.tk.quicksearch.search.searchScreen.dialogs.NicknameDialogState
 import com.tk.quicksearch.search.searchScreen.dialogs.TriggerDialogState
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
@@ -370,13 +371,14 @@ internal fun SearchScreenStateManagement(
         reverseScrolling = alignResultsToBottom,
     )
 
-    val wallpaperState = SearchScreenWallpaperLogic(
-        state = state,
-        onWallpaperLoaded = onWallpaperLoaded,
-        onWallpaperUnavailable = onWallpaperUnavailable,
-        onSystemWallpaperChanged = onSystemWallpaperChanged,
-        isOverlayPresentation = isOverlayPresentation,
-    )
+    val wallpaperState =
+        LocalSharedPageWallpaper.current ?: SearchScreenWallpaperLogic(
+            state = state,
+            onWallpaperLoaded = onWallpaperLoaded,
+            onWallpaperUnavailable = onWallpaperUnavailable,
+            onSystemWallpaperChanged = onSystemWallpaperChanged,
+            isOverlayPresentation = isOverlayPresentation,
+        )
 
     val effectiveStateForCards =
         state.copy(

@@ -17,11 +17,14 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.tk.quicksearch.onboarding.LocalSearchSurfaceHidden
 import com.tk.quicksearch.onboarding.WelcomeMorphPhase
 import com.tk.quicksearch.onboarding.WelcomeMorphState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 
 /**
  * Drawn at about 1/255: invisible under the setup pages, yet still drawn, so icons and wallpaper
@@ -30,12 +33,11 @@ import kotlinx.coroutines.delay
 private const val HiddenAlpha = 1f / 255f
 
 /**
- * While hidden the surface is drawn only for a couple of frames at a time, then skipped: the
- * setup pages redraw every frame (the Start button glows), and replaying the whole search screen
- * under them each time would double the work. The pulse keeps late icons and textures warm.
+ * Two short pulses per setup step and after search initialization warm icons and textures.
+ * Between pulses the hidden layer is skipped while the setup page animates.
  */
 private const val WarmFrames = 2
-private const val KeepWarmIntervalMs = 1000L
+private const val WarmPulseIntervalMs = 1000L
 
 /**
  * Hosts the search surface under the onboarding pages. While not [visible] it stays composed but
@@ -47,6 +49,8 @@ private const val KeepWarmIntervalMs = 1000L
 internal fun SearchSurfaceLayer(
     composed: Boolean,
     visible: Boolean,
+    warmupStep: AppScreen,
+    searchInitializing: Flow<Boolean>,
     welcomeMorph: WelcomeMorphState,
     content: @Composable () -> Unit,
 ) {
@@ -62,13 +66,21 @@ internal fun SearchSurfaceLayer(
         }
     val backOwner = LocalOnBackPressedDispatcherOwner.current?.takeUnless { hidden } ?: inertBack
     val hiddenAlpha = remember { mutableFloatStateOf(HiddenAlpha) }
-    LaunchedEffect(hidden) {
+    LaunchedEffect(hidden, lifecycleOwner, warmupStep, searchInitializing) {
         if (!hidden) return@LaunchedEffect
-        while (true) {
-            hiddenAlpha.floatValue = HiddenAlpha
-            repeat(WarmFrames) { withFrameNanos {} }
-            hiddenAlpha.floatValue = 0f
-            delay(KeepWarmIntervalMs)
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            searchInitializing.collectLatest {
+                try {
+                    repeat(2) { pulse ->
+                        if (pulse > 0) delay(WarmPulseIntervalMs)
+                        hiddenAlpha.floatValue = HiddenAlpha
+                        repeat(WarmFrames) { withFrameNanos {} }
+                        hiddenAlpha.floatValue = 0f
+                    }
+                } finally {
+                    hiddenAlpha.floatValue = 0f
+                }
+            }
         }
     }
     Box(modifier = Modifier.fillMaxSize()) {

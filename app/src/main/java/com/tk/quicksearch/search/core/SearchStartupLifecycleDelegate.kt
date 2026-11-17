@@ -220,11 +220,7 @@ internal class SearchStartupLifecycleDelegate(
 
     fun handleOnResume() {
         val startupComplete = stateAccess.isStartupComplete
-        // Role, app-op and permission checks are binder calls: run them off the main thread (as the
-        // launch-time snapshot does) so returning to the search surface draws its frame at once.
-        if (resumePermissionJob?.isActive != true) {
-            resumePermissionJob = scope.launch(Dispatchers.Default) { refreshPermissionsOnResume(startupComplete) }
-        }
+        refreshPermissionSnapshotForVisiblePage()
 
         if (startupComplete && PinnedShortcutRequests.consumeRefreshNeeded()) {
             scope.launch(Dispatchers.IO) { loadAppShortcuts() }
@@ -257,6 +253,12 @@ internal class SearchStartupLifecycleDelegate(
                 searchEngineManager.refreshBrowserTargets()
             }
         }
+    }
+
+    fun refreshPermissionSnapshotForVisiblePage() {
+        if (resumePermissionJob?.isActive == true) return
+        val startupComplete = stateAccess.isStartupComplete
+        resumePermissionJob = scope.launch(Dispatchers.Default) { refreshPermissionsOnResume(startupComplete) }
     }
 
     private suspend fun refreshPermissionsOnResume(startupComplete: Boolean) {

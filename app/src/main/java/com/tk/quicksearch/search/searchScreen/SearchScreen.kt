@@ -425,7 +425,7 @@ fun SearchScreen(
         com.tk.quicksearch.search.noted.LocalNotedSectionParams provides stateResult.sectionParams.notedParams,
     ) {
     Box(modifier = screenModifier.homeWidgetEditTapGuard(homeWidgetEditGuard)) {
-        if (!isOverlayPresentation && !LocalPageBackdropDrawnByHost.current) {
+        if (!isOverlayPresentation && LocalSharedPageWallpaper.current == null) {
             SearchPageBackdrop(
                 state = state,
                 imageBitmap = stateResult.imageBitmap,

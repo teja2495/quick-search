@@ -143,7 +143,7 @@ internal fun PublishFrostedWallpaper(
             (wallpaperBlurRadiusDp.dp + FrostedCardExtraBlurRadius).toPx() * RADIUS_TO_SIGMA
         }
     LaunchedEffect(source, active, wallpaperBitmap, sigmaPx, windowWidthPx) {
-        if (!active || wallpaperBitmap == null || windowWidthPx <= 0) {
+        if (!active || windowWidthPx <= 0) {
             source.frost = null
             return@LaunchedEffect
         }

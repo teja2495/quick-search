@@ -13,7 +13,7 @@ import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.apps.invalidateAppIconCache
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -32,7 +32,6 @@ internal class SearchStaticDataDelegate(
     private val calendarRepository: CalendarRepository,
     private val handlersProvider: () -> SearchHandlerContainer,
     private val resultsStateProvider: () -> SearchResultsState,
-    private val isAppShortcutsLoadInFlight: AtomicBoolean,
     private val hasCalendarPermission: () -> Boolean,
     private val updateUiState: ((SearchUiState) -> SearchUiState) -> Unit,
     private val updateResultsState: ((SearchResultsState) -> SearchResultsState) -> Unit,
@@ -69,44 +68,40 @@ internal class SearchStaticDataDelegate(
         }
     }
 
+    private val appShortcutsLoadLock = Any()
+    private var appShortcutsLoadJob: Job? = null
+
+    private fun appShortcutsLoad(): Job =
+        synchronized(appShortcutsLoadLock) {
+            appShortcutsLoadJob?.takeUnless { it.isCompleted } ?: scope.launch(
+                Dispatchers.IO,
+                start = CoroutineStart.LAZY,
+            ) {
+                val loadedCached = appShortcutSearchHandler.loadCachedShortcutsOnly()
+                if (loadedCached) {
+                    refreshAppShortcutsStateFromBackground()
+                    StartupTrace.mark("QS.Home.ShortcutsCacheAvailable")
+                }
+
+                val loadedFresh = appShortcutSearchHandler.refreshShortcutsFromSystem()
+                if (loadedFresh || !loadedCached) {
+                    refreshAppShortcutsStateFromBackground()
+                }
+                StartupTrace.mark("QS.Startup.ShortcutsRefreshComplete")
+            }.also { appShortcutsLoadJob = it }
+        }.also { it.start() }
+
     fun loadAppShortcuts() {
-        if (!isAppShortcutsLoadInFlight.compareAndSet(false, true)) return
-        scope.launch(Dispatchers.IO) {
-            loadAppShortcutsNow()
-        }
+        appShortcutsLoad()
     }
 
     suspend fun loadAppShortcutsForStartup() {
-        if (!isAppShortcutsLoadInFlight.compareAndSet(false, true)) return
-        loadAppShortcutsNow()
-    }
-
-    private suspend fun loadAppShortcutsNow() {
-        try {
-            val loadedCached = appShortcutSearchHandler.loadCachedShortcutsOnly()
-            if (loadedCached) {
-                refreshAppShortcutsStateFromBackground()
-                StartupTrace.mark("QS.Home.ShortcutsCacheAvailable")
-            }
-
-            val loadedFresh = appShortcutSearchHandler.refreshShortcutsFromSystem()
-            if (loadedFresh || !loadedCached) {
-                refreshAppShortcutsStateFromBackground()
-            }
-            StartupTrace.mark("QS.Startup.ShortcutsRefreshComplete")
-        } finally {
-            isAppShortcutsLoadInFlight.set(false)
-        }
+        appShortcutsLoad().join()
     }
 
     /** Refreshes shortcuts from the system and suspends until the fresh result is in UI state. */
     suspend fun refreshAppShortcutsAndAwait() {
-        if (isAppShortcutsLoadInFlight.compareAndSet(false, true)) {
-            // Run in the ViewModel scope so leaving the screen doesn't cancel the refresh.
-            scope.launch(Dispatchers.IO) { loadAppShortcutsNow() }.join()
-        } else {
-            while (isAppShortcutsLoadInFlight.get()) delay(APP_SHORTCUTS_LOAD_POLL_MS)
-        }
+        appShortcutsLoad().join()
     }
 
     fun refreshSettingsState(updateResults: Boolean = true) {
@@ -555,5 +550,3 @@ private fun <T, K> List<T>.sortedByPinnedOrder(
     val orderIndex = order.withIndex().associate { it.value to it.index }
     return sortedBy { orderIndex[keySelector(it)] ?: Int.MAX_VALUE }
 }
-
-private const val APP_SHORTCUTS_LOAD_POLL_MS = 50L

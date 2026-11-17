@@ -40,8 +40,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tk.quicksearch.R
 import com.tk.quicksearch.app.UpdateHelper
-import com.tk.quicksearch.search.core.AccentColorMode
-import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.ItemCustomizationRemover
 import com.tk.quicksearch.search.core.LocalItemCustomizationRemover
 import com.tk.quicksearch.search.core.SearchUiState
@@ -685,15 +683,7 @@ fun SearchRoute(
             onSavePrimaryContactCardAction = viewModel::setPrimaryContactCardAction,
             onSaveSecondaryContactCardAction = viewModel::setSecondaryContactCardAction,
             onWallpaperLoaded = onWallpaperLoaded,
-            onWallpaperUnavailable = {
-                viewModel.setWallpaperAvailable(false)
-                if (
-                    viewModel.uiState.value.backgroundSource == BackgroundSource.SYSTEM_WALLPAPER &&
-                    viewModel.uiState.value.accentColorMode == AccentColorMode.FROM_WALLPAPER
-                ) {
-                    viewModel.setAccentColorMode(AccentColorMode.NONE)
-                }
-            },
+            onWallpaperUnavailable = viewModel::onWallpaperUnavailable,
             onSystemWallpaperChanged = viewModel::resetHomeTextColorForNewWallpaper,
             isOverlayPresentation = isOverlayPresentation,
             onOverlayExpandRequest = onOverlayExpandRequest,

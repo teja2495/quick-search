@@ -230,8 +230,6 @@ class SearchViewModel(
         set(value) {
             runtimeState.startupConfig = value
         }
-    private val isAppShortcutsLoadInFlight: AtomicBoolean
-        get() = runtimeState.isAppShortcutsLoadInFlight
     private val hasStartedStartupPhases: AtomicBoolean
         get() = runtimeState.hasStartedStartupPhases
     private var resumeNeedsStaticDataRefresh: Boolean
@@ -317,7 +315,7 @@ class SearchViewModel(
     internal val appSuggestionSelector by lazy { AppSuggestionSelector(repository, userPreferences) }
     private val historyDelegate by lazy { SearchHistoryDelegate(scope = viewModelScope, userPreferences = userPreferences, contactRepository = contactRepository, fileRepository = fileRepository, settingsSearchHandler = handlers.settingsSearchHandler, appShortcutSearchHandler = handlers.appShortcutSearchHandler, appSettingsSearchHandler = handlers.appSettingsSearchHandler, calendarRepository = calendarRepository, notesRepository = notesRepository, reminderRepository = ReminderRepository(appContext), featureStateProvider = { _featureState.value }, configStateProvider = { _configState.value }, currentQueryProvider = { uiState.value.query }, updateResultsState = this::updateResultsState, updateUiState = this::updateUiState) }
     private val contactActionsDelegate by lazy { SearchContactActionsDelegate(appContext = appContext, scope = viewModelScope, userPreferences = userPreferences, contactPreferences = contactPreferences, contactRepository = contactRepository, contactActionHandler = handlers.contactActionHandler, permissionStateProvider = { _permissionState.value }, aiSearchActiveProvider = { isAiSearchActive() }, currentQueryProvider = { uiState.value.query }, updateResultsState = this::updateResultsState, updateConfigState = this::updateConfigState, showToastRes = this::showToast, setDirectDialEnabled = this::setDirectDialEnabled, handleOptionalPermissionChange = this::handleOptionalPermissionChange) }
-    private val staticDataDelegate by lazy { SearchStaticDataDelegate(scope = viewModelScope, userPreferences = userPreferences, repository = repository, appShortcutRepository = appShortcutRepository, contactRepository = contactRepository, fileRepository = fileRepository, calendarRepository = calendarRepository, handlersProvider = { handlers }, resultsStateProvider = { _resultsState.value }, isAppShortcutsLoadInFlight = isAppShortcutsLoadInFlight, hasCalendarPermission = this::hasCalendarPermission, updateUiState = this::updateUiState, updateResultsState = this::updateResultsState, updatePermissionState = this::updatePermissionState, showToastRes = this::showToast, refreshRecentItems = this::refreshRecentItems) }
+    private val staticDataDelegate by lazy { SearchStaticDataDelegate(scope = viewModelScope, userPreferences = userPreferences, repository = repository, appShortcutRepository = appShortcutRepository, contactRepository = contactRepository, fileRepository = fileRepository, calendarRepository = calendarRepository, handlersProvider = { handlers }, resultsStateProvider = { _resultsState.value }, hasCalendarPermission = this::hasCalendarPermission, updateUiState = this::updateUiState, updateResultsState = this::updateResultsState, updatePermissionState = this::updatePermissionState, showToastRes = this::showToast, refreshRecentItems = this::refreshRecentItems) }
     private val legacyPreferenceState =
         SearchViewModelLegacyPreferenceState(clearQueryOnLaunch = initialConfigState.clearQueryOnLaunch)
     private val preferencesStateAccess =
@@ -786,6 +784,7 @@ class SearchViewModel(
         private const val APP_SEARCH_DEBOUNCE_MS = 50L
     }
     fun handleOptionalPermissionChange() = startupLifecycleDelegate.handleOptionalPermissionChange()
+    internal fun refreshPermissionSnapshotForVisiblePage() = startupLifecycleDelegate.refreshPermissionSnapshotForVisiblePage()
     fun refreshPermissionSnapshotAtLaunch() = startupLifecycleDelegate.refreshPermissionSnapshotAtLaunch()
     override fun onCleared() {
         queryCoordinator.cancel()

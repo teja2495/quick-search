@@ -6,30 +6,50 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import com.tk.quicksearch.app.MainActivity
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchUiState
+import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.searchScreen.searchRoute.SearchScreenWallpaperLogic
+import com.tk.quicksearch.search.searchScreen.searchRoute.SearchScreenWallpaperState
+import com.tk.quicksearch.search.searchScreen.searchRoute.onWallpaperUnavailable
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.ThemeModeFallbackBackgroundAlpha
 
 private const val STARTUP_BACKGROUND_TRANSITION_DURATION_MS = 90
 
-/**
- * True while the navigation host draws one wallpaper behind Home and the widgets panel, so those
- * pages skip their own background and only their content slides during the page switch.
- */
-internal val LocalPageBackdropDrawnByHost = compositionLocalOf { false }
+/** The host owns the wallpaper for both Home and the widgets panel. */
+internal val LocalSharedPageWallpaper = compositionLocalOf<SearchScreenWallpaperState?> { null }
 
-/** The wallpaper, custom image, or theme background shared by Home and the widgets panel. */
+@Composable
+internal fun rememberSharedPageWallpaper(
+    state: SearchUiState,
+    viewModel: SearchViewModel,
+    coveredBySettings: Boolean,
+): SearchScreenWallpaperState {
+    val activity = LocalContext.current as? MainActivity
+    val trimVersionWhenCovered = remember(activity, coveredBySettings) { activity?.pageBackdropTrimVersion }
+    val releaseBitmap = coveredBySettings && activity?.pageBackdropTrimVersion != trimVersionWhenCovered
+    return SearchScreenWallpaperLogic(
+        state = state,
+        onWallpaperLoaded = { viewModel.setWallpaperAvailable(true) },
+        onWallpaperUnavailable = viewModel::onWallpaperUnavailable,
+        onSystemWallpaperChanged = viewModel::resetHomeTextColorForNewWallpaper,
+        retainBitmap = !releaseBitmap,
+    )
+}
+
 @Composable
 internal fun SharedPageBackdrop(
     state: SearchUiState,
+    wallpaperState: SearchScreenWallpaperState,
     modifier: Modifier = Modifier,
 ) {
-    val wallpaperState = SearchScreenWallpaperLogic(state = state)
     SearchPageBackdrop(
         state = state,
         imageBitmap = wallpaperState.imageBitmap,

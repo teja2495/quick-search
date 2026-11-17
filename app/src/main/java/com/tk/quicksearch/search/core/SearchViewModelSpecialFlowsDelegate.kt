@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.core
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
@@ -114,6 +115,7 @@ internal class SearchViewModelSpecialFlowsDelegate(
      * surface closes. Only called from the main-thread collector, so [lastAiHistoryWrite] needs
      * no lock.
      */
+    @OptIn(DelicateCoroutinesApi::class)
     private fun recordAiSearchHistory(entry: RecentSearchEntry) {
         val previous = lastAiHistoryWrite
         lastAiHistoryWrite =

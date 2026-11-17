@@ -224,6 +224,7 @@ internal class WidgetPanelHost(
 
     /** Stops this host's updates, handing them back to the previous surface if it was the listener. */
     private fun pauseListening() {
+        if (this !in activeHosts) return
         val wasActiveListener = activeHosts.lastOrNull() === this
         activeHosts.remove(this)
         val nextListener = activeHosts.lastOrNull()

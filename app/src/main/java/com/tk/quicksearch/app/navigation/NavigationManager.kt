@@ -31,6 +31,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.io.File
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.tk.quicksearch.onboarding.FinalSetupScreen
@@ -48,13 +50,16 @@ import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.searchScreen.components.LocalSearchReturningFromInAppPage
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
-import com.tk.quicksearch.search.searchScreen.LocalPageBackdropDrawnByHost
+import com.tk.quicksearch.search.searchScreen.LocalSharedPageWallpaper
+import com.tk.quicksearch.search.searchScreen.rememberSharedPageWallpaper
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.LocalHomeAppearedContentKeys
 import com.tk.quicksearch.search.searchScreen.SharedPageBackdrop
 import com.tk.quicksearch.search.searchScreen.searchRoute.SearchRoute
 import com.tk.quicksearch.settings.settingsDetailScreen.level
 import com.tk.quicksearch.settings.settingsDetailScreen.resolveBackDestination
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailRoute
+import com.tk.quicksearch.settings.settingsDetailScreen.LocalSettingsPageData
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsPageData
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.settings.settingsDetailScreen.CustomToolNavigationMemory
@@ -116,6 +121,9 @@ fun MainContent(
     }
     val coroutineScope = rememberCoroutineScope()
     val welcomeMorph = remember { WelcomeMorphState() }
+    val searchInitializing = remember(searchViewModel) {
+        searchViewModel.configState.map { it.isInitializing }.distinctUntilChanged()
+    }
     var foundQuicksearchFiles by remember { mutableStateOf<List<File>>(emptyList()) }
     val initialDestination = navigationRequest?.destination ?: RootDestination.Search
     val initialSettingsDetailType = navigationRequest?.settingsDetailType
@@ -168,6 +176,8 @@ fun MainContent(
     SearchSurfaceLayer(
         composed = currentScreen != AppScreen.Permissions,
         visible = currentScreen == AppScreen.Main,
+        warmupStep = currentScreen,
+        searchInitializing = searchInitializing,
         welcomeMorph = welcomeMorph,
     ) {
         NavigationContent(
@@ -467,11 +477,17 @@ private fun NavigationContent(
     }
     // Outlives the Search page, which is disposed while Widgets or Settings is shown.
     val homeAppearedContentKeys = remember { mutableSetOf<String>() }
+    val settingsPageData = remember { SettingsPageData() }
     Box(modifier = Modifier.fillMaxSize()) {
-        // Kept composed across Settings so returning never rebuilds (and re-fades) the wallpaper.
-        // Stays opaque until Settings fully covers it, so the uncovered side never shows through.
+        // Keep the backdrop warm across Settings unless the system requests memory.
+        val wallpaper = rememberSharedPageWallpaper(
+            state = uiState,
+            viewModel = viewModel,
+            coveredBySettings = pageSwipeController.settled == RootDestination.Settings && pageSwipeController.target == null,
+        )
         SharedPageBackdrop(
             state = uiState,
+            wallpaperState = wallpaper,
             modifier =
                 Modifier
                     .graphicsLayer {
@@ -479,7 +495,8 @@ private fun NavigationContent(
                     }.welcomeBackdropZoom(),
         )
         CompositionLocalProvider(
-            LocalPageBackdropDrawnByHost provides true,
+            LocalSharedPageWallpaper provides wallpaper,
+            LocalSettingsPageData provides settingsPageData,
             LocalHomeAppearedContentKeys provides homeAppearedContentKeys,
             LocalPageSwipeController provides if (returnToOverlay) null else pageSwipeController,
         ) {
@@ -641,7 +658,6 @@ private fun NavigationContent(
                                 onWelcomeAnimationCompleted = {
                                     viewModel.onSearchBarWelcomeAnimationCompleted()
                                 },
-                                onWallpaperLoaded = { viewModel.setWallpaperAvailable(true) },
                             )
                         }
                     }
@@ -728,6 +744,10 @@ private fun SettingsNavigationContent(
                 onBack = { onSettingsDetailTypeChange(null) },
                 viewModel = viewModel,
                 detailType = currentDetailType,
+                pageSettled = LocalRootPageSettled.current &&
+                    !backSeek.isSeeking &&
+                    backSeek.transitionState.currentState == currentDetailType &&
+                    settingsDetailType == currentDetailType,
                 sourceDetailType = previousSettingsDetailType,
                 onNavigateToDetail = onSettingsDetailTypeChange,
                 onNavigateToSearch = {

@@ -311,7 +311,9 @@ internal fun rememberHomePinnedWidgets(enabled: Boolean): List<PanelWidgetInfo> 
 internal fun rememberHomeWidgetHost(): WidgetPanelHost {
     val appContext = LocalContext.current.applicationContext
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val host = remember(appContext) { WidgetPanelHost(appContext, QUICK_SEARCH_WIDGET_HOST_ID) }
+    val host = remember(appContext) {
+        WidgetPanelHost(appContext, QUICK_SEARCH_WIDGET_HOST_ID).apply { setSuspended(true) }
+    }
     DisposableEffect(host, lifecycle) {
         val stopFollowingLifecycle = host.listenWhileStarted(lifecycle)
         onDispose {

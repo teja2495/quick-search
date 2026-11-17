@@ -11,6 +11,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import com.tk.quicksearch.app.navigation.LocalPageSwipeController
+import com.tk.quicksearch.app.navigation.LocalRootPageSettled
 import com.tk.quicksearch.app.navigation.RootDestination
 import com.tk.quicksearch.app.navigation.detectPageSwipe
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +35,8 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,11 +69,14 @@ import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
 import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.tile.requestAddQuickSearchTile
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.util.cachedDefaultHomeAppStatus
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
 import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.widgets.utils.requestAddQuickSearchWidget
 import com.tk.quicksearch.settings.appShortcutsSettings.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private const val SETTINGS_BACK_SWIPE_THRESHOLD_PX = 140f
@@ -87,6 +93,7 @@ fun SettingsRoute(
     scrollState: androidx.compose.foundation.ScrollState =
         androidx.compose.foundation.rememberScrollState(),
 ) {
+    val pageSettled = LocalRootPageSettled.current
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val userPreferences = remember { UserAppPreferences(context) }
@@ -100,6 +107,8 @@ fun SettingsRoute(
         mutableStateOf(userPreferences.hasSeenSettingsSearchTip())
     }
     val lifecycleOwner = LocalLifecycleOwner.current
+    val scope = rememberCoroutineScope()
+    var isDefaultLauncher by remember(context) { mutableStateOf(context.cachedDefaultHomeAppStatus()) }
     val pendingEnableDirectDial = remember { mutableStateOf(false) }
     var showPermissionSettingsDialog by remember { mutableStateOf(false) }
     var pendingPermissionSettingsAction by remember { mutableStateOf<(() -> Unit)?>(null) }
@@ -115,10 +124,6 @@ fun SettingsRoute(
             onSetBackgroundSource = viewModel::setBackgroundSource,
             onOptionalPermissionChanged = viewModel::handleOptionalPermissionChange,
         )
-
-    androidx.compose.runtime.LaunchedEffect(Unit) {
-        viewModel.handleOptionalPermissionChange()
-    }
 
     val contactsPermissionLauncher =
         rememberLauncherForActivityResult(
@@ -378,7 +383,13 @@ fun SettingsRoute(
         )
 
     // Refresh permission state and reset banner session dismissed flag when activity starts/resumes
-    androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
+    var hasSettled by remember { mutableStateOf(pageSettled) }
+    LaunchedEffect(pageSettled) {
+        if (pageSettled) hasSettled = true
+    }
+    DisposableEffect(lifecycleOwner, hasSettled) {
+        if (!hasSettled) return@DisposableEffect onDispose { }
+        var launcherRoleJob: Job? = null
         val observer =
             LifecycleEventObserver { _, event ->
                 when (event) {
@@ -389,6 +400,10 @@ fun SettingsRoute(
 
                     Lifecycle.Event.ON_RESUME -> {
                         viewModel.handleOnResume()
+                        launcherRoleJob?.cancel()
+                        launcherRoleJob = scope.launch {
+                            isDefaultLauncher = withContext(Dispatchers.Default) { context.isDefaultHomeApp() }
+                        }
                         wallpaperPermissionController.onRefreshPermissionState()
                         shouldShowBanner.value = viewModel.uiState.value.shouldShowUsagePermissionBanner
                     }
@@ -397,7 +412,10 @@ fun SettingsRoute(
                 }
             }
         lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+        onDispose {
+            launcherRoleJob?.cancel()
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     val onDismissBanner = {
@@ -429,6 +447,7 @@ fun SettingsRoute(
         modifier = modifier.then(swipeNavigationModifier),
         state = resolvedState,
         callbacks = callbacks,
+        isOverlayModeBlockedByLauncher = isDefaultLauncher,
         hasUsagePermission = uiState.hasUsagePermission,
         hasContactPermission = uiState.hasContactPermission,
         hasFilePermission = uiState.hasFilePermission,
