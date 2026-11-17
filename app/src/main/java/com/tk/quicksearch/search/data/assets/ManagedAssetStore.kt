@@ -53,6 +53,13 @@ class ManagedAssetStore(context: Context) {
         pruneOrphans()
     }
 
+    fun removeAll(prefix: String) {
+        val keys = index.all.keys.filter { it.startsWith(prefix) }
+        if (keys.isEmpty()) return
+        index.edit().apply { keys.forEach(::remove) }.commit()
+        pruneOrphans()
+    }
+
     fun pruneOrphans() {
         val referenced = index.all.values.filterIsInstance<String>().toSet()
         root.listFiles()?.forEach { file ->

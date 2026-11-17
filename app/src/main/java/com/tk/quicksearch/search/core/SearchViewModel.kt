@@ -606,7 +606,7 @@ class SearchViewModel(
     private fun loadPinnedAndExcludedCalendarEvents() =
         staticDataDelegate.loadPinnedAndExcludedCalendarEvents()
     fun refreshCalendarEvents() {
-        loadPinnedAndExcludedCalendarEvents()
+        viewModelScope.launch(Dispatchers.IO) { loadPinnedAndExcludedCalendarEvents() }
     }
     fun onQueryChange(newQuery: String) {
         inMemoryRetainedQuery = newQuery

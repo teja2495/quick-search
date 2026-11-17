@@ -128,20 +128,20 @@ internal class SearchDerivedStateDelegate(
             userPreferences.setRecentAppLaunches(initialRecents)
         }
 
-        // Pinned apps stay on the home screen even when app suggestions are turned off.
-        val pinnedAppsForSuggestions =
-            appSearchManager.computePinnedApps(
-                exclusion = emptySet(),
-                pinnedPackages = pinnedPackages,
-                pinnedOrder = { pinnedOrder },
-            )
-        val pinnedAppsForResults =
+        // One sorted pass over the catalog serves both pinned lists; they differ only in what
+        // each excludes, and filtering keeps the shared pinned order.
+        val launchablePinnedApps =
             computePinnedApps(
                 apps = apps,
                 pinnedPackages = pinnedPackages,
-                exclusion = resultHiddenPackages,
+                exclusion = emptySet(),
                 pinnedOrder = { pinnedOrder },
             )
+        // Pinned apps stay on the home screen even when app suggestions are turned off.
+        val pinnedAppsForSuggestions =
+            launchablePinnedApps.filter(appSearchManager::isEligibleForPinnedSuggestions)
+        val pinnedAppsForResults =
+            launchablePinnedApps.filterNot { resultHiddenPackages.contains(it.launchCountKey()) }
         val suggestedRecents =
             if (suggestionsEnabled) {
                 val recentsSource = visibleAppList

@@ -6,7 +6,6 @@ import com.tk.quicksearch.customInfo.CustomInfoRepository
 import com.tk.quicksearch.customInfo.CustomInfoScheduler
 import com.tk.quicksearch.reminders.ReminderScheduler
 import com.tk.quicksearch.search.apps.IconPackManager
-import com.tk.quicksearch.search.data.preferences.AppShortcutPreferences
 import com.tk.quicksearch.search.data.preferences.BasePreferences
 import com.tk.quicksearch.search.data.preferences.CustomLlmProviderPreferences
 import com.tk.quicksearch.search.data.preferences.GeminiPreferences
@@ -25,6 +24,7 @@ import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.CustomLlmProviderConfig
 import java.io.File
 import java.io.IOException
+import java.io.Writer
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -153,41 +153,47 @@ object SettingsBackupManager {
         val includeApiKeys = options.includes(ExportItem.API_KEYS)
         val userPreferences = UserAppPreferences(context)
         val notes = if (options.includes(ExportItem.NOTES)) NotesRepository(context).getAllNotes() else null
-        val payload =
-            JSONObject()
-                .put(FIELD_FORMAT_VERSION, FORMAT_VERSION)
-                .put(FIELD_EXPORTED_AT_EPOCH_MS, System.currentTimeMillis())
-                .put(FIELD_PREFERENCES, buildPreferencesJson(context, options, notes))
-                .put(
-                    FIELD_SELECTED_EXPORT_ITEMS,
-                    JSONArray(options.selectedItems.map { it.name }.sorted()),
-                )
-                .put(FIELD_LLM_PERSONAL_CONTEXTS, serializePersonalContexts(userPreferences))
-                .apply {
-                    if (includeApiKeys) {
-                        put(FIELD_LLM_API_KEYS, serializeApiKeys(userPreferences))
-                        put(
-                            FIELD_CUSTOM_LLM_PROVIDERS,
-                            serializeCustomLlmProviders(CustomLlmProviderPreferences(context).getProviders()),
-                        )
-                    }
-                    if (notes != null) {
-                        put(FIELD_NOTES, serializeNotes(notes))
-                    }
-                    if (options.includes(ExportItem.BOOKMARKS)) {
-                        put(FIELD_BOOKMARKS, BookmarkBackupCodec.serialize(BookmarkRepository(context).getAll()))
-                    }
-                    if (options.includes(ExportItem.SETTINGS)) {
-                        userPreferences.getSelectedIconPackPackage()?.let { put(FIELD_SELECTED_ICON_PACK, it) }
-                    }
-                }
-
         val outputStream =
             context.contentResolver.openOutputStream(outputUri)
                 ?: throw IOException("Unable to open output stream")
 
+        // Written field by field so the whole backup is never held as one JSON tree and string.
         outputStream.bufferedWriter(Charsets.UTF_8).use { writer ->
-            writer.write(payload.toString(2))
+            var firstField = true
+            fun field(name: String, writeValue: () -> Unit) {
+                writer.write(if (firstField) "{\n" else ",\n")
+                firstField = false
+                writer.write(JSONObject.quote(name))
+                writer.write(": ")
+                writeValue()
+            }
+            field(FIELD_FORMAT_VERSION) { writer.write(FORMAT_VERSION.toString()) }
+            field(FIELD_EXPORTED_AT_EPOCH_MS) { writer.write(System.currentTimeMillis().toString()) }
+            field(FIELD_PREFERENCES) { writePreferencesJson(writer, context, options, notes) }
+            field(FIELD_SELECTED_EXPORT_ITEMS) {
+                writer.write(JSONArray(options.selectedItems.map { it.name }.sorted()).toString())
+            }
+            field(FIELD_LLM_PERSONAL_CONTEXTS) { writer.write(serializePersonalContexts(userPreferences).toString()) }
+            if (includeApiKeys) {
+                field(FIELD_LLM_API_KEYS) { writer.write(serializeApiKeys(userPreferences).toString()) }
+                field(FIELD_CUSTOM_LLM_PROVIDERS) {
+                    writer.write(serializeCustomLlmProviders(CustomLlmProviderPreferences(context).getProviders()).toString())
+                }
+            }
+            if (notes != null) {
+                field(FIELD_NOTES) { writer.write(serializeNotes(notes).toString()) }
+            }
+            if (options.includes(ExportItem.BOOKMARKS)) {
+                field(FIELD_BOOKMARKS) {
+                    writer.write(BookmarkBackupCodec.serialize(BookmarkRepository(context).getAll()).toString())
+                }
+            }
+            if (options.includes(ExportItem.SETTINGS)) {
+                userPreferences.getSelectedIconPackPackage()?.let { iconPack ->
+                    field(FIELD_SELECTED_ICON_PACK) { writer.write(JSONObject.quote(iconPack)) }
+                }
+            }
+            writer.write("\n}\n")
         }
     }
 
@@ -230,6 +236,7 @@ object SettingsBackupManager {
             CustomInfoRepository(context).all().forEach { CustomInfoScheduler.cancel(context, it.id) }
         }
 
+        var importedCustomEngines = false
         preferenceNames.forEach { prefName ->
             val sharedPreferences = context.getSharedPreferences(prefName, Context.MODE_PRIVATE)
             val prefEntries = preferencesJson.optJSONObject(prefName)
@@ -257,6 +264,9 @@ object SettingsBackupManager {
                         return@forEach
                     }
                     val valueObject = prefEntries.optJSONObject(key) ?: return@forEach
+                    if (prefName == BasePreferences.PREFS_NAME && key == BasePreferences.KEY_CUSTOM_SEARCH_ENGINES) {
+                        importedCustomEngines = true
+                    }
                     when (valueObject.optString(FIELD_TYPE)) {
                         TYPE_STRING -> editor.putString(key, valueObject.optString(FIELD_VALUE))
                         TYPE_BOOLEAN -> editor.putBoolean(key, valueObject.optBoolean(FIELD_VALUE))
@@ -285,8 +295,11 @@ object SettingsBackupManager {
             }
         }
 
-        // Shortcut icon overrides are kept in memory; reread them from the restored preferences.
-        AppShortcutPreferences.invalidateIconOverrideCache()
+        SettingsBackupStorageBridge.afterPreferencesImport(
+            context = context,
+            fullRestore = selectedExportItems == null,
+            importedCustomEngines = importedCustomEngines,
+        )
 
         if (selectedExportItems == null || ExportItem.SETTINGS in selectedExportItems) {
             importSelectedIconPack(context, root)
@@ -367,40 +380,53 @@ object SettingsBackupManager {
         }
     }
 
-    private fun buildPreferencesJson(
+    /** Writes the preferences section one entry at a time instead of building it in memory. */
+    private fun writePreferencesJson(
+        writer: Writer,
         context: Context,
         options: ExportOptions,
         notes: List<NoteInfo>?,
-    ): JSONObject {
-        val preferencesJson = JSONObject()
-        collectEligiblePreferenceNames(context)
-            .sorted()
-            .forEach { prefName ->
-                val pref = context.getSharedPreferences(prefName, Context.MODE_PRIVATE)
-                val prefEntriesJson = JSONObject()
-                pref.all
-                    .asSequence()
-                    .filterNot { shouldExcludeKey(prefName, it.key) }
-                    .filter { shouldIncludeKeyForExport(prefName, it.key, options) }
-                    .sortedBy { it.key }
-                    .forEach { (key, value) ->
-                        serializePreferenceValue(value)?.let { serialized ->
-                            prefEntriesJson.put(key, serialized)
-                        }
-                    }
-                // Notes live in Room. Keep the legacy JSON copy in the backup so builds that read
-                // notes only from the preferences section restore them too.
-                if (prefName == BasePreferences.PREFS_NAME && notes != null) {
-                    serializePreferenceValue(NotesRoomStore.serializeLegacySnapshot(notes))?.let {
-                        prefEntriesJson.put(BasePreferences.KEY_NOTES_DATA, it)
-                    }
-                }
-                if (prefEntriesJson.length() > 0) {
-                    preferencesJson.put(prefName, prefEntriesJson)
-                }
-            }
-        return preferencesJson
+    ) {
+        val sections =
+            collectEligiblePreferenceNames(context)
+                .sorted()
+                .asSequence()
+                .map { prefName -> prefName to preferenceEntriesForExport(context, prefName, options, notes) }
+        SettingsBackupStorageBridge.writeSections(writer, sections)
     }
+
+    private fun preferenceEntriesForExport(
+        context: Context,
+        prefName: String,
+        options: ExportOptions,
+        notes: List<NoteInfo>?,
+    ): Sequence<Pair<String, JSONObject>> =
+        sequence {
+            val stored = context.getSharedPreferences(prefName, Context.MODE_PRIVATE).all
+            val entries =
+                if (prefName == BasePreferences.PREFS_NAME) {
+                    SettingsBackupStorageBridge.exportableUserPreferences(context, stored)
+                } else {
+                    stored
+                }
+            // Notes live in Room. Keep the legacy JSON copy in the backup so builds that read
+            // notes only from the preferences section restore them too.
+            val legacyNotes =
+                if (prefName == BasePreferences.PREFS_NAME && notes != null) {
+                    serializePreferenceValue(NotesRoomStore.serializeLegacySnapshot(notes))
+                } else {
+                    null
+                }
+            entries.keys
+                .filterNot { shouldExcludeKey(prefName, it) }
+                .filter { shouldIncludeKeyForExport(prefName, it, options) }
+                .sorted()
+                .forEach { key ->
+                    if (legacyNotes != null && key == BasePreferences.KEY_NOTES_DATA) return@forEach
+                    serializePreferenceValue(entries[key])?.let { yield(key to it) }
+                }
+            legacyNotes?.let { yield(BasePreferences.KEY_NOTES_DATA to it) }
+        }
 
     private fun collectEligiblePreferenceNames(
         context: Context,

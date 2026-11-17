@@ -7,6 +7,8 @@ import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.models.AppInfo
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 /**
@@ -33,10 +35,11 @@ class AppManagementService(
         scope.launch {
             if (isSearching) {
                 userPreferences.hidePackageInResults(appInfo.launchCountKey())
+                onStateChanged()
             } else {
+                // excludeItem already refreshes the derived state.
                 excludeItem(appInfo)
             }
-            onStateChanged()
         }
     }
 
@@ -75,4 +78,22 @@ class AppManagementService(
 
     // [appKey] is [AppInfo.launchCountKey], so cloned and work-profile apps keep their own nickname.
     fun getAppNickname(appKey: String): String? = userPreferences.getAppNickname(appKey)
+
+    companion object {
+        /**
+         * Wraps [refresh] so callers return at once and the refresh runs on a background thread.
+         * Requests are conflated and run one at a time, and each run reads preferences when it
+         * starts, so the last run always reflects the last preference write.
+         */
+        fun backgroundRefresher(
+            scope: CoroutineScope,
+            refresh: () -> Unit,
+        ): () -> Unit {
+            val requests = Channel<Unit>(Channel.CONFLATED)
+            scope.launch(Dispatchers.Default) {
+                for (request in requests) refresh()
+            }
+            return { requests.trySend(Unit) }
+        }
+    }
 }

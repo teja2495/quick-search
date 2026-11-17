@@ -75,7 +75,12 @@ internal class SearchHandlerContainer(
     private val isLowRamDevice: Boolean,
 ) {
     val appManager by lazy {
-        AppManagementService(userPreferences, scope, refreshAppSuggestions)
+        // Pin, hide and reorder refresh the whole app catalog; keep that off the main thread.
+        AppManagementService(
+            userPreferences,
+            scope,
+            AppManagementService.backgroundRefresher(scope, refreshAppSuggestions),
+        )
     }
 
     val contactManager by lazy {

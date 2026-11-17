@@ -23,9 +23,10 @@ class AppPreferences(
 
     fun getPinnedPackages(): Set<String> = getPinnedStringItems(BasePreferences.KEY_PINNED)
 
-    fun getPinnedPackageOrder(): List<String> =
-        getStringListPref(BasePreferences.KEY_PINNED_APP_ORDER)
-            .filter { getPinnedPackages().contains(it) }
+    fun getPinnedPackageOrder(): List<String> {
+        val pinnedPackages = getPinnedPackages()
+        return getStringListPref(BasePreferences.KEY_PINNED_APP_ORDER).filter(pinnedPackages::contains)
+    }
 
     fun setPinnedPackageOrder(packageNames: List<String>): List<String> {
         val pinnedPackages = getPinnedPackages()

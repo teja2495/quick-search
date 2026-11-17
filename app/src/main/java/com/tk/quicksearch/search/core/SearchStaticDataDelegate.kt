@@ -538,7 +538,8 @@ internal class SearchStaticDataDelegate(
         calendarManager.clearAllExcludedItems()
         appShortcutManager.clearAllExcludedShortcuts()
         pinningHandler.loadExcludedContactsAndFiles()
-        loadPinnedAndExcludedCalendarEvents()
+        // Reloading queries the calendar provider; keep it off the settings screen's main thread.
+        scope.launch(Dispatchers.IO) { loadPinnedAndExcludedCalendarEvents() }
         refreshSettingsState(updateResults = false)
         refreshAppShortcutsState(updateResults = false)
     }

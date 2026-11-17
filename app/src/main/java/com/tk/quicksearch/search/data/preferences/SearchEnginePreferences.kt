@@ -18,6 +18,7 @@ class SearchEnginePreferences(
     companion object {
         const val ONE_ROW = 1
         const val TWO_ROWS = 2
+        private val customEnginesLock = Any()
     }
 
     // ============================================================================
@@ -83,40 +84,53 @@ class SearchEnginePreferences(
         setBooleanPref(BasePreferences.KEY_SEARCH_ENGINE_ONBOARDING_SEEN, seen)
     }
 
+    /**
+     * Favicons live in [ManagedAssetStore]. One still inline in the stored JSON comes from an
+     * older build or a restored backup, so it wins and is moved to the asset store.
+     */
     fun getCustomSearchEngines(): List<CustomSearchEngine> {
         val stored = prefs.getString(BasePreferences.KEY_CUSTOM_SEARCH_ENGINES, null)
         if (stored.isNullOrBlank()) return emptyList()
 
         return runCatching {
             val array = JSONArray(stored)
-            buildList {
-                for (index in 0 until array.length()) {
-                    val item = array.optJSONObject(index) ?: continue
-                    val id = item.optString("id")
-                    val name = item.optString("name")
-                    val urlTemplate = item.optString("urlTemplate")
-                    if (id.isBlank() || name.isBlank() || urlTemplate.isBlank()) continue
-                    add(
-                        CustomSearchEngine(
-                            id = id,
-                            name = name,
-                            urlTemplate = urlTemplate,
-                            faviconBase64 =
-                                assetStore.getBase64("${ManagedAssetStore.SEARCH_ENGINE_ICON_PREFIX}$id")
-                                    ?: item.optString("faviconBase64").ifBlank { null }?.also { legacy ->
-                                        assetStore.putBase64(
-                                            "${ManagedAssetStore.SEARCH_ENGINE_ICON_PREFIX}$id",
-                                            legacy,
-                                        )
+            var movedInlineFavicon = false
+            val engines =
+                buildList {
+                    for (index in 0 until array.length()) {
+                        val item = array.optJSONObject(index) ?: continue
+                        val id = item.optString("id")
+                        val name = item.optString("name")
+                        val urlTemplate = item.optString("urlTemplate")
+                        if (id.isBlank() || name.isBlank() || urlTemplate.isBlank()) continue
+                        val inlineFavicon = item.optString("faviconBase64").ifBlank { null }
+                        if (inlineFavicon != null && assetStore.putBase64(faviconAssetId(id), inlineFavicon)) {
+                            item.put("faviconBase64", "")
+                            movedInlineFavicon = true
+                        }
+                        add(
+                            CustomSearchEngine(
+                                id = id,
+                                name = name,
+                                urlTemplate = urlTemplate,
+                                faviconBase64 = inlineFavicon ?: assetStore.getBase64(faviconAssetId(id)),
+                                browserPackage =
+                                    item.optString("browserPackage").ifBlank {
+                                        IN_APP_BROWSER_PACKAGE
                                     },
-                            browserPackage =
-                                item.optString("browserPackage").ifBlank {
-                                    IN_APP_BROWSER_PACKAGE
-                                },
-                        ),
-                    )
+                            ),
+                        )
+                    }
+                }
+            if (movedInlineFavicon) {
+                synchronized(customEnginesLock) {
+                    // Skip if the engines were saved meanwhile; that save stored its own favicons.
+                    if (prefs.getString(BasePreferences.KEY_CUSTOM_SEARCH_ENGINES, null) == stored) {
+                        prefs.edit().putString(BasePreferences.KEY_CUSTOM_SEARCH_ENGINES, array.toString()).apply()
+                    }
                 }
             }
+            engines
         }.getOrDefault(emptyList())
     }
 
@@ -190,22 +204,32 @@ class SearchEnginePreferences(
     fun setCustomSearchEngines(engines: List<CustomSearchEngine>) {
         val array = JSONArray()
         engines.forEach { engine ->
-            val assetId = "${ManagedAssetStore.SEARCH_ENGINE_ICON_PREFIX}${engine.id}"
-            if (engine.faviconBase64.isNullOrBlank()) {
-                assetStore.remove(assetId)
-            } else {
-                assetStore.putBase64(assetId, engine.faviconBase64)
-            }
+            val assetId = faviconAssetId(engine.id)
+            // Kept inline only when the asset store can't take it.
+            val inlineFavicon =
+                if (engine.faviconBase64.isNullOrBlank()) {
+                    assetStore.remove(assetId)
+                    ""
+                } else if (assetStore.putBase64(assetId, engine.faviconBase64)) {
+                    ""
+                } else {
+                    engine.faviconBase64
+                }
             val item =
                 JSONObject().apply {
                     put("id", engine.id)
                     put("name", engine.name)
                     put("urlTemplate", engine.urlTemplate)
-                    put("faviconBase64", engine.faviconBase64 ?: "")
+                    put("faviconBase64", inlineFavicon)
                     put("browserPackage", engine.browserPackage ?: "")
                 }
             array.put(item)
         }
-        prefs.edit().putString(BasePreferences.KEY_CUSTOM_SEARCH_ENGINES, array.toString()).apply()
+        synchronized(customEnginesLock) {
+            prefs.edit().putString(BasePreferences.KEY_CUSTOM_SEARCH_ENGINES, array.toString()).apply()
+        }
     }
+
+    private fun faviconAssetId(engineId: String): String =
+        "${ManagedAssetStore.SEARCH_ENGINE_ICON_PREFIX}$engineId"
 }

@@ -295,29 +295,9 @@ class AppSearchManager(
         }
     }
 
-    fun computePinnedApps(
-        exclusion: Set<String>,
-        pinnedPackages: Set<String> = userPreferences.getPinnedPackages(),
-        pinnedOrder: () -> Map<String, Int> = ::readPinnedOrder,
-    ): List<AppInfo> {
-        if (cachedApps.isEmpty() || pinnedPackages.isEmpty()) return emptyList()
-        val pinnedOrder = pinnedOrder()
-
-        return cachedApps
-            .asSequence()
-            .filter {
-                pinnedPackages.contains(it.launchCountKey()) &&
-                    !exclusion.contains(it.launchCountKey()) &&
-                    it.hasLaunchIntent &&
-                    it.packageName != currentPackageName &&
-                    it.packageName != defaultLauncherPackageName
-            }
-            .sortedWith(
-                compareBy<AppInfo> { pinnedOrder[it.launchCountKey()] ?: Int.MAX_VALUE }
-                    .thenBy { it.appName.lowercase(Locale.getDefault()) },
-            )
-            .toList()
-    }
+    /** Quick Search itself and the default launcher are never shown as pinned home apps. */
+    fun isEligibleForPinnedSuggestions(app: AppInfo): Boolean =
+        app.packageName != currentPackageName && app.packageName != defaultLauncherPackageName
 
     fun readPinnedOrder(): Map<String, Int> =
         userPreferences.getPinnedPackageOrder().withIndex().associate { it.value to it.index }

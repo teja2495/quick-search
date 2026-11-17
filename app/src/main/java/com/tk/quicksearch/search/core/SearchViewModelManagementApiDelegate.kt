@@ -144,12 +144,14 @@ class SearchViewModelManagementApiDelegate internal constructor(
         if (apps.isNotEmpty()) appManager().reorderPinnedApps(apps)
         if (shortcuts.isEmpty()) return
         val shortcutRank = shortcuts.withIndex().associate { (index, shortcut) -> shortcutKey(shortcut) to index }
+        var reordered: List<StaticShortcut> = emptyList()
         updateUiState { state ->
-            val reordered =
-                state.pinnedAppShortcuts.sortedBy { shortcutRank[shortcutKey(it)] ?: Int.MAX_VALUE }
-            userPreferences.setPinnedAppShortcutOrder(reordered.map { shortcutKey(it) })
-            state.copy(pinnedAppShortcuts = reordered)
+            state.pinnedAppShortcuts
+                .sortedBy { shortcutRank[shortcutKey(it)] ?: Int.MAX_VALUE }
+                .also { reordered = it }
+                .let { state.copy(pinnedAppShortcuts = it) }
         }
+        userPreferences.setPinnedAppShortcutOrder(reordered.map { shortcutKey(it) })
     }
 
     fun setAppNickname(appInfo: AppInfo, nickname: String?) = appManager().setAppNickname(appInfo, nickname)
@@ -180,24 +182,16 @@ class SearchViewModelManagementApiDelegate internal constructor(
         refreshRecentItems()
     }
 
-    fun movePinnedContact(contactInfo: ContactInfo, moveUp: Boolean) {
-        updateUiState { state ->
-            val reordered =
-                state.pinnedContacts.moveItem(
-                    item = contactInfo,
-                    moveUp = moveUp,
-                    sameItem = { a, b -> a.contactId == b.contactId },
-                )
-            if (reordered != null) {
-                userPreferences.setPinnedContactOrder(reordered.map { it.contactId })
-            }
-            val updatedOrder = movePinnedNonAppItem(state, contactInfo.pinnedNonAppItemKey(), moveUp)
-            state.copy(
-                pinnedContacts = reordered ?: state.pinnedContacts,
-                pinnedNonAppItemOrder = updatedOrder,
-            )
-        }
-    }
+    fun movePinnedContact(contactInfo: ContactInfo, moveUp: Boolean) =
+        movePinnedItem(
+            item = contactInfo,
+            nonAppKey = contactInfo.pinnedNonAppItemKey(),
+            moveUp = moveUp,
+            items = { pinnedContacts },
+            sameItem = { a, b -> a.contactId == b.contactId },
+            withItems = { copy(pinnedContacts = it) },
+            persistOrder = { reordered -> userPreferences.setPinnedContactOrder(reordered.map { it.contactId }) },
+        )
 
     fun excludeContact(contactInfo: ContactInfo) = contactManager().excludeContact(contactInfo)
 
@@ -247,24 +241,16 @@ class SearchViewModelManagementApiDelegate internal constructor(
         refreshRecentItems()
     }
 
-    fun movePinnedFile(deviceFile: DeviceFile, moveUp: Boolean) {
-        updateUiState { state ->
-            val reordered =
-                state.pinnedFiles.moveItem(
-                    item = deviceFile,
-                    moveUp = moveUp,
-                    sameItem = { a, b -> a.uri.toString() == b.uri.toString() },
-                )
-            if (reordered != null) {
-                userPreferences.setPinnedFileOrder(reordered.map { it.uri.toString() })
-            }
-            val updatedOrder = movePinnedNonAppItem(state, deviceFile.pinnedNonAppItemKey(), moveUp)
-            state.copy(
-                pinnedFiles = reordered ?: state.pinnedFiles,
-                pinnedNonAppItemOrder = updatedOrder,
-            )
-        }
-    }
+    fun movePinnedFile(deviceFile: DeviceFile, moveUp: Boolean) =
+        movePinnedItem(
+            item = deviceFile,
+            nonAppKey = deviceFile.pinnedNonAppItemKey(),
+            moveUp = moveUp,
+            items = { pinnedFiles },
+            sameItem = { a, b -> a.uri.toString() == b.uri.toString() },
+            withItems = { copy(pinnedFiles = it) },
+            persistOrder = { reordered -> userPreferences.setPinnedFileOrder(reordered.map { it.uri.toString() }) },
+        )
 
     fun excludeFile(deviceFile: DeviceFile) = fileManager().excludeFile(deviceFile)
 
@@ -306,24 +292,16 @@ class SearchViewModelManagementApiDelegate internal constructor(
         refreshRecentItems()
     }
 
-    fun movePinnedSetting(setting: DeviceSetting, moveUp: Boolean) {
-        updateUiState { state ->
-            val reordered =
-                state.pinnedSettings.moveItem(
-                    item = setting,
-                    moveUp = moveUp,
-                    sameItem = { a, b -> a.id == b.id },
-                )
-            if (reordered != null) {
-                userPreferences.setPinnedSettingOrder(reordered.map { it.id })
-            }
-            val updatedOrder = movePinnedNonAppItem(state, setting.pinnedNonAppItemKey(), moveUp)
-            state.copy(
-                pinnedSettings = reordered ?: state.pinnedSettings,
-                pinnedNonAppItemOrder = updatedOrder,
-            )
-        }
-    }
+    fun movePinnedSetting(setting: DeviceSetting, moveUp: Boolean) =
+        movePinnedItem(
+            item = setting,
+            nonAppKey = setting.pinnedNonAppItemKey(),
+            moveUp = moveUp,
+            items = { pinnedSettings },
+            sameItem = { a, b -> a.id == b.id },
+            withItems = { copy(pinnedSettings = it) },
+            persistOrder = { reordered -> userPreferences.setPinnedSettingOrder(reordered.map { it.id }) },
+        )
 
     fun excludeSetting(setting: DeviceSetting) = settingsManager().excludeSetting(setting)
 
@@ -353,24 +331,16 @@ class SearchViewModelManagementApiDelegate internal constructor(
         removePinnedNonAppItem(event.pinnedNonAppItemKey())
     }
 
-    fun movePinnedCalendarEvent(event: CalendarEventInfo, moveUp: Boolean) {
-        updateUiState { state ->
-            val reordered =
-                state.pinnedCalendarEvents.moveItem(
-                    item = event,
-                    moveUp = moveUp,
-                    sameItem = { a, b -> a.eventId == b.eventId },
-                )
-            if (reordered != null) {
-                userPreferences.setPinnedCalendarEventOrder(reordered.map { it.eventId })
-            }
-            val updatedOrder = movePinnedNonAppItem(state, event.pinnedNonAppItemKey(), moveUp)
-            state.copy(
-                pinnedCalendarEvents = reordered ?: state.pinnedCalendarEvents,
-                pinnedNonAppItemOrder = updatedOrder,
-            )
-        }
-    }
+    fun movePinnedCalendarEvent(event: CalendarEventInfo, moveUp: Boolean) =
+        movePinnedItem(
+            item = event,
+            nonAppKey = event.pinnedNonAppItemKey(),
+            moveUp = moveUp,
+            items = { pinnedCalendarEvents },
+            sameItem = { a, b -> a.eventId == b.eventId },
+            withItems = { copy(pinnedCalendarEvents = it) },
+            persistOrder = { reordered -> userPreferences.setPinnedCalendarEventOrder(reordered.map { it.eventId }) },
+        )
 
     fun excludeCalendarEvent(event: CalendarEventInfo) = calendarManager().excludeItem(event)
 
@@ -393,24 +363,16 @@ class SearchViewModelManagementApiDelegate internal constructor(
         removePinnedNonAppItem(reminder.pinnedNonAppItemKey())
     }
 
-    fun movePinnedReminder(reminder: ReminderInfo, moveUp: Boolean) {
-        updateUiState { state ->
-            val reordered =
-                state.pinnedReminders.moveItem(
-                    item = reminder,
-                    moveUp = moveUp,
-                    sameItem = { a, b -> a.reminderId == b.reminderId },
-                )
-            if (reordered != null) {
-                userPreferences.setPinnedReminderOrder(reordered.map { it.reminderId })
-            }
-            val updatedOrder = movePinnedNonAppItem(state, reminder.pinnedNonAppItemKey(), moveUp)
-            state.copy(
-                pinnedReminders = reordered ?: state.pinnedReminders,
-                pinnedNonAppItemOrder = updatedOrder,
-            )
-        }
-    }
+    fun movePinnedReminder(reminder: ReminderInfo, moveUp: Boolean) =
+        movePinnedItem(
+            item = reminder,
+            nonAppKey = reminder.pinnedNonAppItemKey(),
+            moveUp = moveUp,
+            items = { pinnedReminders },
+            sameItem = { a, b -> a.reminderId == b.reminderId },
+            withItems = { copy(pinnedReminders = it) },
+            persistOrder = { reordered -> userPreferences.setPinnedReminderOrder(reordered.map { it.reminderId }) },
+        )
 
     fun pinNote(noteInfo: NoteInfo) {
         scope.launch(Dispatchers.IO) {
@@ -429,24 +391,16 @@ class SearchViewModelManagementApiDelegate internal constructor(
         }
     }
 
-    fun movePinnedNote(noteInfo: NoteInfo, moveUp: Boolean) {
-        updateUiState { state ->
-            val reordered =
-                state.pinnedNotes.moveItem(
-                    item = noteInfo,
-                    moveUp = moveUp,
-                    sameItem = { a, b -> a.noteId == b.noteId },
-                )
-            if (reordered != null) {
-                notesRepository().setPinnedNoteOrder(reordered.map { it.noteId })
-            }
-            val updatedOrder = movePinnedNonAppItem(state, noteInfo.pinnedNonAppItemKey(), moveUp)
-            state.copy(
-                pinnedNotes = reordered ?: state.pinnedNotes,
-                pinnedNonAppItemOrder = updatedOrder,
-            )
-        }
-    }
+    fun movePinnedNote(noteInfo: NoteInfo, moveUp: Boolean) =
+        movePinnedItem(
+            item = noteInfo,
+            nonAppKey = noteInfo.pinnedNonAppItemKey(),
+            moveUp = moveUp,
+            items = { pinnedNotes },
+            sameItem = { a, b -> a.noteId == b.noteId },
+            withItems = { copy(pinnedNotes = it) },
+            persistOrder = { reordered -> notesRepository().setPinnedNoteOrder(reordered.map { it.noteId }) },
+        )
 
     suspend fun stageDeleteNote(noteInfo: NoteInfo): NoteInfo? {
         val deleted =
@@ -495,24 +449,16 @@ class SearchViewModelManagementApiDelegate internal constructor(
         refreshRecentItems()
     }
 
-    fun movePinnedAppShortcut(shortcut: StaticShortcut, moveUp: Boolean) {
-        updateUiState { state ->
-            val reordered =
-                state.pinnedAppShortcuts.moveItem(
-                    item = shortcut,
-                    moveUp = moveUp,
-                    sameItem = { a, b -> shortcutKey(a) == shortcutKey(b) },
-                )
-            if (reordered != null) {
-                userPreferences.setPinnedAppShortcutOrder(reordered.map { shortcutKey(it) })
-            }
-            val updatedOrder = movePinnedNonAppItem(state, shortcut.pinnedNonAppItemKey(), moveUp)
-            state.copy(
-                pinnedAppShortcuts = reordered ?: state.pinnedAppShortcuts,
-                pinnedNonAppItemOrder = updatedOrder,
-            )
-        }
-    }
+    fun movePinnedAppShortcut(shortcut: StaticShortcut, moveUp: Boolean) =
+        movePinnedItem(
+            item = shortcut,
+            nonAppKey = shortcut.pinnedNonAppItemKey(),
+            moveUp = moveUp,
+            items = { pinnedAppShortcuts },
+            sameItem = { a, b -> shortcutKey(a) == shortcutKey(b) },
+            withItems = { copy(pinnedAppShortcuts = it) },
+            persistOrder = { reordered -> userPreferences.setPinnedAppShortcutOrder(reordered.map { shortcutKey(it) }) },
+        )
 
     fun excludeAppShortcut(shortcut: StaticShortcut) = appShortcutManager().excludeShortcut(shortcut)
 
@@ -549,39 +495,58 @@ class SearchViewModelManagementApiDelegate internal constructor(
     fun getAppShortcutTrigger(shortcutId: String): ResultTrigger? =
         userPreferences.getAppShortcutTrigger(shortcutId)
 
+    // Updaters run under the state lock on the caller's thread, so they only compute; the
+    // preference writes follow once the lock is released.
     private fun appendPinnedNonAppItem(key: String) {
+        var updatedOrder: List<String>? = null
         updateUiState { state ->
             if (key in state.pinnedNonAppItemOrder) {
                 state
             } else {
-                val updatedOrder = state.pinnedNonAppItemOrder + key
-                userPreferences.setPinnedNonAppItemOrder(updatedOrder)
-                state.copy(pinnedNonAppItemOrder = updatedOrder)
+                (state.pinnedNonAppItemOrder + key)
+                    .also { updatedOrder = it }
+                    .let { state.copy(pinnedNonAppItemOrder = it) }
             }
         }
+        updatedOrder?.let(userPreferences::setPinnedNonAppItemOrder)
     }
 
     private fun removePinnedNonAppItem(key: String) {
+        var updatedOrder: List<String>? = null
         updateUiState { state ->
             if (key !in state.pinnedNonAppItemOrder) {
                 state
             } else {
-                val updatedOrder = state.pinnedNonAppItemOrder.filterNot { it == key }
-                userPreferences.setPinnedNonAppItemOrder(updatedOrder)
-                state.copy(pinnedNonAppItemOrder = updatedOrder)
+                state.pinnedNonAppItemOrder.filterNot { it == key }
+                    .also { updatedOrder = it }
+                    .let { state.copy(pinnedNonAppItemOrder = it) }
             }
         }
+        updatedOrder?.let(userPreferences::setPinnedNonAppItemOrder)
     }
 
-    private fun movePinnedNonAppItem(
-        state: SearchUiState,
-        key: String,
+    /** Moves [item] within its pinned list and within the mixed pinned order, then saves both. */
+    private fun <T> movePinnedItem(
+        item: T,
+        nonAppKey: String,
         moveUp: Boolean,
-    ): List<String> {
-        val currentOrder = state.completePinnedNonAppItemOrder()
-        val updatedOrder = currentOrder.moveItem(key, moveUp) { a, b -> a == b } ?: currentOrder
-        userPreferences.setPinnedNonAppItemOrder(updatedOrder)
-        return updatedOrder
+        items: SearchUiState.() -> List<T>,
+        sameItem: (T, T) -> Boolean,
+        withItems: SearchUiState.(List<T>) -> SearchUiState,
+        persistOrder: (List<T>) -> Unit,
+    ) {
+        var reordered: List<T>? = null
+        var updatedOrder: List<String>? = null
+        updateUiState { state ->
+            val movedItems = state.items().moveItem(item = item, moveUp = moveUp, sameItem = sameItem)
+            val currentOrder = state.completePinnedNonAppItemOrder()
+            val movedOrder = currentOrder.moveItem(nonAppKey, moveUp) { a, b -> a == b } ?: currentOrder
+            reordered = movedItems
+            updatedOrder = movedOrder
+            state.withItems(movedItems ?: state.items()).copy(pinnedNonAppItemOrder = movedOrder)
+        }
+        reordered?.let(persistOrder)
+        updatedOrder?.let(userPreferences::setPinnedNonAppItemOrder)
     }
 
     fun removeExcludedAppShortcut(shortcut: StaticShortcut) =
