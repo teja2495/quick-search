@@ -188,7 +188,7 @@ private fun WebSuggestionItem(
 
         Text(
             text = suggestion,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyLarge,
             color = textColor,
             maxLines = Int.MAX_VALUE,
             overflow = TextOverflow.Clip,

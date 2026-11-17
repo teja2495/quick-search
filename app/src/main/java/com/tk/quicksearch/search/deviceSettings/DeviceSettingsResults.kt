@@ -263,7 +263,7 @@ internal fun SettingResultRow(
                 ) {
                         Text(
                                 text = rememberQueryHighlightedText(shortcut.title),
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
@@ -273,7 +273,7 @@ internal fun SettingResultRow(
                                         ->
                                         Text(
                                                 text = rememberQueryHighlightedText(description),
-                                                style = MaterialTheme.typography.bodySmall,
+                                                style = MaterialTheme.typography.bodyMedium,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                                 maxLines = 2,
                                                 overflow = TextOverflow.Ellipsis,

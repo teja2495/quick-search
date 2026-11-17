@@ -96,10 +96,10 @@ internal fun GlanceStatusRow(
     /** Null leaves the row without a tap target. */
     onClick: (() -> Unit)?,
     onLongClick: (() -> Unit)? = null,
-    titleStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+    titleStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     titleMaxLines: Int = 1,
     subtitle: String? = null,
-    subtitleStyle: TextStyle = MaterialTheme.typography.bodySmall,
+    subtitleStyle: TextStyle = MaterialTheme.typography.bodyMedium,
     pillText: String? = null,
     pillColors: GlancePillColors = glanceNeutralPillColors(),
     pillWidthText: String? = null,

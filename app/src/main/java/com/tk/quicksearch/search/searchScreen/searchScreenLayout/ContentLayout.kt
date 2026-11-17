@@ -28,7 +28,6 @@ import com.tk.quicksearch.searchEngines.*
 import com.tk.quicksearch.search.searchScreen.ExpandedSection
 import com.tk.quicksearch.search.searchScreen.hasAnySearchResults
 import com.tk.quicksearch.search.searchScreen.renderSection
-import com.tk.quicksearch.search.searchScreen.shared.reportCardlessTrailingEdge
 import com.tk.quicksearch.search.searchScreen.rememberSettledRegularSearchRenderingState
 import com.tk.quicksearch.search.searchScreen.rememberSettledTopMatches
 import com.tk.quicksearch.search.searchScreen.rememberTopMatches
@@ -645,7 +644,7 @@ fun ContentLayout(
                 }
             if (
                 skipItemlessHomeSections &&
-                section.supportsPinnedHomeCollapse() &&
+                section != SearchSection.APPS &&
                 !homePinnedSectionHasItems(section, sectionContext)
             ) {
                 return
@@ -748,7 +747,8 @@ fun ContentLayout(
             topMatches = displayedTopMatches,
             rendersAppsSection = rendersAppsSection,
         )
-    val contentModifier = modifier.padding(bottom = bottomGap).reportCardlessTrailingEdge()
+    val contentModifier =
+        modifier.padding(bottom = bottomGap).reversedListTopDivider(isReversed, effectiveShowWallpaperBackground)
 
     val homeWidgets = rememberHomePinnedWidgets(enabled = !isOverlayPresentation)
     // The container only depends on whether any widget is pinned, so typing a query keeps the same

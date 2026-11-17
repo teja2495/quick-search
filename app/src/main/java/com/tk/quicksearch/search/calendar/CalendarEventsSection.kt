@@ -319,7 +319,7 @@ internal fun CalendarEventRow(
             val recurrenceLabel = calendarRecurrenceLabel(recurrenceRule = event.recurrenceRule)
             Text(
                 text = rememberQueryHighlightedText(event.title),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -333,7 +333,7 @@ internal fun CalendarEventRow(
                         recurrenceLabel,
                     ).joinToString(" \u00b7 ")
                 },
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -341,7 +341,7 @@ internal fun CalendarEventRow(
             if (!isHomescreenTodayEvent) {
                 Text(
                     text = calendarRelativeDateLabel(event),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

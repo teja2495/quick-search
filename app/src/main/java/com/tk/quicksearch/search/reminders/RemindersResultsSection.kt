@@ -223,14 +223,14 @@ internal fun ReminderRow(
         ) {
             Text(
                 text = rememberQueryHighlightedText(reminder.title),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
                 text = reminderScheduleLabel(reminder),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -323,7 +323,7 @@ fun ReminderRelativeDateText(reminder: ReminderInfo) {
         Text(
             text =
                 if (isOverdue) stringResource(R.string.reminder_status_overdue) else reminderRelativeDateLabel(reminder),
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             color = if (isOverdue) reminderOverdueColor() else MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

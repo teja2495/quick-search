@@ -375,7 +375,7 @@ internal fun NowPlayingRow(
                             .weight(1f)
                             .clickable(onClick = glance.open)
                             .basicMarquee(),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                 )

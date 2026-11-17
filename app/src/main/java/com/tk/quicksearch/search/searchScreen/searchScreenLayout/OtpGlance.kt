@@ -91,7 +91,7 @@ internal fun OtpCodeRow(
     GlanceStatusRow(
         icon = { NotificationAppIcon(otp.packageName) },
         title = "$source • $age",
-        titleStyle = MaterialTheme.typography.bodySmall,
+        titleStyle = MaterialTheme.typography.bodyMedium,
         titleMaxLines = GlanceTextMaxLines,
         onClick = { openNotificationTarget(context, otp.packageName, otp.contentIntent) },
         onDismiss = onDismiss,

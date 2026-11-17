@@ -679,7 +679,7 @@ internal fun FileResultRow(
                                                     deviceFile.displayName,
                                             ),
                                     ),
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
@@ -697,7 +697,7 @@ internal fun FileResultRow(
                         Text(
                                 text = listOfNotNull(extension?.uppercase(), folderLabel)
                                         .joinToString(" · "),
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,

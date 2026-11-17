@@ -383,7 +383,7 @@ internal fun UpcomingReminderRow(
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
                     text = reminder.title,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color =
                         if (isPendingDone) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                     textDecoration = if (isPendingDone) TextDecoration.LineThrough else null,
@@ -397,7 +397,7 @@ internal fun UpcomingReminderRow(
                         } else {
                             scheduleLabel
                         },
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = GlanceTextMaxLines,
                     overflow = TextOverflow.Ellipsis,

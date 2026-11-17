@@ -28,10 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.sp
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import java.util.Locale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
@@ -70,11 +67,12 @@ internal fun collapsedPinnedHeaderInset(): Dp =
 private val CompactHeaderCentering = 1.dp
 
 /**
- * Draws a flat header row's divider across the full screen width (the results column bleeds to the
- * edges, see [compactEdgeBleed]), half the stack spacing below the row like flat card dividers.
+ * Draws a divider across the full screen width (the results column bleeds to the edges, see
+ * [compactEdgeBleed]), half the stack spacing below this node like flat card dividers. Used under
+ * flat header rows and the app grid.
  */
 @Composable
-private fun Modifier.compactHeaderDivider(showWallpaperBackground: Boolean): Modifier {
+internal fun Modifier.compactBottomDivider(showWallpaperBackground: Boolean): Modifier {
     val dividerColor = SearchResultCardDefaults.dividerColor(showWallpaperBackground)
     val below = LocalCardlessStackSpacing.current / 2
     val edges = remember { EdgeDistances() }
@@ -88,14 +86,30 @@ private fun Modifier.compactHeaderDivider(showWallpaperBackground: Boolean): Mod
     }
 }
 
-/** Flat header titles: small, letter-spaced caps. */
+/**
+ * Counterpart of [compactBottomDivider] for the open top end of a bottom-anchored ([isReversed])
+ * flat list: pads this node down by half the stack spacing and draws a full-width divider above its
+ * content, so the topmost item is closed off like the last one in a top-down list.
+ */
 @Composable
-private fun compactHeaderTitleStyle(): TextStyle =
-    MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.2.sp)
+internal fun Modifier.reversedListTopDivider(isReversed: Boolean, showWallpaperBackground: Boolean): Modifier {
+    if (!isReversed || LocalSearchCardLayoutEnabled.current) return this
+    val dividerColor = SearchResultCardDefaults.dividerColor(showWallpaperBackground)
+    val above = LocalCardlessStackSpacing.current / 2
+    val edges = remember { EdgeDistances() }
+    return trackEdgeDistances(edges)
+        .drawWithContent {
+            drawContent()
+            val left = edges.leftOr(0).toFloat()
+            val right = edges.rightOr(0).toFloat()
+            val stroke = DesignTokens.BorderWidth.toPx()
+            drawLine(dividerColor, Offset(-left, stroke / 2), Offset(size.width + right, stroke / 2), strokeWidth = stroke)
+        }.padding(top = above)
+}
 
 /**
  * Title row of a home section: optional leading icon, title, and an expand chevron when
- * [isExpanded] is set. With the card layout off it becomes a flat row with a small caps title and a
+ * [isExpanded] is set. With the card layout off it becomes a flat row with a
  * divider below it, sized like the rows it heads.
  */
 @Composable
@@ -112,7 +126,7 @@ internal fun HomeSectionHeaderRow(
             .fillMaxWidth()
             .then(
                 if (compactHeader) {
-                    Modifier.compactHeaderDivider(showWallpaperBackground)
+                    Modifier.compactBottomDivider(showWallpaperBackground)
                 } else {
                     Modifier
                 },
@@ -139,8 +153,8 @@ internal fun HomeSectionHeaderRow(
                 )
             }
             Text(
-                text = if (compactHeader) title.uppercase(Locale.getDefault()) else title,
-                style = if (compactHeader) compactHeaderTitleStyle() else MaterialTheme.typography.titleSmall,
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
                 color = homeTextColor(),
             )
         }
@@ -343,5 +357,9 @@ internal fun homePinnedSectionHasItems(
                 sectionContext.shouldRenderBookmarks && sectionContext.bookmarksList.isNotEmpty()
             // Noted items appear only in Top matches.
             SearchSection.NOTED -> false
-            SearchSection.APPS, SearchSection.APP_SETTINGS -> true
+            SearchSection.APP_SETTINGS ->
+                sectionContext.shouldRenderAppSettings &&
+                    !sectionContext.isDeviceSettingsExpanded &&
+                    sectionContext.appSettingsList.isNotEmpty()
+            SearchSection.APPS -> true
         }

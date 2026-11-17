@@ -248,14 +248,14 @@ internal fun NoteRow(
             ) {
                 Text(
                     text = rememberQueryHighlightedText(title, query),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = rememberQueryHighlightedText(subtitle, query),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = if (matchingPreview != null) 5 else 3,
                     overflow = TextOverflow.Ellipsis,

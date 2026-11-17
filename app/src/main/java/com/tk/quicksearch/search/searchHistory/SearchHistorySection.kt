@@ -623,7 +623,7 @@ internal fun RecentQueryRow(
 
         Text(
             text = query,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyLarge,
             color = textColor,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,

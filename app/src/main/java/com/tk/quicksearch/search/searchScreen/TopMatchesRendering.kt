@@ -649,7 +649,7 @@ private fun TopMatchAppRow(
 
             Text(
                 text = rememberQueryHighlightedText(app.appName),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

@@ -177,7 +177,7 @@ internal fun ContactResultRow(
                                 Text(
                                         text = rememberQueryHighlightedText(contactInfo.displayName),
                                         modifier = Modifier.weight(1f),
-                                        style = MaterialTheme.typography.bodyMedium,
+                                        style = MaterialTheme.typography.bodyLarge,
                                         color = MaterialTheme.colorScheme.onSurface,
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis,

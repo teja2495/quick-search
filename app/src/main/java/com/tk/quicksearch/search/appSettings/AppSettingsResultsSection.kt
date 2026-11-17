@@ -297,7 +297,7 @@ internal fun AppSettingResultRow(
                             setting.title
                         },
                     ),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = if (isBlockedByLauncher) {
                     MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 } else {
@@ -309,7 +309,7 @@ internal fun AppSettingResultRow(
             effectiveDescription?.takeIf { it.isNotBlank() }?.let { description ->
                 Text(
                     text = rememberQueryHighlightedText(description),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = if (isBlockedByLauncher) {
                         MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     } else {
