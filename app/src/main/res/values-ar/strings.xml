@@ -1220,6 +1220,8 @@
     <string name="widget_toggle_show_label">نص Quick Search</string>
     <string name="widget_toggle_show_empty_date">إظهار التاريخ عند عدم وجود عناصر</string>
     <string name="widgets_panel_title">عناصر واجهة المستخدم</string>
+    <string name="widgets_panel_lock_layout">قفل التخطيط</string>
+    <string name="widgets_panel_unlock_layout">إلغاء قفل التخطيط</string>
     <string name="widgets_picker_empty">لم يتم العثور على أي عناصر واجهة مستخدم.</string>
     <string name="widgets_picker_loading">جارٍ تحميل عناصر واجهة المستخدم...</string>
     <string name="widgets_picker_preview_unavailable">المعاينة غير متوفرة</string>

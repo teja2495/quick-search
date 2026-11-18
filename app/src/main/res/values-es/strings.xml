@@ -1219,6 +1219,8 @@
     <string name="widget_toggle_show_label">Texto de Quick Search</string>
     <string name="widget_toggle_show_empty_date">Mostrar la fecha cuando no haya elementos</string>
     <string name="widgets_panel_title">Widgets</string>
+    <string name="widgets_panel_lock_layout">Bloquear diseño</string>
+    <string name="widgets_panel_unlock_layout">Desbloquear diseño</string>
     <string name="widgets_picker_empty">No se encontraron widgets.</string>
     <string name="widgets_picker_loading">Cargando widgets...</string>
     <string name="widgets_picker_preview_unavailable">Vista previa no disponible</string>

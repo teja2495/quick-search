@@ -1206,6 +1206,8 @@
     <string name="widget_toggle_show_label">Quick Search 文本提示</string>
     <string name="widget_toggle_show_empty_date">没有项目时显示日期</string>
     <string name="widgets_panel_title">小部件管理</string>
+    <string name="widgets_panel_lock_layout">锁定布局</string>
+    <string name="widgets_panel_unlock_layout">解锁布局</string>
     <string name="widgets_picker_empty">未找到任何小部件。</string>
     <string name="widgets_picker_loading">正在加载小部件...</string>
     <string name="widgets_picker_preview_unavailable">暂无预览效果</string>

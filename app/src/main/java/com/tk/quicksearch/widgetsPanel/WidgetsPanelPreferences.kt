@@ -52,6 +52,10 @@ internal fun PanelWidgetInfo.isQuickNoteWidget(): Boolean =
 class WidgetsPanelPreferences(
     context: Context,
 ) : BasePreferences(context) {
+    fun isLayoutLocked(): Boolean = getBooleanPref(KEY_LAYOUT_LOCKED, false)
+
+    fun setLayoutLocked(locked: Boolean) = setBooleanPref(KEY_LAYOUT_LOCKED, locked)
+
     fun getWidgets(): List<PanelWidgetInfo> {
         val stored = prefs.getString(KEY_WIDGETS_PANEL_ITEMS, null).orEmpty()
         if (stored.isBlank()) return emptyList()
@@ -208,6 +212,7 @@ class WidgetsPanelPreferences(
     }
 
     private companion object {
+        const val KEY_LAYOUT_LOCKED = "widgets_panel_layout_locked"
         const val KEY_WIDGETS_PANEL_ITEMS = "widgets_panel_items"
         const val FIELD_IS_IN_PANEL = "isInPanel"
         const val FIELD_APP_WIDGET_ID = "appWidgetId"

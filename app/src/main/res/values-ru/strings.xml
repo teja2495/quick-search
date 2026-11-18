@@ -1245,6 +1245,8 @@
 <string name="widget_toggle_show_label">Текст Quick Search</string>
 <string name="widget_toggle_show_empty_date">Показывать дату, когда нет элементов</string>
 <string name="widgets_panel_title">Виджеты</string>
+<string name="widgets_panel_lock_layout">Заблокировать расположение</string>
+<string name="widgets_panel_unlock_layout">Разблокировать расположение</string>
 <string name="widgets_picker_empty">Виджеты не найдены.</string>
 <string name="widgets_picker_loading">Загрузка виджетов...</string>
 <string name="widgets_picker_preview_unavailable">Превью недоступно</string>

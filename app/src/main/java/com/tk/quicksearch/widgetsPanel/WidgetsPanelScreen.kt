@@ -214,6 +214,7 @@ internal fun WidgetsPanelScreen(
     var quickNoteWidget by remember(appContext) { mutableStateOf<PanelWidgetInfo?>(null) }
     var isQuickNoteFocused by remember { mutableStateOf(false) }
     var editingWidgetId by remember { mutableStateOf<Int?>(null) }
+    var layoutLocked by remember(appContext) { mutableStateOf<Boolean?>(null) }
     var showPicker by rememberSaveable { mutableStateOf(false) }
     // An app-widget backup can restore Quick Search's layout metadata, but Android does not
     // restore the corresponding system-owned app-widget IDs. Keep those obsolete records from
@@ -250,6 +251,7 @@ internal fun WidgetsPanelScreen(
     }
 
     fun persistPanelItems(next: List<PanelWidgetInfo>) {
+        if (layoutLocked != false) return
         next.firstOrNull { it.isQuickNoteWidget() }?.let { quickNote ->
             quickNoteWidget = quickNote
             preferences.setQuickNoteWidget(quickNote)
@@ -302,6 +304,7 @@ internal fun WidgetsPanelScreen(
     }
 
     LaunchedEffect(appWidgetHost) {
+        layoutLocked = withContext(Dispatchers.IO) { preferences.isLayoutLocked() }
         val (storedWidgets, storedQuickNote, quickNoteEnabled) =
             withContext(Dispatchers.IO) {
                 Triple(preferences.getWidgets(), preferences.getQuickNoteWidget(), notesPreferences.isQuickNoteEnabled())
@@ -409,9 +412,21 @@ internal fun WidgetsPanelScreen(
 
                 WidgetsPanelHeader(
                     inEditMode = editingWidgetId != null,
+                    layoutLocked = layoutLocked,
+                    onLayoutLockChange = { locked ->
+                        layoutLocked = locked
+                        preferences.setLayoutLocked(locked)
+                        if (locked) {
+                            appWidgetHost.cancelAllPendingLongPresses()
+                            editingWidgetId = null
+                            showPicker = false
+                        }
+                    },
                     onAddWidget = {
-                        focusManager.clearFocus(force = true)
-                        showPicker = true
+                        if (layoutLocked == false) {
+                            focusManager.clearFocus(force = true)
+                            showPicker = true
+                        }
                     },
                     onExitEditMode = {
                         focusManager.clearFocus(force = true)
@@ -432,8 +447,10 @@ internal fun WidgetsPanelScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 fitContentHeight = true,
                                 onFocusChanged = { isQuickNoteFocused = it },
-                                onDragStart = {
-                                    editingWidgetId = QUICK_NOTE_PANEL_WIDGET_ID
+                                onDragStart = if (layoutLocked == false) {
+                                    { if (layoutLocked == false) editingWidgetId = QUICK_NOTE_PANEL_WIDGET_ID }
+                                } else {
+                                    null
                                 },
                             )
                             if (editingWidgetId == QUICK_NOTE_PANEL_WIDGET_ID) {
@@ -511,12 +528,15 @@ internal fun WidgetsPanelScreen(
                                 appWidgetHost = appWidgetHost,
                                 widgetContentAvailable = appWidgetHost.widgetContentAvailable,
                                 editingWidgetId = editingWidgetId,
+                                layoutEditingEnabled = layoutLocked == false,
                                 density = density,
                                 panelScrollState = panelScrollState,
                                 viewportTopPx = scrollViewportTopPx,
                                 viewportHeightPx = scrollViewportHeightPx,
                                 onPersist = ::persistPanelItems,
-                                onSetEditingWidgetId = { id -> editingWidgetId = id },
+                                onSetEditingWidgetId = { id ->
+                                    if (layoutLocked == false) editingWidgetId = id
+                                },
                                 onWidgetTouch = { widgetId ->
                                     when {
                                         editingWidgetId != null && editingWidgetId != widgetId -> {
@@ -564,7 +584,7 @@ internal fun WidgetsPanelScreen(
                 }
             }
 
-            if (showPicker && restoredWidgetIdsValidated) {
+            if (showPicker && restoredWidgetIdsValidated && layoutLocked == false) {
                 WidgetPickerSheet(
                     appWidgetManager = appWidgetManager,
                     showQuickNote = !isQuickNoteEnabled,

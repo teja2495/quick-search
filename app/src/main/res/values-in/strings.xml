@@ -1224,6 +1224,8 @@
     <string name="widget_toggle_show_label">Teks Quick Search</string>
     <string name="widget_toggle_show_empty_date">Tampilkan tanggal saat tidak ada item</string>
     <string name="widgets_panel_title">Widget</string>
+    <string name="widgets_panel_lock_layout">Kunci tata letak</string>
+    <string name="widgets_panel_unlock_layout">Buka kunci tata letak</string>
     <string name="widgets_picker_empty">Widget tidak ditemukan.</string>
     <string name="widgets_picker_loading">Memuat Widget…</string>
     <string name="widgets_picker_preview_unavailable">Pratinjau tidak tersedia</string>

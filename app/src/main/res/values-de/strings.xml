@@ -1219,6 +1219,8 @@
     <string name="widget_toggle_show_label">Quick Search-Text</string>
     <string name="widget_toggle_show_empty_date">Datum anzeigen, wenn keine Elemente vorhanden sind</string>
     <string name="widgets_panel_title">Widgets</string>
+    <string name="widgets_panel_lock_layout">Layout sperren</string>
+    <string name="widgets_panel_unlock_layout">Layout entsperren</string>
     <string name="widgets_picker_empty">Keine Widgets gefunden.</string>
     <string name="widgets_picker_loading">Widgets werden geladen...</string>
     <string name="widgets_picker_preview_unavailable">Vorschau nicht verfügbar</string>

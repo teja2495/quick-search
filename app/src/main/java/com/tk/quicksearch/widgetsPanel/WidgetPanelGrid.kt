@@ -36,11 +36,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.FilledTonalIconToggleButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -93,10 +101,18 @@ internal tailrec fun Context.findActivity(): Activity? =
 @Composable
 internal fun WidgetsPanelHeader(
     inEditMode: Boolean,
+    layoutLocked: Boolean?,
+    onLayoutLockChange: (Boolean) -> Unit,
     onAddWidget: () -> Unit,
     onExitEditMode: () -> Unit,
 ) {
     val foreground = homeTextColor()
+    val actionColors = IconButtonDefaults.filledTonalIconButtonColors(
+        containerColor = foreground.copy(alpha = AppColors.TintLightAlpha),
+        contentColor = foreground,
+        disabledContainerColor = foreground.copy(alpha = AppColors.TintFaintAlpha),
+        disabledContentColor = foreground.copy(alpha = AppColors.DisabledContentAlpha),
+    )
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = DesignTokens.SpacingSmall),
         verticalAlignment = Alignment.CenterVertically,
@@ -107,6 +123,14 @@ internal fun WidgetsPanelHeader(
             color = foreground,
             modifier = Modifier.weight(1f),
         )
+        if (!inEditMode && layoutLocked != null) {
+            WidgetLayoutLockButton(
+                locked = layoutLocked,
+                actionColors = actionColors,
+                onCheckedChange = onLayoutLockChange,
+            )
+            Spacer(modifier = Modifier.width(DesignTokens.SpacingXSmall))
+        }
         // Swap the add button for Done with a fade and springy scale instead of a hard cut.
         AnimatedContent(
             targetState = inEditMode,
@@ -130,11 +154,9 @@ internal fun WidgetsPanelHeader(
             } else {
                 FilledTonalIconButton(
                     onClick = onAddWidget,
+                    enabled = layoutLocked == false,
                     modifier = Modifier.size(DesignTokens.Spacing40),
-                    colors = IconButtonDefaults.filledTonalIconButtonColors(
-                        containerColor = foreground.copy(alpha = AppColors.TintLightAlpha),
-                        contentColor = foreground,
-                    ),
+                    colors = actionColors,
                 ) {
                     Icon(
                         imageVector = MaterialSymbols.Add,
@@ -143,6 +165,40 @@ internal fun WidgetsPanelHeader(
                     )
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun WidgetLayoutLockButton(
+    locked: Boolean,
+    actionColors: IconButtonColors,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    val lockLabel = stringResource(R.string.widgets_panel_lock_layout)
+    val tooltip = if (locked) stringResource(R.string.widgets_panel_unlock_layout) else lockLabel
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
+        tooltip = { PlainTooltip { Text(tooltip) } },
+        state = rememberTooltipState(),
+    ) {
+        FilledTonalIconToggleButton(
+            checked = locked,
+            onCheckedChange = onCheckedChange,
+            modifier = Modifier.size(DesignTokens.Spacing40),
+            colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
+                containerColor = actionColors.containerColor,
+                contentColor = actionColors.contentColor,
+                checkedContainerColor = actionColors.containerColor,
+                checkedContentColor = actionColors.contentColor,
+            ),
+        ) {
+            Icon(
+                imageVector = if (locked) MaterialSymbols.Lock else MaterialSymbols.LockOpen,
+                contentDescription = lockLabel,
+                modifier = Modifier.size(DesignTokens.IconSize),
+            )
         }
     }
 }
@@ -178,6 +234,7 @@ internal fun WidgetPanelGrid(
     appWidgetHost: WidgetPanelHost,
     widgetContentAvailable: Map<Int, Boolean>,
     editingWidgetId: Int?,
+    layoutEditingEnabled: Boolean,
     density: Density,
     panelScrollState: ScrollState,
     viewportTopPx: Float,
@@ -244,7 +301,7 @@ internal fun WidgetPanelGrid(
         }
 
         var liveLayout by remember { mutableStateOf<List<PanelWidgetInfo>?>(null) }
-        val displayLayout = liveLayout ?: laidOut
+        val displayLayout = liveLayout.takeIf { layoutEditingEnabled } ?: laidOut
         val movePreview = remember(laidOut) { WidgetMovePreview() }
         var hostDragStart by remember { mutableStateOf<PanelWidgetInfo?>(null) }
         var quickNoteDragStart by remember { mutableStateOf<PanelWidgetInfo?>(null) }
@@ -281,14 +338,18 @@ internal fun WidgetPanelGrid(
         }
 
         SideEffect {
-            appWidgetHost.onWidgetLongPress = { id ->
-                val widget = currentLaidOut.firstOrNull { it.appWidgetId == id }
-                if (widget != null) {
-                    movePreview.reset()
-                    hostDragStart = widget
-                    scrollAtDragStart = panelScrollState.value
-                    currentOnSetEditing(id)
+            appWidgetHost.onWidgetLongPress = if (layoutEditingEnabled) {
+                { id ->
+                    val widget = currentLaidOut.firstOrNull { it.appWidgetId == id }
+                    if (widget != null) {
+                        movePreview.reset()
+                        hostDragStart = widget
+                        scrollAtDragStart = panelScrollState.value
+                        currentOnSetEditing(id)
+                    }
                 }
+            } else {
+                null
             }
             appWidgetHost.onWidgetDragMove = { id, dx, dy ->
                 val start = hostDragStart
@@ -413,6 +474,7 @@ internal fun WidgetPanelGrid(
                         appWidgetHost = appWidgetHost,
                         hasWidgetContent = widgetContentAvailable[widget.appWidgetId] == true,
                         isEditing = isEditing,
+                        layoutEditingEnabled = layoutEditingEnabled,
                         cellWidth = cellWidth,
                         rowHeight = rowHeight,
                         gap = gap,
@@ -472,6 +534,7 @@ private fun BoxScope.WidgetPanelGridItem(
     appWidgetHost: WidgetPanelHost,
     hasWidgetContent: Boolean,
     isEditing: Boolean,
+    layoutEditingEnabled: Boolean,
     cellWidth: Dp,
     rowHeight: Dp,
     gap: Dp,
@@ -523,7 +586,7 @@ private fun BoxScope.WidgetPanelGridItem(
             gap = gap,
             gridUnitHeightPx = gridUnitHeightPx,
             minRowSpan = spec?.minRowSpan ?: 1,
-            onDragStart = onQuickNoteDragStart,
+            onDragStart = onQuickNoteDragStart.takeIf { layoutEditingEnabled },
             onDrag = onQuickNoteDrag,
             onDragEnd = onQuickNoteDragEnd,
             onFocusChanged = onQuickNoteFocusChanged,
@@ -632,6 +695,7 @@ private fun BoxScope.WidgetPanelGridItem(
         }
 
         AnimatedWidgetEditOverlay(visible = isEditing) {
+            if (!layoutEditingEnabled) return@AnimatedWidgetEditOverlay
             WidgetEditOverlay(
                 column = column,
                 row = row,

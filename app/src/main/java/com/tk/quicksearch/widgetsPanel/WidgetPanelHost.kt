@@ -166,6 +166,7 @@ internal class WidgetPanelHost(
         WidgetPanelHostView(context, isPanelHost).also { view ->
             appWidget?.provider?.packageName?.let(CrashLogManager::registerHostedWidgetPackage)
             view.onLongPress = { onWidgetLongPress?.invoke(appWidgetId) }
+            view.isLongPressEnabled = { onWidgetLongPress != null }
             view.onDragMove = { dx, dy -> onWidgetDragMove?.invoke(appWidgetId, dx, dy) }
             view.onDragEnd = { onWidgetDragEnd?.invoke(appWidgetId) }
             view.onTouchStarted = { onWidgetTouch?.invoke(appWidgetId) ?: false }
@@ -328,6 +329,7 @@ private class WidgetPanelHostView(
     private val isPanelHost: Boolean,
 ) : AppWidgetHostView(context) {
     var onLongPress: (() -> Unit)? = null
+    var isLongPressEnabled: () -> Boolean = { false }
     var onDragMove: ((deltaX: Float, deltaY: Float) -> Unit)? = null
     var onDragEnd: (() -> Unit)? = null
     var onTouchStarted: (() -> Boolean)? = null
@@ -397,6 +399,7 @@ private class WidgetPanelHostView(
         stopSnapshotCapture()
         if (isPanelHost && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) setExecutor(null)
         onLongPress = null
+        isLongPressEnabled = { false }
         onDragMove = null
         onDragEnd = null
         onTouchStarted = null
@@ -448,6 +451,7 @@ private class WidgetPanelHostView(
         Runnable {
             if (!longPressArmed || longPressFired) return@Runnable
             longPressArmed = false
+            if (!isLongPressEnabled()) return@Runnable
             longPressFired = true
             dragHandled = true
             performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
@@ -474,7 +478,7 @@ private class WidgetPanelHostView(
                 // Don't arm long-press if the surrounding scroll is mid-fling — the user is
                 // tapping to stop momentum, not asking to edit. The short confirmation buffer
                 // prevents a delayed RemoteViews touch-up from being mistaken for a long press.
-                if (!isScrollInProgressProvider()) {
+                if (isLongPressEnabled() && !isScrollInProgressProvider()) {
                     longPressArmed = true
                     postDelayed(
                         longPressRunnable,

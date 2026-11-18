@@ -1219,6 +1219,8 @@
     <string name="widget_toggle_show_label">Quick Search टेक्स्ट</string>
     <string name="widget_toggle_show_empty_date">कोई आइटम न होने पर तारीख दिखाएं</string>
     <string name="widgets_panel_title">विजेट्स</string>
+    <string name="widgets_panel_lock_layout">लेआउट लॉक करें</string>
+    <string name="widgets_panel_unlock_layout">लेआउट अनलॉक करें</string>
     <string name="widgets_picker_empty">कोई विजेट नहीं मिला।</string>
     <string name="widgets_picker_loading">विजेट्स लोड हो रहे हैं...</string>
     <string name="widgets_picker_preview_unavailable">प्रीव्यू उपलब्ध नहीं</string>

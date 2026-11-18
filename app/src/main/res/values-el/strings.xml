@@ -1219,6 +1219,8 @@
     <string name="widget_toggle_show_label">Κείμενο Quick Search</string>
     <string name="widget_toggle_show_empty_date">Εμφάνιση ημερομηνίας όταν δεν υπάρχουν στοιχεία</string>
     <string name="widgets_panel_title">Widgets</string>
+    <string name="widgets_panel_lock_layout">Κλείδωμα διάταξης</string>
+    <string name="widgets_panel_unlock_layout">Ξεκλείδωμα διάταξης</string>
     <string name="widgets_picker_empty">Δεν βρέθηκαν widgets.</string>
     <string name="widgets_picker_loading">Φόρτωση widgets...</string>
     <string name="widgets_picker_preview_unavailable">Η προεπισκόπηση δεν είναι διαθέσιμη</string>

@@ -1218,6 +1218,8 @@
 <string name="widget_toggle_show_label">Quick Search metni</string>
 <string name="widget_toggle_show_empty_date">Öğe olmadığında tarihi göster</string>
 <string name="widgets_panel_title">Widget\'lar</string>
+<string name="widgets_panel_lock_layout">Düzeni kilitle</string>
+<string name="widgets_panel_unlock_layout">Düzenin kilidini aç</string>
 <string name="widgets_picker_empty">Widget bulunamadı.</string>
 <string name="widgets_picker_loading">Widget\'lar yükleniyor...</string>
 <string name="widgets_picker_preview_unavailable">Önizleme mevcut değil</string>

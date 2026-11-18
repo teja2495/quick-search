@@ -133,7 +133,7 @@ internal fun BoxScope.QuickNotePanelGridItem(
     gap: Dp,
     gridUnitHeightPx: Float,
     minRowSpan: Int,
-    onDragStart: () -> Unit,
+    onDragStart: (() -> Unit)?,
     onDrag: (totalDragX: Float, totalDragY: Float) -> Unit,
     onDragEnd: () -> Unit,
     onFocusChanged: (Boolean) -> Unit,
@@ -185,10 +185,12 @@ internal fun BoxScope.QuickNotePanelGridItem(
         CompactQuickNoteWidget(
             modifier = Modifier.fillMaxSize(),
             onFocusChanged = onFocusChanged,
-            onDragStart = {
-                totalDragX = 0f
-                totalDragY = 0f
-                onDragStart()
+            onDragStart = onDragStart?.let { start ->
+                {
+                    totalDragX = 0f
+                    totalDragY = 0f
+                    start()
+                }
             },
             onDrag = { dragX, dragY ->
                 totalDragX += dragX
@@ -198,6 +200,7 @@ internal fun BoxScope.QuickNotePanelGridItem(
             onDragEnd = onDragEnd,
         )
         AnimatedWidgetEditOverlay(visible = isEditing) {
+            if (onDragStart == null) return@AnimatedWidgetEditOverlay
             QuickNoteEditOverlay(
                 column = column,
                 row = row,

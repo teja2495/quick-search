@@ -70,12 +70,15 @@ internal fun CompactQuickNoteWidget(
     modifier: Modifier = Modifier,
     fitContentHeight: Boolean = false,
     onFocusChanged: (Boolean) -> Unit = {},
-    onDragStart: () -> Unit = {},
+    onDragStart: (() -> Unit)? = null,
     onDrag: (x: Float, y: Float) -> Unit = { _, _ -> },
     onDragEnd: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val repository = remember(context) { NotesRepository(context) }
+    val currentOnDragStart by rememberUpdatedState(onDragStart)
+    val currentOnDrag by rememberUpdatedState(onDrag)
+    val currentOnDragEnd by rememberUpdatedState(onDragEnd)
     val linkColor = AppColors.LinkColor
     var bodyInput by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(""))
@@ -170,16 +173,20 @@ internal fun CompactQuickNoteWidget(
                     Modifier
                         .fillMaxWidth()
                         .then(
-                            Modifier.pointerInput(Unit) {
-                                detectDragGesturesAfterLongPress(
-                                    onDragStart = { onDragStart() },
-                                    onDrag = { change, dragAmount ->
-                                        change.consume()
-                                        onDrag(dragAmount.x, dragAmount.y)
-                                    },
-                                    onDragEnd = onDragEnd,
-                                    onDragCancel = onDragEnd,
-                                )
+                            if (onDragStart == null) {
+                                Modifier
+                            } else {
+                                Modifier.pointerInput(Unit) {
+                                    detectDragGesturesAfterLongPress(
+                                        onDragStart = { currentOnDragStart?.invoke() },
+                                        onDrag = { change, dragAmount ->
+                                            change.consume()
+                                            currentOnDrag(dragAmount.x, dragAmount.y)
+                                        },
+                                        onDragEnd = { currentOnDragEnd() },
+                                        onDragCancel = { currentOnDragEnd() },
+                                    )
+                                }
                             },
                         ),
             ) {

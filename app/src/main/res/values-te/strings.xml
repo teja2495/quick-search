@@ -1219,6 +1219,8 @@
     <string name="widget_toggle_show_label">Quick Search టెక్స్ట్</string>
     <string name="widget_toggle_show_empty_date">అంశాలు లేనప్పుడు తేదీని చూపించు</string>
     <string name="widgets_panel_title">విడ్జెట్‌లు</string>
+    <string name="widgets_panel_lock_layout">లేఅవుట్‌ను లాక్ చేయండి</string>
+    <string name="widgets_panel_unlock_layout">లేఅవుట్‌ను అన్‌లాక్ చేయండి</string>
     <string name="widgets_picker_empty">విడ్జెట్‌లు ఏవీ కనుగొనబడలేదు.</string>
     <string name="widgets_picker_loading">విడ్జెట్‌లను లోడ్ చేస్తోంది...</string>
     <string name="widgets_picker_preview_unavailable">ప్రివ్యూ అందుబాటులో లేదు</string>
