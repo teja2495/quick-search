@@ -62,7 +62,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.tk.quicksearch.shared.ui.components.TonalIconBadge
-import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 private const val EXPORT_FILE_NAME = "bookmarks.html"
 
@@ -211,23 +210,15 @@ fun BookmarksSettingsSection(
     if (showDeleteAllConfirm) {
         AppAlertDialog(
             onDismissRequest = { showDeleteAllConfirm = false },
+            confirmLabel = stringResource(R.string.dialog_delete),
+            onConfirm = {
+                showDeleteAllConfirm = false
+                scope.launch(Dispatchers.IO) { repository.deleteAll() }
+            },
+            dismissLabel = stringResource(R.string.dialog_cancel),
+            destructive = true,
             title = { Text(stringResource(R.string.bookmarks_delete_all_title)) },
             text = { Text(stringResource(R.string.bookmarks_delete_all_message)) },
-            confirmButton = {
-                AppTextButton(
-                    onClick = {
-                        showDeleteAllConfirm = false
-                        scope.launch(Dispatchers.IO) { repository.deleteAll() }
-                    },
-                ) {
-                    Text(text = stringResource(R.string.dialog_delete), color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                AppTextButton(onClick = { showDeleteAllConfirm = false }) {
-                    Text(text = stringResource(R.string.dialog_cancel))
-                }
-            },
         )
     }
 

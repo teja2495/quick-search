@@ -215,9 +215,14 @@ property in sorted order.
 
 ## Shared components
 
+Use `AppAlertDialog` for alerts, `AppPickerDrawer` for choosing an item, and `AppDialogSurface`
+for custom centered content. Keep specialized window handling with the feature, such as
+SpeedBump's full-screen interruption and Add Widget's keyboard and window settings.
+
 | Component | Use for |
 |---|---|
-| `AppAlertDialog` | All alert dialogs; Material 3 layout and `surfaceContainerHigh` tonal surface. Confirm and dismiss actions are both `AppTextButton`s (error-tinted for destructive confirms); keep the default `headlineSmall` title and `bodyMedium` `onSurfaceVariant` text |
+| `AppAlertDialog` | Alerts and confirmations use the Material 3 layout and `surfaceContainerHigh` tonal surface. Pass `confirmLabel`, `onConfirm`, and an optional `dismissLabel` for standard text buttons. Set `destructive = true` for an error-tinted confirm action. Use the composable action slots for custom controls or validation. Keep the default `headlineSmall` title and `bodyMedium` `onSurfaceVariant` text |
+| `AppDialogSurface` | Custom centered content such as File Preview and Pinned Notification Items. Shares the rounded dialog background and host keyboard handling. The feature owns sizing, content, and actions |
 | `AppButton`, `AppTonalButton`, `AppOutlinedButton`, `AppTextButton`, `TonalButton` (`AppButtons.kt`) | Every button. Filled, tonal, outlined and text styles take a semantic `tone` (`AppButtonTone.Accent` default, `Secondary` for actions inside result cards, `Error` for destructive, `Neutral` for de-emphasized, `Custom(color)` for text over wallpaper or a snackbar's action color), a `size` (`AppButtonSize.ExtraSmall` 32dp, `Small` 40dp default, `Medium` 56dp) and an optional leading `icon`. The wrappers own shape (pill that squares toward the size's pressed corner, `pressMorphPillShape`), colors, padding and icon spacing; callers don't pass any of these. Tonal is the tone's color at `TintTonalAlpha` under content in that color (`Secondary` uses `secondaryContainer`). `AppOutlinedButton(showBorder = false)` lets a caller draw its own outline. `TonalButton` is the tonal action inside a tile (Reset, Edit, Delete): 48dp, wrapping rather than ellipsizing its label, `small` (32dp) for buttons beside text |
 | `ConnectedButtonRow` (`ConnectedButtonGroup.kt`) | Material 3 Expressive connected button group for actions (not a choice). Declare buttons with `button(onClick, width = null, weight = 1f) { content }`; the row works out which button is first and last, so conditional buttons need no position flags. Buttons are tonal in the row's `tone`, `ConnectedGroupGap` apart, fully round on the group's outer edges with `ConnectedGroupInnerCorner` between, tightening while pressed unless `pressMorph = false`. Used by Home's Open Keyboard strip and the More options backup and developer-link buttons |
 | `PickerFieldButton` (`PickerFieldButton.kt`) | Outlined field that opens a date, time or repeat picker: leading icon and the current value, `AppShapes.field` corners. Used by the reminder form |

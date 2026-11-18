@@ -1,6 +1,5 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
-import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,7 +35,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.core.view.HapticFeedbackConstantsCompat
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.preferences.UiPreferences
@@ -52,7 +50,7 @@ import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.shared.util.performHapticFeedbackSafely
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
-import com.tk.quicksearch.shared.ui.components.PreserveHostKeyboardStateEffect
+import com.tk.quicksearch.shared.ui.components.AppDialogSurface
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
 import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
@@ -418,115 +416,111 @@ internal fun PinnedNotificationItemsDialog(
                 )
             }
         }
-    PreserveHostKeyboardStateEffect()
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            modifier = Modifier.fillMaxWidth().height(screenHeight * 0.65f),
-            shape = AppShapes.extraLarge,
-            color = AppColors.DialogBackground,
+    AppDialogSurface(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.fillMaxWidth().height(screenHeight * 0.65f),
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxHeight()
+                    .padding(
+                        horizontal = DesignTokens.SpacingXXLarge,
+                        vertical = DesignTokens.SpacingXLarge,
+                    ),
         ) {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxHeight()
-                        .padding(
-                            horizontal = DesignTokens.SpacingXXLarge,
-                            vertical = DesignTokens.SpacingXLarge,
-                        ),
+            Text(
+                text = stringResource(R.string.notification_pinned_items_title),
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = DesignTokens.SpacingMedium),
+            )
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxWidth().weight(1f),
             ) {
-                Text(
-                    text = stringResource(R.string.notification_pinned_items_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(bottom = DesignTokens.SpacingMedium),
-                )
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxWidth().weight(1f),
-                ) {
-                    itemsIndexed(
-                        items = reorderableItems,
-                        key = { _, action -> action.toJson() },
-                    ) { index, action ->
-                        ReorderableItem(
-                            state = reorderableState,
-                            key = action.toJson(),
-                        ) { isDragging ->
-                            if (index > 0) HorizontalDivider(color = AppColors.SettingsDivider)
-                            val category = stringResource(action.type.categoryRes)
-                            Surface(
-                                color = if (isDragging) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
-                                modifier = Modifier.fillMaxWidth(),
+                itemsIndexed(
+                    items = reorderableItems,
+                    key = { _, action -> action.toJson() },
+                ) { index, action ->
+                    ReorderableItem(
+                        state = reorderableState,
+                        key = action.toJson(),
+                    ) { isDragging ->
+                        if (index > 0) HorizontalDivider(color = AppColors.SettingsDivider)
+                        val category = stringResource(action.type.categoryRes)
+                        Surface(
+                            color = if (isDragging) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Row(
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(min = 48.dp)
+                                        .padding(vertical = DesignTokens.SpacingSmall),
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Row(
+                                Icon(
+                                    imageVector = MaterialSymbols.DragHandle,
+                                    contentDescription = stringResource(R.string.settings_action_reorder),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier =
                                         Modifier
-                                            .fillMaxWidth()
-                                            .heightIn(min = 48.dp)
-                                            .padding(vertical = DesignTokens.SpacingSmall),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Icon(
-                                        imageVector = MaterialSymbols.DragHandle,
-                                        contentDescription = stringResource(R.string.settings_action_reorder),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier =
-                                            Modifier
-                                                .size(DesignTokens.LargeIconSize)
-                                                .padding(end = DesignTokens.SpacingMedium)
-                                                .longPressDraggableHandle(
-                                                    onDragStarted = {
-                                                        reorderedDuringDrag = false
-                                                        performHapticFeedbackSafely(
-                                                            view,
-                                                            HapticFeedbackConstantsCompat.GESTURE_START,
-                                                        )
-                                                    },
-                                                    onDragStopped = {
-                                                        if (reorderedDuringDrag) {
-                                                            onReorder(reorderableItems.toList())
-                                                        }
-                                                        performHapticFeedbackSafely(
-                                                            view,
-                                                            HapticFeedbackConstantsCompat.GESTURE_END,
-                                                        )
-                                                    },
-                                                ),
-                                    )
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = action.displayLabel(),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurface,
-                                        )
-                                        Text(
-                                            text = category,
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        )
-                                    }
-                                    IconButton(onClick = { onRemove(action) }) {
-                                        Icon(
-                                            imageVector = MaterialSymbols.Delete,
-                                            contentDescription = stringResource(
-                                                R.string.notification_pinned_items_remove,
-                                                action.displayLabel(),
+                                            .size(DesignTokens.LargeIconSize)
+                                            .padding(end = DesignTokens.SpacingMedium)
+                                            .longPressDraggableHandle(
+                                                onDragStarted = {
+                                                    reorderedDuringDrag = false
+                                                    performHapticFeedbackSafely(
+                                                        view,
+                                                        HapticFeedbackConstantsCompat.GESTURE_START,
+                                                    )
+                                                },
+                                                onDragStopped = {
+                                                    if (reorderedDuringDrag) {
+                                                        onReorder(reorderableItems.toList())
+                                                    }
+                                                    performHapticFeedbackSafely(
+                                                        view,
+                                                        HapticFeedbackConstantsCompat.GESTURE_END,
+                                                    )
+                                                },
                                             ),
-                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        )
-                                    }
+                                )
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = action.displayLabel(),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                    Text(
+                                        text = category,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                                IconButton(onClick = { onRemove(action) }) {
+                                    Icon(
+                                        imageVector = MaterialSymbols.Delete,
+                                        contentDescription = stringResource(
+                                            R.string.notification_pinned_items_remove,
+                                            action.displayLabel(),
+                                        ),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
                                 }
                             }
                         }
                     }
                 }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                ) {
-                    AppTextButton(onClick = onDismiss) {
-                        Text(stringResource(R.string.common_close))
-                    }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+            ) {
+                AppTextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.common_close))
                 }
             }
         }

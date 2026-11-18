@@ -1,6 +1,5 @@
 package com.tk.quicksearch.search.files
 
-import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -37,7 +36,6 @@ import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,13 +62,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileTypeUtils
 import com.tk.quicksearch.search.utils.FileUtils
-import com.tk.quicksearch.shared.ui.components.PreserveHostKeyboardStateEffect
+import com.tk.quicksearch.shared.ui.components.AppDialogSurface
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -94,81 +91,75 @@ fun FilePreviewDialog(
     onOpen: () -> Unit,
     onShare: () -> Unit,
 ) {
-    PreserveHostKeyboardStateEffect()
     val dialogHeight = LocalConfiguration.current.screenHeightDp.dp * DIALOG_HEIGHT_FRACTION
     val title = remember(deviceFile.displayName) {
         FileUtils.getFileNameWithoutExtension(deviceFile.displayName)
     }
     val isPdf = remember(deviceFile) { FileTypeUtils.isPdf(deviceFile) }
 
-    Dialog(
+    AppDialogSurface(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
+        modifier = Modifier
+            .widthIn(max = DIALOG_MAX_WIDTH)
+            .fillMaxWidth()
+            .padding(horizontal = DesignTokens.SpacingLarge)
+            // PDFs wrap to the page's aspect ratio; images keep a fixed viewport
+            .then(if (isPdf) Modifier.heightIn(max = dialogHeight) else Modifier.height(dialogHeight)),
     ) {
-        Surface(
-            modifier = Modifier
-                .widthIn(max = DIALOG_MAX_WIDTH)
-                .fillMaxWidth()
-                .padding(horizontal = DesignTokens.SpacingLarge)
-                // PDFs wrap to the page's aspect ratio; images keep a fixed viewport
-                .then(if (isPdf) Modifier.heightIn(max = dialogHeight) else Modifier.height(dialogHeight)),
-            shape = AppShapes.extraLarge,
-            color = AppColors.DialogBackground,
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = DesignTokens.SpacingLarge,
+                        end = DesignTokens.SpacingXSmall,
+                        top = DesignTokens.SpacingXSmall,
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            start = DesignTokens.SpacingLarge,
-                            end = DesignTokens.SpacingXSmall,
-                            top = DesignTokens.SpacingXSmall,
-                        ),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f),
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector = MaterialSymbols.Close,
+                        contentDescription = stringResource(R.string.common_close),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    IconButton(onClick = onDismiss) {
-                        Icon(
-                            imageVector = MaterialSymbols.Close,
-                            contentDescription = stringResource(R.string.common_close),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
                 }
-
-                if (isPdf) {
-                    PdfPreview(
-                        deviceFile = deviceFile,
-                        modifier = Modifier
-                            .weight(1f, fill = false)
-                            .padding(horizontal = DesignTokens.SpacingMedium),
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .padding(horizontal = DesignTokens.SpacingMedium)
-                            .clip(RoundedCornerShape(PREVIEW_CORNER_RADIUS))
-                            .background(MaterialTheme.colorScheme.surfaceContainerHighest),
-                    ) {
-                        if (FileTypeUtils.isImage(deviceFile)) ImagePreview(deviceFile)
-                    }
-                }
-
-                FilePreviewActions(onOpen = onOpen, onShare = onShare)
             }
+
+            if (isPdf) {
+                PdfPreview(
+                    deviceFile = deviceFile,
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .padding(horizontal = DesignTokens.SpacingMedium),
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(horizontal = DesignTokens.SpacingMedium)
+                        .clip(RoundedCornerShape(PREVIEW_CORNER_RADIUS))
+                        .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                ) {
+                    if (FileTypeUtils.isImage(deviceFile)) ImagePreview(deviceFile)
+                }
+            }
+
+            FilePreviewActions(onOpen = onOpen, onShare = onShare)
         }
     }
 }
