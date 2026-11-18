@@ -363,11 +363,12 @@ internal fun UpcomingReminderRow(
             }
         }
 
+    val verticalPadding = glanceRowVerticalPadding()
     Row(
-        modifier = Modifier.fillMaxWidth().heightIn(min = DesignTokens.GlanceRowMinHeight).padding(
+        modifier = Modifier.fillMaxWidth().heightIn(min = glanceRowMinHeight(DesignTokens.GlanceRowMinHeight)).padding(
             start = DesignTokens.GlanceRowHorizontalPadding,
-            top = DesignTokens.SpacingMedium,
-            bottom = DesignTokens.SpacingMedium,
+            top = verticalPadding,
+            bottom = verticalPadding,
         ),
         verticalAlignment = Alignment.CenterVertically,
     ) {

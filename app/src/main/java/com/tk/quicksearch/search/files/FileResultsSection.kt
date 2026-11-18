@@ -7,6 +7,7 @@ import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
 import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
 import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
+import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerVerticalPadding
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
@@ -320,7 +321,7 @@ private fun FileCardContent(
                 contentPadding =
                         PaddingValues(
                                 start = resultRowsContainerPadding(DesignTokens.SpacingMedium),
-                                top = resultRowsContainerPadding(FILE_CARD_CONTENT_VERTICAL_PADDING),
+                                top = resultRowsContainerVerticalPadding(FILE_CARD_CONTENT_VERTICAL_PADDING),
                                 end = resultRowsContainerPadding(DesignTokens.SpacingMedium),
                                 bottom = bottomContentPadding,
                         ),
@@ -387,7 +388,7 @@ private fun FileCardContent(
                         modifier
                                 .padding(
                                         horizontal = resultRowsContainerPadding(DesignTokens.SpacingMedium),
-                                        vertical = resultRowsContainerPadding(FILE_CARD_CONTENT_VERTICAL_PADDING),
+                                        vertical = resultRowsContainerVerticalPadding(FILE_CARD_CONTENT_VERTICAL_PADDING),
                                 )
                                 .padding(bottom = bottomContentPadding)
         ) {

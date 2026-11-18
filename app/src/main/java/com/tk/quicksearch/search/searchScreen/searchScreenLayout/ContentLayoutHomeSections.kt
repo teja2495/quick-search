@@ -126,15 +126,17 @@ internal fun HomeSectionHeaderRow(
 ) {
     val compactHeader = !LocalSearchCardLayoutEnabled.current
     Row(
-        modifier = modifier
-            .fillMaxWidth()
+        modifier = Modifier
             .then(
                 if (compactHeader) {
+                    // Include the full header height when the title reserves a larger touch target.
                     Modifier.compactBottomDivider(showWallpaperBackground)
                 } else {
                     Modifier
                 },
             )
+            .then(modifier)
+            .fillMaxWidth()
             .padding(
                 start = DesignTokens.SpacingLarge,
                 end = DesignTokens.SpacingLarge,

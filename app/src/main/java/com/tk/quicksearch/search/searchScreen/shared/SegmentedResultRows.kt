@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.shared
 
 import com.tk.quicksearch.search.searchScreen.frostedCardBackground
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
@@ -39,9 +40,15 @@ internal fun segmentedRowsActive(): Boolean = LocalSegmentedRowsStyle.current !=
 @Composable
 internal fun resultRowsContainerPadding(value: Dp): Dp = if (segmentedRowsActive()) 0.dp else value
 
+/** Flat lists get their outer vertical spacing from the gap around the card's dividers. */
+@Composable
+internal fun resultRowsContainerVerticalPadding(value: Dp): Dp =
+    if (LocalSearchCardLayoutEnabled.current) resultRowsContainerPadding(value) else 0.dp
+
 /**
- * One row of a result list. Segmented, it becomes a tile at [index] of [count] (count includes a
- * trailing More button tile); otherwise it renders [content] unchanged.
+ * One row of a result list. Segmented, it becomes a tile at [index] of [count] (including More).
+ * Flat rows add space next to internal dividers. Set [padCompactOuterEdges] to match
+ * that inset at the card's outer dividers as well.
  */
 @Composable
 internal fun ResultSegment(
@@ -49,11 +56,24 @@ internal fun ResultSegment(
     count: Int,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
+    padCompactOuterEdges: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val style = LocalSegmentedRowsStyle.current
     if (style == null) {
-        content()
+        if (LocalSearchCardLayoutEnabled.current || (count == 1 && !padCompactOuterEdges)) {
+            content()
+        } else {
+            val dividerInset = LocalCardlessStackSpacing.current / 2
+            Box(
+                modifier = Modifier.fillMaxWidth().padding(
+                    top = if (padCompactOuterEdges || index > 0) dividerInset else 0.dp,
+                    bottom = if (padCompactOuterEdges || index < count - 1) dividerInset else 0.dp,
+                ),
+            ) {
+                content()
+            }
+        }
         return
     }
     SegmentedTile(

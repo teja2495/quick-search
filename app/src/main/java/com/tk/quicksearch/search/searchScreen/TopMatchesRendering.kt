@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.ui.graphics.Color
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardStyleOverrides
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.compactBottomDivider
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -113,11 +114,13 @@ internal fun TopMatchesSection(
         if (!cardLayoutEnabled && showLeadingDivider) {
             TopMatchesBoundaryDivider(showWallpaperBackground)
         }
-        if (showHeader) {
-            TopMatchesHeader()
-        }
-
         CompositionLocalProvider(LocalCardlessStackSpacing provides DesignTokens.SpacingXSmall) {
+            if (showHeader) {
+                val headerModifier =
+                    if (cardLayoutEnabled) Modifier else Modifier.compactBottomDivider(showWallpaperBackground)
+                TopMatchesHeader(modifier = headerModifier)
+            }
+
             displayedMatches.forEachIndexed { index, item ->
                 key(item.stableKey()) {
                     val isTopPredicted = showTopResultIndicator && item == highlightedMatch
@@ -208,7 +211,8 @@ internal fun TopMatchesSection(
                                 modifier =
                                     Modifier.padding(
                                         horizontal = DesignTokens.SpacingLarge,
-                                        vertical = DesignTokens.SpacingXSmall,
+                                        vertical =
+                                            if (cardLayoutEnabled) DesignTokens.SpacingXSmall else DesignTokens.SpacingSmall,
                                     ),
                             ) {
                                 TopMatchRow(
@@ -259,10 +263,10 @@ private fun TopMatchesBoundaryDivider(showWallpaperBackground: Boolean, modifier
 }
 
 @Composable
-private fun TopMatchesHeader() {
+private fun TopMatchesHeader(modifier: Modifier) {
     Row(
         modifier =
-            Modifier.padding(
+            modifier.padding(
                 start = DesignTokens.SpacingMedium,
                 top = DesignTokens.SpacingXSmall,
                 end = DesignTokens.SpacingLarge,

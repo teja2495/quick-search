@@ -64,12 +64,13 @@ internal fun MissedCallsRow(
     val appCalls = remember(calls) { calls.distinctBy { it.packageName }.sortedByDescending { it.fromPhoneApp } }
     val hasAppChips = appCalls.size > 1
     // GlanceStatusRow's layout, but with app chips the dismiss button stays beside the title rather than centered.
+    val verticalPadding = glanceRowVerticalPadding()
     Row(
         modifier =
-            Modifier.fillMaxWidth().heightIn(min = DesignTokens.GlanceRowMinHeight).padding(
+            Modifier.fillMaxWidth().heightIn(min = glanceRowMinHeight(DesignTokens.GlanceRowMinHeight)).padding(
                 start = DesignTokens.GlanceRowHorizontalPadding,
-                top = DesignTokens.SpacingMedium,
-                bottom = DesignTokens.SpacingMedium,
+                top = verticalPadding,
+                bottom = verticalPadding,
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {

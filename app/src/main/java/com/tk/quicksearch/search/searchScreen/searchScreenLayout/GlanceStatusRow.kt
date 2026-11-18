@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.search.searchHistory.QUERY_ROW_ICON_SIZE
 import com.tk.quicksearch.search.searchHistory.QUERY_ROW_VERTICAL_PADDING
 import androidx.compose.foundation.layout.padding
@@ -40,6 +41,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -53,6 +55,14 @@ internal val GlanceDismissButtonSize = 28.dp
 
 /** Same height as a search history row, so the home cards line up. */
 private val GlanceRowMinHeight = (QUERY_ROW_ICON_SIZE + QUERY_ROW_VERTICAL_PADDING * 2).dp
+
+@Composable
+internal fun glanceRowMinHeight(cardHeight: Dp): Dp =
+    if (LocalSearchCardLayoutEnabled.current) cardHeight else DesignTokens.MinTouchTarget
+
+@Composable
+internal fun glanceRowVerticalPadding(): Dp =
+    if (LocalSearchCardLayoutEnabled.current) DesignTokens.SpacingMedium else DesignTokens.SpacingXSmall
 
 /** Descriptions wrap in full rather than cutting off. */
 internal const val GlanceTextMaxLines = Int.MAX_VALUE
@@ -113,13 +123,14 @@ internal fun GlanceStatusRow(
     belowText: (@Composable () -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
 ) {
+    val verticalPadding = glanceRowVerticalPadding()
     Row(
         modifier =
-            Modifier.fillMaxWidth().heightIn(min = GlanceRowMinHeight).padding(
+            Modifier.fillMaxWidth().heightIn(min = glanceRowMinHeight(GlanceRowMinHeight)).padding(
                 start = DesignTokens.GlanceRowHorizontalPadding,
                 end = if (onDismiss == null) DesignTokens.GlanceRowHorizontalPadding else 0.dp,
-                top = DesignTokens.SpacingMedium,
-                bottom = DesignTokens.SpacingMedium,
+                top = verticalPadding,
+                bottom = verticalPadding,
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {

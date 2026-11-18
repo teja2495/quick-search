@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.data.userAppPreferences
 import android.content.Context
 import android.content.res.Configuration
 import com.tk.quicksearch.search.data.preferences.BasePreferences
+import com.tk.quicksearch.search.data.preferences.migrateCompactLayoutPreference
 
 internal class StartupConfigReader(private val context: Context) {
     fun loadStartupConfig(): StartupPreferencesFacade.StartupConfig {
@@ -18,6 +19,7 @@ internal class StartupConfigReader(private val context: Context) {
 
     fun readPreferences(defaultDirectDialEnabled: Boolean): StartupPreferencesFacade.StartupPreferences {
         val prefs = context.getSharedPreferences(BasePreferences.PREFS_NAME, Context.MODE_PRIVATE)
+        migrateCompactLayoutPreference(prefs, context)
         val systemDark =
             (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
                 Configuration.UI_MODE_NIGHT_YES

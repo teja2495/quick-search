@@ -4,6 +4,7 @@ import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
 import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
+import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerVerticalPadding
 import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
 import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
@@ -131,9 +132,9 @@ fun DeviceSettingsResultsSection(
                                         modifier =
                                                 Modifier.padding(
                                                         start = resultRowsContainerPadding(DesignTokens.SpacingLarge),
-                                                        top = resultRowsContainerPadding(4.dp),
+                                                        top = resultRowsContainerVerticalPadding(4.dp),
                                                         end = resultRowsContainerPadding(DesignTokens.SpacingMedium),
-                                                        bottom = resultRowsContainerPadding(4.dp),
+                                                        bottom = resultRowsContainerVerticalPadding(4.dp),
                                                 )
                                                 .padding(
                                                         bottom =

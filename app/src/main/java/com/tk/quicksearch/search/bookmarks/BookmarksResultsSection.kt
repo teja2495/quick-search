@@ -5,6 +5,7 @@ import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
 import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
+import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerVerticalPadding
 import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
 import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
 import androidx.compose.foundation.Image
@@ -117,7 +118,7 @@ fun BookmarksResultsSection(
                     Modifier.fillMaxWidth()
                         .padding(
                         horizontal = resultRowsContainerPadding(DesignTokens.SpacingMedium),
-                        vertical = resultRowsContainerPadding(4.dp),
+                        vertical = resultRowsContainerVerticalPadding(4.dp),
                     ),
             ) {
                 displayed.forEachIndexed { index, bookmark ->

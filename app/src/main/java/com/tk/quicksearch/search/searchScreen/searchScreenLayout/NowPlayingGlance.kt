@@ -341,7 +341,7 @@ internal fun NowPlayingRow(
     Column(
         modifier = Modifier.fillMaxWidth().padding(
             horizontal = NowPlayingRowStartPadding,
-            vertical = DesignTokens.SpacingMedium,
+            vertical = glanceRowVerticalPadding(),
         ),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {

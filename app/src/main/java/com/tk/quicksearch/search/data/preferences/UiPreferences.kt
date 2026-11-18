@@ -329,7 +329,7 @@ class UiPreferences(context: Context) : UiPreferencesFeatures(context) {
         const val KEY_BOTTOM_SEARCH_BAR_ENABLED = "bottom_search_bar_enabled"
         const val KEY_UNIFIED_PINNED_ITEMS_ENABLED = "unified_pinned_items_enabled"
         const val KEY_SEARCH_HINTS_ENABLED = "search_hints_enabled"
-        const val KEY_CARD_LAYOUT_ENABLED = "card_layout_enabled"
+        const val KEY_CARD_LAYOUT_ENABLED = "card_layout_enabled_v2"
         const val KEY_COMPACT_PRIOR_APP_GRID_COLUMNS = "compact_prior_app_grid_columns"
         const val KEY_COMPACT_PRIOR_APP_ICON_SIZE_STEP = "compact_prior_app_icon_size_step"
         const val KEY_COMPACT_PRIOR_FONT_SCALE_MULTIPLIER = "compact_prior_font_scale_multiplier"

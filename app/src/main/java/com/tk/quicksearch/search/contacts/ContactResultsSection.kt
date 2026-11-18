@@ -4,6 +4,7 @@ import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
 import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
+import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerVerticalPadding
 import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
 import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
@@ -353,7 +354,7 @@ private fun ContactList(
         modifier =
             Modifier.padding(
                 horizontal = resultRowsContainerPadding(DesignTokens.SpacingMedium),
-                vertical = resultRowsContainerPadding(DesignTokens.SpacingXSmall),
+                vertical = resultRowsContainerVerticalPadding(DesignTokens.SpacingXSmall),
             ).padding(bottom = bottomContentPadding),
     ) {
         displayContacts.forEachIndexed { index, contactInfo ->

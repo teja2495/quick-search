@@ -13,6 +13,9 @@ import com.tk.quicksearch.search.core.SearchSectionRegistry
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 
 open class UiPreferencesCore(context: Context) : BasePreferences(context) {
+    init {
+        migrateCompactLayoutPreference(prefs, appContext)
+    }
 
     // ============================================================================
     // UI Preferences

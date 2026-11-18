@@ -19,7 +19,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.material3.ripple
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
@@ -66,6 +65,7 @@ import com.tk.quicksearch.search.searchScreen.components.ExpandButton
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
 import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
+import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
@@ -232,10 +232,12 @@ fun SearchHistorySection(
                         .take(collapsedItemCount)
                         .let { items -> if (reverseCollapsedItems) items.reversed() else items }
                 }
+            val cardLayoutEnabled = LocalSearchCardLayoutEnabled.current
             val listModifier =
                 if (displayAsExpanded) {
+                    val minHeight = if (cardLayoutEnabled) SEARCH_HISTORY_EXPANDED_CARD_MIN_HEIGHT else 0.dp
                     contentModifier
-                        .heightIn(min = SEARCH_HISTORY_EXPANDED_CARD_MIN_HEIGHT)
+                        .heightIn(min = minHeight)
                         .searchHistoryTabSwipe(
                             enabled = canSwitchTabs,
                             selectedTab = activeSelectedTab,
@@ -247,7 +249,6 @@ fun SearchHistorySection(
             Column(modifier = listModifier) {
                 val segmented = segmentedRowsActive()
                 val showHistoryTabs = displayAsExpanded && showTabs
-                val cardLayoutEnabled = LocalSearchCardLayoutEnabled.current
                 val showClearAllHistory =
                     displayAsExpanded &&
                         onClearRecentItems != null &&
@@ -266,15 +267,11 @@ fun SearchHistorySection(
                             selectedTab = activeSelectedTab,
                             onTabSelected = ::updateSelectedTab,
                             showWallpaperBackground = showWallpaperBackground,
-                            segmented = segmented,
                         )
                     }
-                    ResultRowDivider(
-                        showWallpaperBackground = showWallpaperBackground,
-                        color = SearchResultCardDefaults.dividerColor(showWallpaperBackground, overlayDividerColor),
-                    )
                 }
 
+                val dividerColor = SearchResultCardDefaults.dividerColor(showWallpaperBackground, overlayDividerColor)
                 // Flat rows (card layout off) also separate the last row from More History.
                 val showMoreHistoryDivider = showMoreHistory && !cardLayoutEnabled
                 displayItems.forEachIndexed { index, item ->
@@ -315,20 +312,20 @@ fun SearchHistorySection(
                         onDeleteRecentItem = onDeleteRecentItem,
                         canRemoveFromHistory =
                             removableEntryKeys == null || item.entry.stableKey in removableEntryKeys,
-                        showDivider = baseShowDivider,
+                        showDivider = baseShowDivider && cardLayoutEnabled,
                         showWallpaperBackground = showWallpaperBackground,
                         overlayDividerColor = overlayDividerColor,
                     )
+                    }
+                    if (baseShowDivider && !cardLayoutEnabled) {
+                        ResultRowDivider(showWallpaperBackground, color = dividerColor)
                     }
                     }
                 }
 
                 if (showClearAllHistory) {
-                    ResultSegment(index = segmentCount - 1, count = segmentCount) {
-                        ClearAllHistoryRow(
-                            showWallpaperBackground = showWallpaperBackground,
-                            onClick = { showClearAllConfirmation = true },
-                        )
+                    ResultSegment(index = segmentCount - 1, count = segmentCount, padCompactOuterEdges = true) {
+                        ClearAllHistoryRow(onClick = { showClearAllConfirmation = true })
                     }
                 }
 
@@ -385,7 +382,6 @@ private fun SearchHistoryTabs(
     selectedTab: SearchHistoryTab,
     onTabSelected: (SearchHistoryTab) -> Unit,
     showWallpaperBackground: Boolean,
-    segmented: Boolean = false,
 ) {
     val selectedColor = MaterialTheme.colorScheme.primary
     val unselectedColor =
@@ -407,18 +403,7 @@ private fun SearchHistoryTabs(
                 color = selectedColor,
             )
         },
-        divider = {
-            if (!segmented) {
-                HorizontalDivider(
-                    color =
-                        if (showWallpaperBackground) {
-                            AppColors.WallpaperDivider
-                        } else {
-                            MaterialTheme.colorScheme.outlineVariant
-                        },
-                )
-            }
-        },
+        divider = {},
     ) {
         SearchHistoryTab.entries.forEach { tab ->
             Tab(
@@ -500,18 +485,22 @@ private fun ClearAllHistoryConfirmationDialog(
 }
 
 @Composable
-private fun ClearAllHistoryRow(
-    showWallpaperBackground: Boolean,
-    onClick: () -> Unit,
-) {
+private fun ClearAllHistoryRow(onClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     val clearColor = MaterialTheme.colorScheme.error
+    val minHeight =
+        if (LocalSearchCardLayoutEnabled.current) {
+            (QUERY_ROW_ICON_SIZE + QUERY_ROW_VERTICAL_PADDING * 2).dp
+        } else {
+            DesignTokens.MinTouchTarget
+        }
 
     Row(
         modifier =
             Modifier
+                .compactEdgeToEdge()
                 .fillMaxWidth()
-                .heightIn(min = (QUERY_ROW_ICON_SIZE + QUERY_ROW_VERTICAL_PADDING * 2).dp)
+                .heightIn(min = minHeight)
                 .clip(AppShapes.card)
                 .combinedClickable(
                     role = Role.Button,
@@ -552,10 +541,14 @@ internal fun RecentQueryRow(
     onLongPress: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+    val cardLayoutEnabled = LocalSearchCardLayoutEnabled.current
+    val verticalPadding =
+        if (cardLayoutEnabled) QUERY_ROW_VERTICAL_PADDING.dp else DesignTokens.SpacingXSmall
     Row(
         modifier =
             Modifier
                 .fillMaxWidth()
+                .heightIn(min = if (cardLayoutEnabled) 0.dp else DesignTokens.MinTouchTarget)
                 .clip(AppShapes.card)
                 .combinedClickable(
                     role = Role.Button,
@@ -567,8 +560,8 @@ internal fun RecentQueryRow(
                 ).padding(
                     start = historyRowHorizontalPadding(QUERY_ICON_START_PADDING.dp),
                     end = historyRowHorizontalPadding(QUERY_TEXT_END_PADDING.dp),
-                    top = QUERY_ROW_VERTICAL_PADDING.dp,
-                    bottom = QUERY_ROW_VERTICAL_PADDING.dp,
+                    top = verticalPadding,
+                    bottom = verticalPadding,
                 ),
         verticalAlignment = Alignment.CenterVertically,
     ) {

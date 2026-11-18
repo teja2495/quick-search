@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
+import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerVerticalPadding
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.expandVertically
@@ -279,14 +280,15 @@ internal fun AtAGlanceRows(
                     enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                     exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
                 ) {
-                    ResultSegment(
-                        index = index + if (dividerBefore) 1 else 0,
-                        count = rows.size + (if (dividerBefore) 1 else 0) + (if (dividerAfter) 1 else 0),
-                    ) {
-                        Column {
-                            if (index > 0 && !segmented) {
-                                HorizontalDivider(modifier = Modifier.compactEdgeToEdge(), color = dividerColor)
-                            }
+                    Column {
+                        if (index > 0 && !segmented) {
+                            HorizontalDivider(modifier = Modifier.compactEdgeToEdge(), color = dividerColor)
+                        }
+                        ResultSegment(
+                            index = index + if (dividerBefore) 1 else 0,
+                            count = rows.size + (if (dividerBefore) 1 else 0) + (if (dividerAfter) 1 else 0),
+                            padCompactOuterEdges = true,
+                        ) {
                             row.item.content()
                         }
                     }
@@ -373,10 +375,16 @@ internal fun AtAGlanceTitle(showWallpaperBackground: Boolean) {
             } else {
                 Modifier.clickable(role = Role.Button) {
                     openAppSettingDestination.invoke(AppSettingsTarget.Page(SettingsDetailType.AT_A_GLANCE))
-                }.sizeIn(
-                    minWidth = DesignTokens.MinTouchTarget,
-                    minHeight = DesignTokens.MinTouchTarget,
-                ).wrapContentSize(Alignment.CenterStart)
+                }.then(
+                    if (LocalSearchCardLayoutEnabled.current) {
+                        Modifier.sizeIn(
+                            minWidth = DesignTokens.MinTouchTarget,
+                            minHeight = DesignTokens.MinTouchTarget,
+                        ).wrapContentSize(Alignment.CenterStart)
+                    } else {
+                        Modifier
+                    },
+                )
             },
     )
 }
@@ -405,7 +413,10 @@ internal fun AtAGlanceCardShell(
         Column(
             modifier =
                 Modifier.fillMaxWidth()
-                    .padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingXSmall),
+                    .padding(
+                        horizontal = DesignTokens.SpacingMedium,
+                        vertical = resultRowsContainerVerticalPadding(DesignTokens.SpacingXSmall),
+                    ),
         ) {
             content()
         }
@@ -472,7 +483,9 @@ internal fun NowPlayingCard(
         Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)) {
             if (showTitle) AtAGlanceTitle(showWallpaperBackground)
             AtAGlanceCardShell(showWallpaperBackground = showWallpaperBackground) {
-                NowPlayingRow(glance, onDismiss = { visibility.targetState = false })
+                ResultSegment(index = 0, count = 1, padCompactOuterEdges = true) {
+                    NowPlayingRow(glance, onDismiss = { visibility.targetState = false })
+                }
             }
         }
     }

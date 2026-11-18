@@ -260,7 +260,6 @@ private fun PinnedItemsContainer(
             Column(
                 modifier = Modifier.fillMaxWidth().padding(
                     horizontal = DesignTokens.SpacingMedium,
-                    vertical = DesignTokens.SpacingXSmall,
                 ),
             ) { content() }
         }
