@@ -65,7 +65,7 @@ object NaturalLanguageScheduleParser {
     private val ordinalRecurringPattern = regex("""\b(?:on\s+)?([0-3]?\d)(st|nd|rd|th)\s+(monthly|month|yearly|annually|year)\b""")
     private val weekdayPattern = regex("""\b$LEAD_IN($WEEKDAY_NAMES)s?\b""")
     private val recurringWeekdayPattern = regex("""\b(?:(?:on|by|due|every|each)\s+)?($WEEKDAY_NAMES)s?\b""")
-    private val twelveHourTimePattern = regex("""\b(?:at\s+)?(1[0-2]|0?[1-9])(?::([0-5]\d))?\s*(am|pm)\b""")
+    private val twelveHourTimePattern = regex("""\b(?:at\s+)?(1[0-2]|0?[1-9])(?::([0-5]\d))?(\s*[ap]m|[ap])\b""")
     private val twentyFourHourTimePattern = regex("""\b(?:at\s+)?([01]?\d|2[0-3]):([0-5]\d)\b""")
     private val namedTimePattern = regex("""\b(?:at\s+)?(noon|midnight)\b""")
     private val repeatIntervalPattern = regex("""\b(?:repeat(?:s|ing)?\s+)?(?:every|each)\s+(\d+)\s+($REPEAT_UNITS|$WEEKDAY_NAMES)s?\b""")
@@ -222,7 +222,7 @@ object NaturalLanguageScheduleParser {
         if (kind == TimeKind.Named) return if (token(values[1]) == "noon") LocalTime.NOON else LocalTime.MIDNIGHT
         var hour = values[1].toIntOrNull() ?: return null
         val minute = values.getOrNull(2)?.toIntOrNull() ?: 0
-        if (kind == TimeKind.TwelveHour) hour = hour % 12 + if (token(values[3]) == "pm") 12 else 0
+        if (kind == TimeKind.TwelveHour) hour = hour % 12 + if (token(values[3].trim()).startsWith("p")) 12 else 0
         return LocalTime.of(hour, minute)
     }
 

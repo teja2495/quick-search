@@ -34,7 +34,7 @@ object DateCalculatorUtils {
     private val dayPattern = Regex("\\b(\\d{1,2})\\b")
 
     private val dateUnitPattern = Regex("""(\d+)\s*(years?|months?|weeks?|days?)""")
-    private val absoluteTimePattern = Regex("""^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$""")
+    private val absoluteTimePattern = Regex("""^(\d{1,2})(?::(\d{2}))?(\s*[ap]m|[ap])?$""")
     private val relativeTimeUnitPattern = Regex("""(\d+)\s*(hours?|hrs?|h|minutes?|mins?|seconds?|secs?)""")
     private val timeOffsetUnitPattern = Regex("""(\d+)\s*(hours?|hrs?|h|minutes?|mins?)""")
 
@@ -198,15 +198,15 @@ object DateCalculatorUtils {
         val match = absoluteTimePattern.matchEntire(lower) ?: return null
         var hour = match.groupValues[1].toIntOrNull() ?: return null
         val minute = match.groupValues[2].let { if (it.isEmpty()) 0 else it.toIntOrNull() ?: return null }
-        val ampm = match.groupValues[3].takeIf { it.isNotEmpty() }
+        val ampm = match.groupValues[3].trim().firstOrNull()
 
         // Require am/pm for bare-hour (no colon) to avoid matching plain integers
         if (match.groupValues[2].isEmpty() && ampm == null) return null
 
         if (ampm != null) {
             hour = when {
-                ampm == "am" && hour == 12 -> 0
-                ampm == "pm" && hour != 12 -> hour + 12
+                ampm == 'a' && hour == 12 -> 0
+                ampm == 'p' && hour != 12 -> hour + 12
                 else -> hour
             }
         }
