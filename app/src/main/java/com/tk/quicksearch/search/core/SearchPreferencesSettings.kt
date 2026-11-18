@@ -60,14 +60,6 @@ internal fun SearchPreferencesDelegate.setShowFolders(show: Boolean) {
         }
     }
 
-internal fun SearchPreferencesDelegate.setFilePreviewsEnabled(enabled: Boolean) {
-        scope.launch(Dispatchers.IO) {
-            userPreferences.setFilePreviewsEnabled(enabled)
-            stateAccess.filePreviewsEnabled = enabled
-            updateUiState { it.copy(filePreviewsEnabled = enabled) }
-        }
-    }
-
 internal fun SearchPreferencesDelegate.setShowSystemFiles(show: Boolean) {
         scope.launch(Dispatchers.IO) {
             userPreferences.setShowSystemFiles(show)
@@ -359,11 +351,13 @@ internal fun SearchPreferencesDelegate.setLlmApiKey(
                 if (isNewKey) {
                     val defaultModelId = LlmDefaultModels.pick(providerId, providerModels)
                     userPreferences.setLlmModel(providerId, defaultModelId)
-                    userPreferences.setLlmGroundingEnabled(providerId, true)
+                    val groundingEnabled =
+                        AiSearchLlmProviderRegistry.definition(providerId)?.defaultGroundingEnabled ?: true
+                    userPreferences.setLlmGroundingEnabled(providerId, groundingEnabled)
                     userPreferences.setLlmThinkingEnabled(providerId, false)
                     if (providerId == aiSearchHandler.getAiSearchProviderId()) {
                         aiSearchHandler.setSelectedModelId(defaultModelId)
-                        aiSearchHandler.setGroundingEnabled(true)
+                        aiSearchHandler.setGroundingEnabled(groundingEnabled)
                         aiSearchHandler.setThinkingEnabled(false)
                     }
                 }

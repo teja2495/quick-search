@@ -14,10 +14,8 @@ import com.tk.quicksearch.tools.aiTools.WorldClockNotRecognizedException
 import com.tk.quicksearch.tools.aiTools.ConfirmedWeatherQuery
 import com.tk.quicksearch.tools.aiTools.WeatherHandler
 import com.tk.quicksearch.tools.aiTools.WeatherIntentParser
-import com.tk.quicksearch.tools.calculator.CalculatorHandler
-import com.tk.quicksearch.tools.colorVisualizer.ColorVisualizerHandler
-import com.tk.quicksearch.tools.dateCalculator.DateCalculatorHandler
-import com.tk.quicksearch.tools.unitConverter.UnitConverterHandler
+import com.tk.quicksearch.tools.inlineSearch.SearchToolType
+import com.tk.quicksearch.tools.inlineSearch.detectInlineSearchTool
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -37,10 +35,6 @@ internal class SearchToolCoordinator(
     private val scope: CoroutineScope,
     private val workerDispatcher: CoroutineDispatcher,
     private val userPreferences: UserAppPreferences,
-    private val calculatorHandler: CalculatorHandler,
-    private val unitConverterHandler: UnitConverterHandler,
-    private val dateCalculatorHandler: DateCalculatorHandler,
-    private val colorVisualizerHandler: ColorVisualizerHandler,
     private val currencyConverterHandler: CurrencyConverterHandler,
     private val worldClockHandler: WorldClockHandler,
     private val dictionaryHandler: DictionaryHandler,
@@ -88,70 +82,16 @@ internal class SearchToolCoordinator(
         }
 
         val toolAliasState = toolAliasStateProvider()
-        val toolMode = toolAliasState.lockedToolMode
-        if (toolMode != null) {
-            return when (toolMode) {
-                SearchToolType.CALCULATOR ->
-                    calculatorHandler.processQuery(
-                        query = trimmedQuery,
-                        forceCalculatorMode = true,
-                    )
-
-                SearchToolType.UNIT_CONVERTER ->
-                    unitConverterHandler.processQuery(
-                        query = trimmedQuery,
-                        forceUnitConverterMode = true,
-                    )
-
-                SearchToolType.DATE_CALCULATOR ->
-                    dateCalculatorHandler.processQuery(
-                        query = trimmedQuery,
-                        forceDateCalculatorMode = true,
-                    )
-
-                SearchToolType.COLOR_VISUALIZER ->
-                    colorVisualizerHandler.processQuery(
-                        query = trimmedQuery,
-                        forceColorVisualizerMode = true,
-                    )
-            }
+        toolAliasState.lockedToolMode?.let { tool ->
+            return tool.evaluateInMode(trimmedQuery)
         }
 
         if (detectedTarget != null || detectedAliasSearchSection != null) {
             return CalculatorState()
         }
 
-        val calculatorResult =
-            calculatorHandler.processQuery(
-                query = trimmedQuery,
-                forceCalculatorMode = false,
-            )
-        if (calculatorResult.result != null) {
-            return calculatorResult
-        }
-
-        val unitConverterResult =
-            unitConverterHandler.processQuery(
-                query = trimmedQuery,
-                forceUnitConverterMode = false,
-            )
-        if (unitConverterResult.result != null) {
-            return unitConverterResult
-        }
-
-        val colorVisualizerResult =
-            colorVisualizerHandler.processQuery(
-                query = trimmedQuery,
-                forceColorVisualizerMode = false,
-            )
-        if (colorVisualizerResult.colorArgb != null) {
-            return colorVisualizerResult
-        }
-
-        return dateCalculatorHandler.processQuery(
-            query = trimmedQuery,
-            forceDateCalculatorMode = false,
-        )
+        return detectInlineSearchTool(trimmedQuery, userPreferences::isBooleanSettingEnabled)
+            ?: CalculatorState()
     }
 
     fun scheduleCurrencyConversion(trimmedQuery: String, showingTool: Boolean) {

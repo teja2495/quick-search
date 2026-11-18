@@ -48,10 +48,11 @@ internal fun rememberAppSettingToggleChecked(uiState: SearchUiState): (AppSettin
         remember(uiState) {
             AppSettingsToggleKey.entries.associateWith { uiState.isAppSettingToggleEnabled(it) }
         }
-    return remember(toggleStates, appNotificationsChecked, speedBumpOn) {
+    val booleanSettings = uiState.booleanSettings
+    return remember(toggleStates, booleanSettings, appNotificationsChecked, speedBumpOn) {
         { setting ->
             when (val toggleKey = setting.toggleKey) {
-                null -> false
+                null -> setting.booleanSetting?.valueIn(booleanSettings) == true
                 AppSettingsToggleKey.APP_NOTIFICATIONS -> appNotificationsChecked
                 AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH -> speedBumpOn
                 else -> toggleStates[toggleKey] == true
@@ -102,6 +103,10 @@ internal fun rememberRouteSettingActions(
 
     val onAppSettingToggle: (AppSettingResult, Boolean) -> Unit = onAppSettingToggle@{ setting, enabled ->
         viewModel.trackRecentAppSettingTap(setting.id)
+        setting.booleanSetting?.let {
+            viewModel.applySettingsCommand(SettingsCommand.SetBoolean(it, enabled))
+            return@onAppSettingToggle
+        }
         val requiresLlmApiKey =
             ToolSettingsRegistry.definitions.any { it.toggleKey == setting.toggleKey && it.requiresLlmApiKey }
         if (requiresLlmApiKey && !uiState.hasApiKey) {

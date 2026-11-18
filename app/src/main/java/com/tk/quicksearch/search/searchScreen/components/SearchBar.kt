@@ -81,7 +81,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchSection
-import com.tk.quicksearch.search.core.SearchToolType
+import com.tk.quicksearch.tools.inlineSearch.SearchToolType
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchBarStyle
 import com.tk.quicksearch.shared.ui.theme.AppColors

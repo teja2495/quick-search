@@ -39,6 +39,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.appSettings.BooleanSettings
 import com.tk.quicksearch.app.UpdateHelper
 import com.tk.quicksearch.search.core.ItemCustomizationRemover
 import com.tk.quicksearch.search.core.LocalItemCustomizationRemover
@@ -471,7 +472,7 @@ fun SearchRoute(
                 viewModel.handleContactMethod(contact, method)
             },
             onFileClick = { file: com.tk.quicksearch.search.models.DeviceFile ->
-                if (uiState.filePreviewsEnabled &&
+                if (uiState.isBooleanSettingEnabled(BooleanSettings.FILE_PREVIEWS.setting) &&
                     (com.tk.quicksearch.search.models.FileTypeUtils.isPdf(file) ||
                         com.tk.quicksearch.search.models.FileTypeUtils.isImage(file))
                 ) {
@@ -561,7 +562,7 @@ fun SearchRoute(
                         QuickSearchHelp.questionOrNull(trimmedQuery) != null ->
                             viewModel.askQuickSearch()
                         uiState.currencyConverterEnabled &&
-                                uiState.calculatorState.result == null &&
+                                !uiState.calculatorState.hasExclusiveResult &&
                                 CurrencyConversionIntentParser.parseConfirmed(trimmedQuery) != null ->
                             viewModel.executeCurrencyConversion()
                         uiState.worldClockEnabled &&

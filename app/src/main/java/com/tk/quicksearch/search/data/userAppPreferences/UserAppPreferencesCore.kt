@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.data.userAppPreferences
 
 import android.content.Context
+import com.tk.quicksearch.search.appSettings.BooleanSetting
 import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.CustomSearchEngine
 import com.tk.quicksearch.search.core.CustomTool
@@ -56,12 +57,6 @@ open class UserAppPreferencesCore(protected val context: Context) {
     protected val weatherPreferences by lazy { WeatherPreferences(context) }
     protected val searchEnginePreferences by lazy { SearchEnginePreferences(context) }
     protected val aliasPreferences by lazy { AliasPreferences(context) }
-    protected val geminiPreferences by lazy { GeminiPreferences(context) }
-    protected val openAiPreferences by lazy { OpenAiPreferences(context) }
-    protected val anthropicPreferences by lazy { AnthropicPreferences(context) }
-    protected val groqPreferences by lazy { GroqPreferences(context) }
-    protected val metaPreferences by lazy { MetaPreferences(context) }
-    protected val openCodePreferences by lazy { OpenCodePreferences(context) }
     protected val customLlmProviderPreferences by lazy { CustomLlmProviderPreferences(context) }
     protected val tavilyPreferences by lazy { TavilyPreferences(context) }
     protected val llmPreferences by lazy { LlmPreferences(context) }
@@ -309,9 +304,12 @@ open class UserAppPreferencesCore(protected val context: Context) {
 
     fun setShowFoldersInResults(show: Boolean) = filePreferences.setShowFoldersInResults(show)
 
-    fun areFilePreviewsEnabled(): Boolean = filePreferences.areFilePreviewsEnabled()
+    internal fun isBooleanSettingEnabled(setting: BooleanSetting): Boolean =
+        sharedPrefs.getBoolean(setting.preferenceKey, setting.defaultValue)
 
-    fun setFilePreviewsEnabled(enabled: Boolean) = filePreferences.setFilePreviewsEnabled(enabled)
+    internal fun setBooleanSetting(setting: BooleanSetting, enabled: Boolean) {
+        sharedPrefs.edit().putBoolean(setting.preferenceKey, enabled).apply()
+    }
 
     fun getShowSystemFiles(): Boolean = filePreferences.getShowSystemFiles()
 

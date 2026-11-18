@@ -17,6 +17,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
 import com.tk.quicksearch.search.core.SearchUiState
+import com.tk.quicksearch.tools.inlineSearch.SearchToolType
 import kotlinx.coroutines.delay
 
 private const val SEARCH_HINT_ROTATION_INTERVAL_MS = 5000L
@@ -42,6 +43,9 @@ internal fun rememberSearchHint(state: SearchUiState, isDefaultLauncher: Boolean
                 R.string.search_hint_static
             },
         )
+    val calculatorEnabled = state.isBooleanSettingEnabled(SearchToolType.CALCULATOR.setting)
+    val unitConverterEnabled = state.isBooleanSettingEnabled(SearchToolType.UNIT_CONVERTER.setting)
+    val dateCalculatorEnabled = state.isBooleanSettingEnabled(SearchToolType.DATE_CALCULATOR.setting)
     // stringArrayResource returns a new array each call; arrays compare by identity, so key on a list
     val cycleHints = stringArrayResource(R.array.search_hints_cycle).toList()
     // Indices must stay in sync with R.array.search_hints_cycle order in strings.xml
@@ -53,9 +57,9 @@ internal fun rememberSearchHint(state: SearchUiState, isDefaultLauncher: Boolean
         state.hasCalendarPermission,
         state.hasFilePermission,
         state.hasApiKey,
-        state.calculatorEnabled,
-        state.unitConverterEnabled,
-        state.dateCalculatorEnabled,
+        calculatorEnabled,
+        unitConverterEnabled,
+        dateCalculatorEnabled,
         state.currencyConverterEnabled,
         state.worldClockEnabled,
         state.dictionaryEnabled,
@@ -70,9 +74,9 @@ internal fun rememberSearchHint(state: SearchUiState, isDefaultLauncher: Boolean
             cycleHints[4] to (SearchSection.APP_SHORTCUTS !in state.disabledSections),
             cycleHints[5] to (SearchSection.SETTINGS !in state.disabledSections),
             cycleHints[6] to state.currencyConverterEnabled,
-            cycleHints[7] to state.unitConverterEnabled,
-            cycleHints[8] to state.dateCalculatorEnabled,
-            cycleHints[9] to state.calculatorEnabled,
+            cycleHints[7] to unitConverterEnabled,
+            cycleHints[8] to dateCalculatorEnabled,
+            cycleHints[9] to calculatorEnabled,
             cycleHints[10] to (state.worldClockEnabled && state.hasApiKey),
             cycleHints[11] to state.dictionaryEnabled,
             cycleHints[12] to (state.weatherEnabled && state.hasApiKey),

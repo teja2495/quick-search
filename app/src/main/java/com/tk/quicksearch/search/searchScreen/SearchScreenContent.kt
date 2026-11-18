@@ -703,7 +703,7 @@ internal fun SearchScreenContent(
                 onOpenGesturesSettingsClick = onOpenGesturesSettingsClick,
                 onOpenSettingsClick = onSettingsClick,
                 showOpenSettingsOption = !state.settingsIconEnabled,
-                showCalculator = state.calculatorState.isToolMode || state.calculatorState.result != null || state.calculatorState.parsedDateMillis != null || state.calculatorState.dateDiffLabel != null || state.calculatorState.timeResultLabel != null,
+                showCalculator = state.calculatorState.isVisible,
                 showCurrencyConverter = showCurrencyConverter,
                 showWorldClock = showWorldClock,
                 showDictionary = showDictionary,

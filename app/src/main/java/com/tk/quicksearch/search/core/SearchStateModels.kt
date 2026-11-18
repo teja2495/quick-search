@@ -193,10 +193,6 @@ data class SearchFeatureState(
         val webSuggestionsEnabled: Boolean = true,
         val webSuggestionsCount: Int = 3,
         // Calculator
-        val calculatorEnabled: Boolean = true,
-        val unitConverterEnabled: Boolean = true,
-        val dateCalculatorEnabled: Boolean = true,
-        val colorVisualizerEnabled: Boolean = true,
         val currencyConverterEnabled: Boolean = true,
         val worldClockEnabled: Boolean = true,
         val dictionaryEnabled: Boolean = true,
@@ -300,10 +296,10 @@ data class SearchUiConfigState(
         val selectedIconPackPackage: String? = null,
         val availableIconPacks: List<IconPackInfo> = emptyList(),
         val maskUnsupportedIconPackIcons: Boolean = true,
+        val booleanSettings: Map<String, Boolean> = emptyMap(),
         // File display preferences
         val enabledFileTypes: Set<FileType> = FileType.values().toSet(),
         val showFolders: Boolean = false,
-        val filePreviewsEnabled: Boolean = true,
         val showSystemFiles: Boolean = false,
         val folderWhitelistPatterns: Set<String> = emptySet(),
         val folderBlacklistPatterns: Set<String> = emptySet(),

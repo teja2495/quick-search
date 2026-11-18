@@ -58,7 +58,6 @@ internal fun buildSettingsScreenCallbacks(
         onDeleteCustomSearchEngine = viewModel::deleteCustomSearchEngine,
         onToggleFileType = viewModel::setFileTypeEnabled,
         onToggleFolders = viewModel::setShowFolders,
-        onToggleFilePreviews = viewModel::setFilePreviewsEnabled,
         onToggleSystemFiles = viewModel::setShowSystemFiles,
         onSetFolderWhitelistPatterns = viewModel::setFolderWhitelistPatterns,
         onSetFolderBlacklistPatterns = viewModel::setFolderBlacklistPatterns,
@@ -101,15 +100,6 @@ internal fun buildSettingsScreenCallbacks(
         onToggleSearchEngineAliasSuffixEnabled = viewModel::setSearchEngineAliasSuffixEnabled,
         onToggleAliasTriggerAfterSpaceEnabled = viewModel::setAliasTriggerAfterSpaceEnabled,
         onSetAmazonDomain = viewModel::setAmazonDomain,
-        onSetCalculatorAlias = { code ->
-            viewModel.setAlias(AliasHandler.CALCULATOR_ALIAS_FEATURE_ID, code)
-        },
-        onSetUnitConverterAlias = { code ->
-            viewModel.setAlias(AliasHandler.UNIT_CONVERTER_ALIAS_FEATURE_ID, code)
-        },
-        onSetDateCalculatorAlias = { code ->
-            viewModel.setAlias(AliasHandler.DATE_CALCULATOR_ALIAS_FEATURE_ID, code)
-        },
         onSetCurrencyConverterAlias = { code ->
             viewModel.setAlias(AliasHandler.CURRENCY_CONVERTER_ALIAS_FEATURE_ID, code)
         },
@@ -122,10 +112,6 @@ internal fun buildSettingsScreenCallbacks(
         onSetSearchSectionAlias = { targetId, code ->
             viewModel.setAlias(targetId, code)
         },
-        onToggleCalculator = viewModel::setCalculatorEnabled,
-        onToggleUnitConverter = viewModel::setUnitConverterEnabled,
-        onToggleDateCalculator = viewModel::setDateCalculatorEnabled,
-        onToggleColorVisualizer = viewModel::setColorVisualizerEnabled,
         onToggleCurrencyConverter = viewModel::setCurrencyConverterEnabled,
         onToggleWorldClock = viewModel::setWorldClockEnabled,
         onToggleDictionary = viewModel::setDictionaryEnabled,

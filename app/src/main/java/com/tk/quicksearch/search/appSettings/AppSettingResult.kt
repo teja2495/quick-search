@@ -97,10 +97,6 @@ enum class AppSettingsToggleKey {
     SEARCH_ENGINE_COMPACT_MODE,
     SEARCH_ENGINE_ALIAS_SUFFIX,
     ALIAS_TRIGGER_AFTER_SPACE,
-    CALCULATOR,
-    UNIT_CONVERTER,
-    DATE_CALCULATOR,
-    COLOR_VISUALIZER,
     APP_SUGGESTIONS,
     SHOW_ALL_APPS_BUTTON,
     INCLUDE_NON_LAUNCHABLE_APPS_IN_SEARCH,
@@ -119,7 +115,6 @@ enum class AppSettingsToggleKey {
     AUTO_CLOSE_OVERLAY,
     CIRCULAR_APP_ICONS,
     SHOW_FOLDERS,
-    FILE_PREVIEWS,
     SHOW_SYSTEM_FILES,
     DIRECT_DIAL,
     NUMBER_SEARCH,
@@ -161,12 +156,16 @@ data class AppSettingResult(
     val action: AppSettingResultAction,
     val destination: AppSettingsDestination? = null,
     val toggleKey: AppSettingsToggleKey? = null,
+    val booleanSetting: BooleanSetting? = null,
 ) {
     // TOGGLE rows may also carry a destination; see isNavigationToggle.
     init {
         require(
-            (action == AppSettingResultAction.NAVIGATE && destination != null && toggleKey == null) ||
-                (action == AppSettingResultAction.TOGGLE && toggleKey != null),
+            when (action) {
+                AppSettingResultAction.NAVIGATE ->
+                    destination != null && toggleKey == null && booleanSetting == null
+                AppSettingResultAction.TOGGLE -> (toggleKey != null) xor (booleanSetting != null)
+            },
         ) {
             "AppSettingResult action metadata is invalid for id=$id"
         }

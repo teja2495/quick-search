@@ -3,13 +3,28 @@
 App-setting rows are the Quick Search settings that appear as search results. Every new
 user-facing setting needs one. Paths are relative to `app/src/main/java/com/tk/quicksearch/`.
 
-## Some rows are generated automatically
+## Plain on/off settings
+
+1. Add one entry to `BooleanSettings` in `search/appSettings/BooleanSetting.kt`. Give it a
+   stable preference key, a default, a stable search row ID, and string resources. Add keywords if
+   useful. Search registration, startup hydration, and backup restore use that definition.
+2. Place a `BooleanSettingTile` on the existing Settings page. Pass the definition,
+   `state.booleanSettings`, and `callbacks.onApplySettingsCommand`. Use the same state and command
+   if the page needs a custom row.
+3. At the feature's point of use, read `uiState.isBooleanSettingEnabled(definition)`. Background
+   work can read the setting through `UserAppPreferences.isBooleanSettingEnabled`.
+
+See `FILE_PREVIEWS` and its tile in `settings/settingsDetailScreen/FileSettings.kt`. For strings,
+use `.claude/skills/localize-strings/SKILL.md`. Use the dedicated command path below for settings
+that need an action, permission prompt, or coordinated side effect.
+
+## Existing registration paths
 
 - **Search section toggles** come from `SearchSectionRegistry` (`appSettingsToggleKey`) via
-  `addSearchSectionToggles()`. Adding the section there creates the row, and the toggle's
-  read/write routes through `setSectionEnabled`.
-- **Tool toggles** set `toggleKey` in `settings/settingsDetailScreen/ToolSettingsRegistry.kt`. You still need the
-  toggle wiring below.
+  `searchSectionToggleRows()`, with row metadata from `AppSettingsCatalogRows.kt`. Reads and writes
+  route through the section state and `setSectionEnabled`.
+- **Inline tools** supply their own `BooleanSetting` in the inline tool definition. See
+  `.claude/skills/new-search-tool/SKILL.md`. Other tools use their existing settings commands.
 
 For anything else, pick a type:
 

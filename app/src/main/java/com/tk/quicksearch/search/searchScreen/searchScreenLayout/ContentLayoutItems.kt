@@ -8,8 +8,6 @@ import com.tk.quicksearch.searchEngines.*
 import com.tk.quicksearch.searchEngines.compact.NoResultsSearchEngineCards
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionsSection
 import com.tk.quicksearch.tools.aiTools.CurrencyConverterResult
-import com.tk.quicksearch.tools.colorVisualizer.ColorVisualizerResult
-import com.tk.quicksearch.tools.calculator.CalculatorResult
 import com.tk.quicksearch.tools.aiTools.DictionaryResult
 import com.tk.quicksearch.tools.aiSearch.AiSearchResult
 import com.tk.quicksearch.tools.aiTools.WorldClockResult
@@ -151,18 +149,10 @@ internal fun NonSectionLayoutItem(
 
             ItemPriorityConfig.ItemType.CALCULATOR_RESULT -> {
                 if (showCalculator) {
-                    if (state.calculatorState.toolType == com.tk.quicksearch.search.core.SearchToolType.COLOR_VISUALIZER) {
-                        ColorVisualizerResult(
-                            calculatorState = state.calculatorState,
-                            showWallpaperBackground = effectiveShowWallpaperBackground,
-                        )
-                    } else {
-                        CalculatorResult(
-                            calculatorState = state.calculatorState,
-                            showWallpaperBackground =
-                                effectiveShowWallpaperBackground,
-                        )
-                    }
+                    state.calculatorState.toolType.renderResult(
+                        state.calculatorState,
+                        effectiveShowWallpaperBackground,
+                    )
                 }
             }
 

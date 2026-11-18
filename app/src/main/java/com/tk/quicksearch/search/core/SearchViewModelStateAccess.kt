@@ -30,12 +30,6 @@ internal class SearchViewModelPreferencesStateAccess(
             state.showFolders = value
         }
 
-    override var filePreviewsEnabled: Boolean
-        get() = state.filePreviewsEnabled
-        set(value) {
-            state.filePreviewsEnabled = value
-        }
-
     override var showSystemFiles: Boolean
         get() = state.showSystemFiles
         set(value) {

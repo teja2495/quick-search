@@ -20,9 +20,7 @@ class CustomOpenAiCompatibleLlmProvider(
     private val userPreferences = UserAppPreferences(context.applicationContext)
     private val config: CustomLlmProviderConfig? = userPreferences.getCustomLlmProvider(id)
 
-    override val displayName: String = "Custom"
     override val defaultModelId: String = config?.modelId.orEmpty()
-    override val defaultGroundingEnabled: Boolean = config?.groundingEnabled ?: true
     override val fallbackTextModels: List<LlmTextModel> =
         defaultModelId.takeIf { it.isNotBlank() }?.let { modelId ->
             listOf(

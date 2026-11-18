@@ -1,6 +1,7 @@
 package com.tk.quicksearch.settings.shared
 
 import com.tk.quicksearch.search.appSettings.AppSettingsToggleKey
+import com.tk.quicksearch.search.appSettings.BooleanSetting
 import com.tk.quicksearch.search.core.AccentColorMode
 import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.AppSuggestionTabType
@@ -14,9 +15,15 @@ import com.tk.quicksearch.search.core.SearchSectionRegistry
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.search.core.setBooleanSetting
 import com.tk.quicksearch.search.models.SecondaryRankingSignal
 
 sealed interface SettingsCommand {
+    data class SetBoolean(
+        val setting: BooleanSetting,
+        val enabled: Boolean,
+    ) : SettingsCommand
+
     data class Toggle(
         val key: AppSettingsToggleKey,
         val enabled: Boolean,
@@ -89,6 +96,7 @@ sealed interface SettingsCommand {
 
 internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
     when (command) {
+        is SettingsCommand.SetBoolean -> setBooleanSetting(command.setting, command.enabled)
         is SettingsCommand.Toggle -> {
             val sectionToggle = SearchSectionRegistry.sectionForToggle(command.key)
             if (sectionToggle != null) {
@@ -116,10 +124,6 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                     setSearchEngineAliasSuffixEnabled(command.enabled)
                 AppSettingsToggleKey.ALIAS_TRIGGER_AFTER_SPACE ->
                     setAliasTriggerAfterSpaceEnabled(command.enabled)
-                AppSettingsToggleKey.CALCULATOR -> setCalculatorEnabled(command.enabled)
-                AppSettingsToggleKey.UNIT_CONVERTER -> setUnitConverterEnabled(command.enabled)
-                AppSettingsToggleKey.DATE_CALCULATOR -> setDateCalculatorEnabled(command.enabled)
-                AppSettingsToggleKey.COLOR_VISUALIZER -> setColorVisualizerEnabled(command.enabled)
                 AppSettingsToggleKey.APP_SUGGESTIONS -> setAppSuggestionsEnabled(command.enabled)
                 AppSettingsToggleKey.SHOW_ALL_APPS_BUTTON -> setShowAllAppsButton(command.enabled)
                 AppSettingsToggleKey.INCLUDE_NON_LAUNCHABLE_APPS_IN_SEARCH ->
@@ -149,7 +153,6 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                         },
                     )
                 AppSettingsToggleKey.SHOW_FOLDERS -> setShowFolders(command.enabled)
-                AppSettingsToggleKey.FILE_PREVIEWS -> setFilePreviewsEnabled(command.enabled)
                 AppSettingsToggleKey.SHOW_SYSTEM_FILES -> setShowSystemFiles(command.enabled)
                 AppSettingsToggleKey.DIRECT_DIAL -> setDirectDialEnabled(command.enabled)
                 AppSettingsToggleKey.NUMBER_SEARCH -> setNumberSearchEnabled(command.enabled)
@@ -243,10 +246,6 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE -> isSearchEngineCompactMode
         AppSettingsToggleKey.SEARCH_ENGINE_ALIAS_SUFFIX -> isSearchEngineAliasSuffixEnabled
         AppSettingsToggleKey.ALIAS_TRIGGER_AFTER_SPACE -> isAliasTriggerAfterSpaceEnabled
-        AppSettingsToggleKey.CALCULATOR -> calculatorEnabled
-        AppSettingsToggleKey.UNIT_CONVERTER -> unitConverterEnabled
-        AppSettingsToggleKey.DATE_CALCULATOR -> dateCalculatorEnabled
-        AppSettingsToggleKey.COLOR_VISUALIZER -> colorVisualizerEnabled
         AppSettingsToggleKey.APP_SUGGESTIONS -> appSuggestionsEnabled
         AppSettingsToggleKey.SHOW_ALL_APPS_BUTTON -> showAllAppsButton
         AppSettingsToggleKey.INCLUDE_NON_LAUNCHABLE_APPS_IN_SEARCH ->
@@ -265,7 +264,6 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.AUTO_CLOSE_OVERLAY -> autoCloseOverlay
         AppSettingsToggleKey.CIRCULAR_APP_ICONS -> appIconShape == AppIconShape.CIRCLE
         AppSettingsToggleKey.SHOW_FOLDERS -> showFolders
-        AppSettingsToggleKey.FILE_PREVIEWS -> filePreviewsEnabled
         AppSettingsToggleKey.SHOW_SYSTEM_FILES -> showSystemFiles
         AppSettingsToggleKey.DIRECT_DIAL -> directDialEnabled
         AppSettingsToggleKey.NUMBER_SEARCH -> numberSearchEnabled

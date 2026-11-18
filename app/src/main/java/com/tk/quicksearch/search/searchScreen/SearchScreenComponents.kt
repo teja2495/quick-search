@@ -15,7 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
-import com.tk.quicksearch.search.core.SearchToolType
+import com.tk.quicksearch.tools.inlineSearch.SearchToolType
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 // Import the modifier functions

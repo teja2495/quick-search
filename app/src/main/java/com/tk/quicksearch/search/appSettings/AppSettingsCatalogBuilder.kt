@@ -47,5 +47,22 @@ internal class AppSettingsCatalogBuilder(
         )
     }
 
+    fun addBooleanSetting(
+        setting: BooleanSetting,
+        destination: AppSettingsDestination? = null,
+    ) {
+        add(
+            AppSettingResult(
+                id = setting.searchId,
+                title = context.getString(setting.titleRes),
+                description = setting.descriptionRes?.let(context::getString),
+                keywords = setting.keywords,
+                action = AppSettingResultAction.TOGGLE,
+                destination = destination,
+                booleanSetting = setting,
+            ),
+        )
+    }
+
     fun build(): List<AppSettingResult> = rows.toList()
 }

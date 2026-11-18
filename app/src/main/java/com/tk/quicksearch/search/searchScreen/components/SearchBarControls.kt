@@ -86,7 +86,7 @@ import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
-import com.tk.quicksearch.search.core.SearchToolType
+import com.tk.quicksearch.tools.inlineSearch.SearchToolType
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.shared.IconRenderStyle
 import com.tk.quicksearch.searchEngines.shared.SearchTargetIcon

@@ -7,27 +7,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.search.core.SearchEngine
 
+enum class SearchEngineIconColorPolicy {
+    NONE,
+    INVERT_ON_LIGHT,
+    DARKEN_ON_LIGHT,
+}
+
 @DrawableRes
 fun SearchEngine.getDrawableResId(): Int? =
-    SearchEngineRegistry.get(this).drawableResId
+    drawableResId
 
 fun SearchEngine.getAppPackageCandidates(): List<String> =
-    SearchEngineRegistry.get(this).appPackages
+    appPackages
 
 fun SearchEngine.isInstallOnlyEngine(): Boolean =
-    SearchEngineRegistry.get(this).installOnly
+    installOnly
 
 fun SearchEngine.isDefaultDisabledOnFirstRun(): Boolean =
-    SearchEngineRegistry.get(this).defaultDisabledOnFirstRun
+    defaultDisabledOnFirstRun
 
 fun SearchEngine.shouldDefaultDisableIfAppMissing(): Boolean =
-    SearchEngineRegistry.get(this).defaultDisableIfAppMissing
+    defaultDisableIfAppMissing
 
 fun SearchEngine.getIconColorPolicy(): SearchEngineIconColorPolicy =
-    SearchEngineRegistry.get(this).iconColorPolicy
-
-fun SearchEngine.getNativeLaunchMode(): SearchEngineNativeLaunchMode =
-    SearchEngineRegistry.get(this).nativeLaunchMode
+    iconColorPolicy
 
 /**
  * Builds a search URL for the given query and search engine.
@@ -45,14 +48,13 @@ fun buildSearchUrl(
     if (searchEngine == SearchEngine.DIRECT_SEARCH) {
         throw IllegalArgumentException("AI Search does not use a browser URL")
     }
-    val metadata = SearchEngineRegistry.get(searchEngine)
 
     val amazonUrlTemplate =
         if (searchEngine == SearchEngine.AMAZON) {
             val domain = amazonDomain ?: "amazon.com"
             "https://www.$domain/s?k=%s"
         } else {
-            metadata.urlTemplate
+            searchEngine.urlTemplate
         }
 
     if (query.isBlank()) {
@@ -61,11 +63,11 @@ fun buildSearchUrl(
             return "https://www.$domain"
         }
 
-        metadata.homeUrl?.let { homeUrl ->
+        searchEngine.homeUrl?.let { homeUrl ->
             return homeUrl
         }
 
-        val template = metadata.urlTemplate
+        val template = searchEngine.urlTemplate
         val parts = template.split("?", limit = 2)
         if (parts.size == 1) {
             return template.replace("%s", "")
@@ -91,17 +93,17 @@ fun buildSearchUrl(
         if (searchEngine == SearchEngine.AMAZON) {
             amazonUrlTemplate
         } else {
-            metadata.urlTemplate
+            searchEngine.urlTemplate
         }
     return templateToUse.replace("%s", encodedQuery)
 }
 
 fun SearchEngine.getDefaultShortcutCode(): String =
-    SearchEngineRegistry.get(this).defaultShortcutCode
+    defaultShortcutCode
 
 @StringRes
 fun SearchEngine.getContentDescriptionResId(): Int =
-    SearchEngineRegistry.get(this).contentDescriptionResId
+    contentDescriptionResId
 
 @StringRes
 fun SearchEngine.getDisplayNameResId(): Int =

@@ -15,28 +15,27 @@ object LlmDefaultModels {
     fun pick(
         providerId: AiSearchLlmProviderId,
         models: List<LlmTextModel>,
-    ): String {
-        val preferred =
-            when (providerId) {
-                AiSearchLlmProviderId.GEMINI ->
-                    models.firstOrNull { it.id == GEMINI_DEFAULT_MODEL_ID }?.id
-                AiSearchLlmProviderId.META ->
-                    latestVersion(models) { id -> metaMuseSparkRegex.find(id)?.groupValues?.get(1)?.split('.') }
-                AiSearchLlmProviderId.ANTHROPIC ->
-                    latestVersion(models) { id ->
-                        anthropicSonnetRegex
-                            .find(id.replace(datedSnapshotSuffixRegex, ""))
-                            ?.groupValues
-                            ?.get(1)
-                            ?.split('-')
-                    }
-                AiSearchLlmProviderId.OPENAI ->
-                    latestVersion(models) { id -> openAiLunaRegex.find(id)?.groupValues?.get(1)?.split('.') }
-                // Groq and custom providers use the first listed model.
-                else -> null
-            }
-        return preferred ?: models.firstOrNull()?.id.orEmpty()
-    }
+    ): String =
+        AiSearchLlmProviderRegistry.definition(providerId)?.preferredModel?.invoke(models)
+            ?: models.firstOrNull()?.id.orEmpty()
+
+    internal fun gemini(models: List<LlmTextModel>): String? =
+        models.firstOrNull { it.id == GEMINI_DEFAULT_MODEL_ID }?.id
+
+    internal fun meta(models: List<LlmTextModel>): String? =
+        latestVersion(models) { id -> metaMuseSparkRegex.find(id)?.groupValues?.get(1)?.split('.') }
+
+    internal fun anthropic(models: List<LlmTextModel>): String? =
+        latestVersion(models) { id ->
+            anthropicSonnetRegex
+                .find(id.replace(datedSnapshotSuffixRegex, ""))
+                ?.groupValues
+                ?.get(1)
+                ?.split('-')
+        }
+
+    internal fun openAi(models: List<LlmTextModel>): String? =
+        latestVersion(models) { id -> openAiLunaRegex.find(id)?.groupValues?.get(1)?.split('.') }
 
     /** Highest numeric version among matching ids; ties prefer the shorter (alias) id. */
     private fun latestVersion(

@@ -25,7 +25,6 @@ import kotlinx.coroutines.withContext
 internal interface SearchPreferencesStateAccess {
     var enabledFileTypes: Set<FileType>
     var showFolders: Boolean
-    var filePreviewsEnabled: Boolean
     var showSystemFiles: Boolean
     var folderWhitelistPatterns: Set<String>
     var folderBlacklistPatterns: Set<String>
@@ -95,34 +94,6 @@ internal class SearchPreferencesDelegate(
 ) {
     @Volatile internal var lastModelRefreshAtMillis = 0L
     @Volatile internal var lastModelRefreshProviderIds: Set<AiSearchLlmProviderId> = emptySet()
-
-    fun setCalculatorEnabled(enabled: Boolean) {
-        scope.launch(Dispatchers.IO) {
-            userPreferences.setCalculatorEnabled(enabled)
-            updateFeatureState { it.copy(calculatorEnabled = enabled) }
-        }
-    }
-
-    fun setUnitConverterEnabled(enabled: Boolean) {
-        scope.launch(Dispatchers.IO) {
-            userPreferences.setUnitConverterEnabled(enabled)
-            updateFeatureState { it.copy(unitConverterEnabled = enabled) }
-        }
-    }
-
-    fun setDateCalculatorEnabled(enabled: Boolean) {
-        scope.launch(Dispatchers.IO) {
-            userPreferences.setDateCalculatorEnabled(enabled)
-            updateFeatureState { it.copy(dateCalculatorEnabled = enabled) }
-        }
-    }
-
-    fun setColorVisualizerEnabled(enabled: Boolean) {
-        scope.launch(Dispatchers.IO) {
-            userPreferences.setColorVisualizerEnabled(enabled)
-            updateFeatureState { it.copy(colorVisualizerEnabled = enabled) }
-        }
-    }
 
     fun setCurrencyConverterEnabled(enabled: Boolean) {
         scope.launch(Dispatchers.IO) {

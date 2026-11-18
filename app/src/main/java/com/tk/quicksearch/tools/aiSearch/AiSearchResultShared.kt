@@ -28,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
@@ -36,7 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.SearchToolType
+import com.tk.quicksearch.tools.inlineSearch.SearchToolType
 import com.tk.quicksearch.search.searchScreen.shared.InformationCard
 import com.tk.quicksearch.search.searchScreen.shared.InformationCardCopyAction
 import com.tk.quicksearch.search.searchScreen.shared.InformationCardFooter
@@ -250,95 +249,63 @@ internal fun AiProviderAttributionRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
     ) {
-        when (llmProviderId) {
-            AiSearchLlmProviderId.OPENAI -> {
+        val definition = AiSearchLlmProviderRegistry.definition(llmProviderId)
+        if (definition == null) {
+            Text(
+                    text = usedModelId.orEmpty(),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = contentColor,
+            )
+            return@Row
+        }
+        when (val attribution = definition.branding.attribution) {
+            is AiProviderAttribution.Wordmark ->
                 Image(
-                        painter = painterResource(R.drawable.openai_wordmark),
+                        painter = painterResource(attribution.drawable),
                         contentDescription = poweredByText,
                         contentScale = ContentScale.Fit,
                         colorFilter = ColorFilter.tint(contentColor),
-                        modifier =
-                                Modifier.height(18.dp).aspectRatio(1564.3f / 428.4f),
+                        modifier = Modifier.height(attribution.heightDp.dp).aspectRatio(attribution.aspectRatio),
                 )
-            }
-            AiSearchLlmProviderId.ANTHROPIC -> {
+            AiProviderAttribution.Claude ->
                 AnthropicClaudeWordmark(
                         contentDescription = poweredByText,
                         wordmarkTextColor = contentColor,
-                        modifier =
-                                Modifier.height(18.dp)
-                                        .aspectRatio(689.97997f / 148.17999f),
+                        modifier = Modifier.height(18.dp).aspectRatio(689.97997f / 148.17999f),
                 )
-            }
-            AiSearchLlmProviderId.GROQ -> {
-                Image(
-                        painter = painterResource(R.drawable.groq_wordmark),
-                        contentDescription = poweredByText,
-                        contentScale = ContentScale.Fit,
-                        colorFilter = ColorFilter.tint(contentColor),
-                        modifier =
-                                Modifier.height(18.dp).aspectRatio(152f / 55.5f),
-                )
-            }
-            AiSearchLlmProviderId.META -> {
+            AiProviderAttribution.Label ->
                 Row(
                         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
                         verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Image(
-                            painter = painterResource(R.drawable.meta_logo),
+                            painter = painterResource(definition.branding.icon),
                             contentDescription = poweredByText,
                             modifier = Modifier.size(16.dp),
                     )
                     Text(
-                            text = stringResource(R.string.settings_ai_provider_meta),
+                            text = stringResource(definition.nameRes),
                             style = MaterialTheme.typography.labelMedium,
                             color = contentColor,
                     )
                 }
-            }
-            AiSearchLlmProviderId.OPENCODE -> {
-                Image(
-                        painter = painterResource(R.drawable.opencode_wordmark),
-                        contentDescription = poweredByText,
-                        contentScale = ContentScale.Fit,
-                        colorFilter = ColorFilter.tint(contentColor),
-                        modifier =
-                                Modifier.height(14.dp).aspectRatio(640.714f / 115f),
-                )
-            }
-            else -> {
-                if (llmProviderId.isCustom) {
-                    Text(
-                            text = usedModelId.orEmpty(),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = contentColor,
+            AiProviderAttribution.Gemini ->
+                if (isGemma) {
+                    GemmaWordmark(
+                            contentDescription = poweredByText,
+                            wordmarkTextColor = contentColor,
+                            modifier = Modifier.height(18.dp).aspectRatio(250f / 64f),
                     )
                 } else {
-                    val logoAspectRatio = if (isGemma) 250f / 64f else 288f / 65f
-                    val logoHeight = if (isGemma) 18.dp else 14.dp
-                    if (isGemma) {
-                        GemmaWordmark(
-                                contentDescription = poweredByText,
-                                wordmarkTextColor = contentColor,
-                                modifier = Modifier.height(logoHeight).aspectRatio(logoAspectRatio),
-                        )
-                    } else {
-                        GeminiWordmark(
-                                contentDescription = poweredByText,
-                                wordmarkTextColor = contentColor,
-                                modifier = Modifier.height(logoHeight).aspectRatio(logoAspectRatio),
-                        )
-                    }
+                    GeminiWordmark(
+                            contentDescription = poweredByText,
+                            wordmarkTextColor = contentColor,
+                            modifier = Modifier.height(14.dp).aspectRatio(288f / 65f),
+                    )
                 }
-            }
         }
     }
 }
-
-/** OpenCode ships two-tone marks for light and dark surfaces; pick the one for [contentColor]. */
-internal fun openCodeLogoRes(contentColor: Color): Int =
-        if (contentColor.luminance() > 0.5f) R.drawable.opencode_logo_dark else R.drawable.opencode_logo_light
 
 /** Attribution row showing calculator branding. */
 @Composable
@@ -346,21 +313,11 @@ internal fun CalculatorAttributionRow(
         modifier: Modifier = Modifier,
         toolType: SearchToolType = SearchToolType.CALCULATOR,
 ) {
-    val titleRes =
-            when (toolType) {
-                SearchToolType.UNIT_CONVERTER -> R.string.unit_converter_info_title
-                SearchToolType.DATE_CALCULATOR -> R.string.date_calculator_info_title
-                SearchToolType.COLOR_VISUALIZER -> R.string.color_visualizer_toggle_title
-                SearchToolType.CALCULATOR -> R.string.calculator_toggle_title
-            }
-    val icon =
-            when (toolType) {
-                SearchToolType.UNIT_CONVERTER -> MaterialSymbols.StraightenOutlined
-                SearchToolType.DATE_CALCULATOR -> MaterialSymbols.CalendarMonthOutlined
-                SearchToolType.COLOR_VISUALIZER -> MaterialSymbols.PaletteOutlined
-                SearchToolType.CALCULATOR -> MaterialSymbols.CalculateOutlined
-            }
-    ToolAttributionRow(modifier = modifier, icon = icon, titleRes = titleRes)
+    ToolAttributionRow(
+        modifier = modifier,
+        icon = toolType.attributionIcon(),
+        titleRes = toolType.setting.titleRes,
+    )
 }
 
 /** Attribution row showing a tool's icon and name. */

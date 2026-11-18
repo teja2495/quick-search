@@ -19,6 +19,7 @@ import com.tk.quicksearch.widgets.utils.requestNoteWidgetsRefresh
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
+import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderRegistry
 import com.tk.quicksearch.tools.aiSearch.CustomLlmProviderConfig
 import java.io.File
 import java.io.IOException
@@ -131,14 +132,7 @@ object SettingsBackupManager {
             "default_engine_hint_banner_dismissed",
             "last_overlay_keyboard_open_height_dp",
             "update_check_shown_this_session",
-            // Personal contexts are exported from their encrypted store via FIELD_LLM_PERSONAL_CONTEXTS.
-            BasePreferences.KEY_GEMINI_PERSONAL_CONTEXT,
-            BasePreferences.KEY_OPENAI_PERSONAL_CONTEXT,
-            BasePreferences.KEY_ANTHROPIC_PERSONAL_CONTEXT,
-            BasePreferences.KEY_GROQ_PERSONAL_CONTEXT,
-            BasePreferences.KEY_META_PERSONAL_CONTEXT,
-            BasePreferences.KEY_OPENCODE_PERSONAL_CONTEXT,
-        )
+        ) + AiSearchLlmProviderRegistry.definitions.map { it.personalContextPreference }
 
     fun exportToUri(
         context: Context,

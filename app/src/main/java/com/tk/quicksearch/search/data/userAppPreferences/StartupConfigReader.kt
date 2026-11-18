@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.data.userAppPreferences
 
 import android.content.Context
 import android.content.res.Configuration
+import com.tk.quicksearch.search.appSettings.readBooleanSettings
 import com.tk.quicksearch.search.core.AccentColorMode
 import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.AppSuggestionTabType
@@ -64,13 +65,7 @@ internal class StartupConfigReader(private val context: Context) {
                                 ] as?
                                         Boolean
                                         ?: false,
-                        filePreviewsEnabled =
-                                allPrefs[
-                                        com.tk.quicksearch.search.data.preferences.BasePreferences
-                                                .KEY_FILE_PREVIEWS_ENABLED,
-                                ] as?
-                                        Boolean
-                                        ?: true,
+                        booleanSettings = readBooleanSettings(allPrefs),
                         showSystemFiles =
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.BasePreferences

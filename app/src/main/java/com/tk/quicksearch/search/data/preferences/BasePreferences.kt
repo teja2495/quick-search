@@ -429,7 +429,6 @@ abstract class BasePreferences(
         const val KEY_EXCLUDED_FILE_EXTENSIONS = "excluded_file_extensions"
         const val KEY_ENABLED_FILE_TYPES = "enabled_file_types"
         const val KEY_SHOW_FOLDERS_IN_RESULTS = "show_folders_in_results"
-        const val KEY_FILE_PREVIEWS_ENABLED = "file_previews_enabled"
         const val KEY_SHOW_SYSTEM_FILES = "show_system_files"
         const val KEY_FOLDER_WHITELIST_PATTERNS = "folder_whitelist_patterns"
         const val KEY_FOLDER_BLACKLIST_PATTERNS = "folder_blacklist_patterns"
@@ -544,43 +543,6 @@ abstract class BasePreferences(
         const val KEY_AMAZON_DOMAIN = "amazon_domain"
         const val KEY_AMAZON_DOMAIN_REGION_DETECTED = "amazon_domain_region_detected"
         const val KEY_AI_SEARCH_LLM_PROVIDER = "direct_search_llm_provider"
-        const val KEY_GEMINI_API_KEY = "gemini_api_key"
-        const val KEY_GEMINI_PERSONAL_CONTEXT = "gemini_personal_context"
-        const val KEY_GEMINI_MODEL = "gemini_model"
-        const val KEY_GEMINI_GROUNDING_ENABLED = "gemini_grounding_enabled"
-        const val KEY_GEMINI_THINKING_ENABLED = "gemini_thinking_enabled"
-
-        // OpenAI preferences keys
-        const val KEY_OPENAI_API_KEY = "openai_api_key"
-        const val KEY_OPENAI_PERSONAL_CONTEXT = "openai_personal_context"
-        const val KEY_OPENAI_MODEL = "openai_model"
-        const val KEY_OPENAI_GROUNDING_ENABLED = "openai_grounding_enabled"
-        // Anthropic preferences keys
-        const val KEY_ANTHROPIC_API_KEY = "anthropic_api_key"
-        const val KEY_ANTHROPIC_PERSONAL_CONTEXT = "anthropic_personal_context"
-        const val KEY_ANTHROPIC_MODEL = "anthropic_model"
-        const val KEY_ANTHROPIC_GROUNDING_ENABLED = "anthropic_grounding_enabled"
-        const val KEY_ANTHROPIC_THINKING_ENABLED = "anthropic_thinking_enabled"
-
-        // Groq preferences keys
-        const val KEY_GROQ_API_KEY = "groq_api_key"
-        const val KEY_GROQ_PERSONAL_CONTEXT = "groq_personal_context"
-        const val KEY_GROQ_MODEL = "groq_model"
-        const val KEY_GROQ_GROUNDING_ENABLED = "groq_grounding_enabled"
-        const val KEY_GROQ_THINKING_ENABLED = "groq_thinking_enabled"
-
-        // Meta AI preferences keys
-        const val KEY_META_API_KEY = "meta_api_key"
-        const val KEY_META_PERSONAL_CONTEXT = "meta_personal_context"
-        const val KEY_META_MODEL = "meta_model"
-        const val KEY_META_GROUNDING_ENABLED = "meta_grounding_enabled"
-        const val KEY_META_THINKING_ENABLED = "meta_thinking_enabled"
-
-        // OpenCode preferences keys
-        const val KEY_OPENCODE_API_KEY = "opencode_api_key"
-        const val KEY_OPENCODE_PERSONAL_CONTEXT = "opencode_personal_context"
-        const val KEY_OPENCODE_MODEL = "opencode_model"
-        const val KEY_OPENCODE_GROUNDING_ENABLED = "opencode_grounding_enabled"
         const val KEY_CUSTOM_LLM_PROVIDERS = "custom_llm_providers"
 
         // Tavily web search preferences keys

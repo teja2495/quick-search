@@ -4,7 +4,7 @@ import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchSectionRegistry
 import com.tk.quicksearch.search.core.SearchTarget
-import com.tk.quicksearch.search.core.SearchToolType
+import com.tk.quicksearch.tools.inlineSearch.SearchToolType
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.tools.aiSearch.AiSearchHandler
@@ -40,9 +40,6 @@ class AliasHandler(
     }
 
     companion object {
-        const val CALCULATOR_ALIAS_FEATURE_ID = "calculator_mode"
-        const val UNIT_CONVERTER_ALIAS_FEATURE_ID = "unit_converter_mode"
-        const val DATE_CALCULATOR_ALIAS_FEATURE_ID = "date_calculator_mode"
         const val CURRENCY_CONVERTER_ALIAS_FEATURE_ID = "currency_converter_mode"
         const val WORD_CLOCK_ALIAS_FEATURE_ID = "word_clock_mode"
         const val DICTIONARY_ALIAS_FEATURE_ID = "dictionary_mode"
@@ -65,19 +62,9 @@ class AliasHandler(
         // Centralized feature-alias trigger map.
         // Add new feature aliases here so trigger behavior stays in one place.
         val FEATURE_ALIAS_DEFINITIONS: List<FeatureAliasDefinition> =
-            listOf(
-                FeatureAliasDefinition(
-                    featureId = CALCULATOR_ALIAS_FEATURE_ID,
-                    toolType = SearchToolType.CALCULATOR,
-                ),
-                FeatureAliasDefinition(
-                    featureId = UNIT_CONVERTER_ALIAS_FEATURE_ID,
-                    toolType = SearchToolType.UNIT_CONVERTER,
-                ),
-                FeatureAliasDefinition(
-                    featureId = DATE_CALCULATOR_ALIAS_FEATURE_ID,
-                    toolType = SearchToolType.DATE_CALCULATOR,
-                ),
+            SearchToolType.entries.mapNotNull { tool ->
+                tool.aliasFeatureId?.let { FeatureAliasDefinition(featureId = it, toolType = tool) }
+            } + listOf(
                 FeatureAliasDefinition(
                     featureId = CURRENCY_CONVERTER_ALIAS_FEATURE_ID,
                     standaloneMode = StandaloneFeatureAliasMode.CURRENCY_CONVERTER,

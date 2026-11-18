@@ -262,13 +262,7 @@ class AppSettingsRepository(
                 destination = AppSettingsDestination.FILES,
                 keywords = listOf("filters", "whitelist", "blacklist"),
             )
-            addToggle(
-                id = "app_toggle_file_previews",
-                titleRes = R.string.settings_file_previews_toggle,
-                descriptionRes = R.string.settings_file_previews_description,
-                toggleKey = AppSettingsToggleKey.FILE_PREVIEWS,
-                keywords = listOf("files", "images", "pdf", "open"),
-            )
+            BooleanSettings.entries.forEach { addBooleanSetting(it.setting) }
             addNavigation(
                 id = "app_settings_reload_apps",
                 titleRes = R.string.settings_refresh_apps_title,

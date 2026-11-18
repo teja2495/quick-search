@@ -62,7 +62,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState {
         availableLlmModelsByProvider = searchEngines.availableLlmModelsByProvider,
         enabledFileTypes = fileSearch.enabledFileTypes,
         showFolders = fileSearch.showFolders,
-        filePreviewsEnabled = fileSearch.filePreviewsEnabled,
+        booleanSettings = booleanSettings,
         showSystemFiles = fileSearch.showSystemFiles,
         folderWhitelistPatterns = fileSearch.folderWhitelistPatterns,
         folderBlacklistPatterns = fileSearch.folderBlacklistPatterns,
@@ -108,10 +108,6 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState {
         openKeyboardOnLaunch = appearance.openKeyboardOnLaunch,
         clearQueryOnLaunch = appearance.clearQueryOnLaunch,
         autoCloseOverlay = appearance.autoCloseOverlay,
-        calculatorEnabled = tools.calculatorEnabled,
-        unitConverterEnabled = tools.unitConverterEnabled,
-        dateCalculatorEnabled = tools.dateCalculatorEnabled,
-        colorVisualizerEnabled = tools.colorVisualizerEnabled,
         currencyConverterEnabled = tools.currencyConverterEnabled,
         worldClockEnabled = tools.worldClockEnabled,
         dictionaryEnabled = tools.dictionaryEnabled,
@@ -240,7 +236,6 @@ private fun SearchUiState.toSearchEngineSettingsState() =
 private data class FileSearchMapperState(
     val enabledFileTypes: Set<com.tk.quicksearch.search.models.FileType>,
     val showFolders: Boolean,
-    val filePreviewsEnabled: Boolean,
     val showSystemFiles: Boolean,
     val folderWhitelistPatterns: Set<String>,
     val folderBlacklistPatterns: Set<String>,
@@ -251,7 +246,6 @@ private fun SearchUiState.toFileSearchSettingsState() =
     FileSearchMapperState(
         enabledFileTypes = enabledFileTypes,
         showFolders = showFolders,
-        filePreviewsEnabled = filePreviewsEnabled,
         showSystemFiles = showSystemFiles,
         folderWhitelistPatterns = folderWhitelistPatterns,
         folderBlacklistPatterns = folderBlacklistPatterns,
@@ -342,10 +336,6 @@ private fun SearchUiState.toAppearanceSettingsState() =
     )
 
 private data class ToolsMapperState(
-    val calculatorEnabled: Boolean,
-    val unitConverterEnabled: Boolean,
-    val dateCalculatorEnabled: Boolean,
-    val colorVisualizerEnabled: Boolean,
     val currencyConverterEnabled: Boolean,
     val worldClockEnabled: Boolean,
     val dictionaryEnabled: Boolean,
@@ -357,10 +347,6 @@ private data class ToolsMapperState(
 
 private fun SearchUiState.toToolsSettingsState() =
     ToolsMapperState(
-        calculatorEnabled = calculatorEnabled,
-        unitConverterEnabled = unitConverterEnabled,
-        dateCalculatorEnabled = dateCalculatorEnabled,
-        colorVisualizerEnabled = colorVisualizerEnabled,
         currencyConverterEnabled = currencyConverterEnabled,
         worldClockEnabled = worldClockEnabled,
         dictionaryEnabled = dictionaryEnabled,

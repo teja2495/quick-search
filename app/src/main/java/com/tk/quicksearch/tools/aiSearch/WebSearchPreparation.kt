@@ -13,30 +13,20 @@ data class PreparedWebSearch(
 
 /** Whether the provider can run its own web search as part of an answer request. */
 fun providerSupportsNativeSearch(providerId: AiSearchLlmProviderId): Boolean =
-    providerId != AiSearchLlmProviderId.GROQ &&
-        providerId != AiSearchLlmProviderId.OPENCODE &&
-        !providerId.isCustom
+    AiSearchLlmProviderRegistry.definition(providerId)?.supportsNativeSearch ?: false
 
 /** Whether this provider/model exposes a user-controllable thinking mode. */
 fun supportsThinkingControl(
     providerId: AiSearchLlmProviderId,
     modelId: String,
-): Boolean =
-    when {
-        modelId.isBlank() -> false
-        !isThinkingRequestSupported(providerId) -> false
-        providerId == AiSearchLlmProviderId.GROQ -> {
-            val normalized = modelId.lowercase()
-            normalized.contains("gpt-oss") || normalized.contains("qwen")
-        }
-        else -> true
-    }
+): Boolean {
+    val definition = AiSearchLlmProviderRegistry.definition(providerId) ?: return false
+    return modelId.isNotBlank() && definition.supportsThinkingRequest && definition.supportsModelThinking(modelId)
+}
 
 /** Whether a request to this provider may carry the thinking flag at all. */
 fun isThinkingRequestSupported(providerId: AiSearchLlmProviderId): Boolean =
-    providerId != AiSearchLlmProviderId.OPENAI &&
-        providerId != AiSearchLlmProviderId.OPENCODE &&
-        !providerId.isCustom
+    AiSearchLlmProviderRegistry.definition(providerId)?.supportsThinkingRequest ?: false
 
 /** Whether web search can be requested for this provider/model combination. */
 fun isWebSearchAvailable(
@@ -47,28 +37,16 @@ fun isWebSearchAvailable(
     hasTavilyKey ||
         (providerSupportsNativeSearch(providerId) && modelSupportsGrounding)
 
-/**
- * Whether [modelId] can ground answers itself. Falls back to the Gemma heuristic used elsewhere
- * when the catalog entry is missing (e.g. stale cache).
- */
+/** Whether [modelId] can ground answers itself, including when no live catalog entry is available. */
 fun modelSupportsGrounding(
     modelId: String,
     models: List<LlmTextModel>,
     providerId: AiSearchLlmProviderId,
 ): Boolean =
-    if (modelId.isBlank()) {
-        false
-    } else models.firstOrNull { it.id == modelId }?.supportsGrounding
-        ?: when {
-            providerId == AiSearchLlmProviderId.OPENAI ->
-                OpenAiModelCatalog.supportsWebSearch(modelId)
-            providerId == AiSearchLlmProviderId.GROQ ||
-                providerId == AiSearchLlmProviderId.OPENCODE ||
-                providerId.isCustom -> false
-            providerId == AiSearchLlmProviderId.GEMINI ->
-                !modelId.lowercase().startsWith("gemma-")
-            else -> true
-        }
+    modelId.isNotBlank() &&
+        (models.firstOrNull { it.id == modelId }?.supportsGrounding
+            ?: AiSearchLlmProviderRegistry.definition(providerId)?.supportsGroundingWithoutCatalog?.invoke(modelId)
+            ?: false)
 
 /**
  * Applies the Tavily web search setting to one request. If Tavily fails, the prompt is sent

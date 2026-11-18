@@ -1,60 +1,17 @@
 package com.tk.quicksearch.tools.colorVisualizer
 
 import com.tk.quicksearch.search.core.CalculatorState
-import com.tk.quicksearch.search.core.SearchToolType
-import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
+import com.tk.quicksearch.tools.inlineSearch.InlineToolData
 
-class ColorVisualizerHandler(
-    private val userPreferences: UserAppPreferences,
-) {
-    fun processQuery(
-        query: String,
-        forceColorVisualizerMode: Boolean = false,
-    ): CalculatorState {
-        if (!forceColorVisualizerMode && !userPreferences.isColorVisualizerEnabled()) {
-            return CalculatorState()
-        }
-
-        val trimmedQuery = query.trim()
-        if (trimmedQuery.isEmpty()) {
-            return if (forceColorVisualizerMode) {
-                CalculatorState(
-                    isColorVisualizerMode = true,
-                    toolType = SearchToolType.COLOR_VISUALIZER,
-                )
-            } else {
-                CalculatorState()
-            }
-        }
-
-        val color = ColorVisualizerParser.parse(trimmedQuery, allowBareHex = forceColorVisualizerMode)
-        if (color != null) {
-            return CalculatorState(
-                result = color.hex,
-                expression = trimmedQuery,
-                isColorVisualizerMode = forceColorVisualizerMode,
-                colorArgb = color.argb,
-                toolType = SearchToolType.COLOR_VISUALIZER,
-            )
-        }
-
-        return if (forceColorVisualizerMode) {
-            CalculatorState(
-                expression = trimmedQuery,
-                isColorVisualizerMode = true,
-                toolType = SearchToolType.COLOR_VISUALIZER,
-                showInvalidExpression = true,
-            )
-        } else {
-            CalculatorState()
-        }
-    }
+internal fun evaluateColorVisualizer(query: String, explicit: Boolean): CalculatorState? {
+    val color = ColorVisualizerParser.parse(query, allowBareHex = explicit) ?: return null
+    return CalculatorState(result = color.hex, toolData = color)
 }
 
 data class VisualizedColor(
     val argb: Int,
     val hex: String,
-)
+) : InlineToolData
 
 /**
  * Strict, anchored color parser. The prefix checks avoid regex work for ordinary search queries.

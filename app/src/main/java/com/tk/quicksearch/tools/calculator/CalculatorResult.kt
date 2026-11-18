@@ -29,7 +29,7 @@ import com.tk.quicksearch.search.calendar.calendarRelativeDateLabel
 import com.tk.quicksearch.search.calendar.formatAbsoluteDate
 import com.tk.quicksearch.search.calendar.getDayOfWeekName
 import com.tk.quicksearch.search.core.CalculatorState
-import com.tk.quicksearch.search.core.SearchToolType
+import com.tk.quicksearch.tools.inlineSearch.SearchToolType
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.platform.LocalDensity

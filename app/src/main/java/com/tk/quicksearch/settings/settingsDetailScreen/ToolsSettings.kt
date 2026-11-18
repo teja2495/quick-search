@@ -30,14 +30,14 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.tools.tasker.TaskerIntegration
 
 @Composable
-fun ToolsSettingsSection(
-        toolStates: Map<ToolSettingId, ToolSettingUiState>,
+internal fun ToolsSettingsSection(
+        toolStates: Map<String, ToolSettingUiState>,
         hasApiKey: Boolean,
         existingShortcuts: Map<String, String>,
-        onToolAliasChange: (ToolSettingId, String) -> Unit,
-        onToolToggle: (ToolSettingId, Boolean) -> Unit,
-        onToolInfoClick: (ToolSettingId) -> Unit,
-        onToolConfigureClick: (ToolSettingId) -> Unit = {},
+        onToolAliasChange: (String, String) -> Unit,
+        onToolToggle: (String, Boolean) -> Unit,
+        onToolInfoClick: (String) -> Unit,
+        onToolConfigureClick: (String) -> Unit = {},
         onNavigateToLlmApiSetup: () -> Unit = {},
         showTaskerIntegration: Boolean = false,
         onNavigateToTaskerIntegration: () -> Unit = {},

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.tools.inlineSearch.SearchToolType
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.job
 import kotlinx.coroutines.currentCoroutineContext
@@ -461,7 +462,7 @@ internal class SearchQueryCoordinator(
                         dictionaryState = DictionaryState(),
                         weatherState = WeatherState(),
                         calculatorState =
-                            aliasState.lockedToolMode?.let(::createToolModeState)
+                            aliasState.lockedToolMode?.emptyMode()
                                 ?: CalculatorState(),
                         webSuggestions = emptyList(),
                         webSuggestionsLoading = false,
@@ -511,7 +512,7 @@ internal class SearchQueryCoordinator(
                         if (clearShortcutWhenBlank || lockedMode == null) {
                             CalculatorState()
                         } else {
-                            createToolModeState(lockedMode)
+                            lockedMode.emptyMode()
                         },
                     webSuggestions = emptyList(),
                     webSuggestionsLoading = false,
@@ -600,7 +601,7 @@ internal class SearchQueryCoordinator(
         cancelAppSearch()
         webSuggestionHandler.cancelSuggestions()
 
-        val showingTool = calculatorResult.isToolMode || calculatorResult.result != null
+        val showingTool = calculatorResult.isToolMode || calculatorResult.hasExclusiveResult
         if (showingTool) {
             clearInformationCardsExcept(SearchViewModel.ActiveInformationCard.CALCULATOR)
         }

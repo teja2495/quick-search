@@ -48,12 +48,7 @@ internal fun searchCardVisibility(
     val showWeather =
             (state.weatherEnabled || isWeatherAliasMode) &&
                     state.weatherState.status != WeatherStatus.Idle
-    val showCalculatorResult =
-            state.calculatorState.isToolMode ||
-                    state.calculatorState.result != null ||
-                    state.calculatorState.parsedDateMillis != null ||
-                    state.calculatorState.dateDiffLabel != null ||
-                    state.calculatorState.timeResultLabel != null
+    val showCalculatorResult = state.calculatorState.isVisible
     val trimmedQuery = state.query.trim()
     val showCurrencyConverterSearchCard =
             (state.currencyConverterEnabled || isCurrencyConverterAliasMode) &&

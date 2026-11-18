@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.data.userAppPreferences
 
 import android.content.Context
 import android.content.res.Configuration
+import com.tk.quicksearch.search.appSettings.readBooleanSettings
 import com.tk.quicksearch.search.core.AccentColorMode
 import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.AppSuggestionTabType
@@ -23,7 +24,7 @@ class StartupPreferencesFacade(
     data class StartupPreferences(
             val enabledFileTypes: Set<FileType>,
             val showFolders: Boolean,
-            val filePreviewsEnabled: Boolean,
+            val booleanSettings: Map<String, Boolean>,
             val showSystemFiles: Boolean,
             val folderWhitelistPatterns: Set<String>,
             val folderBlacklistPatterns: Set<String>,
@@ -126,13 +127,7 @@ class StartupPreferencesFacade(
                         ] as?
                                 Boolean
                                 ?: false,
-                filePreviewsEnabled =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.BasePreferences
-                                        .KEY_FILE_PREVIEWS_ENABLED,
-                        ] as?
-                                Boolean
-                                ?: true,
+                booleanSettings = readBooleanSettings(allPrefs),
                 showSystemFiles =
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.BasePreferences

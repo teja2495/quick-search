@@ -4,6 +4,7 @@ import com.tk.quicksearch.search.data.userAppPreferences.StartupPreferencesFacad
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.FileType
+import com.tk.quicksearch.tools.inlineSearch.SearchToolType
 import java.util.concurrent.atomic.AtomicBoolean
 
 internal data class SearchRuntimeState(
@@ -15,7 +16,6 @@ internal data class SearchRuntimeState(
     var prefCache: SearchPreferenceCache,
     var enabledFileTypes: Set<FileType> = emptySet(),
     var showFolders: Boolean = false,
-    var filePreviewsEnabled: Boolean = true,
     var showSystemFiles: Boolean = false,
     var folderWhitelistPatterns: Set<String> = emptySet(),
     var folderBlacklistPatterns: Set<String> = emptySet(),

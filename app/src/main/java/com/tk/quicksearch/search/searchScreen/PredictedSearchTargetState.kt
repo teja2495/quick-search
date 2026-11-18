@@ -130,11 +130,7 @@ internal fun rememberPredictedSearchTargetState(
     val hideResultsForTopMatchSubmit =
             state.AiSearchState.status != AiSearchStatus.Idle ||
                     isQuickSearchHelpQuery ||
-                    state.calculatorState.isToolMode ||
-                    state.calculatorState.result != null ||
-                    state.calculatorState.parsedDateMillis != null ||
-                    state.calculatorState.dateDiffLabel != null ||
-                    state.calculatorState.timeResultLabel != null ||
+                    state.calculatorState.isVisible ||
                     showCurrencyConverter ||
                     showWorldClock ||
                     showDictionary ||

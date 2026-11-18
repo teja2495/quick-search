@@ -23,38 +23,11 @@ data class CompactLayoutPriorUi(
 
 /** Preferences for UI-related settings such as layout, messaging app, banners, etc. */
 class UiPreferences(context: Context) : UiPreferencesFeatures(context) {
-    fun isCalculatorEnabled(): Boolean = getBooleanPref(UiPreferences.KEY_CALCULATOR_ENABLED, true)
-
-    fun setCalculatorEnabled(enabled: Boolean) {
-        setBooleanPref(UiPreferences.KEY_CALCULATOR_ENABLED, enabled)
-    }
-
-    fun isUnitConverterEnabled(): Boolean =
-            getBooleanPref(UiPreferences.KEY_UNIT_CONVERTER_ENABLED, true)
-
-    fun setUnitConverterEnabled(enabled: Boolean) {
-        setBooleanPref(UiPreferences.KEY_UNIT_CONVERTER_ENABLED, enabled)
-    }
-
-    fun isDateCalculatorEnabled(): Boolean =
-            getBooleanPref(UiPreferences.KEY_DATE_CALCULATOR_ENABLED, true)
-
-    fun setDateCalculatorEnabled(enabled: Boolean) {
-        setBooleanPref(UiPreferences.KEY_DATE_CALCULATOR_ENABLED, enabled)
-    }
-
     fun isCurrencyConverterEnabled(): Boolean =
             getBooleanPref(UiPreferences.KEY_CURRENCY_CONVERTER_ENABLED, true)
 
     fun setCurrencyConverterEnabled(enabled: Boolean) {
         setBooleanPref(UiPreferences.KEY_CURRENCY_CONVERTER_ENABLED, enabled)
-    }
-
-    fun isColorVisualizerEnabled(): Boolean =
-            getBooleanPref(UiPreferences.KEY_COLOR_VISUALIZER_ENABLED, true)
-
-    fun setColorVisualizerEnabled(enabled: Boolean) {
-        setBooleanPref(UiPreferences.KEY_COLOR_VISUALIZER_ENABLED, enabled)
     }
 
     fun isWorldClockEnabled(): Boolean =
@@ -539,11 +512,7 @@ class UiPreferences(context: Context) : UiPreferencesFeatures(context) {
         const val MAX_WALLPAPER_BLUR_RADIUS = 40f
 
         // Calculator preferences keys
-        const val KEY_CALCULATOR_ENABLED = "calculator_enabled"
-        const val KEY_UNIT_CONVERTER_ENABLED = "unit_converter_enabled"
-        const val KEY_DATE_CALCULATOR_ENABLED = "date_calculator_enabled"
         const val KEY_CURRENCY_CONVERTER_ENABLED = "currency_converter_enabled"
-        const val KEY_COLOR_VISUALIZER_ENABLED = "color_visualizer_enabled"
         const val KEY_WORD_CLOCK_ENABLED = "word_clock_enabled"
         const val KEY_DICTIONARY_ENABLED = "dictionary_enabled"
         const val KEY_CURRENCY_CONVERTER_MODEL = "currency_converter_model"

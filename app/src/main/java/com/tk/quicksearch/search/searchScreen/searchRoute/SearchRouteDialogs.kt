@@ -40,7 +40,7 @@ import com.tk.quicksearch.search.searchScreen.dialogs.SearchScreenDialogs
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.settings.appShortcutsSettings.EditCustomShortcutDialog
-import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
+import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderRegistry
 import com.tk.quicksearch.tools.aiSearch.ModelPickerDialog
 import kotlinx.coroutines.delay
 import com.tk.quicksearch.shared.ui.components.AppTextButton
@@ -199,10 +199,7 @@ internal fun SearchScreenDialogLogic(
                 onRefreshAvailableLlmModels()
             },
             showGroundingToggle =
-                state.aiSearchLlmProviderId != AiSearchLlmProviderId.OPENAI &&
-                    !state.aiSearchLlmProviderId.isCustom &&
-                    state.aiSearchLlmProviderId != AiSearchLlmProviderId.GROQ &&
-                    state.aiSearchLlmProviderId != AiSearchLlmProviderId.OPENCODE,
+                AiSearchLlmProviderRegistry.definition(state.aiSearchLlmProviderId)?.showGroundingInResultPicker == true,
             selectedProviderId = state.aiSearchLlmProviderId,
         )
     }

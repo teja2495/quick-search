@@ -4,9 +4,7 @@ import android.content.Context
 
 object GroqAiSearchLlmProvider : AiSearchLlmProvider {
     override val id: AiSearchLlmProviderId = AiSearchLlmProviderId.GROQ
-    override val displayName: String = "Groq"
     override val defaultModelId: String = GroqModelCatalog.DEFAULT_MODEL_ID
-    override val defaultGroundingEnabled: Boolean = GroqModelCatalog.DEFAULT_GROUNDING_ENABLED
     override val fallbackTextModels: List<LlmTextModel> = GroqModelCatalog.FALLBACK_TEXT_MODELS
 
     override suspend fun fetchAvailableTextModels(

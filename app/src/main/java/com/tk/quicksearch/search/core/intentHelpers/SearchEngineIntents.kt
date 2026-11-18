@@ -11,11 +11,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.searchEngines.buildSearchUrl
 import com.tk.quicksearch.searchEngines.getAppPackageCandidates
-import com.tk.quicksearch.searchEngines.getNativeLaunchMode
-import com.tk.quicksearch.searchEngines.SearchEngineNativeLaunchMode
 import com.tk.quicksearch.shared.util.PackageConstants
-
-private typealias NativeSearchHandler = (Application, String) -> Unit
 
 /** Search engine specific intent functions. */
 internal object SearchEngineIntents {
@@ -66,27 +62,6 @@ internal object SearchEngineIntents {
             }
         return KagiAssistantLaunchSpec(uriString = uriString, text = trimmedQuery)
     }
-
-    fun getNativeHandler(searchEngine: SearchEngine): NativeSearchHandler? =
-        when (searchEngine.getNativeLaunchMode()) {
-            SearchEngineNativeLaunchMode.CHATGPT -> ::openChatGpt
-            SearchEngineNativeLaunchMode.GEMINI -> ::openGemini
-            SearchEngineNativeLaunchMode.GOOGLE -> ::openGoogle
-            SearchEngineNativeLaunchMode.GOOGLE_PHOTOS -> ::openGooglePhotos
-            SearchEngineNativeLaunchMode.YOU_COM -> ::openYouCom
-            SearchEngineNativeLaunchMode.WIKIPEDIA -> ::openWikipedia
-            SearchEngineNativeLaunchMode.STARTPAGE -> ::openStartpage
-            SearchEngineNativeLaunchMode.SPOTIFY -> ::openSpotify
-            SearchEngineNativeLaunchMode.WAZE -> ::openWaze
-            SearchEngineNativeLaunchMode.CLAUDE -> ::openClaude
-            SearchEngineNativeLaunchMode.GROK -> ::openGrok
-            SearchEngineNativeLaunchMode.GOOGLE_TRANSLATE -> ::openGoogleTranslate
-            SearchEngineNativeLaunchMode.KAGI -> ::openKagi
-            SearchEngineNativeLaunchMode.KAGI_ASSISTANT -> ::openKagiAssistant
-            SearchEngineNativeLaunchMode.MUSE -> ::openMuse
-            SearchEngineNativeLaunchMode.FDROID -> ::openFdroid
-            SearchEngineNativeLaunchMode.NONE -> null
-        }
 
     /** Opens F-Droid's documented search URI when the app is installed. */
     fun openFdroid(

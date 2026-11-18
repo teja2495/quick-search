@@ -35,7 +35,7 @@ Repository playbook for coding agents. When prose and code disagree, trust the c
 ### Data and preferences
 
 - Repositories: `search/data/`; feature-specific policies/handlers stay in their feature package.
-- New preference: add to the relevant class in `search/data/preferences/`, expose via `search/data/userAppPreferences/UserAppPreferences.kt`.
+- Plain searchable boolean settings use `search/appSettings/BooleanSetting.kt`. For other preferences, use the relevant class in `search/data/preferences/` and expose it through `UserAppPreferences`.
 - Startup-critical reads go through `search/data/userAppPreferences/StartupPreferencesFacade.kt`. No one-off blocking reads in startup paths or composables.
 - Search history: `search/searchHistory/SearchHistoryPreferences.kt`.
 - Searchable settings catalog: `search/appSettings/AppSettingsRepository.kt`. New user-facing settings must be wired here as well as in the Settings UI.
@@ -62,6 +62,7 @@ Repository playbook for coding agents. When prose and code disagree, trust the c
 
 Read the matching guide before implementing. Claude Code loads the skill of the same name from `.claude/skills/` automatically; other agents should open the file.
 
+- Built-in AI provider: `tools/aiSearch/new-ai-provider.md`
 - Built-in search engine: `searchEngines/new-search-engine.md`
 - Searchable app-setting row (every new user-facing setting): `search/appSettings/new-app-setting.md`
 - New search tool (`tools/<name>/`): `.claude/skills/new-search-tool/SKILL.md`

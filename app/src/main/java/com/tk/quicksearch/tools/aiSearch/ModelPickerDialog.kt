@@ -199,35 +199,13 @@ private fun featuredModels(
     providerId: AiSearchLlmProviderId,
     models: List<LlmTextModel>,
 ): List<LlmTextModel> =
-    when (providerId) {
-        AiSearchLlmProviderId.GEMINI -> GeminiModelCatalog.pickerModels(models)
-        AiSearchLlmProviderId.OPENAI -> OpenAiModelCatalog.pickerModels(models)
-        AiSearchLlmProviderId.ANTHROPIC -> AnthropicModelCatalog.pickerModels(models)
-        AiSearchLlmProviderId.META -> MetaModelCatalog.pickerModels(models)
-        else -> models
-    }
+    AiSearchLlmProviderRegistry.definition(providerId)?.featuredModels?.invoke(models) ?: models
 
 private fun providerSortOrder(providerId: AiSearchLlmProviderId): Int =
-    when (providerId) {
-        AiSearchLlmProviderId.GEMINI -> 0
-        AiSearchLlmProviderId.OPENAI -> 1
-        AiSearchLlmProviderId.ANTHROPIC -> 2
-        AiSearchLlmProviderId.GROQ -> 3
-        AiSearchLlmProviderId.META -> 4
-        AiSearchLlmProviderId.OPENCODE -> 5
-        else -> 6
-    }
+    AiSearchLlmProviderRegistry.pickerOrder(providerId)
 
 private fun providerSearchName(providerId: AiSearchLlmProviderId): String =
-    when (providerId) {
-        AiSearchLlmProviderId.GEMINI -> "Gemini"
-        AiSearchLlmProviderId.OPENAI -> "OpenAI"
-        AiSearchLlmProviderId.ANTHROPIC -> "Claude"
-        AiSearchLlmProviderId.GROQ -> "Groq"
-        AiSearchLlmProviderId.META -> "Meta AI"
-        AiSearchLlmProviderId.OPENCODE -> "OpenCode"
-        else -> "Custom"
-    }
+    AiSearchLlmProviderRegistry.definition(providerId)?.searchName ?: "Custom"
 
 private fun modelSearchText(model: LlmTextModel): String =
     listOf(

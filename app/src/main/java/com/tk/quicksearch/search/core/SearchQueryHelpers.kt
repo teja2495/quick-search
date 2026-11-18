@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.tools.inlineSearch.SearchToolType
 import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -48,30 +49,6 @@ internal class LatestSearchJobRunner<T>(
         version.incrementAndGet()
     }
 }
-
-internal fun createToolModeState(toolMode: SearchToolType): CalculatorState =
-        when (toolMode) {
-            SearchToolType.CALCULATOR ->
-                CalculatorState(
-                    isCalculatorMode = true,
-                    toolType = SearchToolType.CALCULATOR,
-                )
-            SearchToolType.UNIT_CONVERTER ->
-                CalculatorState(
-                    isUnitConverterMode = true,
-                    toolType = SearchToolType.UNIT_CONVERTER,
-                )
-            SearchToolType.DATE_CALCULATOR ->
-                CalculatorState(
-                    isDateCalculatorMode = true,
-                    toolType = SearchToolType.DATE_CALCULATOR,
-                )
-            SearchToolType.COLOR_VISUALIZER ->
-                CalculatorState(
-                    isColorVisualizerMode = true,
-                    toolType = SearchToolType.COLOR_VISUALIZER,
-                )
-        }
 
 internal sealed interface AliasQueryResolution {
         data object None : AliasQueryResolution

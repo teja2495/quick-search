@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.appSettings.BooleanSettings
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.settings.shared.*
@@ -101,8 +102,6 @@ private fun getFileTypeIcon(fileType: FileType): androidx.compose.ui.graphics.ve
  * @param onToggleFileType Callback when a file type toggle is changed
  * @param showFolders Whether folders are shown in search results
  * @param onToggleFolders Callback when folders toggle is changed
- * @param filePreviewsEnabled Whether file previews are shown before opening supported files
- * @param onToggleFilePreviews Callback when file previews toggle is changed
  * @param showSystemFiles Whether system files are shown in search results
  * @param onToggleSystemFiles Callback when system files toggle is changed
  * @param folderWhitelistPatterns Folder path patterns that should be allowed in results
@@ -119,8 +118,8 @@ fun FileTypesSection(
     onToggleFileType: (FileType, Boolean) -> Unit,
     showFolders: Boolean,
     onToggleFolders: (Boolean) -> Unit,
-    filePreviewsEnabled: Boolean,
-    onToggleFilePreviews: (Boolean) -> Unit,
+    booleanSettings: Map<String, Boolean>,
+    onApplySettingsCommand: (SettingsCommand) -> Unit,
     showSystemFiles: Boolean,
     onToggleSystemFiles: (Boolean) -> Unit,
     folderWhitelistPatterns: Set<String>,
@@ -144,11 +143,10 @@ fun FileTypesSection(
         modifier = modifier,
         title = if (showTitle) stringResource(R.string.settings_file_types_title) else null,
     ) {
-        SegmentedToggleTile(
-            title = stringResource(R.string.settings_file_previews_toggle),
-            description = stringResource(R.string.settings_file_previews_description),
-            checked = filePreviewsEnabled,
-            onCheckedChange = onToggleFilePreviews,
+        BooleanSettingTile(
+            setting = BooleanSettings.FILE_PREVIEWS.setting,
+            values = booleanSettings,
+            onCommand = onApplySettingsCommand,
             icon = MaterialSymbols.Visibility,
             index = 0,
             count = 1,

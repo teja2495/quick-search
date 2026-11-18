@@ -2,13 +2,13 @@ package com.tk.quicksearch.search.core
 
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.FileType
+import com.tk.quicksearch.tools.inlineSearch.SearchToolType
 
 internal class SearchViewModelLegacyPreferenceState(
     clearQueryOnLaunch: Boolean,
 ) {
     var enabledFileTypes: Set<FileType> = emptySet()
     var showFolders: Boolean = false
-    var filePreviewsEnabled: Boolean = true
     var showSystemFiles: Boolean = false
     var folderWhitelistPatterns: Set<String> = emptySet()
     var folderBlacklistPatterns: Set<String> = emptySet()
@@ -64,7 +64,6 @@ internal class SearchViewModelLegacyPreferenceState(
     fun applyPreferenceCacheToLegacyVars(prefCache: SearchPreferenceCache) {
         enabledFileTypes = prefCache.enabledFileTypes
         showFolders = prefCache.showFolders
-        filePreviewsEnabled = prefCache.filePreviewsEnabled
         showSystemFiles = prefCache.showSystemFiles
         folderWhitelistPatterns = prefCache.folderWhitelistPatterns
         folderBlacklistPatterns = prefCache.folderBlacklistPatterns

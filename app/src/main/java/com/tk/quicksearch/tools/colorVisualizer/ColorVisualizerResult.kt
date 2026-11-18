@@ -33,7 +33,7 @@ fun ColorVisualizerResult(
 ) {
     val clipboard = LocalClipboard.current
     val clipboardScope = rememberCoroutineScope()
-    val color = calculatorState.colorArgb?.let(::Color)
+    val color = (calculatorState.toolData as? VisualizedColor)?.argb?.let(::Color)
     InformationCard(
         modifier =
             Modifier.fillMaxWidth().combinedClickable(

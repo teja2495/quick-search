@@ -70,26 +70,12 @@ data class AiSearchLlmProviderId(
         val GROQ = AiSearchLlmProviderId("groq")
         val META = AiSearchLlmProviderId("meta")
         val OPENCODE = AiSearchLlmProviderId("opencode")
-        val entries = listOf(GEMINI, OPENAI, ANTHROPIC, GROQ, META, OPENCODE)
+        val entries: List<AiSearchLlmProviderId>
+            get() = AiSearchLlmProviderRegistry.ids
 
-        /** OpenCode secret keys are `sk-` plus 64 letters and digits (anomalyco/opencode console/core/src/key.ts). */
-        private val openCodeApiKeyRegex = Regex("^sk-[A-Za-z0-9]{64}$")
-
-        /**
-         * Order used to pick the active provider when several have API keys: Gemini, custom
-         * providers (in the order added), Groq, Meta, OpenCode, OpenAI, then Anthropic.
-         */
         fun defaultPriority(id: AiSearchLlmProviderId): Int =
-            when {
-                id == GEMINI -> 0
-                id.isCustom -> 1
-                id == GROQ -> 2
-                id == META -> 3
-                id == OPENCODE -> 4
-                id == OPENAI -> 5
-                id == ANTHROPIC -> 6
-                else -> 7
-            }
+            if (id.isCustom) AiSearchLlmProviderRegistry.CUSTOM_PRIORITY
+            else AiSearchLlmProviderRegistry.definition(id)?.priority ?: Int.MAX_VALUE
 
         /** Highest-priority provider in [ids]; ties keep the original order. */
         fun preferredOf(ids: Iterable<AiSearchLlmProviderId>): AiSearchLlmProviderId? =
@@ -105,36 +91,16 @@ data class AiSearchLlmProviderId(
                 else -> entries.firstOrNull { it.storageValue == value } ?: GEMINI
             }
 
-        /**
-         * Detect the provider from an API key prefix.
-         * - `sk-ant-*` → ANTHROPIC
-         * - `gsk_*` → GROQ
-         * - `LLM|*` → META
-         * - `sk-` + exactly 64 letters and digits → OPENCODE
-         * - `sk-*` (not `sk-ant-`) → OPENAI
-         * - everything else → GEMINI
-         */
-        fun detectFromApiKey(apiKey: String?): AiSearchLlmProviderId {
-            if (apiKey.isNullOrBlank()) return GEMINI
-            val trimmed = apiKey.trim()
-            return when {
-                trimmed.startsWith("sk-ant-") -> ANTHROPIC
-                trimmed.startsWith("gsk_") -> GROQ
-                trimmed.startsWith("LLM|") -> META
-                openCodeApiKeyRegex.matches(trimmed) -> OPENCODE
-                trimmed.startsWith("sk-") -> OPENAI
-                else -> GEMINI
-            }
-        }
+        fun detectFromApiKey(apiKey: String?): AiSearchLlmProviderId =
+            apiKey?.trim()?.takeIf { it.isNotEmpty() }
+                ?.let(AiSearchLlmProviderRegistry::detect) ?: GEMINI
     }
 }
 
 /** Provider abstraction for AI search style LLM requests. */
 interface AiSearchLlmProvider {
     val id: AiSearchLlmProviderId
-    val displayName: String
     val defaultModelId: String
-    val defaultGroundingEnabled: Boolean
     val fallbackTextModels: List<LlmTextModel>
 
     suspend fun fetchAvailableTextModels(
@@ -147,25 +113,4 @@ interface AiSearchLlmProvider {
         context: Context,
         request: LlmRequest,
     ): Result<LlmResponse>
-}
-
-/** Central lookup to keep provider wiring in one place. */
-object AiSearchLlmProviderRegistry {
-    fun get(
-        id: AiSearchLlmProviderId,
-        context: Context,
-    ): AiSearchLlmProvider {
-        if (id.isCustom) {
-            return CustomOpenAiCompatibleLlmProvider(id, context)
-        }
-        return when (id) {
-            AiSearchLlmProviderId.GEMINI -> GeminiAiSearchLlmProvider
-            AiSearchLlmProviderId.OPENAI -> OpenAiAiSearchLlmProvider
-            AiSearchLlmProviderId.ANTHROPIC -> AnthropicAiSearchLlmProvider
-            AiSearchLlmProviderId.GROQ -> GroqAiSearchLlmProvider
-            AiSearchLlmProviderId.META -> MetaAiSearchLlmProvider
-            AiSearchLlmProviderId.OPENCODE -> OpenCodeAiSearchLlmProvider
-            else -> GeminiAiSearchLlmProvider
-        }
-    }
 }

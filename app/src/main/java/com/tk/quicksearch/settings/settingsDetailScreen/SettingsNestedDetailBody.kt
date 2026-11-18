@@ -96,8 +96,8 @@ internal fun ColumnScope.SettingsNestedDetailBody(
                         ),
                     )
                 },
-                filePreviewsEnabled = state.filePreviewsEnabled,
-                onToggleFilePreviews = callbacks.onToggleFilePreviews,
+                booleanSettings = state.booleanSettings,
+                onApplySettingsCommand = callbacks.onApplySettingsCommand,
                 showSystemFiles = state.showSystemFiles,
                 onToggleSystemFiles = { enabled ->
                     callbacks.onApplySettingsCommand(

@@ -11,20 +11,26 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class SearchEngineRegistryContractTest {
+class SearchEngineContractTest {
     @Test
-    fun everyBuiltInEngineHasExactlyOneDefinition() {
-        val definitionsByEngine = SearchEngineRegistry.definitions.groupBy { it.engine }
+    fun existingEngineIdsRetainTheirDefaultOrder() {
+        val existingIds = listOf(
+            "DIRECT_SEARCH", "GOOGLE", "CHATGPT", "GEMINI", "PERPLEXITY",
+            "GOOGLE_PLAY", "FDROID", "YOUTUBE", "GOOGLE_MAPS", "WAZE",
+            "GROK", "REDDIT", "AMAZON", "X", "YOUTUBE_MUSIC", "SPOTIFY",
+            "CLAUDE", "GOOGLE_DRIVE", "GOOGLE_PHOTOS", "AI_MODE", "DUCKDUCKGO",
+            "BRAVE", "FACEBOOK_MARKETPLACE", "YOU_COM", "WIKIPEDIA", "BING",
+            "STARTPAGE", "GOOGLE_TRANSLATE", "KAGI", "KAGI_ASSISTANT", "MUSE",
+        )
 
-        assertEquals(SearchEngine.entries.toSet(), definitionsByEngine.keys)
-        assertTrue(definitionsByEngine.values.all { it.size == 1 })
+        assertEquals(existingIds, SearchEngine.entries.take(existingIds.size).map { it.name })
     }
 
     @Test
     fun configuredShortcutCodesAreUnique() {
         val shortcutCodes =
-            SearchEngineRegistry.definitions
-                .map { it.defaultShortcutCode }
+            SearchEngine.entries
+                .map { it.defaultShortcutCode.lowercase() }
                 .filter(String::isNotBlank)
 
         assertEquals(shortcutCodes.size, shortcutCodes.distinct().size)
@@ -32,50 +38,36 @@ class SearchEngineRegistryContractTest {
 
     @Test
     fun searchableEnginesHaveAQueryPlaceholder() {
-        SearchEngineRegistry.definitions
-            .filterNot { it.engine == SearchEngine.DIRECT_SEARCH }
-            .forEach { definition ->
+        SearchEngine.entries
+            .filterNot { it == SearchEngine.DIRECT_SEARCH }
+            .forEach { engine ->
                 assertTrue(
-                    "${definition.engine} must place the encoded query in its URL",
-                    definition.urlTemplate.contains("%s"),
+                    "$engine must place the encoded query in its URL",
+                    engine.urlTemplate.contains("%s"),
                 )
             }
     }
 
     @Test
     fun installDependentDefinitionsDeclarePackageCandidates() {
-        SearchEngineRegistry.definitions
+        SearchEngine.entries
             .filter { it.installOnly || it.defaultDisableIfAppMissing }
-            .forEach { definition ->
+            .forEach { engine ->
                 assertFalse(
-                    "${definition.engine} depends on installation state but has no package",
-                    definition.appPackages.isEmpty(),
+                    "$engine depends on installation state but has no package",
+                    engine.appPackages.isEmpty(),
                 )
             }
     }
 
     @Test
     fun bundledIconsArePresentUnlessInstallOnly() {
-        SearchEngineRegistry.definitions.forEach { definition ->
-            if (definition.installOnly) return@forEach
+        SearchEngine.entries.forEach { engine ->
+            if (engine.installOnly) return@forEach
             assertNotNull(
-                "${definition.engine} needs a bundled icon when it can appear without its app",
-                definition.drawableResId,
+                "$engine needs a bundled icon when it can appear without its app",
+                engine.drawableResId,
             )
-        }
-    }
-
-    @Test
-    fun nativeLaunchMetadataAlwaysResolvesToAHandler() {
-        SearchEngineRegistry.definitions.forEach { definition ->
-            if (definition.nativeLaunchMode == SearchEngineNativeLaunchMode.NONE) {
-                assertNull(SearchEngineIntents.getNativeHandler(definition.engine))
-            } else {
-                assertNotNull(
-                    "${definition.engine} declares a native launch mode without a handler",
-                    SearchEngineIntents.getNativeHandler(definition.engine),
-                )
-            }
         }
     }
 

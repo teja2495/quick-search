@@ -4,9 +4,7 @@ import android.content.Context
 
 object AnthropicAiSearchLlmProvider : AiSearchLlmProvider {
     override val id: AiSearchLlmProviderId = AiSearchLlmProviderId.ANTHROPIC
-    override val displayName: String = "Claude"
     override val defaultModelId: String = AnthropicModelCatalog.DEFAULT_MODEL_ID
-    override val defaultGroundingEnabled: Boolean = AnthropicModelCatalog.DEFAULT_GROUNDING_ENABLED
     override val fallbackTextModels: List<LlmTextModel> = AnthropicModelCatalog.FALLBACK_TEXT_MODELS
 
     override suspend fun fetchAvailableTextModels(

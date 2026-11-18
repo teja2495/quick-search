@@ -106,20 +106,14 @@ internal fun ColumnScope.ToolsDetailContent(
                             toolStates =
                                     ToolSettingsRegistry.definitions.associate { definition ->
                                         val enabled =
-                                                when (definition.id) {
-                                                    ToolSettingId.CALCULATOR -> state.calculatorEnabled
-                                                    ToolSettingId.UNIT_CONVERTER ->
-                                                            state.unitConverterEnabled
-                                                    ToolSettingId.DATE_CALCULATOR ->
-                                                            state.dateCalculatorEnabled
-                                                    ToolSettingId.COLOR_VISUALIZER ->
-                                                            state.colorVisualizerEnabled
-                                                    ToolSettingId.CURRENCY_CONVERTER ->
-                                                            state.currencyConverterEnabled
-                                                    ToolSettingId.WORD_CLOCK -> state.worldClockEnabled
-                                                    ToolSettingId.DICTIONARY -> state.dictionaryEnabled
-                                                    ToolSettingId.WEATHER -> state.weatherEnabled
-                                                }
+                                                definition.booleanSetting?.valueIn(state.booleanSettings)
+                                                        ?: when (definition.id) {
+                                                            ToolSettingId.CURRENCY_CONVERTER -> state.currencyConverterEnabled
+                                                            ToolSettingId.WORD_CLOCK -> state.worldClockEnabled
+                                                            ToolSettingId.DICTIONARY -> state.dictionaryEnabled
+                                                            ToolSettingId.WEATHER -> state.weatherEnabled
+                                                            else -> false
+                                                        }
                                         definition.id to
                                                 ToolSettingUiState(
                                                         enabled = enabled,
@@ -139,9 +133,9 @@ internal fun ColumnScope.ToolsDetailContent(
                                 }
                             },
                             onToolToggle = { toolId, enabled ->
-                                val requiresLlmApiKey =
-                                        ToolSettingsRegistry.definitionFor(toolId)?.requiresLlmApiKey == true
-                                if (enabled && requiresLlmApiKey && !state.hasApiKey) {
+                                val definition =
+                                        ToolSettingsRegistry.definitionFor(toolId) ?: return@ToolsSettingsSection
+                                if (enabled && definition.requiresLlmApiKey && !state.hasApiKey) {
                                     android.widget.Toast.makeText(
                                                     context,
                                                     context.getString(R.string.currency_converter_requires_gemini_key),
@@ -150,25 +144,19 @@ internal fun ColumnScope.ToolsDetailContent(
                                             .show()
                                     return@ToolsSettingsSection
                                 }
+                                definition.booleanSetting?.let { setting ->
+                                    callbacks.onApplySettingsCommand(SettingsCommand.SetBoolean(setting, enabled))
+                                    return@ToolsSettingsSection
+                                }
                                 when (toolId) {
-                                    ToolSettingId.COLOR_VISUALIZER ->
-                                            callbacks.onToggleColorVisualizer(enabled)
                                     ToolSettingId.CURRENCY_CONVERTER ->
                                             callbacks.onToggleCurrencyConverter(enabled)
                                     ToolSettingId.WORD_CLOCK -> callbacks.onToggleWorldClock(enabled)
                                     ToolSettingId.WEATHER -> callbacks.onToggleWeather(enabled)
                                     else -> {
-                                        val definition =
-                                                ToolSettingsRegistry.definitionFor(toolId)
-                                                        ?: return@ToolsSettingsSection
                                         val toggleKey =
                                                 definition.toggleKey ?: return@ToolsSettingsSection
-                                        callbacks.onApplySettingsCommand(
-                                                SettingsCommand.Toggle(
-                                                        key = toggleKey,
-                                                        enabled = enabled,
-                                                ),
-                                        )
+                                        callbacks.onApplySettingsCommand(SettingsCommand.Toggle(toggleKey, enabled))
                                     }
                                 }
                             },

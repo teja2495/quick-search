@@ -4,9 +4,7 @@ import android.content.Context
 
 object OpenAiAiSearchLlmProvider : AiSearchLlmProvider {
     override val id: AiSearchLlmProviderId = AiSearchLlmProviderId.OPENAI
-    override val displayName: String = "OpenAI"
     override val defaultModelId: String = OpenAiModelCatalog.DEFAULT_MODEL_ID
-    override val defaultGroundingEnabled: Boolean = OpenAiModelCatalog.DEFAULT_GROUNDING_ENABLED
     override val fallbackTextModels: List<LlmTextModel> = OpenAiModelCatalog.FALLBACK_TEXT_MODELS
 
     override suspend fun fetchAvailableTextModels(

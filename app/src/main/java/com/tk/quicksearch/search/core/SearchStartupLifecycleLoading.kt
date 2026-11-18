@@ -336,7 +336,7 @@ internal fun SearchStartupLifecycleDelegate.applyStartupPreferences(prefs: Start
                 backgroundSource = snapshot.backgroundSource,
                 customImageUri = snapshot.customImageUri,
                 showFolders = snapshot.showFolders,
-                filePreviewsEnabled = snapshot.filePreviewsEnabled,
+                booleanSettings = prefs.booleanSettings,
                 showSystemFiles = snapshot.showSystemFiles,
                 folderWhitelistPatterns = snapshot.folderWhitelistPatterns,
                 folderBlacklistPatterns = snapshot.folderBlacklistPatterns,

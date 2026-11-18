@@ -111,25 +111,9 @@ class UserAppPreferences(context: Context) : UserAppPreferencesFeatures(context)
     // Calculator Preferences
     // ============================================================================
 
-    fun isCalculatorEnabled(): Boolean = uiPreferences.isCalculatorEnabled()
-
-    fun setCalculatorEnabled(enabled: Boolean) = uiPreferences.setCalculatorEnabled(enabled)
-
-    fun isUnitConverterEnabled(): Boolean = uiPreferences.isUnitConverterEnabled()
-
-    fun setUnitConverterEnabled(enabled: Boolean) = uiPreferences.setUnitConverterEnabled(enabled)
-
-    fun isDateCalculatorEnabled(): Boolean = uiPreferences.isDateCalculatorEnabled()
-
-    fun setDateCalculatorEnabled(enabled: Boolean) = uiPreferences.setDateCalculatorEnabled(enabled)
-
     fun isCurrencyConverterEnabled(): Boolean = uiPreferences.isCurrencyConverterEnabled()
 
     fun setCurrencyConverterEnabled(enabled: Boolean) = uiPreferences.setCurrencyConverterEnabled(enabled)
-
-    fun isColorVisualizerEnabled(): Boolean = uiPreferences.isColorVisualizerEnabled()
-
-    fun setColorVisualizerEnabled(enabled: Boolean) = uiPreferences.setColorVisualizerEnabled(enabled)
 
     fun isWorldClockEnabled(): Boolean = uiPreferences.isWorldClockEnabled()
 

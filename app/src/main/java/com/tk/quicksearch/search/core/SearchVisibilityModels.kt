@@ -6,6 +6,7 @@ import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.preferences.DEFAULT_WEB_SUGGESTIONS_ENABLED
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.appSettings.AppSettingResult
+import com.tk.quicksearch.search.appSettings.BooleanSetting
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
@@ -257,10 +258,10 @@ data class SearchUiState(
         val numberSearchEnabled: Boolean = false,
         val assistantLaunchVoiceModeEnabled: Boolean = false,
         // File display preferences
+        val booleanSettings: Map<String, Boolean> = emptyMap(),
         val enabledFileTypes: Set<com.tk.quicksearch.search.models.FileType> =
                 com.tk.quicksearch.search.models.FileType.values().toSet(),
         val showFolders: Boolean = false,
-        val filePreviewsEnabled: Boolean = true,
         val showSystemFiles: Boolean = false,
         val folderWhitelistPatterns: Set<String> = emptySet(),
         val folderBlacklistPatterns: Set<String> = emptySet(),
@@ -337,10 +338,6 @@ data class SearchUiState(
         val webSuggestionsEnabled: Boolean = DEFAULT_WEB_SUGGESTIONS_ENABLED,
         val webSuggestionsCount: Int = 3,
         // Calculator / AI Search
-        val calculatorEnabled: Boolean = true,
-        val unitConverterEnabled: Boolean = true,
-        val dateCalculatorEnabled: Boolean = true,
-        val colorVisualizerEnabled: Boolean = true,
         val currencyConverterEnabled: Boolean = true,
         val worldClockEnabled: Boolean = true,
         val dictionaryEnabled: Boolean = true,
@@ -425,7 +422,9 @@ data class SearchUiState(
         // Versioning for cache invalidation
         val contactActionsVersion: Int = 0,
         val nicknameUpdateVersion: Int = 0,
-)
+) {
+        fun isBooleanSettingEnabled(setting: BooleanSetting): Boolean = setting.valueIn(booleanSettings)
+}
 
 /** Explicit text colour for Home content. A null preference keeps wallpaper-aware colouring. */
 enum class HomeTextColor {
@@ -569,10 +568,6 @@ fun SearchUiState(
                 availableLlmModelsByProvider = features.availableLlmModelsByProvider,
                 webSuggestionsEnabled = features.webSuggestionsEnabled,
                 webSuggestionsCount = features.webSuggestionsCount,
-                calculatorEnabled = features.calculatorEnabled,
-                unitConverterEnabled = features.unitConverterEnabled,
-                dateCalculatorEnabled = features.dateCalculatorEnabled,
-                colorVisualizerEnabled = features.colorVisualizerEnabled,
                 currencyConverterEnabled = features.currencyConverterEnabled,
                 worldClockEnabled = features.worldClockEnabled,
                 dictionaryEnabled = features.dictionaryEnabled,
@@ -660,7 +655,7 @@ fun SearchUiState(
                 maskUnsupportedIconPackIcons = config.maskUnsupportedIconPackIcons,
                 enabledFileTypes = config.enabledFileTypes,
                 showFolders = config.showFolders,
-                filePreviewsEnabled = config.filePreviewsEnabled,
+                booleanSettings = config.booleanSettings,
                 showSystemFiles = config.showSystemFiles,
                 folderWhitelistPatterns = config.folderWhitelistPatterns,
                 folderBlacklistPatterns = config.folderBlacklistPatterns,

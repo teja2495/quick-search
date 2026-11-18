@@ -6,17 +6,6 @@ import com.tk.quicksearch.settings.settingsDetailScreen.AiBackedToolConfigId
 internal interface SearchViewModelPreferencesApi {
     val preferencesApiDelegate: SearchViewModelPreferencesApiDelegate
 
-    fun setCalculatorEnabled(enabled: Boolean) = preferencesApiDelegate.setCalculatorEnabled(enabled)
-
-    fun setUnitConverterEnabled(enabled: Boolean) =
-        preferencesApiDelegate.setUnitConverterEnabled(enabled)
-
-    fun setDateCalculatorEnabled(enabled: Boolean) =
-        preferencesApiDelegate.setDateCalculatorEnabled(enabled)
-
-    fun setColorVisualizerEnabled(enabled: Boolean) =
-        preferencesApiDelegate.setColorVisualizerEnabled(enabled)
-
     fun setCurrencyConverterEnabled(enabled: Boolean) =
         preferencesApiDelegate.setCurrencyConverterEnabled(enabled)
 
@@ -199,8 +188,6 @@ internal interface SearchViewModelPreferencesApi {
 
     fun setShowFolders(show: Boolean) = preferencesApiDelegate.setShowFolders(show)
 
-    fun setFilePreviewsEnabled(enabled: Boolean) = preferencesApiDelegate.setFilePreviewsEnabled(enabled)
-
     fun setShowSystemFiles(show: Boolean) = preferencesApiDelegate.setShowSystemFiles(show)
 
     fun setFolderWhitelistPatterns(patterns: Set<String>) =
@@ -324,14 +311,6 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
     private val iconPackHandler: com.tk.quicksearch.search.apps.IconPackService,
     private val configStateProvider: () -> SearchUiConfigState,
 ) {
-    fun setCalculatorEnabled(enabled: Boolean) = preferencesDelegate.setCalculatorEnabled(enabled)
-
-    fun setUnitConverterEnabled(enabled: Boolean) = preferencesDelegate.setUnitConverterEnabled(enabled)
-
-    fun setDateCalculatorEnabled(enabled: Boolean) = preferencesDelegate.setDateCalculatorEnabled(enabled)
-
-    fun setColorVisualizerEnabled(enabled: Boolean) = preferencesDelegate.setColorVisualizerEnabled(enabled)
-
     fun setCurrencyConverterEnabled(enabled: Boolean) =
         preferencesDelegate.setCurrencyConverterEnabled(enabled)
 
@@ -490,8 +469,6 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
         preferencesDelegate.setFileTypeEnabled(fileType, enabled)
 
     fun setShowFolders(show: Boolean) = preferencesDelegate.setShowFolders(show)
-
-    fun setFilePreviewsEnabled(enabled: Boolean) = preferencesDelegate.setFilePreviewsEnabled(enabled)
 
     fun setShowSystemFiles(show: Boolean) = preferencesDelegate.setShowSystemFiles(show)
 

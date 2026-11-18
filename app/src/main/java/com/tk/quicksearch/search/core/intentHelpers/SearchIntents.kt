@@ -24,7 +24,7 @@ internal object SearchIntents {
         amazonDomain: String? = null,
         onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
-        SearchEngineIntents.getNativeHandler(searchEngine)?.let { handler ->
+        searchEngine.nativeLaunch?.let { handler ->
             handler(context, query)
             return
         }

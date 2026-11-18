@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.util.isTablet
+import com.tk.quicksearch.settings.settingsDetailScreen.ToolSettingsRegistry
 
 /**
  * Searchable toggle and inline-control rows, plus the pages that sit beside them in search order.
@@ -122,62 +123,20 @@ internal fun AppSettingsCatalogBuilder.addToggleAndInlineSettings(context: Conte
         toggleKey = AppSettingsToggleKey.ALIAS_TRIGGER_AFTER_SPACE,
         keywords = listOf("alias after query", "suffix", "search engine", "space"),
     )
-    addToggle(
-        id = "app_toggle_calculator",
-        titleRes = R.string.calculator_toggle_title,
-        descriptionRes = R.string.calculator_toggle_desc,
-        toggleKey = AppSettingsToggleKey.CALCULATOR,
-    )
-    addToggle(
-        id = "app_toggle_unit_converter",
-        titleRes = R.string.unit_converter_info_title,
-        descriptionRes = R.string.date_calculator_toggle_desc,
-        toggleKey = AppSettingsToggleKey.UNIT_CONVERTER,
-        destination = AppSettingsDestination.UNIT_CONVERTER_INFO,
-        keywords = listOf("conversion", "examples"),
-    )
-    addToggle(
-        id = "app_toggle_date_calculator",
-        titleRes = R.string.date_calculator_info_title,
-        descriptionRes = R.string.date_calculator_toggle_desc,
-        toggleKey = AppSettingsToggleKey.DATE_CALCULATOR,
-        destination = AppSettingsDestination.DATE_CALCULATOR_INFO,
-        keywords = listOf("examples"),
-    )
-    addToggle(
-        id = "app_toggle_currency_converter",
-        titleRes = R.string.currency_converter_toggle_title,
-        descriptionRes = R.string.currency_converter_toggle_desc,
-        toggleKey = AppSettingsToggleKey.CURRENCY_CONVERTER,
-        keywords = listOf("currency", "exchange rate", "money"),
-    )
-    addToggle(
-        id = "app_toggle_color_visualizer",
-        titleRes = R.string.color_visualizer_toggle_title,
-        descriptionRes = R.string.color_visualizer_toggle_desc,
-        toggleKey = AppSettingsToggleKey.COLOR_VISUALIZER,
-        keywords = listOf("color", "colour", "hex", "rgb"),
-    )
-    addToggle(
-        id = "app_toggle_world_clock",
-        titleRes = R.string.world_clock_toggle_title,
-        descriptionRes = R.string.world_clock_toggle_desc,
-        toggleKey = AppSettingsToggleKey.WORLD_CLOCK,
-        keywords = listOf("time zone", "timezone"),
-    )
-    addToggle(
-        id = "app_toggle_dictionary",
-        titleRes = R.string.dictionary_toggle_title,
-        descriptionRes = R.string.dictionary_toggle_desc,
-        toggleKey = AppSettingsToggleKey.DICTIONARY,
-    )
-    addToggle(
-        id = "app_toggle_weather",
-        titleRes = R.string.weather_toggle_title,
-        descriptionRes = R.string.weather_toggle_desc,
-        toggleKey = AppSettingsToggleKey.WEATHER,
-        keywords = listOf("forecast", "temperature", "location"),
-    )
+    ToolSettingsRegistry.definitions.sortedBy { it.searchSettingsOrder }.forEach { tool ->
+        val booleanSetting = tool.booleanSetting
+        if (booleanSetting != null) {
+            addBooleanSetting(booleanSetting, destination = tool.searchDestination)
+        } else {
+            addToggle(
+                id = tool.searchId,
+                titleRes = tool.titleResId,
+                descriptionRes = tool.defaultDescriptionResId,
+                toggleKey = checkNotNull(tool.toggleKey),
+                keywords = tool.keywords,
+            )
+        }
+    }
     addToggle(
         id = "app_toggle_app_suggestions",
         titleRes = R.string.app_suggestions_toggle_title,
