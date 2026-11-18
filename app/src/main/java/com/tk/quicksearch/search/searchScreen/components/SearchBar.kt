@@ -179,10 +179,18 @@ internal fun PersistentSearchBar(
         }
     val accentColor = AppColors.Accent
     val restingBorderColor = searchBarStyle.borderColor(accentColor)
-    val iconAndTextColor = AppColors.getSearchBarTextAndIconColor(showWallpaperBackground)
+    val contrastBackground = searchBarContrastBackground(
+        searchBarStyle,
+        showWallpaperBackground,
+        opaqueBackground = opaqueBackground && !transparentBackground,
+    )
+    val iconAndTextColor = AppColors.getSearchBarTextAndIconColor(showWallpaperBackground).readableOn(contrastBackground)
+    val placeholderColor = iconAndTextColor.copy(alpha = DesignTokens.SearchFieldPlaceholderAlpha)
+        .readableOn(contrastBackground)
+    val accentIconColor = accentColor.readableOn(contrastBackground, minimumContrast = 3f)
     val isDarkTheme = LocalAppIsDarkTheme.current
     val lightWallpaperSearchBar = !isDarkTheme && showWallpaperBackground
-    val searchBarIconColor = AppColors.getSearchBarSecondaryIconTint(showWallpaperBackground)
+    val searchBarIconColor = AppColors.getSearchBarSecondaryIconTint(showWallpaperBackground).readableOn(contrastBackground, 3f)
     val isAliasDetected =
         isSearchBarAliasActive(
             detectedShortcutTarget = detectedShortcutTarget,
@@ -202,7 +210,7 @@ internal fun PersistentSearchBar(
             shortcutEnabled = shortcutEnabled,
             triggerWords = triggerWords,
             isSearchEngineAliasSuffixEnabled = isSearchEngineAliasSuffixEnabled && !isAliasDetected,
-            highlightColor = AppColors.LinkColor,
+            highlightColor = AppColors.LinkColor.readableOn(contrastBackground),
         )
     val leadingIconState =
         when {
@@ -620,7 +628,7 @@ internal fun PersistentSearchBar(
                     Text(
                         text = text,
                         style = MaterialTheme.typography.titleMedium,
-                        color = iconAndTextColor.copy(alpha = DesignTokens.SearchFieldPlaceholderAlpha),
+                        color = placeholderColor,
                     )
                 }
             },
@@ -685,7 +693,7 @@ internal fun PersistentSearchBar(
                     showClear = isAliasDetected || query.isNotEmpty(),
                     showSettings = showSettingsIcon && !searchBarStyle.showMicIcon,
                     showMic = searchBarStyle.showMicIcon,
-                    accentColor = accentColor,
+                    accentColor = accentIconColor,
                     iconColor = searchBarIconColor,
                     onClear = {
                         if (query.isNotEmpty()) {
@@ -735,7 +743,7 @@ internal fun PersistentSearchBar(
                     disabledContainerColor = AppColors.AppBackgroundTransparent,
                     focusedTextColor = iconAndTextColor,
                     unfocusedTextColor = iconAndTextColor,
-                    cursorColor = if (showCursor) MaterialTheme.colorScheme.primary else Color.Transparent,
+                    cursorColor = if (showCursor) accentIconColor else Color.Transparent,
                 ),
             visualTransformation = aliasVisualTransformation,
             interactionSource = searchBarInteractionSource,

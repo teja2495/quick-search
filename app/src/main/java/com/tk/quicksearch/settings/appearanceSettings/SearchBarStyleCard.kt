@@ -41,6 +41,9 @@ import com.tk.quicksearch.search.searchScreen.components.backgroundColor
 import com.tk.quicksearch.search.searchScreen.components.borderColor
 import com.tk.quicksearch.search.searchScreen.components.borderWidth
 import com.tk.quicksearch.search.searchScreen.components.cornerRadius
+import com.tk.quicksearch.search.searchScreen.components.readableOn
+import com.tk.quicksearch.search.searchScreen.components.searchBarContrastBackground
+import com.tk.quicksearch.search.searchScreen.insetCardBackground
 import com.tk.quicksearch.searchEngines.inline.InsetSearchBarGeometry
 import com.tk.quicksearch.searchEngines.inline.SearchEngineIconsSection
 import com.tk.quicksearch.searchEngines.inline.insetCardGlow
@@ -368,8 +371,12 @@ private fun SearchBarStylePreview(
     modifier: Modifier = Modifier,
     insetInCard: Boolean = false,
 ) {
-    val iconAndTextColor = AppColors.getSearchBarTextAndIconColor(showWallpaperBackground)
-    val iconTint = AppColors.getSearchBarSecondaryIconTint(showWallpaperBackground)
+    val contrastBackground = searchBarContrastBackground(style, showWallpaperBackground)
+    val placeholderColor = AppColors.getSearchBarTextAndIconColor(showWallpaperBackground)
+        .readableOn(contrastBackground)
+        .copy(alpha = DesignTokens.SearchFieldPlaceholderAlpha)
+        .readableOn(contrastBackground)
+    val iconTint = AppColors.getSearchBarSecondaryIconTint(showWallpaperBackground).readableOn(contrastBackground, 3f)
     val showSettingsOutside = showSettingsIcon && style.showMicIcon
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -405,7 +412,7 @@ private fun SearchBarStylePreview(
                 Text(
                     text = stringResource(R.string.common_search),
                     style = MaterialTheme.typography.titleMedium,
-                    color = iconAndTextColor.copy(alpha = DesignTokens.SearchFieldPlaceholderAlpha),
+                    color = placeholderColor,
                     modifier = Modifier.weight(1f),
                 )
                 val trailingIcon =
@@ -456,7 +463,7 @@ private fun Modifier.searchBarPreviewSurface(
                 Modifier
             },
         ).clip(shape)
-        .background(style.backgroundColor(AppColors.getSearchBarBackground(showWallpaperBackground)))
+        .background(insetCardBackground(true, style.backgroundColor(AppColors.getSearchBarBackground(showWallpaperBackground)), anywhere = true))
 }
 
 @Composable

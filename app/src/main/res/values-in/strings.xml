@@ -1134,6 +1134,13 @@
     <string name="voice_input_not_available">Pengetikan suara tidak tersedia saat ini.</string>
     <string name="widget_background_color_custom_dialog_title">Warna Kustom</string>
     <string name="color_picker_hex">Warna heksadesimal (#RRGGBB)</string>
+    <string name="color_picker_hue">Rona</string>
+    <string name="color_picker_saturation">Saturasi</string>
+    <string name="color_picker_brightness">Kecerahan</string>
+    <string name="color_picker_increase_saturation">Tingkatkan saturasi</string>
+    <string name="color_picker_decrease_saturation">Kurangi saturasi</string>
+    <string name="color_picker_increase_brightness">Tingkatkan kecerahan</string>
+    <string name="color_picker_decrease_brightness">Kurangi kecerahan</string>
     <string name="widget_border_color">Warna Bingkai</string>
     <string name="widget_custom_button_add_desc">Tambah tombol kustom</string>
     <string name="widget_custom_button_change_colour">Ubah warna</string>

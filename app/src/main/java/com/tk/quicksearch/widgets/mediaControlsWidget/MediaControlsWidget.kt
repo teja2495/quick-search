@@ -17,7 +17,6 @@ import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
-import androidx.glance.action.Action
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
@@ -46,7 +45,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.media.AppSeekAction
 import com.tk.quicksearch.media.AppSeekActions
 import com.tk.quicksearch.media.MediaCommand
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.CenteredOnCardNudge
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomButtonsWidgetMediaAction
 import com.tk.quicksearch.widgets.utils.WidgetBitmapUtils
 import com.tk.quicksearch.widgets.utils.WidgetLayoutUtils
@@ -58,31 +57,32 @@ import kotlin.math.roundToInt
 
 /** Sizes mirror the At a Glance Now Playing row so the widget reads as the same component. */
 internal object MediaControlsWidgetDimens {
-    /** Spans the title and controls rows, so the art sits the same inset from the card on all sides. */
-    val ALBUM_ART_SIZE = 82.dp
+    val ALBUM_ART_SIZE = DesignTokens.SpacingHuge
     private val MIN_ALBUM_ART_CORNER_RADIUS = 4.dp
-    val CONTROL_BUTTON_SIZE = 54.dp
+    val CONTROL_BUTTON_SIZE = DesignTokens.MinTouchTarget
     val CONTROL_ICON_SIZE = 25.dp
     val SECONDARY_CONTROL_ICON_SIZE = 22.dp
     val PROMINENT_CIRCLE_SIZE = 40.dp
-    val TITLE_ROW_HEIGHT = 28.dp
+    val TITLE_ROW_HEIGHT = DesignTokens.MinTouchTarget
     val TITLE_FONT_SIZE = 17.sp
     val ART_PLACEHOLDER_ICON_SIZE = 24.dp
-    val CONTENT_PADDING_HORIZONTAL = 14.dp
-    val CONTENT_PADDING_VERTICAL = 14.dp
-    val ART_SPACING = 14.dp
-    val INNER_CONTROL_SPACING = 10.dp
+    val CONTENT_PADDING_HORIZONTAL = DesignTokens.SpacingMedium
+    val CONTENT_PADDING_VERTICAL = DesignTokens.SpacingXSmall
+    val ART_SPACING = DesignTokens.SpacingSmall
     val PROMINENT_CIRCLE_STROKE = 1.dp
+    val PRIMARY_CONTROLS_WIDTH = CONTROL_BUTTON_SIZE * 3
+    val ALL_CONTROLS_WIDTH = CONTROL_BUTTON_SIZE * 5
 
-    /** How far the title/controls column starts from the card content's start edge. */
-    val COLUMN_LEADING_OFFSET = ALBUM_ART_SIZE + ART_SPACING
+    fun horizontalPadding(width: Dp): Dp =
+        ((width - ALL_CONTROLS_WIDTH) / 2)
+            .coerceIn(DesignTokens.SpacingXSmall, CONTENT_PADDING_HORIZONTAL)
+
+    fun canFitExtraControls(contentWidth: Dp): Boolean = contentWidth >= ALL_CONTROLS_WIDTH
+
     /** Card height: fits one home-screen row, and stays this compact in taller cells. */
     const val HEIGHT_DP = 110f
 
-    /**
-     * Art corners concentric with the card's: the card radius minus the art's inset (equal on the
-     * top, bottom and start edges), so both curves share a center and the gap stays even.
-     */
+    /** Keep album artwork rounded in proportion to the widget surface. */
     fun albumArtCornerRadius(widgetCornerRadiusDp: Float): Dp =
         (widgetCornerRadiusDp.dp - CONTENT_PADDING_HORIZONTAL)
             .coerceIn(MIN_ALBUM_ART_CORNER_RADIUS, ALBUM_ART_SIZE / 2)
@@ -139,6 +139,13 @@ class MediaControlsWidget : GlanceAppWidget() {
                 null
             }
 
+        val horizontalPadding = MediaControlsWidgetDimens.horizontalPadding(widthDp)
+        val stackHeader = heightDp >= MediaControlsWidgetDimens.TITLE_ROW_HEIGHT + MediaControlsWidgetDimens.CONTROL_BUTTON_SIZE
+        val verticalPadding = if (heightDp >= MediaControlsWidgetDimens.HEIGHT_DP.dp) {
+            MediaControlsWidgetDimens.CONTENT_PADDING_VERTICAL
+        } else {
+            0.dp
+        }
         Box(modifier = GlanceModifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Box(
                 modifier =
@@ -147,14 +154,15 @@ class MediaControlsWidget : GlanceAppWidget() {
                         .height(heightDp)
                         .then(backgroundBitmap?.let { GlanceModifier.background(ImageProvider(it)) } ?: GlanceModifier)
                         .padding(
-                            horizontal = MediaControlsWidgetDimens.CONTENT_PADDING_HORIZONTAL,
-                            vertical = MediaControlsWidgetDimens.CONTENT_PADDING_VERTICAL,
+                            horizontal = horizontalPadding,
+                            vertical = verticalPadding,
                         ),
                 contentAlignment = Alignment.CenterStart,
             ) {
                 MediaControlsContent(
                     context = context,
-                    widthDp = widthDp,
+                    stackHeader = stackHeader,
+                    contentWidth = widthDp - horizontalPadding * 2,
                     media = media,
                     colors = colors,
                     artCornerRadius = MediaControlsWidgetDimens.albumArtCornerRadius(config.borderRadiusDp),
@@ -168,51 +176,80 @@ class MediaControlsWidget : GlanceAppWidget() {
 @Composable
 private fun MediaControlsContent(
     context: Context,
-    widthDp: Dp,
+    stackHeader: Boolean,
+    contentWidth: Dp,
     media: MediaControlsSnapshot,
     colors: MediaControlsColors,
     artCornerRadius: Dp,
     density: Float,
 ) {
-    // Opening the player goes through an activity: only a foreground app may start another app's
-    // activity, which a widget broadcast callback is not.
+    if (stackHeader) {
+        Column(modifier = GlanceModifier.fillMaxWidth()) {
+            MediaControlsHeader(context, media, colors, artCornerRadius, density, GlanceModifier.fillMaxWidth())
+            TransportRow(
+                context,
+                MediaControlsWidgetDimens.canFitExtraControls(contentWidth),
+                media,
+                colors,
+                modifier = GlanceModifier.fillMaxWidth(),
+            )
+        }
+    } else {
+        val transportWidth = contentWidth - MediaControlsWidgetDimens.TITLE_ROW_HEIGHT
+        val showExtraControls = MediaControlsWidgetDimens.canFitExtraControls(transportWidth)
+        val minimumTransportWidth = if (showExtraControls) {
+            MediaControlsWidgetDimens.ALL_CONTROLS_WIDTH
+        } else {
+            MediaControlsWidgetDimens.PRIMARY_CONTROLS_WIDTH
+        }
+        Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            if (transportWidth >= minimumTransportWidth) {
+                MediaControlsHeader(context, media, colors, artCornerRadius, density, GlanceModifier.defaultWeight())
+            }
+            TransportRow(
+                context,
+                showExtraControls,
+                media,
+                colors,
+                modifier = GlanceModifier.width(minimumTransportWidth.coerceAtMost(contentWidth)),
+            )
+        }
+    }
+}
+
+@Composable
+private fun MediaControlsHeader(
+    context: Context,
+    media: MediaControlsSnapshot,
+    colors: MediaControlsColors,
+    artCornerRadius: Dp,
+    density: Float,
+    modifier: GlanceModifier,
+) {
+    // Opening the player goes through an activity because the widget callback runs in the background.
     val openAction =
         if (media.hasSession || !media.hasAccess) {
             actionStartActivity(MediaControlsOpenPlayerActivity.createIntent(context))
         } else {
             null
         }
-    val contentColor = ColorProvider(colors.content)
-
+    val title = when {
+        media.title != null -> media.title
+        !media.hasAccess -> context.getString(R.string.widget_media_controls_grant_access)
+        else -> context.getString(R.string.widget_media_controls_nothing_playing)
+    }
     Row(
-        modifier = GlanceModifier.fillMaxWidth(),
+        modifier = modifier.height(MediaControlsWidgetDimens.TITLE_ROW_HEIGHT)
+            .then(openAction?.let { GlanceModifier.clickable(it) } ?: GlanceModifier),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        AlbumArt(media, colors, artCornerRadius, density, openAction)
+        AlbumArt(media, colors, artCornerRadius, density)
         Spacer(modifier = GlanceModifier.width(MediaControlsWidgetDimens.ART_SPACING))
-        Column(modifier = GlanceModifier.defaultWeight()) {
-            val title =
-                when {
-                    media.title != null -> media.title
-                    !media.hasAccess -> context.getString(R.string.widget_media_controls_grant_access)
-                    else -> context.getString(R.string.widget_media_controls_nothing_playing)
-                }
-            Box(
-                modifier =
-                    GlanceModifier
-                        .fillMaxWidth()
-                        .height(MediaControlsWidgetDimens.TITLE_ROW_HEIGHT)
-                        .then(openAction?.let { GlanceModifier.clickable(it, rippleOverride = android.R.color.transparent) } ?: GlanceModifier),
-                contentAlignment = Alignment.CenterStart,
-            ) {
-                Text(
-                    text = title,
-                    style = TextStyle(color = contentColor, fontSize = MediaControlsWidgetDimens.TITLE_FONT_SIZE),
-                    maxLines = 1,
-                )
-            }
-            TransportRow(context, widthDp, media, colors)
-        }
+        Text(
+            text = title,
+            style = TextStyle(color = ColorProvider(colors.content), fontSize = MediaControlsWidgetDimens.TITLE_FONT_SIZE),
+            maxLines = 1,
+        )
     }
 }
 
@@ -222,24 +259,21 @@ private fun AlbumArt(
     colors: MediaControlsColors,
     cornerRadius: Dp,
     density: Float,
-    openAction: Action?,
 ) {
     val sizePx = (MediaControlsWidgetDimens.ALBUM_ART_SIZE.value * density).roundToInt().coerceAtLeast(1)
     val art =
         media.albumArt?.let {
             roundedAlbumArt(it, sizePx, cornerRadius.value * density)
         }
-    val clickModifier =
-        openAction?.let { GlanceModifier.clickable(it, rippleOverride = android.R.color.transparent) } ?: GlanceModifier
     if (art != null) {
         Image(
             provider = ImageProvider(art),
             contentDescription = null,
-            modifier = GlanceModifier.size(MediaControlsWidgetDimens.ALBUM_ART_SIZE).then(clickModifier),
+            modifier = GlanceModifier.size(MediaControlsWidgetDimens.ALBUM_ART_SIZE),
         )
     } else {
         Box(
-            modifier = GlanceModifier.size(MediaControlsWidgetDimens.ALBUM_ART_SIZE).then(clickModifier),
+            modifier = GlanceModifier.size(MediaControlsWidgetDimens.ALBUM_ART_SIZE),
             contentAlignment = Alignment.Center,
         ) {
             ShapeImage(
@@ -298,9 +332,10 @@ private fun seekControl(
 @Composable
 private fun TransportRow(
     context: Context,
-    widthDp: Dp,
+    showExtraControls: Boolean,
     media: MediaControlsSnapshot,
     colors: MediaControlsColors,
+    modifier: GlanceModifier,
 ) {
     val appSeek = media.appSeek
     val outerBack: Control?
@@ -346,43 +381,16 @@ private fun TransportRow(
             else -> R.drawable.ic_media_controls_play
         }
 
-    val hasOuterControls = outerBack != null || outerForward != null
     Row(
-        modifier = GlanceModifier.fillMaxWidth(),
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (hasOuterControls) {
-            Box(modifier = GlanceModifier.defaultWeight(), contentAlignment = Alignment.Center) {
-                outerBack?.let { ControlButton(context, colors, it, ControlStyle.PLAIN) }
-            }
-        } else {
-            // The group alone would sit right of the card's center, since this column starts
-            // after the album art; RemoteViews cannot offset, so pad it onto the card's center.
-            val groupCount = 1 + listOfNotNull(innerBack, innerForward).size
-            val groupWidth =
-                MediaControlsWidgetDimens.PROMINENT_CIRCLE_SIZE * groupCount +
-                    MediaControlsWidgetDimens.INNER_CONTROL_SPACING * (groupCount - 1)
-            val columnWidth =
-                widthDp - MediaControlsWidgetDimens.CONTENT_PADDING_HORIZONTAL * 2 - MediaControlsWidgetDimens.COLUMN_LEADING_OFFSET
-            val startPadding =
-                ((columnWidth - MediaControlsWidgetDimens.COLUMN_LEADING_OFFSET - groupWidth) / 2 + CenteredOnCardNudge)
-                    .coerceIn(0.dp, (columnWidth - groupWidth).coerceAtLeast(0.dp))
-            Spacer(modifier = GlanceModifier.width(startPadding))
-        }
-        innerBack?.let {
-            ControlButton(context, colors, it, ControlStyle.PROMINENT)
-            Spacer(modifier = GlanceModifier.width(MediaControlsWidgetDimens.INNER_CONTROL_SPACING))
-        }
+        if (showExtraControls) outerBack?.let { ControlButton(context, colors, it, ControlStyle.PLAIN) }
+        innerBack?.let { ControlButton(context, colors, it, ControlStyle.PROMINENT) }
         ControlButton(context, colors, Control(playPauseIcon, MediaCommand.PLAY_PAUSE), ControlStyle.PLAY_PAUSE)
-        innerForward?.let {
-            Spacer(modifier = GlanceModifier.width(MediaControlsWidgetDimens.INNER_CONTROL_SPACING))
-            ControlButton(context, colors, it, ControlStyle.PROMINENT)
-        }
-        if (hasOuterControls) {
-            Box(modifier = GlanceModifier.defaultWeight(), contentAlignment = Alignment.Center) {
-                outerForward?.let { ControlButton(context, colors, it, ControlStyle.PLAIN) }
-            }
-        }
+        innerForward?.let { ControlButton(context, colors, it, ControlStyle.PROMINENT) }
+        if (showExtraControls) outerForward?.let { ControlButton(context, colors, it, ControlStyle.PLAIN) }
     }
 }
 
@@ -393,17 +401,9 @@ private fun ControlButton(
     control: Control,
     style: ControlStyle,
 ) {
-    // Circled buttons are only as wide as their circle, and plain ones fill their weighted slot,
-    // so the outer seek icons keep room on a 4-cell-wide widget.
-    val sizeModifier =
-        if (style == ControlStyle.PLAIN) {
-            GlanceModifier.fillMaxWidth()
-        } else {
-            GlanceModifier.width(MediaControlsWidgetDimens.PROMINENT_CIRCLE_SIZE)
-        }
     Box(
         modifier =
-            sizeModifier
+            GlanceModifier.width(MediaControlsWidgetDimens.CONTROL_BUTTON_SIZE)
                 .height(MediaControlsWidgetDimens.CONTROL_BUTTON_SIZE)
                 .clickable(
                     onClick =
@@ -417,7 +417,6 @@ private fun ControlButton(
                                 actionParametersOf(CustomButtonsWidgetMediaAction.MEDIA_COMMAND_KEY to control.command.value)
                             },
                         ),
-                    rippleOverride = android.R.color.transparent,
                 ),
         contentAlignment = Alignment.Center,
     ) {

@@ -1132,6 +1132,13 @@
     <string name="voice_input_not_available">वॉइस टाइपिंग अभी उपलब्ध नहीं है।</string>
     <string name="widget_background_color_custom_dialog_title">कस्टम रंग</string>
     <string name="color_picker_hex">हेक्स रंग (#RRGGBB)</string>
+    <string name="color_picker_hue">रंगत</string>
+    <string name="color_picker_saturation">संतृप्ति</string>
+    <string name="color_picker_brightness">चमक</string>
+    <string name="color_picker_increase_saturation">संतृप्ति बढ़ाएँ</string>
+    <string name="color_picker_decrease_saturation">संतृप्ति घटाएँ</string>
+    <string name="color_picker_increase_brightness">चमक बढ़ाएँ</string>
+    <string name="color_picker_decrease_brightness">चमक घटाएँ</string>
     <string name="widget_border_color">बॉर्डर रंग</string>
     <string name="widget_custom_button_add_desc">कस्टम बटन जोड़ें</string>
     <string name="widget_custom_buttons_dialog_hint">ऐप्स, ऐप शॉर्टकट्स, कॉन्टैक्ट्स, फाइलें, फोल्डर्स, नोट्स और डिवाइस सेटिंग्स खोजें।</string>

@@ -1,6 +1,8 @@
 package com.tk.quicksearch.search.apps.speedBump
 
 import android.os.SystemClock
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.progressBarRangeInfo
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.shared.ui.components.AppButtonSize
@@ -269,6 +271,7 @@ fun SpeedBumpOverlay(
                 Text(
                     text = stringResource(R.string.speed_bump_overlay_title),
                     style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.semantics { heading() },
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center,
@@ -476,7 +479,14 @@ private fun BreathingRing(
 ) {
     androidx.compose.foundation.Canvas(
         modifier =
-            Modifier.size(RingSize).graphicsLayer {
+            Modifier.size(RingSize).semantics {
+                // Expose whole seconds of progress while keeping the drawn ring smooth.
+                val totalSeconds = SpeedBump.DELAY_MILLIS / 1_000f
+                progressBarRangeInfo = ProgressBarRangeInfo(
+                    current = kotlin.math.floor(progress() * totalSeconds),
+                    range = 0f..totalSeconds,
+                )
+            }.graphicsLayer {
                 val ringScale = 0.9f + 0.1f * breathAmount()
                 scaleX = ringScale
                 scaleY = ringScale

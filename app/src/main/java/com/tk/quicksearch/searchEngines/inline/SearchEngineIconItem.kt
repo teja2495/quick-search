@@ -1,10 +1,8 @@
 package com.tk.quicksearch.searchEngines.inline
 
-import androidx.compose.ui.semantics.Role
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,14 +15,19 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.tk.quicksearch.search.core.SearchTarget
-import com.tk.quicksearch.shared.ui.theme.AppColors
-import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.search.core.AppIconShape
+import com.tk.quicksearch.search.core.SearchTarget
+import com.tk.quicksearch.searchEngines.getDisplayName
 import com.tk.quicksearch.searchEngines.shared.IconRenderStyle
 import com.tk.quicksearch.searchEngines.shared.SearchTargetIcon
+import com.tk.quicksearch.shared.ui.components.AppPlainTooltip
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.util.hapticConfirm
 
 /**
@@ -68,57 +71,64 @@ fun SearchEngineIconItem(
     val highlightShape = AppShapes.engineHighlight
     val highlightBackgroundColor = AppColors.InlineEngineHighlightBackground
     val highlightBorderColor = AppColors.InlineEngineHighlightBorder
-    Box(
-        modifier =
-            modifier
-                .width(itemWidth)
-                .then(
-                    if (!isPredicted) {
-                        Modifier
-                    } else {
-                        Modifier.drawBehind {
-                            val extraWidthPx = highlightExtraWidth.toPx()
-                            val extraHeightPx = highlightExtraHeight.toPx()
-                            val left = -extraWidthPx / 2f
-                            val top = -extraHeightPx / 2f
-                            val outlineWidth = size.width + extraWidthPx
-                            val outlineHeight = size.height + extraHeightPx
-                            val strokeWidth = 1.dp.toPx()
-                            val cornerRadius = highlightShape.topStart.toPx(size, this)
-
-                            drawRoundRect(
-                                color = highlightBackgroundColor,
-                                topLeft = Offset(left, top),
-                                size = Size(outlineWidth, outlineHeight),
-                                cornerRadius = CornerRadius(cornerRadius, cornerRadius),
-                            )
-                            drawRoundRect(
-                                color = highlightBorderColor,
-                                topLeft = Offset(left, top),
-                                size = Size(outlineWidth, outlineHeight),
-                                cornerRadius = CornerRadius(cornerRadius, cornerRadius),
-                                style = Stroke(width = strokeWidth),
-                            )
-                        }
-                    },
-                )
-                .combinedClickable(
-                    role = Role.Button,
-                    onClick = {
-                        hapticConfirm(view)()
-                        onSearchEngineClick(query(), engine)
-                    },
-                    onLongClick = onSearchEngineLongPress,
-                ),
-        contentAlignment = Alignment.Center,
+    AppPlainTooltip(
+        text = engine.getDisplayName(),
+        modifier = modifier,
+        preserveLongPress = onSearchEngineLongPress != null,
     ) {
-        SearchTargetIcon(
-            target = engine,
-            iconSize = compactVisualIconSize,
-            style = IconRenderStyle.ADVANCED,
-            appIconShape = appIconShape,
-            iconPackPackage = iconPackPackage,
-            modifier = iconShadowModifier,
-        )
+        Box(
+            modifier =
+                Modifier
+                    .width(itemWidth)
+                    .heightIn(min = DesignTokens.MinTouchTarget)
+                    .then(
+                        if (!isPredicted) {
+                            Modifier
+                        } else {
+                            Modifier.drawBehind {
+                                val extraWidthPx = highlightExtraWidth.toPx()
+                                val extraHeightPx = highlightExtraHeight.toPx()
+                                val left = -extraWidthPx / 2f
+                                val top = -extraHeightPx / 2f
+                                val outlineWidth = size.width + extraWidthPx
+                                val outlineHeight = size.height + extraHeightPx
+                                val strokeWidth = 1.dp.toPx()
+                                val cornerRadius = highlightShape.topStart.toPx(size, this)
+
+                                drawRoundRect(
+                                    color = highlightBackgroundColor,
+                                    topLeft = Offset(left, top),
+                                    size = Size(outlineWidth, outlineHeight),
+                                    cornerRadius = CornerRadius(cornerRadius, cornerRadius),
+                                )
+                                drawRoundRect(
+                                    color = highlightBorderColor,
+                                    topLeft = Offset(left, top),
+                                    size = Size(outlineWidth, outlineHeight),
+                                    cornerRadius = CornerRadius(cornerRadius, cornerRadius),
+                                    style = Stroke(width = strokeWidth),
+                                )
+                            }
+                        },
+                    )
+                    .combinedClickable(
+                        role = Role.Button,
+                        onClick = {
+                            hapticConfirm(view)()
+                            onSearchEngineClick(query(), engine)
+                        },
+                        onLongClick = onSearchEngineLongPress,
+                    ),
+            contentAlignment = Alignment.Center,
+        ) {
+            SearchTargetIcon(
+                target = engine,
+                iconSize = compactVisualIconSize,
+                style = IconRenderStyle.ADVANCED,
+                appIconShape = appIconShape,
+                iconPackPackage = iconPackPackage,
+                modifier = iconShadowModifier,
+            )
+        }
     }
 }

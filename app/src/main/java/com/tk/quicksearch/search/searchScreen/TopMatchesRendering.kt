@@ -1,6 +1,8 @@
 package com.tk.quicksearch.search.searchScreen
 
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Spacer
@@ -277,8 +279,9 @@ private fun TopMatchesHeader() {
         )
         Text(
             text = stringResource(R.string.top_matches_title),
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.semantics { heading() },
         )
     }
 }

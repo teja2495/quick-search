@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.mediaControlsWidget
 
+import androidx.compose.foundation.layout.BoxWithConstraints
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.media.MediaMetadata
 import android.media.session.MediaController
@@ -13,12 +14,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -52,7 +51,6 @@ import androidx.compose.ui.unit.sp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.media.AppSeekAction
 import com.tk.quicksearch.search.data.MediaPlaybackRepository
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.centeredOnCard
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.widgets.utils.WidgetPreferences
 
@@ -109,42 +107,37 @@ private fun PreviewCard(
     colors: MediaControlsColors,
     shape: Shape,
 ) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(MediaControlsWidgetDimens.HEIGHT_DP.dp)
-                .background(colors.background.copy(alpha = state.backgroundAlpha), shape)
-                .padding(
-                    horizontal = MediaControlsWidgetDimens.CONTENT_PADDING_HORIZONTAL,
-                    vertical = MediaControlsWidgetDimens.CONTENT_PADDING_VERTICAL,
-                ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(MediaControlsWidgetDimens.ART_SPACING),
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxWidth()
+            .height(MediaControlsWidgetDimens.HEIGHT_DP.dp)
+            .background(colors.background.copy(alpha = state.backgroundAlpha), shape),
+        contentAlignment = Alignment.Center,
     ) {
-        PreviewAlbumArt(media, colors, MediaControlsWidgetDimens.albumArtCornerRadius(state.borderRadiusDp))
-        Column(modifier = Modifier.weight(1f)) {
-            Box(
+        val horizontalPadding = MediaControlsWidgetDimens.horizontalPadding(maxWidth)
+        val showExtraControls = MediaControlsWidgetDimens.canFitExtraControls(maxWidth - horizontalPadding * 2)
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(
+                horizontal = horizontalPadding,
+                vertical = MediaControlsWidgetDimens.CONTENT_PADDING_VERTICAL,
+            ),
+        ) {
+            Row(
                 modifier = Modifier.fillMaxWidth().height(MediaControlsWidgetDimens.TITLE_ROW_HEIGHT),
-                contentAlignment = Alignment.CenterStart,
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MediaControlsWidgetDimens.ART_SPACING),
             ) {
+                PreviewAlbumArt(media, colors, MediaControlsWidgetDimens.albumArtCornerRadius(state.borderRadiusDp))
                 Text(
-                    text =
-                        media.title
-                            ?: stringResource(
-                                if (media.hasAccess) {
-                                    R.string.widget_media_controls_nothing_playing
-                                } else {
-                                    R.string.widget_media_controls_grant_access
-                                },
-                            ),
+                    text = media.title ?: stringResource(
+                        if (media.hasAccess) R.string.widget_media_controls_nothing_playing else R.string.widget_media_controls_grant_access,
+                    ),
                     color = colors.content,
                     fontSize = MediaControlsWidgetDimens.TITLE_FONT_SIZE,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            PreviewTransportRow(media, colors)
+            PreviewTransportRow(media, colors, showExtraControls)
         }
     }
 }
@@ -255,6 +248,7 @@ private fun rememberSeekControl(
 private fun PreviewTransportRow(
     media: MediaControlsSnapshot,
     colors: MediaControlsColors,
+    showExtraControls: Boolean,
 ) {
     val appSeek = media.appSeek
     val outerBack: PreviewControl?
@@ -306,49 +300,31 @@ private fun PreviewTransportRow(
             else -> R.drawable.ic_media_controls_play
         }
 
-    val hasOuterControls = outerBack != null || outerForward != null
-    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        if (hasOuterControls) OuterSlot(outerBack, colors)
-        Row(
-            // Matches the widget: without outer controls, center the group on the card.
-            modifier =
-                if (hasOuterControls) {
-                    Modifier
-                } else {
-                    Modifier.weight(1f).centeredOnCard(MediaControlsWidgetDimens.COLUMN_LEADING_OFFSET)
-                },
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(MediaControlsWidgetDimens.INNER_CONTROL_SPACING),
-        ) {
-            innerBack?.let { ProminentControl(it, colors) }
-            ControlSlot {
-                Box(
-                    modifier =
-                        Modifier
-                            .size(MediaControlsWidgetDimens.PROMINENT_CIRCLE_SIZE)
-                            .background(colors.playPauseCircle, AppShapes.full),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    PreviewIcon(playPauseIcon, R.string.media_command_play_pause, MediaControlsWidgetDimens.CONTROL_ICON_SIZE, colors.playPauseIcon)
-                }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        if (showExtraControls) outerBack?.let { PlainControl(it, colors) }
+        innerBack?.let { ProminentControl(it, colors) }
+        ControlSlot {
+            Box(
+                modifier = Modifier.size(MediaControlsWidgetDimens.PROMINENT_CIRCLE_SIZE)
+                    .background(colors.playPauseCircle, AppShapes.full),
+                contentAlignment = Alignment.Center,
+            ) {
+                PreviewIcon(playPauseIcon, R.string.media_command_play_pause, MediaControlsWidgetDimens.CONTROL_ICON_SIZE, colors.playPauseIcon)
             }
-            innerForward?.let { ProminentControl(it, colors) }
         }
-        if (hasOuterControls) OuterSlot(outerForward, colors)
+        innerForward?.let { ProminentControl(it, colors) }
+        if (showExtraControls) outerForward?.let { PlainControl(it, colors) }
     }
 }
 
 @Composable
-private fun RowScope.OuterSlot(
-    control: PreviewControl?,
-    colors: MediaControlsColors,
-) {
-    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-        control?.let {
-            ControlSlot(Modifier.fillMaxWidth()) {
-                PreviewIcon(it, MediaControlsWidgetDimens.SECONDARY_CONTROL_ICON_SIZE, colors.content)
-            }
-        }
+private fun PlainControl(control: PreviewControl, colors: MediaControlsColors) {
+    ControlSlot {
+        PreviewIcon(control, MediaControlsWidgetDimens.SECONDARY_CONTROL_ICON_SIZE, colors.content)
     }
 }
 
@@ -372,11 +348,10 @@ private fun ProminentControl(
 
 @Composable
 private fun ControlSlot(
-    widthModifier: Modifier = Modifier.width(MediaControlsWidgetDimens.PROMINENT_CIRCLE_SIZE),
     content: @Composable () -> Unit,
 ) {
     Box(
-        modifier = widthModifier.height(MediaControlsWidgetDimens.CONTROL_BUTTON_SIZE),
+        modifier = Modifier.size(MediaControlsWidgetDimens.CONTROL_BUTTON_SIZE),
         contentAlignment = Alignment.Center,
     ) {
         content()

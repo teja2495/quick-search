@@ -519,7 +519,7 @@ private fun ScrollableEngineIcons(
                     Modifier
                         .fillMaxWidth()
                         .height(
-                            (SearchEngineSectionConstants.ICON_SIZE * visibleRowCount) +
+                            (DesignTokens.MinTouchTarget * visibleRowCount) +
                                 (if (visibleRowCount == 2) SearchEngineSectionConstants.ROW_SPACING else 0.dp) +
                                 predictionHighlightExtraHeight,
                         ),
@@ -608,7 +608,8 @@ private fun ScrollableEngineIcons(
 private fun calculateItemWidth(maxWidth: androidx.compose.ui.unit.Dp, itemsPerRow: Int): androidx.compose.ui.unit.Dp {
     val totalSpacing = SearchEngineSectionConstants.SPACING * (itemsPerRow - 1)
     val totalHorizontalContentPadding = SearchEngineSectionConstants.PREDICTION_HIGHLIGHT_CONTENT_PADDING * 2
-    return (maxWidth - totalSpacing - totalHorizontalContentPadding) / itemsPerRow
+    return ((maxWidth - totalSpacing - totalHorizontalContentPadding) / itemsPerRow)
+        .coerceAtLeast(DesignTokens.MinTouchTarget)
 }
 
 @Composable

@@ -1131,6 +1131,13 @@
     <string name="voice_input_not_available">La digitazione vocale non è disponibile al momento.</string>
     <string name="widget_background_color_custom_dialog_title">Colore personalizzato</string>
     <string name="color_picker_hex">Colore esadecimale (#RRGGBB)</string>
+    <string name="color_picker_hue">Tonalità</string>
+    <string name="color_picker_saturation">Saturazione</string>
+    <string name="color_picker_brightness">Luminosità</string>
+    <string name="color_picker_increase_saturation">Aumenta la saturazione</string>
+    <string name="color_picker_decrease_saturation">Riduci la saturazione</string>
+    <string name="color_picker_increase_brightness">Aumenta la luminosità</string>
+    <string name="color_picker_decrease_brightness">Riduci la luminosità</string>
     <string name="widget_border_color">Colore bordo</string>
     <string name="widget_custom_button_add_desc">Aggiungi pulsante personalizzato</string>
     <string name="widget_custom_buttons_dialog_hint">Cerca app, scorciatoie app, contatti, file, cartelle, note e impostazioni del dispositivo.</string>

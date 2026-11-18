@@ -1119,6 +1119,13 @@
     <string name="voice_input_not_available">目前无法使用语音输入法。</string>
     <string name="widget_background_color_custom_dialog_title">自定义色彩</string>
     <string name="color_picker_hex">十六进制颜色 (#RRGGBB)</string>
+    <string name="color_picker_hue">色相</string>
+    <string name="color_picker_saturation">饱和度</string>
+    <string name="color_picker_brightness">亮度</string>
+    <string name="color_picker_increase_saturation">提高饱和度</string>
+    <string name="color_picker_decrease_saturation">降低饱和度</string>
+    <string name="color_picker_increase_brightness">提高亮度</string>
+    <string name="color_picker_decrease_brightness">降低亮度</string>
     <string name="widget_border_color">边框颜色</string>
     <string name="widget_custom_button_add_desc">添加自定义按钮</string>
     <string name="widget_custom_buttons_dialog_hint">搜索应用、应用快捷方式、联系人、文件、文件夹、笔记及设备系统设置。</string>

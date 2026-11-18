@@ -4,6 +4,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppIconButton
+import com.tk.quicksearch.shared.ui.components.AppPlainTooltip
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -340,29 +341,31 @@ internal fun SearchBarTrailingIcon(
             SearchBarTrailingAction.Settings -> {
                 val context = LocalContext.current
                 val view = LocalView.current
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier =
-                        Modifier
-                            .size(DesignTokens.Spacing48)
-                            .clip(AppShapes.full)
-                            // Not AppIconButton: long-press opens device settings, which a tooltip would block.
-                            .combinedClickable(
-                                hapticFeedbackEnabled = false,
-                                role = Role.Button,
-                                onLongClickLabel = stringResource(R.string.desc_open_device_settings),
-                                onLongClick = {
-                                    hapticStrong(view)()
-                                    openDeviceSettings(context)
-                                },
-                                onClick = onSettings,
-                            ),
-                ) {
-                    Icon(
-                        imageVector = MaterialSymbols.Settings,
-                        contentDescription = stringResource(R.string.desc_open_settings),
-                        tint = iconColor,
-                    )
+                val settingsLabel = stringResource(R.string.desc_open_settings)
+                AppPlainTooltip(text = settingsLabel, preserveLongPress = true) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier =
+                            Modifier
+                                .size(DesignTokens.Spacing48)
+                                .clip(AppShapes.full)
+                                .combinedClickable(
+                                    hapticFeedbackEnabled = false,
+                                    role = Role.Button,
+                                    onLongClickLabel = stringResource(R.string.desc_open_device_settings),
+                                    onLongClick = {
+                                        hapticStrong(view)()
+                                        openDeviceSettings(context)
+                                    },
+                                    onClick = onSettings,
+                                ),
+                    ) {
+                        Icon(
+                            imageVector = MaterialSymbols.Settings,
+                            contentDescription = settingsLabel,
+                            tint = iconColor,
+                        )
+                    }
                 }
             }
 

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.appNotifications
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppButton
 import com.tk.quicksearch.shared.ui.components.AppIconButton
@@ -154,7 +155,6 @@ private fun WantAllPillButton(
 
 private val KeywordRowHeight = 52.dp
 private const val KeywordsIntroWidthFraction = 0.9f
-private val KeywordRowIconButtonSize = 40.dp
 
 /**
  * One compact line of the keywords list: text, then an icon button at the end. Every row has the
@@ -184,8 +184,14 @@ private fun KeywordRow(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f).padding(vertical = DesignTokens.SpacingSmall),
         )
-        AppIconButton(onClick = onClick, modifier = Modifier.size(KeywordRowIconButtonSize), tooltip = iconDescription) {
-            Icon(imageVector = icon, contentDescription = iconDescription, tint = iconTint)
+        if (rowClickable) {
+            Box(modifier = Modifier.size(DesignTokens.MinTouchTarget), contentAlignment = Alignment.Center) {
+                Icon(imageVector = icon, contentDescription = null, tint = iconTint)
+            }
+        } else {
+            AppIconButton(onClick = onClick, tooltip = iconDescription) {
+                Icon(imageVector = icon, contentDescription = iconDescription, tint = iconTint)
+            }
         }
     }
 }

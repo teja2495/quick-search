@@ -1185,6 +1185,13 @@
     <string name="voice_input_not_available">الكتابة الصوتية غير متاحة حالياً.</string>
     <string name="widget_background_color_custom_dialog_title">لون مخصص</string>
     <string name="color_picker_hex">لون سداسي عشري (#RRGGBB)</string>
+    <string name="color_picker_hue">تدرّج اللون</string>
+    <string name="color_picker_saturation">التشبّع</string>
+    <string name="color_picker_brightness">السطوع</string>
+    <string name="color_picker_increase_saturation">زيادة التشبّع</string>
+    <string name="color_picker_decrease_saturation">تقليل التشبّع</string>
+    <string name="color_picker_increase_brightness">زيادة السطوع</string>
+    <string name="color_picker_decrease_brightness">تقليل السطوع</string>
     <string name="widget_border_color">لون الحدود</string>
     <string name="widget_custom_button_add_desc">إضافة زر مخصص</string>
     <string name="widget_custom_buttons_dialog_hint">ابحث عن التطبيقات، واختصارات التطبيقات، وجهات الاتصال، والملفات، والمجلدات، والملاحظات، وإعدادات الجهاز.</string>

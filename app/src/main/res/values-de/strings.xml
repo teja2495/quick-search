@@ -1132,6 +1132,13 @@
     <string name="voice_input_not_available">Spracheingabe ist gerade nicht verfügbar.</string>
     <string name="widget_background_color_custom_dialog_title">Benutzerdefinierte Farbe</string>
     <string name="color_picker_hex">Hex-Farbe (#RRGGBB)</string>
+    <string name="color_picker_hue">Farbton</string>
+    <string name="color_picker_saturation">Sättigung</string>
+    <string name="color_picker_brightness">Helligkeit</string>
+    <string name="color_picker_increase_saturation">Sättigung erhöhen</string>
+    <string name="color_picker_decrease_saturation">Sättigung verringern</string>
+    <string name="color_picker_increase_brightness">Helligkeit erhöhen</string>
+    <string name="color_picker_decrease_brightness">Helligkeit verringern</string>
     <string name="widget_border_color">Rahmenfarbe</string>
     <string name="widget_custom_button_add_desc">Benutzerdefinierte Schaltfläche hinzufügen</string>
     <string name="widget_custom_buttons_dialog_hint">Suche nach Apps, App-Verknüpfungen, Kontakten, Dateien, Ordnern, Notizen &amp; Geräteeinstellungen.</string>

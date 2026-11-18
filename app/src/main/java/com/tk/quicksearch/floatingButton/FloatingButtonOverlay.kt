@@ -1,6 +1,5 @@
 package com.tk.quicksearch.floatingButton
 
-import com.tk.quicksearch.shared.ui.theme.AppMotion
 import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
 import android.app.KeyguardManager
@@ -15,6 +14,8 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.InsetDrawable
+import android.graphics.drawable.RippleDrawable
 import android.os.Build
 import android.os.PowerManager
 import android.util.Log
@@ -27,10 +28,14 @@ import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import com.tk.quicksearch.R
 import com.tk.quicksearch.edgeGesture.EdgeGestureOverlay
 import com.tk.quicksearch.search.data.preferences.FloatingButtonConfig
 import com.tk.quicksearch.search.data.preferences.FloatingButtonPreferences
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppMotion
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -142,8 +147,11 @@ class FloatingButtonOverlay(
         return powerManager?.isInteractive == false || keyguardManager?.isKeyguardLocked == true
     }
 
+    private fun touchSizePx(config: FloatingButtonConfig): Int =
+        maxOf(dpToPx(config.sizeDp), dpToPx(DesignTokens.MinTouchTarget.value.toInt()))
+
     private fun layoutParams(config: FloatingButtonConfig): WindowManager.LayoutParams {
-        val size = dpToPx(config.sizeDp)
+        val size = touchSizePx(config)
         val area = movableArea(size)
         return WindowManager.LayoutParams(
             size,
@@ -252,6 +260,7 @@ class FloatingButtonOverlay(
 
         private val startDrag =
             Runnable {
+                isPressed = false
                 isDragging = true
                 performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
                 animate().scaleX(DRAG_SCALE).scaleY(DRAG_SCALE).setDuration(SCALE_ANIMATION_MS).start()
@@ -260,7 +269,7 @@ class FloatingButtonOverlay(
         init {
             setImageResource(R.drawable.ic_widget_search)
             scaleType = ScaleType.FIT_CENTER
-            contentDescription = context.getString(R.string.app_name)
+            contentDescription = context.getString(R.string.settings_gesture_open_quick_search)
             isClickable = true
         }
 
@@ -269,13 +278,17 @@ class FloatingButtonOverlay(
             val night = isNightMode()
             val containerColor = if (night) Color.WHITE else Color.BLACK
             val iconColor = if (night) Color.BLACK else Color.WHITE
-            background =
-                GradientDrawable().apply {
-                    shape = GradientDrawable.OVAL
-                    setColor(containerColor)
-                }
+            val visibleSize = dpToPx(config.sizeDp)
+            val inset = (touchSizePx(config) - visibleSize) / 2
+            val circle = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(containerColor)
+            }
+            val stateLayerAlpha = (255 * AppColors.TintTonalAlpha).roundToInt()
+            val stateLayer = ColorStateList.valueOf(ColorUtils.setAlphaComponent(iconColor, stateLayerAlpha))
+            background = InsetDrawable(RippleDrawable(stateLayer, circle, null), inset)
             imageTintList = ColorStateList.valueOf(iconColor)
-            val padding = (dpToPx(config.sizeDp) * ICON_PADDING_FRACTION).roundToInt()
+            val padding = inset + (visibleSize * ICON_PADDING_FRACTION).roundToInt()
             setPadding(padding, padding, padding, padding)
             alpha = config.opacity
         }
@@ -295,6 +308,7 @@ class FloatingButtonOverlay(
             val params = layoutParams as? WindowManager.LayoutParams ?: return true
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
+                    isPressed = true
                     downRawX = event.rawX
                     downRawY = event.rawY
                     downParamsX = params.x
@@ -313,12 +327,14 @@ class FloatingButtonOverlay(
                         params.y = (downParamsY + dy.roundToInt()).coerceIn(area.top, area.bottom)
                         runCatching { windowManager.updateViewLayout(this, params) }
                     } else if (!movedBeforeLongPress && (abs(dx) > touchSlopPx || abs(dy) > touchSlopPx)) {
+                        isPressed = false
                         movedBeforeLongPress = true
                         cancelPendingLongPress()
                     }
                 }
 
                 MotionEvent.ACTION_UP -> {
+                    isPressed = false
                     cancelPendingLongPress()
                     if (isDragging) {
                         endDrag(params)
@@ -328,6 +344,7 @@ class FloatingButtonOverlay(
                 }
 
                 MotionEvent.ACTION_CANCEL -> {
+                    isPressed = false
                     cancelPendingLongPress()
                     if (isDragging) endDrag(params)
                 }

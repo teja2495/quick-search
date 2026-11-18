@@ -230,8 +230,11 @@ object PinnedNotifications {
             return RemoteViews(context.packageName, R.layout.notification_pinned_items)
         }
         return RemoteViews(context.packageName, R.layout.notification_pinned_items).apply {
+            // The collapsed notification can have only 48 dp of content height.
+            if (!showLabels) setViewPadding(R.id.pinned_notification_rows, 0, 0, 0, 0)
             actions.chunked(ItemsPerRow).forEachIndexed { rowIndex, rowActions ->
                 val row = RemoteViews(context.packageName, R.layout.notification_pinned_row)
+                if (!showLabels) row.setViewPadding(R.id.pinned_notification_row, 0, 0, 0, 0)
                 rowActions.forEachIndexed { columnIndex, action ->
                     row.addView(
                         R.id.pinned_notification_row,
@@ -266,7 +269,9 @@ object PinnedNotifications {
                 setImageViewBitmap(R.id.pinned_notification_icon, it)
             }
                 ?: icon.drawableResId?.let { setImageViewResource(R.id.pinned_notification_icon, it) }
-            setTextViewText(R.id.pinned_notification_label, action.displayLabel())
+            val label = action.displayLabel()
+            setTextViewText(R.id.pinned_notification_label, label)
+            setContentDescription(R.id.pinned_notification_action, action.contentDescription())
             setViewVisibility(
                 R.id.pinned_notification_label,
                 if (showLabels) android.view.View.VISIBLE else android.view.View.GONE,
@@ -280,8 +285,7 @@ object PinnedNotifications {
                 launchIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
-            setOnClickPendingIntent(R.id.pinned_notification_icon, pendingIntent)
-            setOnClickPendingIntent(R.id.pinned_notification_label, pendingIntent)
+            setOnClickPendingIntent(R.id.pinned_notification_action, pendingIntent)
         }
     }
 

@@ -1,6 +1,11 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.ui.graphics.RectangleShape
@@ -413,44 +418,39 @@ internal fun NumberKeyboardOperatorPills(
         shape = AppShapes.none,
         tonalElevation = DesignTokens.ElevationLevel0,
     ) {
-        Row(
-            modifier =
-                Modifier.fillMaxWidth()
-                    .padding(
-                        start = DesignTokens.SpacingLarge,
-                        end = DesignTokens.SpacingLarge,
-                        // Inside a host card the row above already ends with its own spacing.
-                        top = if (transparentBackground) 0.dp else NumberKeyboardOperatorRowTopPadding,
-                        bottom = DesignTokens.SpacingSmall,
-                    ),
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-            verticalAlignment = Alignment.CenterVertically,
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxWidth().padding(
+                start = DesignTokens.SpacingLarge,
+                end = DesignTokens.SpacingLarge,
+                top = if (transparentBackground) 0.dp else NumberKeyboardOperatorRowTopPadding,
+                bottom = DesignTokens.SpacingSmall,
+            ),
         ) {
-            operators.forEach { operator ->
-                Surface(
-                    modifier =
-                        Modifier.weight(1f).clickable(role = Role.Button) { onOperatorClick(operator) },
-                    shape = AppShapes.full,
-                    color = operatorChipColor,
-                    border = BorderStroke(DesignTokens.KeyboardPillBorderStrokeWidth, operatorChipBorderColor),
-                    tonalElevation = DesignTokens.ElevationLevel0,
-                ) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .height(32.dp)
-                                .padding(
-                                    vertical = 2.dp,
-                                ),
-                        contentAlignment = Alignment.Center,
+            val spacing = DesignTokens.SpacingXSmall
+            val keyWidth = ((maxWidth - spacing * operators.lastIndex) / operators.size)
+                .coerceAtLeast(DesignTokens.MinTouchTarget)
+            Row(
+                modifier = Modifier.horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(spacing),
+            ) {
+                operators.forEach { operator ->
+                    Surface(
+                        onClick = { onOperatorClick(operator) },
+                        modifier = Modifier.width(keyWidth).semantics { role = Role.Button },
+                        shape = AppShapes.full,
+                        color = operatorChipColor,
+                        border = BorderStroke(DesignTokens.KeyboardPillBorderStrokeWidth, operatorChipBorderColor),
                     ) {
-                        Text(
-                            text = operator,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = operatorChipTextColor,
-                            fontWeight = FontWeight.SemiBold,
-                        )
+                        Box(
+                            modifier = Modifier.height(DesignTokens.MinTouchTarget),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = operator,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = operatorChipTextColor,
+                            )
+                        }
                     }
                 }
             }

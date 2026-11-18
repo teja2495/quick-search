@@ -1132,6 +1132,13 @@
     <string name="voice_input_not_available">El dictado por voz no está disponible en este momento.</string>
     <string name="widget_background_color_custom_dialog_title">Color personalizado</string>
     <string name="color_picker_hex">Color hexadecimal (#RRGGBB)</string>
+    <string name="color_picker_hue">Tono</string>
+    <string name="color_picker_saturation">Saturación</string>
+    <string name="color_picker_brightness">Brillo</string>
+    <string name="color_picker_increase_saturation">Aumentar la saturación</string>
+    <string name="color_picker_decrease_saturation">Reducir la saturación</string>
+    <string name="color_picker_increase_brightness">Aumentar el brillo</string>
+    <string name="color_picker_decrease_brightness">Reducir el brillo</string>
     <string name="widget_border_color">Color del borde</string>
     <string name="widget_custom_button_add_desc">Añadir botón personalizado</string>
     <string name="widget_custom_buttons_dialog_hint">Busca aplicaciones, accesos directos, contactos, archivos, carpetas, notas y ajustes del dispositivo.</string>

@@ -1,57 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Launcher picker preview and initial layout; mirrors MediaControlsWidget's default look, but
-     sized smaller than the live widget because pickers draw previews in a narrow, scaled-down slot. -->
+<!-- The launcher scales this preview down. Live actions use the widget's full touch targets. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="88dp"
-    android:layout_gravity="center_vertical"
-    android:background="@drawable/widget_media_controls_placeholder_background"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:paddingStart="10dp"
-    android:paddingEnd="10dp"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp">
-
-    <FrameLayout
-        android:layout_width="68dp"
-        android:layout_height="68dp"
-        android:background="@drawable/widget_media_controls_art_placeholder">
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center"
-            android:alpha="0.7"
-            android:importantForAccessibility="no"
-            android:src="@drawable/ic_media_controls_music_note" />
-
-    </FrameLayout>
-
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_weight="1"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="24dp"
-            android:ellipsize="end"
-            android:gravity="center_vertical"
-            android:maxLines="1"
-            android:text="@string/widget_media_controls_nothing_playing"
-            android:textColor="@android:color/white"
-            android:textSize="15sp" />
+        android:layout_width="match_parent"
+        android:layout_height="88dp"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/widget_media_controls_placeholder_background"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingHorizontal="8dp">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="44dp"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:background="@drawable/widget_media_controls_art_placeholder">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center"
+                    android:alpha="0.7"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_media_controls_music_note" />
+
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/widget_media_controls_nothing_playing"
+                android:textColor="@android:color/white"
+                android:textSize="15sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -70,8 +68,8 @@
             </FrameLayout>
 
             <FrameLayout
-                android:layout_width="44dp"
-                android:layout_height="44dp">
+                android:layout_width="40dp"
+                android:layout_height="40dp">
 
                 <FrameLayout
                     android:layout_width="33dp"
@@ -91,10 +89,8 @@
             </FrameLayout>
 
             <FrameLayout
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp">
+                android:layout_width="40dp"
+                android:layout_height="40dp">
 
                 <FrameLayout
                     android:layout_width="33dp"
@@ -115,8 +111,8 @@
             </FrameLayout>
 
             <FrameLayout
-                android:layout_width="44dp"
-                android:layout_height="44dp">
+                android:layout_width="40dp"
+                android:layout_height="40dp">
 
                 <FrameLayout
                     android:layout_width="33dp"
@@ -152,7 +148,5 @@
         </LinearLayout>
 
     </LinearLayout>
-
-</LinearLayout>
 
 </FrameLayout>

@@ -1132,6 +1132,13 @@
     <string name="voice_input_not_available">వాయిస్ టైపింగ్ ప్రస్తుతం అందుబాటులో లేదు.</string>
     <string name="widget_background_color_custom_dialog_title">కస్టమ్ రంగు</string>
     <string name="color_picker_hex">హెక్స్ రంగు (#RRGGBB)</string>
+    <string name="color_picker_hue">వర్ణం</string>
+    <string name="color_picker_saturation">సంతృప్తత</string>
+    <string name="color_picker_brightness">ప్రకాశం</string>
+    <string name="color_picker_increase_saturation">సంతృప్తతను పెంచండి</string>
+    <string name="color_picker_decrease_saturation">సంతృప్తతను తగ్గించండి</string>
+    <string name="color_picker_increase_brightness">ప్రకాశాన్ని పెంచండి</string>
+    <string name="color_picker_decrease_brightness">ప్రకాశాన్ని తగ్గించండి</string>
     <string name="widget_border_color">అంచు రంగు</string>
     <string name="widget_custom_button_add_desc">కస్టమ్ బటన్‌ను జోడించండి</string>
     <string name="widget_custom_buttons_dialog_hint">యాప్‌లు, యాప్ షార్ట్‌కట్‌లు, పరిచయాలు, ఫైళ్లు, ఫోల్డర్‌లు, గమనికలు &amp; పరికర సెట్టింగ్‌ల కోసం శోధించండి.</string>

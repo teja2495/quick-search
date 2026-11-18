@@ -1172,6 +1172,13 @@
     <string name="voice_input_not_available">Voice typing isn’t available right now.</string>
     <string name="widget_background_color_custom_dialog_title">Custom Color</string>
     <string name="color_picker_hex">Hex color (#RRGGBB)</string>
+    <string name="color_picker_hue">Hue</string>
+    <string name="color_picker_saturation">Saturation</string>
+    <string name="color_picker_brightness">Brightness</string>
+    <string name="color_picker_increase_saturation">Increase saturation</string>
+    <string name="color_picker_decrease_saturation">Decrease saturation</string>
+    <string name="color_picker_increase_brightness">Increase brightness</string>
+    <string name="color_picker_decrease_brightness">Decrease brightness</string>
     <string name="widget_border_color">Border Color</string>
     <string name="widget_custom_button_add_desc">Add custom button</string>
     <string name="widget_custom_button_change_colour">Change colour</string>

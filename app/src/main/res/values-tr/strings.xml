@@ -1131,6 +1131,13 @@
 <string name="voice_input_not_available">Sesli yazma şu anda kullanılamıyor.</string>
 <string name="widget_background_color_custom_dialog_title">Özel renk</string>
 <string name="color_picker_hex">Onaltılık renk (#RRGGBB)</string>
+<string name="color_picker_hue">Renk tonu</string>
+<string name="color_picker_saturation">Doygunluk</string>
+<string name="color_picker_brightness">Parlaklık</string>
+<string name="color_picker_increase_saturation">Doygunluğu artır</string>
+<string name="color_picker_decrease_saturation">Doygunluğu azalt</string>
+<string name="color_picker_increase_brightness">Parlaklığı artır</string>
+<string name="color_picker_decrease_brightness">Parlaklığı azalt</string>
 <string name="widget_border_color">Kenarlık rengi</string>
 <string name="widget_custom_button_add_desc">Özel buton ekle</string>
 <string name="widget_custom_buttons_dialog_hint">Uygulamalar, Uygulama Kısayolları, Kişiler, Dosyalar, Klasörler, Notlar &amp; Cihaz ayarlarında arama yap.</string>

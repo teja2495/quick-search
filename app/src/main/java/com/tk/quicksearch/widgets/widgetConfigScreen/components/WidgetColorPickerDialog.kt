@@ -1,5 +1,22 @@
 package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
+import androidx.compose.foundation.focusable
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.setProgress
+import androidx.compose.ui.semantics.stateDescription
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.AppShapes
@@ -51,6 +68,7 @@ import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.components.AppTextButton
+import java.text.NumberFormat
 
 private val ColorAreaHeight = 180.dp
 private val HueTrackHeight = DesignTokens.Spacing28
@@ -178,8 +196,24 @@ private fun SaturationBrightnessPicker(
     brightness: Float,
     onColorChange: (saturation: Float, brightness: Float) -> Unit,
 ) {
+    val latestOnColorChange by rememberUpdatedState(onColorChange)
+    val locale = LocalConfiguration.current.locales[0]
+    val percent = remember(locale) { NumberFormat.getPercentInstance(locale) }
+    val saturationLabel = stringResource(R.string.color_picker_saturation)
+    val brightnessLabel = stringResource(R.string.color_picker_brightness)
+    fun adjust(saturationDelta: Float = 0f, brightnessDelta: Float = 0f): Boolean {
+        val newSaturation = (saturation + saturationDelta).coerceIn(0f, 1f)
+        val newBrightness = (brightness + brightnessDelta).coerceIn(0f, 1f)
+        if (newSaturation == saturation && newBrightness == brightness) return false
+        onColorChange(newSaturation, newBrightness)
+        return true
+    }
+    val increaseSaturation = stringResource(R.string.color_picker_increase_saturation)
+    val decreaseSaturation = stringResource(R.string.color_picker_decrease_saturation)
+    val increaseBrightness = stringResource(R.string.color_picker_increase_brightness)
+    val decreaseBrightness = stringResource(R.string.color_picker_decrease_brightness)
     val updateColor: (Offset, IntSize) -> Unit = { offset, size ->
-        onColorChange(
+        latestOnColorChange(
             (offset.x / size.width).coerceIn(0f, 1f),
             (1f - offset.y / size.height).coerceIn(0f, 1f),
         )
@@ -191,6 +225,27 @@ private fun SaturationBrightnessPicker(
                 .fillMaxWidth()
                 .height(ColorAreaHeight)
                 .clip(AppShapes.medium)
+                .semantics {
+                    contentDescription = "$saturationLabel, $brightnessLabel"
+                    stateDescription = "${percent.format(saturation)}, ${percent.format(brightness)}"
+                    customActions = listOf(
+                        CustomAccessibilityAction(increaseSaturation) { adjust(saturationDelta = ColorChannelStep) },
+                        CustomAccessibilityAction(decreaseSaturation) { adjust(saturationDelta = -ColorChannelStep) },
+                        CustomAccessibilityAction(increaseBrightness) { adjust(brightnessDelta = ColorChannelStep) },
+                        CustomAccessibilityAction(decreaseBrightness) { adjust(brightnessDelta = -ColorChannelStep) },
+                    )
+                }
+                .onKeyEvent { event ->
+                    if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
+                    when (event.key) {
+                        Key.DirectionRight -> adjust(saturationDelta = ColorChannelStep)
+                        Key.DirectionLeft -> adjust(saturationDelta = -ColorChannelStep)
+                        Key.DirectionUp -> adjust(brightnessDelta = ColorChannelStep)
+                        Key.DirectionDown -> adjust(brightnessDelta = -ColorChannelStep)
+                        else -> false
+                    }
+                }
+                .colorPickerFocus()
                 .pointerInput(Unit) {
                     awaitEachGesture {
                         val down = awaitFirstDown()
@@ -239,8 +294,16 @@ private fun HuePicker(
     hue: Float,
     onHueChange: (Float) -> Unit,
 ) {
+    val latestOnHueChange by rememberUpdatedState(onHueChange)
+    val hueLabel = stringResource(R.string.color_picker_hue)
+    fun change(value: Float): Boolean {
+        val newHue = value.coerceIn(0f, MaxHue)
+        if (newHue == hue) return false
+        onHueChange(newHue)
+        return true
+    }
     val updateHue: (Offset, IntSize) -> Unit = { offset, size ->
-        onHueChange((offset.x / size.width).coerceIn(0f, 1f) * 359.999f)
+        latestOnHueChange((offset.x / size.width).coerceIn(0f, 1f) * MaxHue)
     }
 
     Canvas(
@@ -248,6 +311,20 @@ private fun HuePicker(
             Modifier
                 .fillMaxWidth()
                 .height(DesignTokens.MinTouchTarget)
+                .semantics {
+                    contentDescription = hueLabel
+                    progressBarRangeInfo = ProgressBarRangeInfo(hue, 0f..MaxHue)
+                    setProgress { change(it) }
+                }
+                .onKeyEvent { event ->
+                    if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
+                    when (event.key) {
+                        Key.DirectionRight, Key.DirectionUp -> change(hue + HueStep)
+                        Key.DirectionLeft, Key.DirectionDown -> change(hue - HueStep)
+                        else -> false
+                    }
+                }
+                .colorPickerFocus()
                 .pointerInput(Unit) {
                     awaitEachGesture {
                         val down = awaitFirstDown()
@@ -300,6 +377,24 @@ private fun HuePicker(
             cap = StrokeCap.Round,
         )
     }
+}
+
+private const val ColorChannelStep = 0.05f
+private const val MaxHue = 359.999f
+private const val HueStep = 10f
+
+@Composable
+private fun Modifier.colorPickerFocus(): Modifier {
+    var focused by remember { mutableStateOf(false) }
+    return onFocusChanged { focused = it.isFocused }
+        .then(
+            if (focused) {
+                Modifier.border(DesignTokens.BorderWidth, MaterialTheme.colorScheme.onSurface, AppShapes.medium)
+            } else {
+                Modifier
+            },
+        )
+        .focusable()
 }
 
 private fun Color.toHsv(): FloatArray =

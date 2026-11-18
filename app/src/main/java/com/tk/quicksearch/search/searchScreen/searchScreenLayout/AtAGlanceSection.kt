@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.wrapContentSize
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
@@ -366,8 +368,15 @@ internal fun AtAGlanceTitle(showWallpaperBackground: Boolean) {
         title = stringResource(R.string.settings_at_a_glance_title),
         showWallpaperBackground = showWallpaperBackground,
         modifier =
-            Modifier.clickable(enabled = openAppSettingDestination != null, role = Role.Button) {
-                openAppSettingDestination?.invoke(AppSettingsTarget.Page(SettingsDetailType.AT_A_GLANCE))
+            if (openAppSettingDestination == null) {
+                Modifier
+            } else {
+                Modifier.clickable(role = Role.Button) {
+                    openAppSettingDestination.invoke(AppSettingsTarget.Page(SettingsDetailType.AT_A_GLANCE))
+                }.sizeIn(
+                    minWidth = DesignTokens.MinTouchTarget,
+                    minHeight = DesignTokens.MinTouchTarget,
+                ).wrapContentSize(Alignment.CenterStart)
             },
     )
 }

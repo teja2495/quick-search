@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchBarStyle
+import com.tk.quicksearch.search.searchScreen.insetCardBackground
+import com.tk.quicksearch.shared.ui.components.AppPlainTooltip
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -71,60 +73,64 @@ internal fun SearchBarSettingsButton(
         if (transparentBackground) {
             Color.Transparent
         } else {
-            searchBarStyle.backgroundColor(AppColors.getSearchBarBackground(showWallpaperBackground))
+            insetCardBackground(true, searchBarStyle.backgroundColor(AppColors.getSearchBarBackground(showWallpaperBackground)), anywhere = true)
         }
     val showOutline =
         searchBarStyle.borderWidthDp > 0f &&
             !(lightWallpaperSearchBar && !forceRestingOutline && !searchBarStyle.hasCustomBorder)
 
-    Box(
-        modifier =
-            modifier
-                .size(SearchBarSettingsButtonSize)
-                .graphicsLayer {
-                    if (!isDarkTheme && !transparentBackground) {
-                        val elevation =
-                            if (lightWallpaperSearchBar) {
-                                DesignTokens.ElevationLevel5
-                            } else {
-                                DesignTokens.ElevationLevel4
-                            }
-                        shadowElevation = with(density) { elevation.toPx() }
-                        this.shape = shape
-                        ambientShadowColor = accentColor.copy(alpha = LightSearchBarShadowAmbientAlpha)
-                        spotShadowColor = accentColor.copy(alpha = LightSearchBarShadowSpotAlpha)
-                    }
-                }.then(
-                    if (showOutline) {
-                        Modifier.border(searchBarStyle.borderWidth(), searchBarStyle.borderColor(accentColor), shape)
-                    } else {
-                        Modifier
-                    },
-                ).clip(shape)
-                .background(background)
-                // Not AppIconButton: long-press opens device settings, which a tooltip would block.
-                .combinedClickable(
-                    hapticFeedbackEnabled = false,
-                    role = Role.Button,
-                    onLongClickLabel = stringResource(R.string.desc_open_device_settings),
-                    onLongClick = {
+    val settingsLabel = stringResource(R.string.desc_open_settings)
+    val iconTint = AppColors.getSearchBarSecondaryIconTint(showWallpaperBackground)
+        .readableOn(searchBarContrastBackground(searchBarStyle, showWallpaperBackground), 3f)
+    AppPlainTooltip(text = settingsLabel, modifier = modifier, preserveLongPress = true) {
+        Box(
+            modifier =
+                Modifier
+                    .size(SearchBarSettingsButtonSize)
+                    .graphicsLayer {
+                        if (!isDarkTheme && !transparentBackground) {
+                            val elevation =
+                                if (lightWallpaperSearchBar) {
+                                    DesignTokens.ElevationLevel5
+                                } else {
+                                    DesignTokens.ElevationLevel4
+                                }
+                            shadowElevation = with(density) { elevation.toPx() }
+                            this.shape = shape
+                            ambientShadowColor = accentColor.copy(alpha = LightSearchBarShadowAmbientAlpha)
+                            spotShadowColor = accentColor.copy(alpha = LightSearchBarShadowSpotAlpha)
+                        }
+                    }.then(
+                        if (showOutline) {
+                            Modifier.border(searchBarStyle.borderWidth(), searchBarStyle.borderColor(accentColor), shape)
+                        } else {
+                            Modifier
+                        },
+                    ).clip(shape)
+                    .background(background)
+                    .combinedClickable(
+                        hapticFeedbackEnabled = false,
+                        role = Role.Button,
+                        onLongClickLabel = stringResource(R.string.desc_open_device_settings),
+                        onLongClick = {
+                            hapticStrong(view)()
+                            openDeviceSettings(context)
+                        },
+                    ) {
                         hapticStrong(view)()
-                        openDeviceSettings(context)
+                        if (dismissKeyboardBeforeClick) {
+                            view.clearFocus()
+                            keyboardController?.hide()
+                        }
+                        onClick()
                     },
-                ) {
-                    hapticStrong(view)()
-                    if (dismissKeyboardBeforeClick) {
-                        view.clearFocus()
-                        keyboardController?.hide()
-                    }
-                    onClick()
-                },
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(
-            imageVector = MaterialSymbols.Settings,
-            contentDescription = stringResource(R.string.desc_open_settings),
-            tint = AppColors.getSearchBarSecondaryIconTint(showWallpaperBackground),
-        )
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = MaterialSymbols.Settings,
+                contentDescription = settingsLabel,
+                tint = iconTint,
+            )
+        }
     }
 }

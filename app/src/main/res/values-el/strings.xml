@@ -1132,6 +1132,13 @@
     <string name="voice_input_not_available">Η φωνητική πληκτρολόγηση δεν είναι διαθέσιμη αυτή τη στιγμή.</string>
     <string name="widget_background_color_custom_dialog_title">Προσαρμοσμένο χρώμα</string>
     <string name="color_picker_hex">Δεκαεξαδικό χρώμα (#RRGGBB)</string>
+    <string name="color_picker_hue">Απόχρωση</string>
+    <string name="color_picker_saturation">Κορεσμός</string>
+    <string name="color_picker_brightness">Φωτεινότητα</string>
+    <string name="color_picker_increase_saturation">Αύξηση κορεσμού</string>
+    <string name="color_picker_decrease_saturation">Μείωση κορεσμού</string>
+    <string name="color_picker_increase_brightness">Αύξηση φωτεινότητας</string>
+    <string name="color_picker_decrease_brightness">Μείωση φωτεινότητας</string>
     <string name="widget_border_color">Χρώμα περιγράμματος</string>
     <string name="widget_custom_button_add_desc">Προσθήκη προσαρμοσμένου κουμπιού</string>
     <string name="widget_custom_buttons_dialog_hint">Αναζητήστε Εφαρμογές, Συντομεύσεις, Επαφές, Αρχεία, Φακέλους, Σημειώσεις &amp; Ρυθμίσεις συσκευής.</string>

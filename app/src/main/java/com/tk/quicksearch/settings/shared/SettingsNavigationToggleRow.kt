@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.shared
 
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
@@ -24,6 +25,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -62,6 +65,10 @@ fun SettingsNavigationToggleRow(
     val view = LocalView.current
     val rowInteractionSource = remember { MutableInteractionSource() }
     val rowIndication = LocalIndication.current
+    val onToggle: (Boolean) -> Unit = { value ->
+        hapticToggleState(view, value)
+        onCheckedChange(value)
+    }
     // In a segmented tile: tonal icon badge, tile padding, and bodyMedium supporting text.
     val segmented = LocalInSegmentedTile.current
 
@@ -75,15 +82,21 @@ fun SettingsNavigationToggleRow(
                 Modifier
                     .fillMaxWidth()
                     .let { rowModifier ->
-                        if (onRowClick != null && enabled) {
+                        if (onRowClick == null) {
+                            rowModifier.toggleable(
+                                value = checked,
+                                enabled = enabled,
+                                role = Role.Switch,
+                                onValueChange = onToggle,
+                            )
+                        } else {
                             rowModifier.clickable(
+                                enabled = enabled,
                                 role = Role.Button,
                                 interactionSource = rowInteractionSource,
                                 indication = rowIndication,
                                 onClick = onRowClick,
                             )
-                        } else {
-                            rowModifier
                         }
                     }
                     .then(
@@ -170,10 +183,12 @@ fun SettingsNavigationToggleRow(
 
             AppSwitch(
                 checked = checked,
-                onCheckedChange = { enabled ->
-                    hapticToggleState(view, enabled)
-                    onCheckedChange(enabled)
+                modifier = if (onRowClick != null) {
+                    Modifier.semantics { contentDescription = title }
+                } else {
+                    Modifier
                 },
+                onCheckedChange = if (onRowClick != null) onToggle else null,
                 enabled = enabled,
             )
         }
