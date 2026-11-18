@@ -49,8 +49,7 @@ Title (and optional description) in `values/strings.xml` plus all 16 localized
   overlay hosts handle, or an `AppSettingsRouteAction` for UI owned by the search route.
   For a new route action, the exhaustive dispatch in `SearchRouteSettingActions.kt` requires
   its implementation.
-- **Configures a gesture.** The catalog derives these rows from `GestureSettingTarget`. See
-  `search/data/preferences/new-gesture.md`.
+- **Configures a gesture.** The catalog derives these rows from `GestureSettingTarget`.
 
 ## Toggles with side effects
 
