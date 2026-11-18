@@ -256,13 +256,8 @@ internal fun InsetSearchCard(
         Column(modifier = Modifier.fillMaxWidth()) {
             // The bar is drawn above the card here; keep its slot clear.
             Spacer(modifier = Modifier.height(overlap))
-            // Lined up with the bar's own edges.
-            val dividerInset =
-                InsetSearchBarGeometry.containerHorizontalExtension(fullBleedFraction) +
-                    InsetSearchBarGeometry.barHorizontalInset(fullBleedFraction) +
-                    DesignTokens.SpacingLarge
+            // Runs edge to edge across the card, like the full-bleed compact engine strip's hairline.
             HorizontalDivider(
-                modifier = Modifier.padding(horizontal = dividerInset),
                 thickness = DividerDefaults.Thickness,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintSubtleAlpha),
             )

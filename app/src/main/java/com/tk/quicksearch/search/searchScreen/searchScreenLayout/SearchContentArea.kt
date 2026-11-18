@@ -434,6 +434,8 @@ internal fun SearchContentArea(
                     Modifier
                 }
 
+            val expandRevealModifier =
+                rememberExpandRevealModifier(renderingState.expandedSection, isSearchHistoryExpanded)
             val roundExpandedViewport = LocalSearchCardLayoutEnabled.current &&
                 (renderingState.expandedSection != ExpandedSection.NONE || isSearchHistoryExpanded)
             Box {
@@ -510,7 +512,7 @@ internal fun SearchContentArea(
                     } else {
                         key(state.backgroundSource, state.showWallpaperBackground) {
                             ContentLayout(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().then(expandRevealModifier),
                                 state = state,
                                 renderingState = renderingState,
                                 contactsParams = contactsParams,
@@ -636,12 +638,26 @@ internal fun SearchContentArea(
                 }
             }
 
-            if (renderingState.expandedSection != ExpandedSection.NONE && !isSectionAliasMode) {
-                val bookmarksParams = LocalBookmarksSectionParams.current
+            // Keep the last expanded target while the pill fades out, so a late tap still collapses it.
+            val showCollapseButton =
+                !isSectionAliasMode &&
+                    (renderingState.expandedSection != ExpandedSection.NONE || isSearchHistoryExpanded)
+            var collapseTargetSection by remember { mutableStateOf(renderingState.expandedSection) }
+            if (showCollapseButton) collapseTargetSection = renderingState.expandedSection
+            val bookmarksParams = LocalBookmarksSectionParams.current
+            AnimatedCollapseButton(
+                visible = showCollapseButton,
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = footerBottomPadding),
+            ) {
                 CollapseButton(
                     showWallpaperBackground = state.showWallpaperBackground,
                     onClick = {
-                        when (renderingState.expandedSection) {
+                        when (collapseTargetSection) {
+                            ExpandedSection.NONE -> onSearchHistoryCollapseRequested()
+
                             ExpandedSection.FILES -> {
                                 filesParams.onExpandClick()
                             }
@@ -677,10 +693,6 @@ internal fun SearchContentArea(
                             ExpandedSection.BOOKMARKS -> bookmarksParams?.onExpandClick?.invoke()
                         }
                     },
-                    modifier =
-                        Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(bottom = footerBottomPadding),
                 )
             }
 
@@ -704,20 +716,6 @@ internal fun SearchContentArea(
                 )
             }
 
-            if (
-                renderingState.expandedSection == ExpandedSection.NONE &&
-                    !isSectionAliasMode &&
-                    isSearchHistoryExpanded
-            ) {
-                CollapseButton(
-                    showWallpaperBackground = state.showWallpaperBackground,
-                    onClick = onSearchHistoryCollapseRequested,
-                    modifier =
-                        Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(bottom = footerBottomPadding),
-                )
-            }
         }
     }
 }
