@@ -1,5 +1,7 @@
 package com.tk.quicksearch.customInfo
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,7 +30,6 @@ import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
-import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.components.AppTextButton
@@ -146,15 +146,15 @@ internal fun CustomRepeatDialog(
         title = { Text(stringResource(R.string.common_custom)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
-                OutlinedTextField(
+                AppOutlinedTextField(
                     value = intervalText,
                     onValueChange = { value -> intervalText = value.filter(Char::isDigit).take(3) },
-                    label = { Text(stringResource(R.string.custom_info_repeat_every)) },
+                    label = stringResource(R.string.custom_info_repeat_every),
                     singleLine = true,
                     isError = interval == null,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    colors = dialogTextFieldColors(),
                     modifier = Modifier.fillMaxWidth(),
+                    shape = AppShapes.extraSmall,
                 )
                 CustomInfoRepeatUnit.entries.forEach { option ->
                     Row(

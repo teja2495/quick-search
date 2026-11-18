@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.bookmarksSettings
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.graphics.BitmapFactory
@@ -319,7 +320,7 @@ private fun BookmarkIconPicker(
             val bytes = runCatching { Base64.decode(encoded, Base64.DEFAULT) }.getOrNull() ?: return@remember null
             BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
         }
-    // The edit badge sits in an unclipped outer box so it isn't cut off by the icon's circle.
+    // The edit badge (decorative) sits in an unclipped outer box so it isn't cut off by the icon's circle.
     Box(modifier = modifier.size(68.dp)) {
         Box(
             modifier =
@@ -327,7 +328,12 @@ private fun BookmarkIconPicker(
                     .size(64.dp)
                     .align(Alignment.Center)
                     .clip(AppShapes.full)
-                    .clickable(enabled = !isLoading, onClick = onClick),
+                    .clickable(
+                        enabled = !isLoading,
+                        onClickLabel = stringResource(R.string.settings_edit_label),
+                        role = Role.Button,
+                        onClick = onClick,
+                    ),
             contentAlignment = Alignment.Center,
         ) {
             when {
@@ -356,13 +362,13 @@ private fun BookmarkIconPicker(
                         .align(Alignment.BottomEnd)
                         .size(22.dp)
                         .clip(AppShapes.full)
-                        .background(AppColors.AccentTintEmphasis.compositeOver(AppColors.DialogBackground))
-                        .clickable(onClick = onClick),
+                        .background(AppColors.AccentTintEmphasis.compositeOver(AppColors.DialogBackground)),
                 contentAlignment = Alignment.Center,
             ) {
+                // Decorative: the 64dp icon button above is the touch target and carries the label.
                 Icon(
                     imageVector = MaterialSymbols.Edit,
-                    contentDescription = stringResource(R.string.settings_edit_label),
+                    contentDescription = null,
                     modifier = Modifier.size(13.dp),
                     tint = MaterialTheme.colorScheme.primary,
                 )

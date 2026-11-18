@@ -59,7 +59,6 @@ private val QuickActionIconSize = 16.dp
 
 /** Space above the number keyboard operator row, inside its band. */
 internal val NumberKeyboardOperatorRowTopPadding = 9.dp
-private val QuickActionButtonHeight = 32.dp
 private val QuickActionMinFontSize = 10.sp
 
 /** Container opacity of the search quick actions (50% transparent). */
@@ -85,10 +84,10 @@ private fun QuickActionButton(
     val interactionSource = remember { MutableInteractionSource() }
     val labelStyle = MaterialTheme.typography.labelLarge
     Surface(
-        modifier = modifier.height(QuickActionButtonHeight),
+        modifier = modifier.height(DesignTokens.ButtonHeightExtraSmall),
         onClick = onClick,
         interactionSource = interactionSource,
-        shape = pressMorphButtonShape(interactionSource, QuickActionButtonHeight, DesignTokens.ButtonPressedCornerSmall),
+        shape = pressMorphButtonShape(interactionSource, DesignTokens.ButtonHeightExtraSmall, DesignTokens.ButtonPressedCornerSmall),
         color =
             MaterialTheme.colorScheme.secondaryContainer.let { container ->
                 if (translucent) container.copy(alpha = container.alpha * QuickActionTranslucentAlpha) else container

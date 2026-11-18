@@ -67,8 +67,8 @@ internal fun MissedCallsRow(
     // GlanceStatusRow's layout, but with app chips the dismiss button stays beside the title rather than centered.
     Row(
         modifier =
-            Modifier.fillMaxWidth().heightIn(min = 52.dp).padding(
-                start = 7.dp,
+            Modifier.fillMaxWidth().heightIn(min = DesignTokens.GlanceRowMinHeight).padding(
+                start = DesignTokens.GlanceRowHorizontalPadding,
                 top = DesignTokens.SpacingMedium,
                 bottom = DesignTokens.SpacingMedium,
             ),

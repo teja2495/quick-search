@@ -1,7 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppExtendedFloatingActionButton
 import androidx.compose.foundation.layout.height
-import com.tk.quicksearch.shared.ui.theme.floatingActionShape
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -172,29 +171,16 @@ internal fun ToolsSettingsSection(
         )
 
         // Matches the new-item button in Calendar Events settings.
-        val createToolInteraction = remember { MutableInteractionSource() }
-        ExtendedFloatingActionButton(
+        AppExtendedFloatingActionButton(
                 onClick = {
                     if (hasApiKey) onCreateNewTool() else showApiKeyRequiredDialog = true
                 },
-                expanded = true,
+                text = stringResource(R.string.settings_create_new_tool_button),
+                icon = MaterialSymbols.Add,
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(top = DesignTokens.SpacingSmall)
-                        .height(DesignTokens.FloatingActionHeight),
-                shape = floatingActionShape(createToolInteraction),
-                containerColor = AppColors.Accent,
-                contentColor = AppColors.OnAccent,
-                interactionSource = createToolInteraction,
-                text = { Text(text = stringResource(R.string.settings_create_new_tool_button)) },
-                icon = {
-                    Icon(
-                            imageVector = MaterialSymbols.Add,
-                            contentDescription = null,
-                            modifier = Modifier.size(DesignTokens.ButtonIconSizeSmall),
-                    )
-                },
+                        .padding(top = DesignTokens.SpacingSmall),
         )
     }
 

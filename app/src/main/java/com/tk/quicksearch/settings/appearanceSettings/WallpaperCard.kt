@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.appearanceSettings
 
+import com.tk.quicksearch.shared.ui.components.SliderWithValue
 import android.graphics.PixelFormat
 import android.graphics.PorterDuff
 import android.os.Build
@@ -391,7 +392,8 @@ fun WallpaperCard(
                                             Modifier.size(20.dp)
                                                     .clip(AppShapes.full)
                                                     .background(AppColors.CustomImageEditButtonBackground)
-                                                    .clickable {
+                                                    // Compose expands this small target to the 48dp minimum at hit-test time.
+                                                    .clickable(role = Role.Button) {
                                                         hapticToggle(view)()
                                                         onPickCustomImage()
                                                     },
@@ -412,7 +414,8 @@ fun WallpaperCard(
                                             Modifier.size(20.dp)
                                                     .clip(AppShapes.full)
                                                     .background(AppColors.CustomImageEditButtonBackground)
-                                                    .clickable {
+                                                    // Compose expands this small target to the 48dp minimum at hit-test time.
+                                                    .clickable(role = Role.Button) {
                                                         hapticToggle(view)()
                                                         if (isCustomSourceSelected) {
                                                             onSetBackgroundSource(
@@ -460,10 +463,18 @@ fun WallpaperCard(
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurface,
                 )
-                Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
-                ) {
+                SliderWithValue(
+                        valueSpacing = DesignTokens.SpacingLarge,
+                        valueLabel = {
+                                Text(
+                                        text = "${(wallpaperAlphaDisplayValue * 100).toInt()}%",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textAlign = TextAlign.End,
+                                        modifier = Modifier.widthIn(min = 48.dp),
+                                )
+                        },
+                ) { sliderModifier ->
                     Slider(
                             value = wallpaperAlphaDisplayValue,
                             onValueChange = { value ->
@@ -476,14 +487,7 @@ fun WallpaperCard(
                             },
                             valueRange = 0f..1f,
                             steps = 9,
-                            modifier = Modifier.weight(1f),
-                    )
-                    Text(
-                            text = "${(wallpaperAlphaDisplayValue * 100).toInt()}%",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.End,
-                            modifier = Modifier.widthIn(min = 48.dp),
+                            modifier = sliderModifier,
                     )
                 }
 
@@ -493,10 +497,19 @@ fun WallpaperCard(
                             style = MaterialTheme.typography.titleSmall,
                             color = MaterialTheme.colorScheme.onSurface,
                     )
-                    Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
-                    ) {
+                    SliderWithValue(
+                            valueSpacing = DesignTokens.SpacingLarge,
+                            valueLabel = {
+                                    Text(
+                                            text =
+                                                    "${((wallpaperBlurRadius / UiPreferences.MAX_WALLPAPER_BLUR_RADIUS) * 100).toInt()}%",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            textAlign = TextAlign.End,
+                                            modifier = Modifier.widthIn(min = 48.dp),
+                                    )
+                            },
+                    ) { sliderModifier ->
                         Slider(
                                 value = wallpaperBlurRadius,
                                 onValueChange = { value ->
@@ -512,15 +525,7 @@ fun WallpaperCard(
                                 },
                                 valueRange = 0f..UiPreferences.MAX_WALLPAPER_BLUR_RADIUS,
                                 steps = 7,
-                                modifier = Modifier.weight(1f),
-                        )
-                        Text(
-                                text =
-                                        "${((wallpaperBlurRadius / UiPreferences.MAX_WALLPAPER_BLUR_RADIUS) * 100).toInt()}%",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                textAlign = TextAlign.End,
-                                modifier = Modifier.widthIn(min = 48.dp),
+                                modifier = sliderModifier,
                         )
                     }
                 }

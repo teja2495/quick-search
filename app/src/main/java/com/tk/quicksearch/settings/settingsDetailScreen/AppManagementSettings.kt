@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppFabTone
+import com.tk.quicksearch.shared.ui.components.AppExtendedFloatingActionButton
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import androidx.annotation.StringRes
 import androidx.activity.compose.BackHandler
@@ -22,7 +24,6 @@ import androidx.compose.material3.FilledTonalIconButton
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.TonalButton
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.floatingActionShape
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -34,7 +35,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -120,7 +120,6 @@ fun AppManagementSettingsSection(
     var batchUninstallInProgress by remember { mutableStateOf(false) }
     var selectedAppForDetails by remember { mutableStateOf<AppInfo?>(null) }
     val listState = rememberLazyListState()
-    val uninstallInteraction = remember { MutableInteractionSource() }
     val appByKey = remember(apps) { apps.associateBy { it.launchCountKey() } }
     val availableSortOptions =
         remember(hasUsagePermission) {
@@ -342,7 +341,7 @@ fun AppManagementSettingsSection(
             }
 
             if (selectedCount > 0) {
-                ExtendedFloatingActionButton(
+                AppExtendedFloatingActionButton(
                     onClick = {
                         val queuedApps = sortedApps.orEmpty().filter { it.launchCountKey() in selectedAppKeys }
                         val startUninstallQueue = {
@@ -369,30 +368,17 @@ fun AppManagementSettingsSection(
                             )
                         }
                     },
+                    text =
+                        stringResource(
+                            R.string.settings_app_uninstall_selected_format,
+                            selectedCount,
+                        ),
+                    icon = MaterialSymbols.Delete,
                     modifier =
                         Modifier
                             .align(Alignment.BottomCenter)
-                            .padding(DesignTokens.SpacingLarge)
-                            .height(DesignTokens.FloatingActionHeight),
-                    shape = floatingActionShape(uninstallInteraction),
-                    interactionSource = uninstallInteraction,
-                    containerColor = MaterialTheme.colorScheme.error,
-                    contentColor = MaterialTheme.colorScheme.onError,
-                    icon = {
-                        Icon(
-                            imageVector = MaterialSymbols.Delete,
-                            contentDescription = null,
-                        )
-                    },
-                    text = {
-                        Text(
-                            text =
-                                stringResource(
-                                    R.string.settings_app_uninstall_selected_format,
-                                    selectedCount,
-                                ),
-                        )
-                    },
+                            .padding(DesignTokens.SpacingLarge),
+                    tone = AppFabTone.Error,
                 )
             }
         }

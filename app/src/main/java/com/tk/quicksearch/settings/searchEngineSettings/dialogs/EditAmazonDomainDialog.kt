@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.searchEngineSettings.dialogs
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,10 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -94,7 +94,7 @@ fun EditAmazonDomainDialog(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                TextField(
+                AppOutlinedTextField(
                     value = editingDomain,
                     onValueChange = {
                         val newText = it.text.replace(" ", "")
@@ -123,7 +123,8 @@ fun EditAmazonDomainDialog(
                                 }
                             },
                         ),
-                    colors = dialogTextFieldColors(),
+                    label = null,
+                    shape = AppShapes.extraSmall,
                 )
                 if (!isValid && normalizedDomain.isNotBlank() && normalizedDomain != defaultDomain) {
                     Text(

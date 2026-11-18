@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.customButtonsWidget
 
+import com.tk.quicksearch.shared.ui.components.AppFilterChip
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Base64
@@ -52,8 +53,6 @@ import androidx.compose.ui.zIndex
 import androidx.annotation.StringRes
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRowSpacing
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerMessage
@@ -264,23 +263,11 @@ private fun CustomWidgetResultFilterChips(
     ) {
         items(CustomWidgetResultFilter.entries) { filter ->
             val selected = filter == selectedFilter
-            FilterChip(
+            AppFilterChip(
                 selected = selected,
                 onClick = { onFilterSelected(filter) },
-                label = { Text(text = stringResource(filter.labelRes)) },
-                shape = AppShapes.full,
-                border =
-                    FilterChipDefaults.filterChipBorder(
-                        enabled = true,
-                        selected = selected,
-                        borderColor = AppColors.SettingsDivider,
-                        selectedBorderColor = Color.Transparent,
-                    ),
-                colors =
-                    FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = AppColors.Accent,
-                        selectedLabelColor = AppColors.OnAccent,
-                    ),
+                label = stringResource(filter.labelRes),
+                unselectedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

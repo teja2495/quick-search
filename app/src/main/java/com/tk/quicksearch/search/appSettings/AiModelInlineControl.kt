@@ -1,11 +1,11 @@
 package com.tk.quicksearch.search.appSettings
 
+import com.tk.quicksearch.shared.ui.components.AppFilterChipStyle
+import com.tk.quicksearch.shared.ui.components.AppFilterChip
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -113,34 +113,14 @@ private fun CompactCheckChip(
     onCheckedChange: (Boolean) -> Unit,
 ) {
     val view = LocalView.current
-    FilterChip(
+    AppFilterChip(
         selected = checked,
         onClick = {
             hapticToggle(view)()
             onCheckedChange(!checked)
         },
-        label = { Text(label) },
-        leadingIcon =
-            if (checked) {
-                {
-                    Icon(
-                        imageVector = MaterialSymbols.Check,
-                        contentDescription = null,
-                        modifier = Modifier.size(FilterChipDefaults.IconSize),
-                    )
-                }
-            } else {
-                null
-            },
-        shape = AppShapes.full,
-        colors =
-            FilterChipDefaults.filterChipColors(
-                containerColor = AppColors.AccentTintTonal,
-                labelColor = MaterialTheme.colorScheme.onSurface,
-                selectedContainerColor = AppColors.Accent,
-                selectedLabelColor = AppColors.OnAccent,
-                selectedLeadingIconColor = AppColors.OnAccent,
-            ),
-        border = null,
+        label = label,
+        style = AppFilterChipStyle.Tonal,
+        showSelectedCheck = true,
     )
 }

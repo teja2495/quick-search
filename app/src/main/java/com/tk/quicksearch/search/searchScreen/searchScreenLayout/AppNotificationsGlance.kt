@@ -154,7 +154,7 @@ internal fun ShowMoreAppNotificationsRow(glance: AppNotificationsGlance) {
                 .fillMaxWidth()
                 .heightIn(min = 44.dp)
                 .clickable(role = Role.Button, onClick = glance.expand)
-                .padding(horizontal = 7.dp, vertical = DesignTokens.SpacingSmall),
+                .padding(horizontal = DesignTokens.GlanceRowHorizontalPadding, vertical = DesignTokens.SpacingSmall),
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
     ) {

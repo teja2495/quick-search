@@ -1,7 +1,9 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppFabTone
+import com.tk.quicksearch.shared.ui.components.AppExtendedFloatingActionButton
+import com.tk.quicksearch.shared.ui.components.AppFloatingActionButton
 import com.tk.quicksearch.shared.ui.theme.AppShapes
-import com.tk.quicksearch.shared.ui.theme.floatingActionShape
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.layout.height
@@ -35,8 +37,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -452,9 +452,6 @@ fun CalendarEventsBottomBar(
 ) {
     val searchFocusRequester = remember { FocusRequester() }
     var isSearchExpanded by remember { mutableStateOf(false) }
-    val searchInteraction = remember { MutableInteractionSource() }
-    val newItemInteraction = remember { MutableInteractionSource() }
-    val newItemShape = floatingActionShape(newItemInteraction)
 
     LaunchedEffect(isSearchExpanded) {
         if (isSearchExpanded) {
@@ -482,54 +479,26 @@ fun CalendarEventsBottomBar(
                 focusRequester = searchFocusRequester,
             )
             if (showNewItem) {
-                FloatingActionButton(
+                AppFloatingActionButton(
                     onClick = onNewEvent,
-                    modifier = Modifier.size(DesignTokens.FloatingActionHeight),
-                    shape = newItemShape,
-                    containerColor = AppColors.Accent,
-                    contentColor = AppColors.OnAccent,
-                    interactionSource = newItemInteraction,
-                ) {
-                    Icon(
-                        imageVector = MaterialSymbols.Add,
-                        contentDescription = stringResource(newItemLabelResId),
-                        modifier = Modifier.size(DesignTokens.IconSize),
-                    )
-                }
+                    icon = MaterialSymbols.Add,
+                    contentDescription = stringResource(newItemLabelResId),
+                )
             }
         } else {
             // Same height and round shape as the new-item button beside it, in the accent's tonal tint.
-            FloatingActionButton(
+            AppFloatingActionButton(
                 onClick = { isSearchExpanded = true },
-                modifier = Modifier.size(DesignTokens.FloatingActionHeight),
-                shape = floatingActionShape(searchInteraction),
-                containerColor = AppColors.FloatingTonalContainer,
-                contentColor = AppColors.Accent,
-                interactionSource = searchInteraction,
-            ) {
-                Icon(
-                    imageVector = MaterialSymbols.Search,
-                    contentDescription = stringResource(R.string.common_search),
-                    modifier = Modifier.size(22.dp),
-                )
-            }
+                icon = MaterialSymbols.Search,
+                contentDescription = stringResource(R.string.common_search),
+                tone = AppFabTone.Tonal,
+            )
             if (showNewItem) {
-                ExtendedFloatingActionButton(
+                AppExtendedFloatingActionButton(
                     onClick = onNewEvent,
-                    expanded = true,
-                    modifier = Modifier.weight(1f).height(DesignTokens.FloatingActionHeight),
-                    shape = newItemShape,
-                    containerColor = AppColors.Accent,
-                    contentColor = AppColors.OnAccent,
-                    interactionSource = newItemInteraction,
-                    text = { Text(text = stringResource(newItemLabelResId)) },
-                    icon = {
-                        Icon(
-                            imageVector = MaterialSymbols.Add,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp),
-                        )
-                    },
+                    text = stringResource(newItemLabelResId),
+                    icon = MaterialSymbols.Add,
+                    modifier = Modifier.weight(1f),
                 )
             }
         }

@@ -1,6 +1,7 @@
 package com.tk.quicksearch.widgets.countdownWidget
 
-import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
+import com.tk.quicksearch.shared.ui.components.AppFilterChip
+import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,10 +19,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
@@ -101,15 +100,14 @@ fun CountdownWidgetConfigScreen(
                         count = 2,
                     )
                     WidgetSettingTile(index = 1, count = 2) {
-                        OutlinedTextField(
+                        AppOutlinedTextField(
                             value = config.title,
                             onValueChange = {
                                 onConfigChange(config.copy(title = it.take(CountdownWidgetDefaults.TITLE_MAX_LENGTH)))
                             },
-                            label = { Text(stringResource(R.string.notes_title_hint)) },
+                            label = stringResource(R.string.notes_title_hint),
                             singleLine = true,
                             shape = AppShapes.large,
-                            colors = dialogTextFieldColors(),
                             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                             modifier = Modifier.fillMaxWidth(),
                         )
@@ -244,23 +242,12 @@ private fun CountdownFormatSection(
         ) {
             formats.forEach { format ->
                 val selected = config.format == format
-                FilterChip(
+                AppFilterChip(
                     selected = selected,
                     onClick = { onConfigChange(config.copy(format = format)) },
-                    label = { Text(stringResource(format.labelResId)) },
-                    leadingIcon =
-                        if (selected) {
-                            { Icon(MaterialSymbols.Check, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
-                        } else {
-                            null
-                        },
-                    shape = AppShapes.full,
-                    colors =
-                        FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = AppColors.Accent,
-                            selectedLabelColor = AppColors.OnAccent,
-                            selectedLeadingIconColor = AppColors.OnAccent,
-                        ),
+                    label = stringResource(format.labelResId),
+                    unselectedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    showSelectedCheck = true,
                 )
             }
         }

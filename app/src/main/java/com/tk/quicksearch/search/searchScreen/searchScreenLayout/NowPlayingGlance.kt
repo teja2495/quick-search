@@ -82,7 +82,7 @@ private val NowPlayingPlayPauseCircleSize = NowPlayingProminentCircleSize
 private val NowPlayingPlayPauseIconSize = NowPlayingControlIconSize
 private val NowPlayingDismissButtonSize = 28.dp
 private val NowPlayingSecondaryControlIconSize = 18.dp
-private val NowPlayingRowStartPadding = 7.dp
+private val NowPlayingRowStartPadding = DesignTokens.GlanceRowHorizontalPadding
 
 /** How far the title/controls column starts from the card content's start edge. */
 private val NowPlayingColumnLeadingOffset = NowPlayingRowStartPadding + NowPlayingAlbumArtSize + DesignTokens.SpacingMedium

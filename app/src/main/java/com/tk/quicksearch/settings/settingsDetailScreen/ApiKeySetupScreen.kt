@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.Intent
 import android.net.Uri
@@ -20,7 +21,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,7 +50,6 @@ import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
 import com.tk.quicksearch.shared.ui.components.TonalButton
 import com.tk.quicksearch.shared.ui.components.TipBanner
-import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.readText
@@ -295,16 +294,13 @@ private fun AddCustomProviderTile(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    OutlinedTextField(
+                    AppOutlinedTextField(
                         value = baseUrlInput,
                         onValueChange = { baseUrlInput = it },
                         modifier = Modifier.fillMaxWidth(),
-                        label = {
-                            Text(text = stringResource(R.string.settings_custom_provider_base_url_input_label))
-                        },
+                        label = stringResource(R.string.settings_custom_provider_base_url_input_label),
                         singleLine = true,
                         shape = AppShapes.large,
-                        colors = dialogTextFieldColors(),
                     )
                     if (apiKeyInput.isEmpty()) {
                         TonalButton(
@@ -315,7 +311,7 @@ private fun AddCustomProviderTile(
                             modifier = Modifier.fillMaxWidth(),
                         )
                     } else {
-                        OutlinedTextField(
+                        AppOutlinedTextField(
                             value = apiKeyInput,
                             onValueChange = {},
                             readOnly = true,
@@ -330,7 +326,7 @@ private fun AddCustomProviderTile(
                                 }
                             },
                             shape = AppShapes.large,
-                            colors = dialogTextFieldColors(),
+                            label = null,
                         )
                     }
                     ApiKeySaveActions(

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.appNotifications
 
+import com.tk.quicksearch.shared.ui.components.AppExtendedFloatingActionButton
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -25,7 +26,6 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -59,7 +59,6 @@ import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailHeader
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
-import com.tk.quicksearch.shared.ui.theme.floatingActionShape
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -197,29 +196,16 @@ private fun AppNotificationsScreen(
         },
         bottomBar = {
             // Matches the Add button in the At a Glance bottom bar.
-            val addInteraction = remember { MutableInteractionSource() }
-            ExtendedFloatingActionButton(
+            AppExtendedFloatingActionButton(
                 onClick = {
                     viewModel.loadInstalledApps()
                     showAppPicker = true
                 },
-                expanded = true,
+                text = stringResource(R.string.app_notifications_add_app),
+                icon = MaterialSymbols.Add,
                 modifier = Modifier.fillMaxWidth()
                     .padding(horizontal = DesignTokens.ContentHorizontalPadding)
-                    .padding(bottom = DesignTokens.SpacingLarge)
-                    .height(DesignTokens.FloatingActionHeight),
-                shape = floatingActionShape(addInteraction),
-                containerColor = AppColors.Accent,
-                contentColor = AppColors.OnAccent,
-                interactionSource = addInteraction,
-                text = { Text(text = stringResource(R.string.app_notifications_add_app)) },
-                icon = {
-                    Icon(
-                        imageVector = MaterialSymbols.Add,
-                        contentDescription = null,
-                        modifier = Modifier.size(AddAppIconSize),
-                    )
-                },
+                    .padding(bottom = DesignTokens.SpacingLarge),
             )
         },
     ) { padding ->
@@ -371,5 +357,3 @@ private fun SourceRow(
         }
     }
 }
-
-private val AddAppIconSize = 18.dp

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.worldClockWidget
 
+import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
@@ -11,12 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
-import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -215,14 +214,15 @@ private fun RenameLocationDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.widget_world_clock_edit_name)) },
         text = {
-            OutlinedTextField(
+            AppOutlinedTextField(
                 value = text,
                 onValueChange = { text = it.take(WorldClockWidgetDefaults.LABEL_MAX_LENGTH) },
                 placeholder = { Text(currentName) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
-                colors = dialogTextFieldColors(),
                 modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                label = null,
+                shape = AppShapes.extraSmall,
             )
         },
         confirmButton = {

@@ -93,7 +93,7 @@ internal fun NoResultsMessage(state: SearchUiState) {
             Text(
                 text = stringResource(R.string.no_results_found),
                 style = MaterialTheme.typography.bodyMedium,
-                color = AppColors.wallpaperAwareMutedSearchForeground(alpha = 0.6f),
+                color = AppColors.wallpaperAwareMutedSearchForeground(alpha = AppColors.ContentSecondaryAlpha),
                 textAlign = TextAlign.Center,
                 modifier =
                     Modifier.padding(

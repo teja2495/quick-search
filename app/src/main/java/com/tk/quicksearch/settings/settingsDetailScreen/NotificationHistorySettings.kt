@@ -345,7 +345,8 @@ private fun NotificationHistoryRow(
                                     .size(DesignTokens.IconSizeSmall)
                                     .rotate(chevronRotation)
                                     .clip(AppShapes.full)
-                                    .clickable { expanded = !expanded },
+                                    // Small visual; Compose expands the hit area to the 48dp minimum.
+                                    .clickable(role = Role.Button) { expanded = !expanded },
                         )
                     }
                 }

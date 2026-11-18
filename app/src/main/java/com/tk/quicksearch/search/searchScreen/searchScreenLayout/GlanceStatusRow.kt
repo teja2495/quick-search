@@ -111,8 +111,8 @@ internal fun GlanceStatusRow(
     Row(
         modifier =
             Modifier.fillMaxWidth().heightIn(min = GlanceRowMinHeight).padding(
-                start = 7.dp,
-                end = if (onDismiss == null) 7.dp else 0.dp,
+                start = DesignTokens.GlanceRowHorizontalPadding,
+                end = if (onDismiss == null) DesignTokens.GlanceRowHorizontalPadding else 0.dp,
                 top = DesignTokens.SpacingMedium,
                 bottom = DesignTokens.SpacingMedium,
             ),

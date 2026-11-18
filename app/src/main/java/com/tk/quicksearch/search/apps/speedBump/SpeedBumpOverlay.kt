@@ -498,7 +498,7 @@ private fun BreathingRing(
             style = stroke,
         )
         drawArc(
-            color = ringColor.copy(alpha = 0.6f + 0.4f * breathAmount()),
+            color = ringColor.copy(alpha = AppColors.ContentSecondaryAlpha + (1f - AppColors.ContentSecondaryAlpha) * breathAmount()),
             startAngle = -90f,
             sweepAngle = 360f * progress(),
             useCenter = false,

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,7 +45,6 @@ import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
 import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.settings.shared.ModelFeatureSettingsCard
-import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -230,7 +229,7 @@ fun AdvancedPayloadSettingsSection(
                 if (enabledInput) {
                         SegmentedTile(index = 1, count = 2) {
                                 SegmentedTileContent {
-                                        OutlinedTextField(
+                                        AppOutlinedTextField(
                                                 value = payloadInput,
                                                 onValueChange = { next ->
                                                         payloadInput = next
@@ -263,10 +262,10 @@ fun AdvancedPayloadSettingsSection(
                                                         },
                                                 isError = hasJsonError,
                                                 shape = AppShapes.large,
-                                                colors = dialogTextFieldColors(),
                                                 singleLine = false,
                                                 minLines = 4,
                                                 maxLines = 8,
+                                            label = null,
                                         )
                                 }
                         }
@@ -356,7 +355,7 @@ private fun PersonalContextCard(
                                                         // Dimmed to match the quick note's hint.
                                                         color =
                                                                 MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                                                                        alpha = 0.6f * textAlpha,
+                                                                        alpha = AppColors.ContentSecondaryAlpha * textAlpha,
                                                                 ),
                                                 )
                                         }

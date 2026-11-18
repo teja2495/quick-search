@@ -132,7 +132,7 @@ fun BrowserPickerField(
                 contentDescription = null,
                 tint = if (expanded) accentColor else onSurfaceVariant,
                 modifier = Modifier
-                    .size(18.dp)
+                    .size(DesignTokens.ButtonIconSizeSmall)
                     .rotate(chevronAngle),
             )
         }

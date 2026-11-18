@@ -19,7 +19,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
+import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.ui.draw.rotate
 import androidx.compose.foundation.selection.toggleable
@@ -27,7 +27,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -206,19 +205,24 @@ fun EditCustomShortcutDialog(
                             )
                         }
                     }
-                    OutlinedTextField(
+                    AppOutlinedTextField(
                         value = shortcutName,
                         onValueChange = { shortcutName = it },
                         modifier = Modifier.weight(1f),
-                        singleLine = true,
-                        maxLines = 1,
                         isError = !canSave,
-                        label = { Text(stringResource(R.string.settings_app_shortcuts_shortcut_name_label)) },
-                        colors = dialogTextFieldColors(),
+                        label = stringResource(R.string.settings_app_shortcuts_shortcut_name_label),
+                        shape = AppShapes.extraSmall,
                     )
                 }
                 editableConfiguredValue?.let { editableValue ->
-                    OutlinedTextField(
+                    val labelResId =
+                        when (editableValue.kind) {
+                            EditableShortcutValueKind.QUERY -> R.string.settings_app_shortcuts_query_label
+                            EditableShortcutValueKind.URL -> R.string.settings_app_shortcuts_url_label
+                            EditableShortcutValueKind.DEEP_LINK ->
+                                R.string.settings_app_shortcuts_deep_link_label
+                        }
+                    AppOutlinedTextField(
                         value = shortcutValue,
                         onValueChange = {
                             shortcutValue =
@@ -233,17 +237,8 @@ fun EditCustomShortcutDialog(
                         singleLine = editableValue.kind != EditableShortcutValueKind.QUERY,
                         maxLines = if (editableValue.kind == EditableShortcutValueKind.QUERY) 3 else 1,
                         isError = trimmedValue.isBlank(),
-                        label = {
-                            val labelResId =
-                                when (editableValue.kind) {
-                                    EditableShortcutValueKind.QUERY -> R.string.settings_app_shortcuts_query_label
-                                    EditableShortcutValueKind.URL -> R.string.settings_app_shortcuts_url_label
-                                    EditableShortcutValueKind.DEEP_LINK ->
-                                        R.string.settings_app_shortcuts_deep_link_label
-                                }
-                            Text(stringResource(labelResId))
-                        },
-                        colors = dialogTextFieldColors(),
+                        label = stringResource(labelResId),
+                        shape = AppShapes.extraSmall,
                     )
                 }
             }

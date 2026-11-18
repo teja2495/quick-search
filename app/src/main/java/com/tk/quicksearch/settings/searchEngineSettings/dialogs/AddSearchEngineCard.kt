@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.searchEngineSettings.dialogs
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -27,7 +29,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -61,7 +62,6 @@ import com.tk.quicksearch.searchEngines.inferCustomSearchEngineName
 import com.tk.quicksearch.searchEngines.IN_APP_BROWSER_PACKAGE
 import com.tk.quicksearch.searchEngines.loadCustomIconAsBase64
 import com.tk.quicksearch.searchEngines.validateCustomSearchTemplate
-import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -278,20 +278,18 @@ private fun AddSearchEngineForm(
                                 onClick = { pickIconLauncher.launch(arrayOf("image/*")) },
                             )
                             if (isEditingName) {
-                                TextField(
+                                AppOutlinedTextField(
                                     value = nameInput,
                                     onValueChange = { nameInput = it },
                                     modifier =
                                         Modifier
                                             .weight(1f)
                                             .focusRequester(nameFocusRequester),
-                                    label = {
-                                        Text(text = stringResource(R.string.settings_app_sort_name))
-                                    },
+                                    label = stringResource(R.string.settings_app_sort_name),
                                     singleLine = true,
                                     maxLines = 1,
                                     isError = !isNameValid,
-                                    colors = dialogTextFieldColors(),
+                                    shape = AppShapes.extraSmall,
                                 )
                             } else {
                                 Text(
@@ -308,7 +306,7 @@ private fun AddSearchEngineForm(
                         }
                     }
 
-                    TextField(
+                    AppOutlinedTextField(
                         value = urlInput,
                         onValueChange = { newValue -> urlInput = newValue.withoutWhitespaces() },
                         modifier =
@@ -330,7 +328,7 @@ private fun AddSearchEngineForm(
                                     }
                                 },
                             ),
-                        label = { Text(text = stringResource(R.string.settings_app_shortcuts_url_label)) },
+                        label = stringResource(R.string.settings_app_shortcuts_url_label),
                         supportingText =
                             if (showValidationError) {
                                 {
@@ -399,7 +397,7 @@ private fun AddSearchEngineForm(
                             } else {
                                 null
                             },
-                        colors = dialogTextFieldColors(),
+                        shape = AppShapes.extraSmall,
                     )
 
                     if (validTemplate != null) {

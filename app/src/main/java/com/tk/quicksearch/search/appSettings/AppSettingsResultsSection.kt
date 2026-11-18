@@ -276,7 +276,7 @@ internal fun AppSettingResultRow(
     ) {
         Box(
             modifier = Modifier.size(ICON_SIZE.dp).padding(start = DesignTokens.SpacingXSmall)
-                .then(if (isBlockedByLauncher) Modifier.alpha(0.5f) else Modifier),
+                .then(if (isBlockedByLauncher) Modifier.alpha(AppColors.ContentMutedAlpha) else Modifier),
         ) {
             appIconResult.bitmap?.let { iconBitmap ->
                 Image(

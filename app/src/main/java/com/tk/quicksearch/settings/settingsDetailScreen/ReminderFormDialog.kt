@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,7 +19,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -41,7 +42,6 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
-import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -196,7 +196,7 @@ internal fun ReminderFormDialog(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
-                        if (showTitleInput) OutlinedTextField(
+                        if (showTitleInput) AppOutlinedTextField(
                             value = reminderTitle,
                             onValueChange = { value ->
                                 reminderTitle = value
@@ -214,13 +214,13 @@ internal fun ReminderFormDialog(
                                     }
                                 }
                             },
-                            label = { Text(stringResource(nameHintResId)) },
+                            label = stringResource(nameHintResId),
                             singleLine = titleMaxLines == 1,
                             maxLines = titleMaxLines,
                             keyboardOptions = KeyboardOptions(capitalization = titleKeyboardCapitalization),
                             visualTransformation = titleVisualTransformation,
-                            colors = dialogTextFieldColors(),
                             modifier = Modifier.fillMaxWidth().focusRequester(titleFocusRequester),
+                            shape = AppShapes.extraSmall,
                         )
 
                         PickerFieldButton(

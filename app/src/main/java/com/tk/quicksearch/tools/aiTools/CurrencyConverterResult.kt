@@ -176,7 +176,7 @@ internal fun SearchOnGoogleButton(
         Icon(
                 painter = painterResource(R.drawable.google),
                 contentDescription = null,
-                modifier = Modifier.size(18.dp),
+                modifier = Modifier.size(DesignTokens.ButtonIconSizeSmall),
                 tint = Color.Unspecified,
         )
         Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))

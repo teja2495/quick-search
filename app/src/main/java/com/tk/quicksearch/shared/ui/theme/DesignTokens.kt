@@ -116,6 +116,12 @@ object DesignTokens {
     /** Extra large icon size - 52dp App icons in grid. (52/4 = 13). Fits grid. */
     val IconSizeXLarge = 52.dp
 
+    /** Minimum height of an At a Glance row on Home. */
+    val GlanceRowMinHeight = 52.dp
+
+    /** Horizontal inset of an At a Glance row; every glance row shares it so they line up (off-grid). */
+    val GlanceRowHorizontalPadding = 7.dp
+
     /** App icon container size - 64dp */
     val AppIconSize = 64.dp
 

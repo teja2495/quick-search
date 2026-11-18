@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppFabTone
+import com.tk.quicksearch.shared.ui.components.AppExtendedFloatingActionButton
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -16,7 +18,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -48,7 +49,6 @@ import com.tk.quicksearch.search.notes.NotesTextUtils
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.settings.shared.SettingsIconBadge
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.floatingActionShape
 import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import kotlinx.coroutines.Dispatchers
@@ -68,7 +68,6 @@ fun NotesSettingsBottomBar(
 ) {
     if (multiSelectActive) {
         val deleteEnabled = selectedNoteCount > 0
-        val interactionSource = remember { MutableInteractionSource() }
         Row(
             modifier = modifier
                 .fillMaxWidth()
@@ -78,23 +77,13 @@ fun NotesSettingsBottomBar(
                     vertical = DesignTokens.SpacingMedium,
                 ),
         ) {
-            ExtendedFloatingActionButton(
-                onClick = { if (deleteEnabled) onDeleteSelected() },
-                expanded = true,
-                modifier = Modifier.fillMaxWidth().height(DesignTokens.FloatingActionHeight)
-                    .alpha(if (deleteEnabled) 1f else 0.38f),
-                shape = floatingActionShape(interactionSource),
-                interactionSource = interactionSource,
-                containerColor = MaterialTheme.colorScheme.error,
-                contentColor = MaterialTheme.colorScheme.onError,
-                text = { Text(text = stringResource(R.string.dialog_delete)) },
-                icon = {
-                    Icon(
-                        imageVector = MaterialSymbols.Delete,
-                        contentDescription = stringResource(R.string.notes_delete_note_desc),
-                        modifier = Modifier.size(DesignTokens.IconSizeSmall),
-                    )
-                },
+            AppExtendedFloatingActionButton(
+                onClick = onDeleteSelected,
+                text = stringResource(R.string.dialog_delete),
+                icon = MaterialSymbols.Delete,
+                modifier = Modifier.fillMaxWidth(),
+                tone = AppFabTone.Error,
+                enabled = deleteEnabled,
             )
         }
     } else {

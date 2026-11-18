@@ -304,9 +304,9 @@ internal fun LowBatteryRow(glance: LowBatteryGlance) {
         )
 
     Row(
-        modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).padding(
-            start = 7.dp,
-            end = 7.dp,
+        modifier = Modifier.fillMaxWidth().heightIn(min = DesignTokens.GlanceRowMinHeight).padding(
+            start = DesignTokens.GlanceRowHorizontalPadding,
+            end = DesignTokens.GlanceRowHorizontalPadding,
             top = DesignTokens.SpacingMedium,
             bottom = DesignTokens.SpacingMedium,
         ),

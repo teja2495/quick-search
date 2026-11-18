@@ -1,6 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
-import com.tk.quicksearch.shared.ui.theme.floatingActionShape
+import com.tk.quicksearch.shared.ui.components.AppFabTone
+import com.tk.quicksearch.shared.ui.components.AppFloatingActionButton
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import android.Manifest
 import android.content.pm.PackageManager
@@ -20,7 +21,6 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -647,25 +647,16 @@ internal fun SettingsDetailLevel1Screen(
         }
 
         if (detailType == SettingsDetailType.FEATURES_LIST && scrollState.value > 0) {
-            val scrollTopInteraction = remember { MutableInteractionSource() }
-            FloatingActionButton(
+            AppFloatingActionButton(
                 onClick = { coroutineScope.launch { scrollState.animateScrollTo(0) } },
+                icon = MaterialSymbols.KeyboardArrowUp,
+                contentDescription = stringResource(R.string.settings_scroll_to_top),
                 modifier =
                     Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(DesignTokens.SpacingLarge)
-                        .size(DesignTokens.FloatingActionHeight),
-                shape = floatingActionShape(scrollTopInteraction),
-                containerColor = AppColors.FloatingTonalContainer,
-                contentColor = AppColors.Accent,
-                interactionSource = scrollTopInteraction,
-            ) {
-                Icon(
-                    imageVector = MaterialSymbols.KeyboardArrowUp,
-                    contentDescription = stringResource(R.string.settings_scroll_to_top),
-                    modifier = Modifier.size(DesignTokens.IconSize),
-                )
-            }
+                        .padding(DesignTokens.SpacingLarge),
+                tone = AppFabTone.Tonal,
+            )
         }
     }
     }

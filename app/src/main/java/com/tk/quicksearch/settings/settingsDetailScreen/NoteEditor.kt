@@ -522,7 +522,7 @@ fun NoteEditor(
                                     style = MaterialTheme.typography.headlineSmall,
                                     color =
                                         MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                                            alpha = 0.55f,
+                                            alpha = AppColors.ContentMutedAlpha,
                                         ),
                                 )
                             }
@@ -577,7 +577,7 @@ fun NoteEditor(
                                     style = MaterialTheme.typography.bodyLarge,
                                     color =
                                         MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                                            alpha = 0.55f,
+                                            alpha = AppColors.ContentMutedAlpha,
                                         ),
                                 )
                             }

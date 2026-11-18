@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.shared
 
+import com.tk.quicksearch.shared.ui.components.SliderWithValue
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -194,24 +195,25 @@ fun SettingsToggleRow(
                                 },
                         )
                     }
-                    Row(
+                    SliderWithValue(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
-                    ) {
+                        valueSpacing = DesignTokens.SpacingLarge,
+                        valueLabel = {
+                            Text(
+                                text = sliderDetails.valueLabel,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.width(sliderDetails.valueLabelWidth),
+                            )
+                        },
+                    ) { sliderModifier ->
                         Slider(
                             value = sliderDetails.value,
                             onValueChange = sliderDetails.onValueChange,
                             valueRange = sliderDetails.valueRange,
                             steps = sliderDetails.steps,
                             enabled = enabled,
-                            modifier = Modifier.weight(1f),
-                        )
-                        Text(
-                            text = sliderDetails.valueLabel,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.width(sliderDetails.valueLabelWidth),
+                            modifier = sliderModifier,
                         )
                     }
                 } else {

@@ -17,11 +17,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
+import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import androidx.compose.material3.Icon
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -345,26 +344,22 @@ fun AddAppDeepLinkDialog(
                             )
                         }
                     }
-                    OutlinedTextField(
+                    AppOutlinedTextField(
                         value = shortcutName,
                         onValueChange = { shortcutName = it },
                         modifier =
                             Modifier
                                 .weight(1f)
                                 .focusRequester(nameFocusRequester),
-                        singleLine = true,
-                        maxLines = 1,
-                        label = { Text(stringResource(R.string.settings_app_shortcuts_shortcut_name_label)) },
-                        colors = dialogTextFieldColors(),
+                        label = stringResource(R.string.settings_app_shortcuts_shortcut_name_label),
+                        shape = AppShapes.extraSmall,
                     )
                 }
-                OutlinedTextField(
+                AppOutlinedTextField(
                     value = deepLinkInput,
                     onValueChange = { deepLinkInput = it.withoutWhitespaces() },
-                    singleLine = true,
-                    maxLines = 1,
-                    label = { Text(stringResource(R.string.settings_app_shortcuts_deep_link_label)) },
-                    colors = dialogTextFieldColors(),
+                    label = stringResource(R.string.settings_app_shortcuts_deep_link_label),
+                    shape = AppShapes.extraSmall,
                 )
             }
         },
@@ -422,22 +417,20 @@ fun AddSearchTargetShortcutDialog(
         title = { Text(text = stringResource(titleResId, targetLabel)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)) {
-                OutlinedTextField(
+                AppOutlinedTextField(
                     value = shortcutName,
                     onValueChange = { shortcutName = it },
                     modifier = Modifier.focusRequester(nameFocusRequester),
-                    singleLine = true,
-                    maxLines = 1,
-                    label = { Text(stringResource(R.string.settings_app_shortcuts_shortcut_name_label)) },
-                    colors = dialogTextFieldColors(),
+                    label = stringResource(R.string.settings_app_shortcuts_shortcut_name_label),
+                    shape = AppShapes.extraSmall,
                 )
-                OutlinedTextField(
+                AppOutlinedTextField(
                     value = shortcutValue,
                     onValueChange = { shortcutValue = it },
                     singleLine = false,
                     maxLines = 3,
-                    label = { Text(stringResource(valueLabelResId)) },
-                    colors = dialogTextFieldColors(),
+                    label = stringResource(valueLabelResId),
+                    shape = AppShapes.extraSmall,
                 )
             }
         },

@@ -501,7 +501,7 @@ fun SettingsVersionDisplay(
                         imageVector = MaterialSymbols.OpenInNew,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                        modifier = Modifier.size(18.dp),
+                        modifier = Modifier.size(DesignTokens.ButtonIconSizeSmall),
                     )
                 }
             }

@@ -1,11 +1,11 @@
 package com.tk.quicksearch.search.searchScreen.searchRoute
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -131,7 +131,7 @@ internal fun SearchScreenDialogLogic(
                 Text(text = stringResource(R.string.settings_direct_search_personal_context))
             },
             text = {
-                OutlinedTextField(
+                AppOutlinedTextField(
                     value = personalContextInput,
                     onValueChange = { setPersonalContextInput(it) },
                     modifier =
@@ -154,7 +154,8 @@ internal fun SearchScreenDialogLogic(
                     singleLine = false,
                     minLines = 4,
                     maxLines = 8,
-                    colors = dialogTextFieldColors(),
+                    label = null,
+                    shape = AppShapes.extraSmall,
                 )
             },
             confirmButton = {

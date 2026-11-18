@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.searchEngineSettings.dialogs
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -14,13 +16,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -173,11 +173,11 @@ fun EditCustomSearchEngineDialog(
                         onClick = { pickIconLauncher.launch(arrayOf("image/*")) },
                     )
 
-                    OutlinedTextField(
+                    AppOutlinedTextField(
                         value = nameInput,
                         onValueChange = { nameInput = it },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text(text = stringResource(R.string.settings_app_sort_name)) },
+                        label = stringResource(R.string.settings_app_sort_name),
                         singleLine = true,
                         maxLines = 1,
                         isError = !isNameValid && nameInput.text.isNotBlank(),
@@ -186,15 +186,15 @@ fun EditCustomSearchEngineDialog(
                                 Text(text = stringResource(R.string.settings_add_search_engine_error_required))
                             }
                         },
-                        colors = dialogTextFieldColors(),
+                        shape = AppShapes.extraSmall,
                     )
                 }
 
-                OutlinedTextField(
+                AppOutlinedTextField(
                     value = urlInput,
                     onValueChange = { urlInput = it.withoutWhitespaces() },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = stringResource(R.string.settings_app_shortcuts_url_label)) },
+                    label = stringResource(R.string.settings_app_shortcuts_url_label),
                     singleLine = true,
                     maxLines = 1,
                     isError = showUrlError,
@@ -222,17 +222,17 @@ fun EditCustomSearchEngineDialog(
                             )
                         }
                     },
-                    colors = dialogTextFieldColors(),
+                    shape = AppShapes.extraSmall,
                 )
 
-                OutlinedTextField(
+                AppOutlinedTextField(
                     value = shortcutInput,
                     onValueChange = {
                         val normalized = normalizeShortcutCodeInput(it.text)
                         shortcutInput = it.copy(text = normalized)
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = stringResource(R.string.settings_alias_label)) },
+                    label = stringResource(R.string.settings_alias_label),
                     singleLine = true,
                     maxLines = 1,
                     isError = showShortcutError,
@@ -256,7 +256,7 @@ fun EditCustomSearchEngineDialog(
                             Text(text = errorMessage)
                         }
                     },
-                    colors = dialogTextFieldColors(),
+                    shape = AppShapes.extraSmall,
                 )
 
                 BrowserPickerField(

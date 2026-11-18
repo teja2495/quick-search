@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.SliderWithValue
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -37,25 +38,26 @@ internal fun SearchResultsSliderToggle(
             leadingIcon = leadingIcon,
         )
         if (sliderDetails != null) {
-            Row(
+            SliderWithValue(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = DesignTokens.SpacingXLarge)
                     .padding(bottom = DesignTokens.SpacingLarge),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
-            ) {
+                valueSpacing = DesignTokens.SpacingLarge,
+                valueLabel = {
+                    Text(
+                        text = sliderDetails.valueLabel,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                },
+            ) { sliderModifier ->
                 Slider(
                     value = sliderDetails.value,
                     onValueChange = sliderDetails.onValueChange,
                     valueRange = sliderDetails.valueRange,
                     steps = sliderDetails.steps,
-                    modifier = Modifier.weight(1f).semantics { contentDescription = title },
-                )
-                Text(
-                    text = sliderDetails.valueLabel,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary,
+                    modifier = sliderModifier.semantics { contentDescription = title },
                 )
             }
         }

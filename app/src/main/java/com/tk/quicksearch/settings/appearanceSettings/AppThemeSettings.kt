@@ -43,9 +43,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -76,6 +74,7 @@ import com.tk.quicksearch.search.searchScreen.AppThemeColors
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetColorPickerDialog
@@ -106,7 +105,7 @@ fun AppThemeCard(
     val context = LocalContext.current
     val canShowSystemWallpaperBackdrop =
             (context as? HomeActivity)?.canShowSystemWallpaperBackdrop == true
-    val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val isDarkMode = LocalAppIsDarkTheme.current
 
     val useMonoThemeFallback =
             backgroundSource == BackgroundSource.SYSTEM_WALLPAPER &&
@@ -225,7 +224,7 @@ fun AppThemeCard(
                                                         }
                                                     },
                                     horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                                    verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                             ) {
                                 val previewColors =
                                         themeOptionPreviewColors(
@@ -384,23 +383,22 @@ internal fun OverlaySourceBox(
         onClick: () -> Unit,
         content: @Composable BoxScope.() -> Unit,
 ) {
-    val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val isDarkMode = LocalAppIsDarkTheme.current
 
     Column(
             modifier = modifier,
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         Box(
                 modifier =
                         Modifier.fillMaxWidth()
                                 .height(52.dp)
                                 .clip(AppShapes.medium)
-                                .background(Color.Transparent)
                                 .clickable(onClick = onClick)
                                 .then(
                                         if (!enabled) {
-                                            Modifier.alpha(0.45f)
+                                            Modifier.alpha(AppColors.DisabledContentAlpha)
                                         } else {
                                             Modifier
                                         },

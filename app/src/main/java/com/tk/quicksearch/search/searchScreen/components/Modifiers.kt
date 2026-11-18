@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -21,7 +22,6 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.ui.theme.homeBackgroundIsDark
 
 private const val PredictedSubmitIndicatorEnterDelayMs = 500
@@ -59,22 +59,22 @@ internal fun Modifier.predictedSubmitHighlight(
         val imageBackgroundIsDark = homeBackgroundIsDark()
         val primary = MaterialTheme.colorScheme.primary
         val highlightColor =
+            // Over an image the neutral follows the image's luminance, not the app theme.
             when (imageBackgroundIsDark) {
                 true -> lerp(Color.White, primary, DesignTokens.PredictedSubmitHighlightAccentBlend)
                 false -> lerp(Color.Black, primary, DesignTokens.PredictedSubmitHighlightAccentBlend)
                 null ->
                     if (opaqueCardTopResultBorder) {
-                        val neutral = if (LocalAppIsDarkTheme.current) Color.White else Color.Black
-                        lerp(neutral, primary, DesignTokens.PredictedSubmitHighlightAccentBlend)
+                        lerp(MaterialTheme.colorScheme.onSurface, primary, DesignTokens.PredictedSubmitHighlightAccentBlend)
                     } else {
                         primary
                     }
             }
         val (fillAlpha, borderAlpha) =
             if (opaqueCardTopResultBorder) {
-                0.055f to 0.36f
+                AppColors.TintFaintAlpha to AppColors.DisabledContentAlpha
             } else {
-                0.08f to 0.22f
+                AppColors.TintSubtleAlpha to AppColors.TintStrongAlpha
             }
 
         this.drawWithCache {

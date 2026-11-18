@@ -1,6 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
-import com.tk.quicksearch.shared.ui.theme.floatingActionShape
+import com.tk.quicksearch.shared.ui.components.AppFabTone
+import com.tk.quicksearch.shared.ui.components.AppFloatingActionButton
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import com.tk.quicksearch.reminders.ReminderEditorRequests
 import androidx.compose.runtime.collectAsState
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -454,25 +454,16 @@ internal fun SettingsNestedDetailScreen(
         }
 
         if (detailType == SettingsDetailType.EXCLUDED_ITEMS) {
-            val clearAllInteraction = remember { MutableInteractionSource() }
-            FloatingActionButton(
+            AppFloatingActionButton(
                 onClick = { showClearAllConfirmation = true },
+                icon = MaterialSymbols.Delete,
+                contentDescription = stringResource(R.string.settings_action_clear_all),
                 modifier =
                     Modifier
                         .align(androidx.compose.ui.Alignment.BottomEnd)
-                        .padding(DesignTokens.SpacingLarge)
-                        .size(DesignTokens.FloatingActionHeight),
-                shape = floatingActionShape(clearAllInteraction),
-                containerColor = MaterialTheme.colorScheme.error,
-                contentColor = MaterialTheme.colorScheme.onError,
-                interactionSource = clearAllInteraction,
-            ) {
-                Icon(
-                    imageVector = MaterialSymbols.Delete,
-                    contentDescription = stringResource(R.string.settings_action_clear_all),
-                    modifier = Modifier.size(DesignTokens.IconSize),
-                )
-            }
+                        .padding(DesignTokens.SpacingLarge),
+                tone = AppFabTone.Error,
+            )
         }
 
         if (detailType == SettingsDetailType.NOTES) {

@@ -1,16 +1,16 @@
 package com.tk.quicksearch.settings.searchEngineSettings.dialogs
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -151,7 +151,7 @@ fun AddEditAliasDialog(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                TextField(
+                AppOutlinedTextField(
                     value = editingCode,
                     onValueChange = {
                         val normalized = normalizeShortcutCodeInput(it.text)
@@ -174,7 +174,7 @@ fun AddEditAliasDialog(
                                 }
                             },
                         ),
-                    label = { Text(text = stringResource(R.string.settings_custom_tool_alias_label)) },
+                    label = stringResource(R.string.settings_custom_tool_alias_label),
                     supportingText =
                         if (showShortcutError) {
                             {
@@ -190,7 +190,7 @@ fun AddEditAliasDialog(
                         } else {
                             null
                         },
-                    colors = dialogTextFieldColors(),
+                    shape = AppShapes.extraSmall,
                 )
             }
         },

@@ -151,6 +151,21 @@ The search bar and bottom chrome (`insetCardBackdrop` / `insetCardBackground`) a
 default, flattened onto `surfaceContainer` (black for AMOLED). The "Blurred Background" toggle in
 Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result cards are unaffected.
 
+### Other deliberate deviations
+
+- **Search-style fields.** The search bar (`SearchBar.kt`), `SettingsManagementSearchBar`, the AI
+  follow-up input (`AiFollowUpInputSection.kt`), and the icon search in `AppIconOverrideDrawer`
+  build on Material's `TextField` directly. They are search bars, not form fields, and own their
+  own container, shape, and focus behavior.
+- **Full-window dialogs.** `HomeAddWidgetSheet`, `SpeedBumpOverlay`, and the onboarding
+  `PermissionsScreen` use a raw Compose `Dialog` as a full-window host for custom layouts, not as
+  a Material dialog, so they don't use `AppDialogSurface`.
+- **Filter chips are pills.** `AppFilterChip` uses `AppShapes.full` instead of Material's 8dp chip
+  corners, to match the app's pill buttons.
+- **Small badges.** Edit/remove badges on wallpaper thumbnails (20dp) and the notification history
+  chevron are smaller than 48dp. They are clickable with a button role, and Compose extends their
+  hit area to the 48dp minimum touch target where space allows.
+
 ## Tokens (`DesignTokens.kt`)
 
 - **Spacing (4dp grid):** `SpacingXSmall` 4, `SpacingSmall` 8, `SpacingMedium` 12,
@@ -175,6 +190,8 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
 - **Action menus:** `ItemMenuMaxWidth` 640, `ItemMenuRowHeight` 56.
 - **Sizes:** `IconSizeSmall` 20, `IconSize` 24, `LargeIconSize` 28, `IconSizeXLarge` 52,
   `AppIconSize` 64, `BorderWidth` 1, `DividerThickness` 0.5.
+- **At a Glance rows:** `GlanceRowMinHeight` 52, `GlanceRowHorizontalPadding` 7. The inset is off
+  the 4dp grid; every glance row shares it so they line up.
 - **Elevation (Material levels):** `ElevationLevel0` 0, `ElevationLevel2` 3, `ElevationLevel3` 6,
   `ElevationLevel4` 8, `ElevationLevel5` 12. Prefer tonal surface roles over shadows.
 - **Other:** `DragAlpha`, `SearchField*`, `WidgetPanelCornerRadius`.
@@ -254,7 +271,9 @@ settings and add a property in sorted order.
 | `ItemMenuPopup` | Menu (expressive) | Long-press action menus: tonal quick-action tiles, segmented option rows, and pill buttons on `surfaceContainerHighest`. Contact action popups reuse its tiles. Reflow options so gaps fall only at the end of the last row |
 | `AppDropdownMenu`, `AppDropdownMenuItem`, `AppDropdownMenuDivider`, `AppOverflowMenu` | Menu | Every three-dot and long-press dropdown: 28dp corners on `surfaceContainer`. `destructive = true` items must still confirm with `AppAlertDialog`. `AppDropdownMenuItem` takes an `icon: ImageVector` or a `leadingIcon` slot for custom leading content; don't use raw `DropdownMenuItem` |
 | `AppUndoSnackbarHost`, `AppUndoSnackbarPopup`, `rememberUndoSnackbarController()` | Snackbar | Undo after a removal. Put the host in a screen's root overlay; settings pages without one use the popup. It lifts above `Modifier.undoSnackbarAvoidArea()` so it never covers the bottom search bar |
-| `AppOutlinedTextField`, `dialogTextFieldColors()`, `CardTextField`, `cardTextFieldColors()` | Text fields | Outlined form inputs; text fields inside dialogs; borderless fields stacked as rows on a settings surface |
+| `AppOutlinedTextField`, `dialogTextFieldColors()`, `CardTextField`, `cardTextFieldColors()` | Text fields | Every form input: outlined fields in dialogs, sheets, and settings forms (both `String` and `TextFieldValue` overloads take an optional label, placeholder, supporting text, icons, keyboard options, and a `shape`, `AppShapes.extraSmall` by default for strings); borderless fields stacked as rows on a settings surface. Don't call Material `TextField` or `OutlinedTextField` directly; search-style fields are the exception below |
+| `AppFloatingActionButton`, `AppExtendedFloatingActionButton`, `AppFabTone` (`AppFloatingActionButton.kt`) | FAB, extended FAB | 56dp page-bottom actions with a 24dp icon, fully round and squaring on press. `AppFabTone.Primary` (`Accent`) for the main action, `Tonal` (`FloatingTonalContainer`) for a secondary one, `Error` for destructive. The extended FAB takes a label and an `enabled` flag (fades to `DisabledContentAlpha`); the caller sets its width. Don't call Material FABs directly |
+| `AppFilterChip`, `AppFilterChipStyle` (`AppFilterChip.kt`) | Filter chip | Filter and multi-select chips. Selected fills with `Accent`; `Outlined` (default) has a `SettingsDivider` outline, `Tonal` uses `AccentTintTonal` for chips on a tonal surface. `showSelectedCheck` adds the multi-select check. Over a wallpaper, pass the wallpaper-aware label and border colors |
 | `PickerFieldButton` | Text field (read-only) | Outlined field that opens a date, time, or repeat picker |
 | `SliderWithValue` | Slider | A value beside or above a slider; the caller owns range, ticks, and saving |
 | `TipBanner` | Card | Dismissible tips with optional links and an action |
@@ -273,7 +292,6 @@ settings and add a property in sorted order.
 | `QuickActionButton` and pills (`searchScreen/components/Pills.kt`) | Search quick actions: 32dp tonal extra-small buttons that share one line and shrink labels instead of wrapping |
 | `OpenKeyboardAction` | Home's bottom keyboard strip, as a `ConnectedButtonRow` |
 | `HomeSectionHeaderRow`, `GlanceStatusRow`, `GlanceActionChip` (`searchScreenLayout/`) | Home section titles, At a Glance rows, and their pill actions |
-| Floating actions (`FloatingActionHeight`, `floatingActionShape`, `AppColors.FloatingTonalContainer`) | 56dp page-bottom actions, fully round and squaring on press. The main action uses `Accent`; a secondary one uses `FloatingTonalContainer` |
 | `WidgetConfigScaffold`, `WidgetSettingTile`, `WidgetColorChoiceGroup`, `WidgetSaveButton` | Widget configuration screens, built on segmented tiles and connected choices |
 
 ## Moving to a new Material version
