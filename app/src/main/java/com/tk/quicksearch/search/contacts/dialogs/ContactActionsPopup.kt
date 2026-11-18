@@ -39,7 +39,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
@@ -222,7 +221,7 @@ internal fun ContactActionsPopup(
             ""
         }
 
-    val dialogBackground = MaterialTheme.colorScheme.surfaceContainerLow
+    val dialogBackground = AppColors.DialogBackground
     val numberSwipeThresholdPx = with(LocalDensity.current) { NUMBER_SWIPE_THRESHOLD.toPx() }
     val switchNumberOnSwipe =
         if (reorderedPhoneNumbers.size > 1) {
@@ -253,12 +252,8 @@ internal fun ContactActionsPopup(
         // Swiping left or right anywhere on the popup switches between the contact's numbers.
         modifier = switchNumberOnSwipe,
         animateSizeChanges = true,
-        containerColor = dialogBackground,
         contentCardColor = dialogBackground,
         contentSpacing = DesignTokens.SpacingSmall,
-        headerSpacing = DesignTokens.SpacingMedium,
-        headerTopPadding = DesignTokens.SpacingLarge,
-        shape = AppShapes.stacked(top = DesignTokens.CornerLargeIncreased, bottom = DesignTokens.CornerExtraLarge),
         contentTopPadding = 0.dp,
         contentBottomPadding = 0.dp,
         contentHorizontalPadding = 0.dp,
@@ -280,8 +275,6 @@ internal fun ContactActionsPopup(
                 is ContactActionsPopupState.ContactActions ->
                     Text(
                         text = state.contactInfo.displayName,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
@@ -290,8 +283,6 @@ internal fun ContactActionsPopup(
                 is ContactActionsPopupState.ReplaceAction ->
                     Text(
                         text = replaceActionTitle,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(start = DesignTokens.SpacingSmall),
                     )

@@ -485,9 +485,6 @@ fun FileDropdownMenu(
                 title = {
                     Text(
                             text = deviceFile.displayName,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                     )

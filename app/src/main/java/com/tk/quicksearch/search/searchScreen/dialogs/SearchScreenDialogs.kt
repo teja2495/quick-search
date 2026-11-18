@@ -90,15 +90,10 @@ internal fun ReleaseNotesDrawer(
 
     AppBottomPopup(
         onDismiss = onAcknowledge,
-        containerColor = AppColors.DialogBackground,
         contentCardColor = AppColors.DialogBackground,
         contentSpacing = 8.dp,
         title = {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-            )
+            Text(text = title)
         },
     ) {
         Column(

@@ -115,7 +115,6 @@ internal fun FolderContentsPopup(
             containerColor = dialogBackground,
             contentCardColor = dialogBackground,
             contentSpacing = DesignTokens.SpacingSmall,
-            headerSpacing = DesignTokens.SpacingMedium,
             contentTopPadding = 0.dp,
             contentBottomPadding = 0.dp,
             contentHorizontalPadding = 4.dp,
@@ -128,7 +127,7 @@ internal fun FolderContentsPopup(
             },
             title = {
                 Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = DesignTokens.SpacingSmall),
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                 ) {
                     FolderNameField(
@@ -189,8 +188,7 @@ private fun FolderNameField(
         modifier: Modifier = Modifier,
 ) {
     val textStyle =
-            MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold,
+            MaterialTheme.typography.titleLarge.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Start,
             )

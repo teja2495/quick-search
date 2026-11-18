@@ -48,7 +48,6 @@ import androidx.compose.ui.res.pluralStringResource
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDefaults
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -475,9 +474,6 @@ fun AppItemDropdownMenu(
                 Column {
                     Text(
                         text = appInfo.appName,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )

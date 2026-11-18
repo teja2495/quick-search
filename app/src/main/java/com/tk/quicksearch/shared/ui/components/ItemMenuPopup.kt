@@ -139,17 +139,13 @@ fun ItemMenuPopup(
     footer: List<ItemMenuRow> = emptyList(),
     caption: (@Composable () -> Unit)? = null,
 ) {
-    val dialogBackground = MaterialTheme.colorScheme.surfaceContainerLow
     AppBottomPopup(
         onDismiss = onDismiss,
         title = title,
         leadingContent = leadingContent,
-        containerColor = dialogBackground,
-        contentCardColor = dialogBackground,
+        contentCardColor = AppColors.DialogBackground,
         // Same top inset as contact actions, with room between the header and the first group.
         contentSpacing = DesignTokens.SpacingLarge,
-        headerSpacing = DesignTokens.SpacingMedium,
-        headerTopPadding = DesignTokens.SpacingLarge,
         bottomPadding = DesignTokens.SpacingLarge,
         contentTopPadding = 0.dp,
         // The popup's own bottom padding already separates the last item from the edge.

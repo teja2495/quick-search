@@ -40,6 +40,7 @@ import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.CUSTOM_APP_THEME_PALETTES
 import com.tk.quicksearch.search.searchScreen.AppThemeColors
 import com.tk.quicksearch.shared.ui.components.AppBottomSheet
+import com.tk.quicksearch.shared.ui.components.AppDrawerHeader
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -63,7 +64,7 @@ internal fun ThemePaletteDrawer(
     onPaletteSelected: (AppTheme) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
-    AppBottomSheet(onDismissRequest = onDismissRequest, scrimColor = Color.Transparent) {
+    AppBottomSheet(onDismissRequest = onDismissRequest, scrimColor = Color.Transparent) { dismiss ->
         Column(
             modifier =
                 Modifier
@@ -75,11 +76,9 @@ internal fun ThemePaletteDrawer(
                     ),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         ) {
-            Text(
-                text = stringResource(R.string.settings_app_theme_custom_dialog_title),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            AppDrawerHeader(onClose = dismiss) {
+                Text(text = stringResource(R.string.settings_app_theme_custom_dialog_title))
+            }
             // At most 30% of the screen, so the app behind stays visible while palettes are tried.
             val maxGridHeight = LocalConfiguration.current.screenHeightDp.dp * MAX_HEIGHT_FRACTION
             val scrollState = rememberScrollState()

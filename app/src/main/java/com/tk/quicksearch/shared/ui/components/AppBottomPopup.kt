@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,17 +23,13 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.runtime.Composable
@@ -43,23 +38,20 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.tk.quicksearch.R
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 
 /**
- * A bottom-anchored popup dialog with a header and scrollable dark content card.
+ * A bottom-anchored popup dialog with a header and scrollable content card.
  *
  * Use this as the shell for any feature that needs a bottom popup with a titled header and a list
  * of actions or options. Pass feature-specific content via the [content] slot.
@@ -76,20 +68,18 @@ import com.tk.quicksearch.shared.ui.theme.AppMotion
  * @param contentBottomPadding Padding below the scrollable content, inside the card.
  * @param contentHorizontalPadding Padding on both sides of the scrollable content, inside the card.
  * @param contentTopPadding Padding above scrollable content when there is no fixed top content.
- * @param headerTopPadding Space between the popup top edge and its header row.
  * @param bottomPadding Space between the popup's content and its bottom edge.
- * @param shape Shape of the outer popup surface.
  * @param animateSizeChanges Animate content-driven height changes while keeping the bottom anchored.
  * @param showCloseButton Whether the header shows a close button after the title.
  * @param bottomOverlay Optional content drawn over the popup's bottom edge, clipped to its shape.
- * @param content Content rendered inside the scrollable dark card.
+ * @param content Content rendered inside the scrollable card.
  */
 @Composable
 fun AppBottomPopup(
     onDismiss: () -> Unit,
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    containerColor: Color = AppColors.getDrawerContainerColor(),
+    containerColor: Color = AppColors.DialogBackground,
     contentCardColor: Color = AppColors.getSettingsCardContainerColor(),
     leadingContent: (@Composable () -> Unit)? = null,
     aboveCardContent: (@Composable () -> Unit)? = null,
@@ -99,8 +89,6 @@ fun AppBottomPopup(
     innerCardHeight: Dp? = null,
     drawerHeight: Dp? = null,
     contentSpacing: Dp = 24.dp,
-    headerSpacing: Dp = 16.dp,
-    headerTopPadding: Dp = DesignTokens.SpacingXXLarge,
     bottomPadding: Dp = DesignTokens.SpacingXXLarge,
     contentTopPadding: Dp = 20.dp,
     contentBottomPadding: Dp = 24.dp,
@@ -108,7 +96,6 @@ fun AppBottomPopup(
     contentScrollable: Boolean = true,
     bottomOverlay: (@Composable BoxScope.() -> Unit)? = null,
     showCloseButton: Boolean = true,
-    shape: Shape = AppShapes.extraLarge,
     animateSizeChanges: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -164,7 +151,7 @@ fun AppBottomPopup(
                             },
                         )
                         .padding(DesignTokens.SpacingSmall),
-                shape = shape,
+                shape = AppShapes.extraLarge,
                 color = containerColor,
                 contentColor = MaterialTheme.colorScheme.onSurface,
             ) {
@@ -189,9 +176,9 @@ fun AppBottomPopup(
                                     onClick = {},
                                 )
                                 .padding(
-                                    start = DesignTokens.SpacingMedium,
-                                    top = headerTopPadding,
-                                    end = DesignTokens.SpacingMedium,
+                                    start = DesignTokens.ContentHorizontalPadding,
+                                    top = DesignTokens.SpacingLarge,
+                                    end = DesignTokens.ContentHorizontalPadding,
                                     bottom = bottomPadding,
                                 )
                                 .then(
@@ -200,27 +187,11 @@ fun AppBottomPopup(
                                 ),
                         verticalArrangement = Arrangement.spacedBy(contentSpacing),
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(headerSpacing),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            if (leadingContent != null) {
-                                leadingContent()
-                            }
-                            Box(modifier = Modifier.weight(1f)) {
-                                title()
-                            }
-                            if (showCloseButton) {
-                                IconButton(onClick = onDismiss, modifier = Modifier.size(DesignTokens.Spacing48)) {
-                                    Icon(
-                                        imageVector = MaterialSymbols.Close,
-                                        contentDescription = stringResource(R.string.dialog_cancel),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                }
-                            }
-                        }
+                        AppDrawerHeader(
+                            onClose = onDismiss.takeIf { showCloseButton },
+                            leadingContent = leadingContent,
+                            title = title,
+                        )
 
                         aboveCardContent?.invoke()
 

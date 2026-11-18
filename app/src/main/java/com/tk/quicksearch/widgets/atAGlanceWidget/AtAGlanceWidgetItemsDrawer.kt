@@ -1,11 +1,8 @@
 package com.tk.quicksearch.widgets.atAGlanceWidget
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,7 +10,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -28,6 +24,7 @@ import com.tk.quicksearch.settings.shared.SettingsCardItem
 import com.tk.quicksearch.settings.shared.ProvideSettingsColors
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.shared.ui.components.AppBottomSheet
+import com.tk.quicksearch.shared.ui.components.AppDrawerHeader
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.widgets.utils.WidgetPreferences
@@ -107,25 +104,11 @@ private fun AtAGlanceWidgetItemsDrawer(
                 ) {}
             },
         ) { dismiss ->
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.SpacingSmall),
-                verticalAlignment = Alignment.CenterVertically,
+            AppDrawerHeader(
+                onClose = dismiss,
+                modifier = Modifier.padding(horizontal = DesignTokens.ContentHorizontalPadding),
             ) {
-                Text(
-                    text = stringResource(R.string.widget_at_a_glance_items_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f),
-                )
-                IconButton(onClick = dismiss) {
-                    Icon(
-                        imageVector = MaterialSymbols.Close,
-                        contentDescription = stringResource(R.string.common_close),
-                    )
-                }
+                Text(text = stringResource(R.string.widget_at_a_glance_items_title))
             }
             AtAGlanceSettingsSection(
                 modifier =

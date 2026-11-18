@@ -504,16 +504,6 @@ object AppColors {
         }
 
     @Composable
-    fun getDrawerContainerColor(): Color =
-        if (LocalDeviceDynamicColorsActive.current) {
-            MaterialTheme.colorScheme.surfaceContainerHigh
-        } else if (LocalAppIsDarkTheme.current) {
-            MaterialTheme.colorScheme.surfaceContainerHigh
-        } else {
-            MaterialTheme.colorScheme.primaryContainer
-        }
-
-    @Composable
     fun getSettingsCardContainerColor(): Color =
         if (LocalAmoledThemeActive.current) {
             AmoledCardBackground

@@ -133,30 +133,14 @@ fun AppPickerDrawer(
                     ),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+            AppDrawerHeader(
+                onClose = {
+                    keyboardController?.hide()
+                    dismiss()
+                },
+                leadingContent = titleIcon,
             ) {
-                titleIcon?.invoke()
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f),
-                )
-                IconButton(
-                    onClick = {
-                        keyboardController?.hide()
-                        dismiss()
-                    },
-                ) {
-                    Icon(
-                        imageVector = MaterialSymbols.Close,
-                        contentDescription = stringResource(R.string.common_close),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                Text(text = title)
             }
 
             search?.let { AppPickerDrawerSearchField(search = it, focusRequester = focusRequester) }

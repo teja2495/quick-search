@@ -91,6 +91,7 @@ fun AppBottomSheet(
                 shouldDismissOnBackPress = true,
                 shouldDismissOnClickOutside = dismissOnClickOutside,
             ),
+        shape = AppShapes.drawerSheet,
         containerColor = if (background == null) AppColors.DialogBackground else Color.Transparent,
         tonalElevation = 0.dp,
         contentColor = MaterialTheme.colorScheme.onSurface,

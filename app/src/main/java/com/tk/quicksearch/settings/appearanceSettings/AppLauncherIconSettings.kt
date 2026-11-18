@@ -48,6 +48,7 @@ import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.CUSTOM_APP_THEME_PALETTES
 import com.tk.quicksearch.search.core.LauncherAppIcon
 import com.tk.quicksearch.shared.ui.components.AppBottomSheet
+import com.tk.quicksearch.shared.ui.components.AppDrawerHeader
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.TonalButton
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -137,11 +138,9 @@ internal fun LauncherIconDrawer(
                     ),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         ) {
-            Text(
-                text = stringResource(R.string.settings_launcher_icon_title),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            AppDrawerHeader(onClose = dismiss) {
+                Text(text = stringResource(R.string.settings_launcher_icon_title))
+            }
             // Fits its content; scrolls only when the screen is too short, keeping the reset visible.
             Column(
                 modifier =

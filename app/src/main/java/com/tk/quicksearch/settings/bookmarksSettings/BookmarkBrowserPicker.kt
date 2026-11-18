@@ -29,6 +29,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.core.BrowserApp
 import com.tk.quicksearch.searchEngines.IN_APP_BROWSER_PACKAGE
+import com.tk.quicksearch.shared.ui.components.AppDrawerHeader
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerLeadingSize
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRow
@@ -43,42 +44,24 @@ internal fun BookmarkSheetHeader(
     navigationIcon: (() -> Unit)?,
     onClose: (() -> Unit)?,
 ) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = if (navigationIcon != null) 8.dp else DesignTokens.ContentHorizontalPadding,
-                    end = 8.dp,
-                    top = DesignTokens.SpacingLarge,
-                ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+    AppDrawerHeader(
+        onClose = onClose,
+        modifier = Modifier
+            .padding(horizontal = DesignTokens.ContentHorizontalPadding)
+            .padding(top = DesignTokens.SpacingLarge),
+        leadingContent = navigationIcon?.let { onBack ->
+            {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = MaterialSymbols.ArrowBack,
+                        contentDescription = stringResource(R.string.desc_navigate_back),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        },
     ) {
-        if (navigationIcon != null) {
-            IconButton(onClick = navigationIcon) {
-                Icon(
-                    imageVector = MaterialSymbols.ArrowBack,
-                    contentDescription = stringResource(R.string.desc_navigate_back),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f),
-        )
-        if (onClose != null) {
-            IconButton(onClick = onClose) {
-                Icon(
-                    imageVector = MaterialSymbols.Close,
-                    contentDescription = stringResource(R.string.common_close),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
+        Text(text = title)
     }
 }
 

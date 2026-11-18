@@ -56,6 +56,9 @@ object AppShapes {
     /** Standard card. */
     val card: RoundedCornerShape = medium
 
+    /** A modal drawer meets the bottom edge of the window. */
+    val drawerSheet: RoundedCornerShape = stacked(top = DesignTokens.CornerExtraLarge, bottom = DesignTokens.CornerNone)
+
     /** Search result surfaces: history, suggestions, section cards, engine and tool cards. */
     val resultCard: RoundedCornerShape = extraLarge
 
