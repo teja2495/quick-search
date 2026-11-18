@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgetsPanel
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
 import android.content.Context
@@ -7,10 +8,8 @@ import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -125,10 +124,8 @@ private class HomeReorderShift(
 
 // Home motion is snappier than the widgets panel's: entries shift out of the way while a widget
 // is dragged, and resizes should track the finger closely.
-private val HomeReorderMotion =
-    spring<Float>(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMedium)
-internal val HomeWidgetLayoutMotion =
-    spring<Dp>(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMedium)
+private val HomeReorderMotion = AppMotion.placement<Float>()
+internal val HomeWidgetLayoutMotion = AppMotion.placement<Dp>()
 
 private data class HomeWidgetDrag(
     val appWidgetId: Int,

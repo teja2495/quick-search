@@ -312,7 +312,7 @@ internal fun CalendarEventRow(
                 } else {
                     MaterialTheme.colorScheme.onSurfaceVariant
                 },
-            modifier = Modifier.padding(start = 7.dp).size(24.dp),
+            modifier = Modifier.padding(start = DesignTokens.ResultIconStartInset).size(24.dp),
         )
         Column(
             modifier = Modifier.weight(1f),

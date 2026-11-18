@@ -420,7 +420,7 @@ internal fun AtAGlanceCard(
         exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
     ) {
         // Matches the spacing of the home column the title and card sit in.
-        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)) {
             if (showTitle) AtAGlanceTitle(showWallpaperBackground)
             AtAGlanceCardShell(showWallpaperBackground = showWallpaperBackground, segmented = true) {
                 AtAGlanceRows(items = items, showWallpaperBackground = showWallpaperBackground)
@@ -460,7 +460,7 @@ internal fun NowPlayingCard(
         exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
     ) {
         // Matches the spacing of the home column the title and card sit in.
-        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)) {
             if (showTitle) AtAGlanceTitle(showWallpaperBackground)
             AtAGlanceCardShell(showWallpaperBackground = showWallpaperBackground) {
                 NowPlayingRow(glance, onDismiss = { visibility.targetState = false })

@@ -3,7 +3,6 @@ package com.tk.quicksearch.searchEngines.inline
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -122,7 +121,7 @@ private fun InlineCardEnterAnimation(
     AnimatedVisibility(
         visibleState = enterState,
         enter =
-            fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort, easing = FastOutSlowInEasing)),
+            fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort, easing = AppMotion.EmphasizedEasing)),
     ) {
         content()
     }

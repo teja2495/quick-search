@@ -85,7 +85,7 @@ internal fun BookmarkBrowserField(
                 .clip(OutlinedTextFieldDefaults.shape)
                 .border(1.dp, MaterialTheme.colorScheme.outline, OutlinedTextFieldDefaults.shape)
                 .clickable(onClick = onClick)
-                .padding(horizontal = DesignTokens.SpacingLarge, vertical = 10.dp),
+                .padding(horizontal = DesignTokens.SpacingLarge, vertical = DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
     ) {

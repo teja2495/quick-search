@@ -174,7 +174,7 @@ internal fun BookmarkRow(
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        BookmarkFavicon(bookmark = bookmark, modifier = Modifier.padding(start = 7.dp))
+        BookmarkFavicon(bookmark = bookmark, modifier = Modifier.padding(start = DesignTokens.ResultIconStartInset))
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(2.dp),

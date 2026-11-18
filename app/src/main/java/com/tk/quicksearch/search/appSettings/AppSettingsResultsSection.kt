@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ripple
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -255,7 +256,7 @@ internal fun AppSettingResultRow(
             .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingLarge))
             .combinedClickable(
                 interactionSource = null,
-                indication = null,
+                indication = ripple(),
                 enabled = !isBlockedByLauncher,
                 onClick = {
                     if (setting.isNavigateAction || setting.isNavigationToggle) {
@@ -364,7 +365,7 @@ internal fun AppSettingResultRow(
                 imageVector = MaterialSymbols.UnfoldMore,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(end = 6.dp),
+                modifier = Modifier.padding(end = DesignTokens.SpacingSmall),
             )
         } else if (setting.hasInlineControl) {
             // The inline control is rendered above.
@@ -408,7 +409,7 @@ internal fun AppSettingResultRow(
                 imageVector = if (isReloadDestination) MaterialSymbols.Refresh else MaterialSymbols.ChevronRight,
                 contentDescription = stringResource(R.string.desc_navigate_forward),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(end = 6.dp),
+                modifier = Modifier.padding(end = DesignTokens.SpacingSmall),
             )
         }
     }

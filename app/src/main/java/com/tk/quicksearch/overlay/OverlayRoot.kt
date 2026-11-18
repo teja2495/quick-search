@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -40,7 +39,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.Alignment
@@ -377,7 +375,7 @@ fun OverlayRoot(
                                                         } else {
                                                                 OVERLAY_EXIT_ANIMATION_MS
                                                         },
-                                                easing = FastOutSlowInEasing,
+                                                easing = AppMotion.EmphasizedEasing,
                                         ),
                                 label = "overlayEntryProgress",
                         )
@@ -431,7 +429,7 @@ fun OverlayRoot(
                                                                         Modifier.animateContentSize(
                                                                                 tween(
                                                                                         durationMillis = OVERLAY_CONTENT_RESIZE_ANIMATION_MS,
-                                                                                        easing = LinearOutSlowInEasing,
+                                                                                        easing = AppMotion.EmphasizedDecelerateEasing,
                                                                                 ),
                                                                         )
                                                                 } else {

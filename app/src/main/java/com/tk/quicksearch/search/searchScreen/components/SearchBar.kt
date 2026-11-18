@@ -15,9 +15,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,6 +31,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.Dp
+import androidx.compose.material3.ripple
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -350,7 +349,7 @@ internal fun PersistentSearchBar(
         aliasMorphProgress.snapTo(0f)
         aliasMorphProgress.animateTo(
             targetValue = 1f,
-            animationSpec = tween(durationMillis = AliasIconMorphDurationMs, easing = LinearOutSlowInEasing),
+            animationSpec = tween(durationMillis = AliasIconMorphDurationMs, easing = AppMotion.EmphasizedDecelerateEasing),
         )
         aliasMorphText = null
     }
@@ -605,14 +604,14 @@ internal fun PersistentSearchBar(
                                 tween(
                                     durationMillis = PlaceholderHintTransitionDurationMs,
                                     delayMillis = PlaceholderHintTransitionDelayMs,
-                                    easing = LinearOutSlowInEasing,
+                                    easing = AppMotion.EmphasizedDecelerateEasing,
                                 ),
                         ) togetherWith
                             fadeOut(
                                 animationSpec =
                                     tween(
                                         durationMillis = PlaceholderHintTransitionDurationMs,
-                                        easing = FastOutSlowInEasing,
+                                        easing = AppMotion.EmphasizedEasing,
                                     ),
                             )
                     },
@@ -639,7 +638,7 @@ internal fun PersistentSearchBar(
                                         tween(
                                             durationMillis = LeadingIconEnterDurationMs,
                                             delayMillis = LeadingIconEnterDelayMs,
-                                            easing = LinearOutSlowInEasing,
+                                            easing = AppMotion.EmphasizedDecelerateEasing,
                                         ),
                                 ) +
                                     scaleIn(
@@ -647,7 +646,7 @@ internal fun PersistentSearchBar(
                                             tween(
                                                 durationMillis = LeadingIconEnterDurationMs,
                                                 delayMillis = LeadingIconEnterDelayMs,
-                                                easing = LinearOutSlowInEasing,
+                                                easing = AppMotion.EmphasizedDecelerateEasing,
                                             ),
                                         initialScale = LeadingIconEnterInitialScale,
                                     )
@@ -667,7 +666,7 @@ internal fun PersistentSearchBar(
                         Box(
                             modifier = Modifier.clickable(
                                 interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
+                                indication = ripple(bounded = false),
                                 onClick = { showSectionMenu = true },
                             ),
                         ) {

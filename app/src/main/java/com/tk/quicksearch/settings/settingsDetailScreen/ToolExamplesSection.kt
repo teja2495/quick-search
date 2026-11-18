@@ -84,7 +84,7 @@ private fun ToolExampleChip(text: String) {
                     MaterialTheme.colorScheme.onSurface.copy(alpha = ToolExampleChipFillAlpha),
                     AppShapes.small,
                 )
-                .padding(horizontal = 10.dp, vertical = 6.dp),
+                .padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingSmall),
     )
 }
 

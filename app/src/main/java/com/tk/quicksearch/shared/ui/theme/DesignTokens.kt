@@ -122,6 +122,12 @@ object DesignTokens {
     /** Horizontal inset of an At a Glance row; every glance row shares it so they line up (off-grid). */
     val GlanceRowHorizontalPadding = 7.dp
 
+    /**
+     * Start inset of the 24dp leading glyph in notes, reminders, calendar, and bookmark result rows,
+     * matching [GlanceRowHorizontalPadding] so their icons line up with the glance rows (off-grid).
+     */
+    val ResultIconStartInset = GlanceRowHorizontalPadding
+
     /** App icon container size - 64dp */
     val AppIconSize = 64.dp
 

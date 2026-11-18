@@ -181,7 +181,7 @@ internal fun NotedTaskRelativeDateText(item: NotedItem) {
 @Composable
 internal fun NotedAppIcon(
     iconPackPackage: String?,
-    modifier: Modifier = Modifier.padding(start = 3.dp).size(ICON_SIZE_DP.dp),
+    modifier: Modifier = Modifier.padding(start = DesignTokens.SpacingXSmall).size(ICON_SIZE_DP.dp),
 ) {
     val bitmap =
         NotedIntegration.packageName?.let { rememberAppIcon(packageName = it, iconPackPackage = iconPackPackage).bitmap }

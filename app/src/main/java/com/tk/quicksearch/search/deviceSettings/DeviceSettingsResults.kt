@@ -288,7 +288,7 @@ internal fun SettingResultRow(
                                 contentDescription =
                                         stringResource(R.string.desc_navigate_forward),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(end = 6.dp),
+                                modifier = Modifier.padding(end = DesignTokens.SpacingSmall),
                         )
                 }
 

@@ -226,7 +226,7 @@ private fun <T> ChoiceButton(
                         fontSize = ChoiceMinFontSize,
                         lineHeight = ChoiceMinFontSize * 1.3f,
                     ),
-                modifier = Modifier.padding(vertical = 6.dp),
+                modifier = Modifier.padding(vertical = DesignTokens.SpacingSmall),
             )
         } else {
             BasicText(

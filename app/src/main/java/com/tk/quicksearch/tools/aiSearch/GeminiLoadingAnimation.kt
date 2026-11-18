@@ -162,7 +162,7 @@ private fun ShimmerPlaceholderLines(
         )
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
     ) {
         PlaceholderLineFractions.forEachIndexed { index, fraction ->
             Box(

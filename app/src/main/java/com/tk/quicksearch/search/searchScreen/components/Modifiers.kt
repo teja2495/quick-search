@@ -3,7 +3,6 @@ package com.tk.quicksearch.search.searchScreen.components
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -42,7 +41,7 @@ internal fun rememberPredictedSubmitIndicatorAlpha(isPredicted: Boolean): State<
                         PredictedSubmitIndicatorFadeOutDurationMs
                     },
                 delayMillis = if (targetState) PredictedSubmitIndicatorEnterDelayMs else 0,
-                easing = FastOutSlowInEasing,
+                easing = AppMotion.EmphasizedEasing,
             )
         },
         label = "predictedSubmitIndicatorAlpha",

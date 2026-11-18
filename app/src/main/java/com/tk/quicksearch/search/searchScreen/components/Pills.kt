@@ -24,8 +24,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.getValue
 import androidx.compose.material3.Icon
@@ -412,7 +410,7 @@ internal fun NumberKeyboardOperatorPills(
             (if (extendToScreenEdges) modifier.extendToScreenEdges() else modifier)
                 .insetCardBackdrop(showWallpaperBackground && !transparentBackground, RectangleShape),
         color = containerBackgroundColor,
-        shape = RoundedCornerShape(ZeroCornerSize),
+        shape = AppShapes.none,
         tonalElevation = DesignTokens.ElevationLevel0,
     ) {
         Row(
@@ -423,7 +421,7 @@ internal fun NumberKeyboardOperatorPills(
                         end = DesignTokens.SpacingLarge,
                         // Inside a host card the row above already ends with its own spacing.
                         top = if (transparentBackground) 0.dp else NumberKeyboardOperatorRowTopPadding,
-                        bottom = 7.dp,
+                        bottom = DesignTokens.SpacingSmall,
                     ),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             verticalAlignment = Alignment.CenterVertically,

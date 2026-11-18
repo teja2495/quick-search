@@ -1,5 +1,7 @@
 package com.tk.quicksearch.shared.ui.theme
 
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.spring
@@ -50,6 +52,19 @@ object AppMotion {
     /** No-bounce glide of a grid tile into its new slot after a reorder or drop. */
     fun <T> placement(visibilityThreshold: T? = null): SpringSpec<T> =
         spring(stiffness = Spring.StiffnessMedium, visibilityThreshold = visibilityThreshold)
+
+    // Easing for tweens --------------------------------------------------------------------
+    // Material 3 easing curves. Use these instead of Material 2's FastOutSlowIn, LinearOutSlowIn
+    // and FastOutLinearIn.
+
+    /** Emphasized easing for most transitions: a move, resize, or crossfade that starts and ends on screen. */
+    val EmphasizedEasing: Easing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
+
+    /** Emphasized decelerate for elements entering the screen. */
+    val EmphasizedDecelerateEasing: Easing = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1f)
+
+    /** Emphasized accelerate for elements leaving the screen. */
+    val EmphasizedAccelerateEasing: Easing = CubicBezierEasing(0.3f, 0f, 0.8f, 0.15f)
 
     // Durations (ms) for tweens and fades -------------------------------------------------
     // Steps of the Material 3 duration scale (short1 50 ... long1 450, extraLong1 700). Snap a

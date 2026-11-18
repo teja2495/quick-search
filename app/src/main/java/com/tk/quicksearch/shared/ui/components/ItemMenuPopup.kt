@@ -330,7 +330,7 @@ internal fun ItemMenuTileButton(
                 )
                 .padding(vertical = DesignTokens.SpacingMedium, horizontal = DesignTokens.SpacingXSmall),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
         ) {
             Box(modifier = Modifier.size(24.dp), contentAlignment = Alignment.Center) {
                 CompositionLocalProvider(LocalContentColor provides AppColors.DialogText) {

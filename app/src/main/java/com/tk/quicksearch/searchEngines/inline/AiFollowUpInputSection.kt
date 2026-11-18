@@ -1,10 +1,10 @@
 package com.tk.quicksearch.searchEngines.inline
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.insetCardBackdrop
 import com.tk.quicksearch.search.searchScreen.insetCardBackground
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn

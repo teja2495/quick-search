@@ -40,7 +40,7 @@ fun SettingsNestedCheckbox(
                 .clip(NestedCheckboxShape)
                 .background(AppColors.AccentTintSubtle)
                 .toggleable(value = checked, role = Role.Checkbox, onValueChange = onCheckedChange)
-                .padding(start = DesignTokens.SpacingSmall, end = DesignTokens.SpacingMedium, top = 6.dp, bottom = 6.dp),
+                .padding(start = DesignTokens.SpacingSmall, end = DesignTokens.SpacingMedium, top = DesignTokens.SpacingXSmall, bottom = DesignTokens.SpacingXSmall),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {

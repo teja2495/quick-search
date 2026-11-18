@@ -155,7 +155,7 @@ internal fun GlanceStatusRow(
                         Modifier
                             .clip(AppShapes.full)
                             .background(pillColors.container)
-                            .padding(horizontal = 10.dp, vertical = DesignTokens.SpacingXSmall),
+                            .padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingXSmall),
                     contentAlignment = Alignment.Center,
                 ) {
                     if (pillWidthText != null) {
@@ -218,8 +218,8 @@ internal fun GlanceActionChip(
         border = if (colors == null) BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant) else null,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = DesignTokens.SpacingMedium, vertical = 6.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingSmall),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (icon != null) Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(16.dp))

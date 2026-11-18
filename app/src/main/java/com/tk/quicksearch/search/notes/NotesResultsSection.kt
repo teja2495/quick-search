@@ -238,7 +238,7 @@ internal fun NoteRow(
                 imageVector = MaterialSymbols.Description,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 7.dp, top = 1.dp).size(24.dp),
+                modifier = Modifier.padding(start = DesignTokens.ResultIconStartInset, top = 1.dp).size(24.dp),
             )
             Column(
                 modifier = Modifier.weight(1f),

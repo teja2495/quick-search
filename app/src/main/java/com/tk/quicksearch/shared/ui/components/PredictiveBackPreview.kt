@@ -3,7 +3,6 @@ package com.tk.quicksearch.shared.ui.components
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.activity.BackEventCompat
 import androidx.activity.compose.PredictiveBackHandler
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -77,7 +76,7 @@ fun PredictiveBackPreviewHandler(
 }
 
 private suspend fun PredictiveBackPreviewState.animateProgressTo(target: Float) {
-    animate(progress, target, animationSpec = tween(RESET_DURATION_MS, easing = FastOutSlowInEasing)) { value, _ ->
+    animate(progress, target, animationSpec = tween(RESET_DURATION_MS, easing = AppMotion.EmphasizedEasing)) { value, _ ->
         progress = value
     }
 }
@@ -88,7 +87,7 @@ private suspend fun PredictiveBackPreviewState.animateProgressTo(target: Float) 
  */
 fun Modifier.predictiveBackPreview(state: PredictiveBackPreviewState): Modifier =
     graphicsLayer {
-        val p = FastOutSlowInEasing.transform(state.progress.coerceIn(0f, 1f))
+        val p = AppMotion.EmphasizedEasing.transform(state.progress.coerceIn(0f, 1f))
         if (p <= 0f) return@graphicsLayer
         val scale = 1f - MAX_SCALE_REDUCTION * p
         scaleX = scale

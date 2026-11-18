@@ -208,13 +208,13 @@ internal fun ReminderRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (notedItem != null) {
-            NotedAppIcon(iconPackPackage = null, modifier = Modifier.padding(start = 7.dp).size(24.dp))
+            NotedAppIcon(iconPackPackage = null, modifier = Modifier.padding(start = DesignTokens.ResultIconStartInset).size(24.dp))
         } else {
             Icon(
                 painter = painterResource(R.drawable.ic_reminder),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 7.dp).size(24.dp),
+                modifier = Modifier.padding(start = DesignTokens.ResultIconStartInset).size(24.dp),
             )
         }
         Column(

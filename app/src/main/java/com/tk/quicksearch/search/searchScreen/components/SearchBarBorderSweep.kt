@@ -2,7 +2,6 @@ package com.tk.quicksearch.search.searchScreen.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -60,13 +59,13 @@ internal fun rememberSearchBarBorderSweep(
             launch {
                 sweep.glowAlphaAnim.animateTo(
                     targetValue = 0f,
-                    animationSpec = tween(AppMotion.DurationGlowFade, easing = LinearOutSlowInEasing),
+                    animationSpec = tween(AppMotion.DurationGlowFade, easing = AppMotion.EmphasizedDecelerateEasing),
                 )
             }
             launch {
                 sweep.borderAlphaAnim.animateTo(
                     targetValue = 1f,
-                    animationSpec = tween(AppMotion.DurationGlowFade, easing = LinearOutSlowInEasing),
+                    animationSpec = tween(AppMotion.DurationGlowFade, easing = AppMotion.EmphasizedDecelerateEasing),
                 )
             }
 
@@ -77,7 +76,7 @@ internal fun rememberSearchBarBorderSweep(
         } else {
             sweep.borderAlphaAnim.animateTo(
                 targetValue = 1f,
-                animationSpec = tween(durationMillis = AppMotion.DurationGlowFade, easing = LinearOutSlowInEasing),
+                animationSpec = tween(durationMillis = AppMotion.DurationGlowFade, easing = AppMotion.EmphasizedDecelerateEasing),
             )
         }
     }

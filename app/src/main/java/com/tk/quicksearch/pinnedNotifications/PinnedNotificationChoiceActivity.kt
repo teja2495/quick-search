@@ -1,5 +1,7 @@
 package com.tk.quicksearch.pinnedNotifications
 
+import androidx.compose.ui.draw.clip
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import android.content.Context
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ripple
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -134,9 +137,10 @@ private fun PinModeRow(
                         )
                     }
                 }
+                .clip(AppShapes.medium)
                 .clickable(
                     interactionSource = interactionSource,
-                    indication = null,
+                    indication = ripple(),
                     onClick = onClick,
                 )
                 .padding(vertical = DesignTokens.SpacingMedium),

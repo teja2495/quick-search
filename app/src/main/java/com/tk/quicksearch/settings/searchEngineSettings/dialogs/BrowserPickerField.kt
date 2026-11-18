@@ -105,7 +105,7 @@ fun BrowserPickerField(
                     expanded = !expanded
                     if (expanded) onExpand()
                 }
-                .padding(horizontal = DesignTokens.SpacingMedium, vertical = 10.dp),
+                .padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingMedium),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
         ) {
@@ -199,7 +199,7 @@ private fun BrowserOptionRow(
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .background(if (isSelected) accentColor.copy(alpha = AppColors.TintLightAlpha) else Color.Transparent)
-            .padding(horizontal = DesignTokens.SpacingMedium, vertical = 10.dp),
+            .padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingMedium),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

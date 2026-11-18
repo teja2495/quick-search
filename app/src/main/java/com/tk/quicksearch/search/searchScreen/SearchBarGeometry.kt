@@ -1,7 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
 import com.tk.quicksearch.shared.ui.theme.AppMotion
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -78,7 +77,7 @@ internal fun rememberSearchBarGeometry(
                             } else {
                                 0f
                             },
-                    animationSpec = tween(durationMillis = AppMotion.DurationStandard, easing = FastOutSlowInEasing),
+                    animationSpec = tween(durationMillis = AppMotion.DurationStandard, easing = AppMotion.EmphasizedEasing),
                     label = "insetEngineStripFullBleed",
             )
 

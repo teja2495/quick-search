@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.material3.ripple
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -528,7 +529,7 @@ private fun ClearAllHistoryRow(
                 .clip(AppShapes.card)
                 .combinedClickable(
                     interactionSource = interactionSource,
-                    indication = null,
+                    indication = ripple(),
                     onClick = onClick,
                 ).padding(
                     horizontal = QUERY_TEXT_END_PADDING.dp,
@@ -571,7 +572,7 @@ internal fun RecentQueryRow(
                 .clip(AppShapes.card)
                 .combinedClickable(
                     interactionSource = interactionSource,
-                    indication = null,
+                    indication = ripple(),
                     onClick = onClick,
                     onLongClick = onLongPress,
                 ).padding(

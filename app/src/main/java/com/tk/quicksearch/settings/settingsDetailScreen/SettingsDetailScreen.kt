@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppTopAppBar
 import com.tk.quicksearch.shared.ui.components.AppFabTone
 import com.tk.quicksearch.shared.ui.components.AppFloatingActionButton
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -669,35 +670,11 @@ internal fun SettingsDetailHeader(
     onBack: () -> Unit,
     trailingContent: (@Composable (() -> Unit))? = null,
 ) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = DesignTokens.ContentHorizontalPadding,
-                    vertical = DesignTokens.HeaderVerticalPadding,
-                ),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(onClick = onBack) {
-            Icon(
-                imageVector = MaterialSymbols.ArrowBack,
-                contentDescription = stringResource(R.string.desc_navigate_back),
-                tint = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-        Spacer(modifier = Modifier.width(DesignTokens.HeaderIconSpacing))
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f),
-        )
-        trailingContent?.let {
-            Spacer(modifier = Modifier.width(DesignTokens.HeaderIconSpacing))
-            it()
-        }
-    }
+    AppTopAppBar(
+        title = title,
+        onBack = onBack,
+        actions = { trailingContent?.invoke() },
+    )
 }
 
 @Composable

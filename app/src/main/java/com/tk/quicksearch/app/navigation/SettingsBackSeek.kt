@@ -1,7 +1,7 @@
 package com.tk.quicksearch.app.navigation
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.activity.compose.PredictiveBackHandler
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.Composable
@@ -60,7 +60,7 @@ internal class SettingsBackSeek(
             while (true) {
                 val elapsed = (withFrameNanos { it } - startNanos) / durationNanos
                 val t = elapsed.coerceAtMost(1f)
-                transitionState.seekTo(startFraction * (1f - FastOutSlowInEasing.transform(t)), targetState = backTarget)
+                transitionState.seekTo(startFraction * (1f - AppMotion.EmphasizedEasing.transform(t)), targetState = backTarget)
                 if (t >= 1f) break
             }
         }
@@ -130,4 +130,4 @@ internal fun SettingsPageBackHandler(
 }
 
 /** Time to rewind a fully previewed back; shorter previews rewind proportionally faster. */
-private const val CANCEL_DURATION_MS = 200f
+private const val CANCEL_DURATION_MS = AppMotion.DurationShort.toFloat()

@@ -11,9 +11,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -339,12 +337,12 @@ internal fun SearchBarTrailingIcon(
             (
                 fadeIn(tween(TrailingIconGrowMs, delayMillis = TrailingIconShrinkMs)) +
                     scaleIn(
-                        tween(TrailingIconGrowMs, delayMillis = TrailingIconShrinkMs, easing = FastOutSlowInEasing),
+                        tween(TrailingIconGrowMs, delayMillis = TrailingIconShrinkMs, easing = AppMotion.EmphasizedEasing),
                         initialScale = 0f,
                     )
             ).togetherWith(
                 fadeOut(tween(TrailingIconShrinkMs)) +
-                    scaleOut(tween(TrailingIconShrinkMs, easing = FastOutSlowInEasing), targetScale = 0f),
+                    scaleOut(tween(TrailingIconShrinkMs, easing = AppMotion.EmphasizedEasing), targetScale = 0f),
             ).using(SizeTransform(clip = false))
         },
         contentAlignment = Alignment.Center,

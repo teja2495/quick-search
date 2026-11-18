@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgetsPanel
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
@@ -16,8 +17,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -141,11 +140,7 @@ private val WidgetEditOverhang = 16.dp
 // left/right edges. Must stay within ContentHorizontalPadding.
 private val WidgetEditHorizontalOverhang = 16.dp
 private val WidgetPanelBottomScrollSpace = 150.dp
-internal val WidgetLayoutMotion =
-    spring<Dp>(
-        dampingRatio = Spring.DampingRatioNoBouncy,
-        stiffness = Spring.StiffnessMediumLow,
-    )
+internal val WidgetLayoutMotion = AppMotion.settle<Dp>()
 
 internal enum class ResizeEdge(
     val xSign: Int,

@@ -384,8 +384,8 @@ fun WallpaperCard(
                             }
                         }
                         Row(
-                                modifier = Modifier.align(Alignment.TopEnd).padding(6.dp),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                modifier = Modifier.align(Alignment.TopEnd).padding(DesignTokens.SpacingSmall),
+                                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                         ) {
                             Box(
                                     modifier =

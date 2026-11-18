@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ripple
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -187,7 +188,7 @@ internal fun UnifiedPinnedItemsBlock(
             showWallpaperBackground = showWallpaperBackground,
             modifier = modifier.clickable(
                 interactionSource = interactionSource,
-                indication = null,
+                indication = ripple(),
                 onClick = toggleExpanded,
             ),
         )

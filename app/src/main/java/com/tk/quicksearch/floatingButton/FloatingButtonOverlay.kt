@@ -1,5 +1,6 @@
 package com.tk.quicksearch.floatingButton
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
 import android.app.KeyguardManager
@@ -346,7 +347,7 @@ class FloatingButtonOverlay(
         private const val ICON_PADDING_FRACTION = 0.25f
         // Shrinks rather than grows: the window is sized exactly to the button and would clip it.
         private const val DRAG_SCALE = 0.9f
-        private const val SCALE_ANIMATION_MS = 120L
+        private val SCALE_ANIMATION_MS = AppMotion.DurationQuick.toLong()
         // Shorter than the system long-press timeout so picking the button up feels quick.
         private const val LONG_PRESS_DELAY_MS = 250L
     }

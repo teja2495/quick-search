@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.appSettings.BooleanSettings
 import com.tk.quicksearch.search.models.DeviceFile
@@ -202,6 +203,7 @@ fun FileTypesSection(
                             InputChip(
                                 selected = false,
                                 onClick = { onRemoveExcludedExtension(extension) },
+                                shape = AppShapes.full,
                                 label = { Text(text = ".$extension") },
                                 trailingIcon = {
                                     Icon(

@@ -571,7 +571,7 @@ private fun AppSwipeActionDropdown(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingSmall),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
                 Text(
                     text = stringResource(R.string.app_swipe_current_action),

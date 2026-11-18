@@ -24,6 +24,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.ui.draw.rotate
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.semantics.Role
+import androidx.compose.material3.ripple
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -460,7 +461,7 @@ fun ShortcutToggleRow(
                     .weight(1f)
                     .clickable(
                         interactionSource = interactionSource,
-                        indication = null,
+                        indication = ripple(),
                         onClick = onShortcutNameClick,
                     ),
         )

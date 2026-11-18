@@ -240,14 +240,14 @@ private fun UndoSnackbar(
         shape = AppShapes.small,
         color = containerColor,
         contentColor = contentColor,
-        shadowElevation = 6.dp,
+        shadowElevation = DesignTokens.ElevationLevel3,
     ) {
         Row(
             modifier = Modifier
-                .heightIn(min = 48.dp)
-                .padding(start = DesignTokens.SpacingLarge, end = 6.dp, top = 6.dp, bottom = 6.dp),
+                .heightIn(min = DesignTokens.Spacing48)
+                .padding(start = DesignTokens.SpacingLarge, end = DesignTokens.SpacingXSmall, top = DesignTokens.SpacingXSmall, bottom = DesignTokens.SpacingXSmall),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         ) {
             icon?.let { imageVector ->
                 Icon(

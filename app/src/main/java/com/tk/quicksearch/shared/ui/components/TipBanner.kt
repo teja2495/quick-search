@@ -83,7 +83,7 @@ fun TipBanner(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = DesignTokens.SpacingLarge, vertical = 14.dp),
+                    .padding(horizontal = DesignTokens.SpacingLarge, vertical = DesignTokens.SpacingLarge),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (icon != null) {
@@ -93,7 +93,7 @@ fun TipBanner(
                     modifier = Modifier.size(18.dp),
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(DesignTokens.SpacingMedium))
             }
 
             val contentModifier =

@@ -4,7 +4,6 @@ import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -187,7 +186,7 @@ class PageSwipeController internal constructor(
 
     private companion object {
         val navigationTween: AnimationSpec<Float> =
-            tween(NAVIGATION_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing)
+            tween(NAVIGATION_ANIMATION_DURATION_MS, easing = AppMotion.EmphasizedEasing)
         val releaseSpring: AnimationSpec<Float> =
             AppMotion.settle()
     }

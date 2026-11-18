@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.searchEngineSettings
 
+import androidx.compose.ui.draw.clip
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ripple
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -250,9 +253,9 @@ fun SearchEngineListCard(
 
         if (disabledEngines.isNotEmpty()) {
             val disabledHeaderModifier =
-                Modifier.clickable(
+                Modifier.clip(AppShapes.small).clickable(
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
+                    indication = ripple(),
                 ) {
                     if (onToggleDisabledSearchEnginesExpanded != null) {
                         onToggleDisabledSearchEnginesExpanded()

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.searchEngines.inline
 
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -53,7 +54,7 @@ fun SearchEngineIconItem(
     val isLightMode = !LocalAppIsDarkTheme.current
     val iconShadowModifier = if (isLightMode) {
         Modifier.shadow(
-            elevation = 8.dp,
+            elevation = DesignTokens.ElevationLevel4,
             shape = AppShapes.full,
             clip = false,
             ambientColor = Color.Black.copy(alpha = AppColors.TintEmphasisAlpha),

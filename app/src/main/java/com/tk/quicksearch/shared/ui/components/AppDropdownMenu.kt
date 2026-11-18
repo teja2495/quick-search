@@ -165,7 +165,7 @@ fun AppDropdownMenuItem(
             } else {
                 // Extra vertical room so the two lines don't crowd the 48dp minimum row height.
                 Column(
-                    modifier = Modifier.padding(vertical = 10.dp),
+                    modifier = Modifier.padding(vertical = DesignTokens.SpacingMedium),
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
                     Text(text = text)

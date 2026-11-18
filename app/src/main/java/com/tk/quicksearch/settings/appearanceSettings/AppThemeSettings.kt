@@ -201,6 +201,7 @@ fun AppThemeCard(
                             Column(
                                     modifier =
                                             Modifier.weight(1f)
+                                                    // No ripple: the tile's selection outline and the live theme change are the feedback.
                                                     .clickable(
                                                             interactionSource = interactionSource,
                                                             indication = null,
@@ -423,7 +424,7 @@ internal fun OverlaySourceBox(
                         modifier =
                                 (
                                     if (selectedIndicatorInCorner) {
-                                        Modifier.align(Alignment.TopStart).padding(6.dp).size(20.dp)
+                                        Modifier.align(Alignment.TopStart).padding(DesignTokens.SpacingSmall).size(20.dp)
                                     } else {
                                         Modifier.size(22.dp)
                                     }

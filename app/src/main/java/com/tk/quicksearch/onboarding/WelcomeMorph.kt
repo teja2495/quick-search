@@ -1,7 +1,7 @@
 package com.tk.quicksearch.onboarding
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -70,7 +70,7 @@ import kotlin.math.roundToInt
 /** Overall pace of the welcome morph: every duration below is stretched by this factor. */
 internal const val WelcomeMorphSlowMotion = 1f
 
-private const val PressMs = 200
+private const val PressMs = AppMotion.DurationShort
 
 /** The setup page's background fades this much faster than the rise, so the search content shows early. */
 private const val CurtainLead = 1.6f
@@ -83,12 +83,12 @@ private val PushFadeDistance = 140.dp
 private val PredictedTopGap = DesignTokens.SpacingSmall
 
 /** The bar's rise from the setup button onto the real search bar, carrying the search content with it. */
-private const val TravelMs = 640
+private const val TravelMs = AppMotion.DurationExtraLong
 
 /** Share of the rise over which the search content fades in, hiding its first raw frames. */
 private const val ContentFadeTravel = 0.3f
-private const val HandoffMs = 140
-private const val GlowFadeMs = 500
+private const val HandoffMs = AppMotion.DurationExit
+private const val GlowFadeMs = AppMotion.DurationGlowFade
 
 /** How long the landed search bar keeps glowing. Real time: not slowed by [WelcomeMorphSlowMotion]. */
 private const val GlowHoldMs = 3000L
@@ -313,7 +313,7 @@ fun Modifier.welcomeContentReveal(): Modifier =
                 translationY = state.contentShift()
                 alpha =
                     if (state.phase == WelcomeMorphPhase.Landing) {
-                        FastOutSlowInEasing.transform((state.travel / ContentFadeTravel).coerceIn(0f, 1f))
+                        AppMotion.EmphasizedEasing.transform((state.travel / ContentFadeTravel).coerceIn(0f, 1f))
                     } else {
                         1f
                     }

@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ButtonDefaults
+import com.tk.quicksearch.shared.ui.components.AppTopAppBar
 import com.tk.quicksearch.settings.preloadFeaturesMarkdown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -327,31 +328,10 @@ private val BackupButtonHeight = 48.dp
  */
 @Composable
 fun SettingsHeader(onBack: () -> Unit) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = DesignTokens.ContentHorizontalPadding,
-                    vertical = DesignTokens.HeaderVerticalPadding,
-                ),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(onClick = onBack) {
-            Icon(
-                imageVector = MaterialSymbols.ArrowBack,
-                contentDescription = stringResource(R.string.desc_navigate_back),
-                tint = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-        androidx.compose.foundation.layout
-            .Spacer(modifier = Modifier.width(DesignTokens.HeaderIconSpacing))
-        Text(
-            text = stringResource(R.string.settings_gesture_settings),
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-    }
+    AppTopAppBar(
+        title = stringResource(R.string.settings_gesture_settings),
+        onBack = onBack,
+    )
 }
 
 /**

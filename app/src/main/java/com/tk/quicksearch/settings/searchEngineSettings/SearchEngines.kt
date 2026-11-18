@@ -89,7 +89,7 @@ fun SearchEngines(
             triggerAfterSpaceEnabled = isAliasTriggerAfterSpaceEnabled,
             onToggleTriggerAfterSpace = onToggleAliasTriggerAfterSpaceEnabled,
         )
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingSmall))
     }
 
     if (!aiSearchAvailable && onOpenAiSearchConfigure != null) {

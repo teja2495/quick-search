@@ -1,7 +1,7 @@
 package com.tk.quicksearch.shared.ui.components
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.activity.compose.PredictiveBackHandler
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
@@ -59,7 +59,7 @@ private suspend fun PredictiveBackSlideState.animateOffsetTo(target: Float) {
     val distance = kotlin.math.abs(target - offset)
     if (distance <= 0f) return
     val duration = (SLIDE_DURATION_MS * distance).toInt().coerceAtLeast(1)
-    animate(offset, target, animationSpec = tween(duration, easing = FastOutSlowInEasing)) { value, _ ->
+    animate(offset, target, animationSpec = tween(duration, easing = AppMotion.EmphasizedEasing)) { value, _ ->
         offset = value
     }
 }

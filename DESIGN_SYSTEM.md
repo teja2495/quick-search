@@ -42,7 +42,11 @@ feature, screen, or component starts from the Material 3 guideline for that patt
   tint with the accent tint scale, not `Accent.copy(alpha = …)`.
 - **Shapes:** `AppShapes` only. Don't build a `RoundedCornerShape` or read `MaterialTheme.shapes`
   in feature code, except for radii the user configures or that animate.
-- **Motion:** `AppMotion` for every spring and duration; don't write `spring(...)` inline.
+- **Motion:** `AppMotion` for every spring, duration, and easing curve; don't write `spring(...)`
+  inline or use Material 2's `FastOutSlowInEasing`, `LinearOutSlowInEasing`, or
+  `FastOutLinearInEasing`.
+- **Press feedback:** every tappable element shows Material's state layer. Don't pass
+  `indication = null` unless the tap has other immediate visual feedback, and say why in a comment.
 - **Components:** reuse a shared component before building a new dialog, sheet, popup, menu,
   button, or settings row. Never call Material `Button`, `FilledTonalButton`, `OutlinedButton`,
   `TextButton`, or `DropdownMenu` directly.
@@ -162,6 +166,20 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
   a Material dialog, so they don't use `AppDialogSurface`.
 - **Filter chips are pills.** `AppFilterChip` uses `AppShapes.full` instead of Material's 8dp chip
   corners, to match the app's pill buttons.
+- **Inline editors.** The note editor (`NoteEditor.kt`), the Home quick note
+  (`WidgetPanelQuickNote.kt`), the folder title rename (`FolderContentsPopup.kt`), and the AI
+  personal context card (`AiProviderSettings.kt`) use `BasicTextField`. The text is edited in place
+  on its own surface, so a form field's container and label would be wrong.
+- **Ripple-free taps.** The theme palette drawer and the theme tiles in Appearance apply the choice
+  live and show the selection, so they skip the ripple. The long-press easter eggs (version
+  footer, contact number copy) have no tap action to give feedback for.
+- **Icon shadows.** App icons and search engine icons over a light wallpaper, and the All Apps
+  letter bubble, cast a shadow at a Material elevation level. A tonal surface can't separate a bare
+  icon from an arbitrary wallpaper.
+- **Loading.** Material 3 Expressive's `LoadingIndicator` isn't public in the material3 version
+  in use, so AI answers use `GeminiLoadingAnimation` (the same morphing shapes, built on
+  graphics-shapes) and other waits use `CircularProgressIndicator`. Switch area-filling waits to
+  `LoadingIndicator` once it is public.
 - **Small badges.** Edit/remove badges on wallpaper thumbnails (20dp) and the notification history
   chevron are smaller than 48dp. They are clickable with a button role, and Compose extends their
   hit area to the 48dp minimum touch target where space allows.
@@ -191,7 +209,8 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
 - **Sizes:** `IconSizeSmall` 20, `IconSize` 24, `LargeIconSize` 28, `IconSizeXLarge` 52,
   `AppIconSize` 64, `BorderWidth` 1, `DividerThickness` 0.5.
 - **At a Glance rows:** `GlanceRowMinHeight` 52, `GlanceRowHorizontalPadding` 7. The inset is off
-  the 4dp grid; every glance row shares it so they line up.
+  the 4dp grid; every glance row shares it so they line up. `ResultIconStartInset` gives the 24dp
+  leading glyph in notes, reminders, calendar, and bookmark rows the same inset.
 - **Elevation (Material levels):** `ElevationLevel0` 0, `ElevationLevel2` 3, `ElevationLevel3` 6,
   `ElevationLevel4` 8, `ElevationLevel5` 12. Prefer tonal surface roles over shadows.
 - **Other:** `DragAlpha`, `SearchField*`, `WidgetPanelCornerRadius`.
@@ -224,7 +243,11 @@ Material 3 duration scale: `DurationMicro` 50, `DurationQuick` 100 (short2), `Du
 (short3, exits and fades out), `DurationShort` 200, `DurationStandard` 250 (medium1),
 `DurationMedium` 300, `DurationLarge` 400 (medium4, large enter transitions), `DurationGlowFade`
 500, `DurationExtraLong` 700 (long2), `DurationLong` 4000. Point file-local duration constants at
-these rather than raw numbers; snap to the nearest step.
+these rather than raw numbers; snap to the nearest step. Looping animation periods (the AI loading
+morph and shimmer) are not transition durations and stay local.
+
+Tweens use the Material 3 easing curves: `EmphasizedEasing` for moves, resizes, and crossfades that
+stay on screen, `EmphasizedDecelerateEasing` for enters, and `EmphasizedAccelerateEasing` for exits.
 
 ## Typography (`Type.kt`)
 
@@ -262,6 +285,7 @@ settings and add a property in sorted order.
 | `SegmentedGroup`, `SegmentedTile`, `SegmentedTileRow`, `SegmentedToggleTile`, `SegmentedTileContent`, `AppSwitch`, `TonalIconBadge`, `TonalIconBadgeContainer` (`SegmentedList.kt`) | Segmented list | The default layout for settings pages, dialogs that list items, widget config screens, onboarding, and drawers. Each row is its own tile, with 28dp outer corners, 4dp inner corners, and 2dp gaps; inner corners round to 16dp while pressed. Rows lead with a 40dp `TonalIconBadge`. Inside a tile, `LocalSegmentedItemModifier` and `LocalInSegmentedTile` adjust nested rows |
 | `ExpandableSegmentedGroup` | Expandable list | A `SegmentedGroup` that collapses to its title row (`titleMedium` heading, rotating chevron) |
 | `Settings*Row`, `SettingsSegmentNavigationRow`, `SettingsIconBadge`, `BooleanSettingTile`, `SettingsNestedCheckbox`, `SettingsRemoveButton`, `AliasPill` (`settings/shared/`) | List items | Settings toggle, navigation, and sub-option rows. `BooleanSettingTile` binds a registered boolean preference to the same command that searchable Settings uses |
+| `AppTopAppBar` | Top app bar (small) | Full-screen page headers (Settings and its detail pages): back button, `titleLarge` heading, and `actions`. The container is transparent over the page background, and there is no on-scroll fill because the page clips its scrolling content below the bar |
 | `AppAlertDialog` | Dialog | Alerts and confirmations on `surfaceContainerHigh`. Pass `confirmLabel`/`onConfirm` and an optional `dismissLabel`; set `destructive = true` for an error-tinted confirm |
 | `AppDialogSurface` | Dialog (custom content) | Custom centered content (File Preview, Pinned Notification Items). The feature owns sizing and actions |
 | `AppBottomSheet` | Modal bottom sheet | Bottom sheets with 28dp top corners. `scrimColor = Color.Transparent` keeps the screen behind undimmed for live previews |

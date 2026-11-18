@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import com.tk.quicksearch.shared.ui.components.AppBottomPopup
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import androidx.compose.material3.ripple
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -238,10 +239,10 @@ private fun ReleaseNotesExpanderRow(
             .clip(AppShapes.small)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null,
+                indication = ripple(),
                 onClick = onClick,
             )
-            .padding(top = 10.dp, bottom = bottomPadding),
+            .padding(top = DesignTokens.SpacingMedium, bottom = bottomPadding),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -271,10 +272,10 @@ private fun ReleaseNotesNavigationRow(
             .clip(AppShapes.small)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null,
+                indication = ripple(),
                 onClick = onClick,
             )
-            .padding(vertical = 10.dp),
+            .padding(vertical = DesignTokens.SpacingMedium),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {

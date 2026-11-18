@@ -177,8 +177,8 @@ private fun MissedCallAppChip(
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Row(
-            modifier = Modifier.padding(start = DesignTokens.SpacingSmall, end = DesignTokens.SpacingMedium, top = 5.dp, bottom = 5.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.padding(start = DesignTokens.SpacingSmall, end = DesignTokens.SpacingMedium, top = DesignTokens.SpacingXSmall, bottom = DesignTokens.SpacingXSmall),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(modifier = Modifier.size(16.dp), contentAlignment = Alignment.Center) {

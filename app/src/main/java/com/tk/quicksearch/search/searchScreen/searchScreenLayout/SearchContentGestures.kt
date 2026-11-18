@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
