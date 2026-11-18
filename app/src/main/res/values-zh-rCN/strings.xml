@@ -12,7 +12,6 @@
     <!-- ============================================================================
          App &amp; Search Entry
          ============================================================================ -->
-    <string name="app_name">Quick Search</string>
     <string name="direct_answer_contact_name">AI 回答</string>
     <string name="direct_search_enter_query">请输入要搜索的内容。</string>
     <string name="direct_search_ask_follow_up">继续提问</string>
@@ -359,11 +358,8 @@
     <string name="error_uninstall_self">您无法在此处卸载 Quick Search。</string>
     <string name="failed_to_refresh_apps">刷新应用失败</string>
     <string name="settings_app_apk_size_format">APK 大小: %1$.2f Mb</string>
-    <string name="settings_app_columns_4">4</string>
-    <string name="settings_app_columns_5">5</string>
     <string name="settings_app_columns_title">每行应用数</string>
     <string name="settings_app_result_rows_title">应用结果行数</string>
-    <string name="settings_app_icon_size_percent">%1$d%%</string>
     <string name="settings_app_icon_size_title">应用图标大小</string>
     <string name="settings_app_info_install_date">安装日期</string>
     <string name="settings_app_info_last_update">最近更新</string>
@@ -437,7 +433,6 @@
     <string name="settings_app_shortcuts_shortcut_name_label">快捷方式名称</string>
     <string name="settings_app_shortcuts_update_failed">无法更新快捷方式。</string>
     <string name="settings_app_shortcuts_update_success">快捷方式已更新。</string>
-    <string name="settings_app_shortcuts_url_label">URL</string>
     <string name="shortcut_song_search_label">歌曲搜索</string>
     <string name="shortcut_watch_later_label">稍后观看</string>
 
@@ -447,17 +442,12 @@
     <string name="contact_method_call_label">电话呼叫</string>
     <string name="contact_method_email_label">发送电子邮件</string>
     <string name="contact_method_fallback_label">其他方式</string>
-    <string name="contact_method_google_meet_label">Google Meet</string>
     <string name="contact_method_message_label">发送短信</string>
-    <string name="contact_method_signal_message_label">Signal</string>
     <string name="contact_method_signal_video_call_label">Signal 视频通话</string>
     <string name="contact_method_signal_voice_call_label">Signal 语音通话</string>
-    <string name="contact_method_telegram_message_label">Telegram</string>
     <string name="contact_method_telegram_video_call_label">Telegram 视频通话</string>
     <string name="contact_method_telegram_voice_call_label">Telegram 语音通话</string>
     <string name="contact_method_view_in_contacts_label">在通讯录应用中查看</string>
-<string name="contact_method_whatsapp_message_label">WhatsApp</string>
-<string name="contact_method_whatsapp_business_label">WhatsApp Business</string>
     <string name="contact_method_whatsapp_video_call_label">WhatsApp 视频通话</string>
     <string name="contact_method_whatsapp_voice_call_label">WhatsApp 语音通话</string>
     <string name="contact_button_sms">短信</string>
@@ -666,7 +656,6 @@
     <string name="settings_shortcut_location">位置信息</string>
     <string name="settings_shortcut_mobile_data">移动数据网络</string>
     <string name="settings_shortcut_network">网络和互联网</string>
-    <string name="settings_shortcut_nfc">NFC</string>
     <string name="settings_shortcut_notification_listener">通知访问权限</string>
     <string name="settings_shortcut_notification_history">通知历史</string>
     <string name="notification_history_permission_desc">允许通知访问权限以在此收集通知。此列表中仅显示授予访问权限后收到的通知。</string>
@@ -684,7 +673,6 @@
     <string name="settings_shortcut_storage">存储空间</string>
     <string name="settings_shortcut_usage_access">使用情况访问权限</string>
     <string name="settings_shortcut_voice_input">数字助理应用</string>
-    <string name="settings_shortcut_vpn">VPN</string>
     <string name="settings_shortcut_wifi">Wi\u2011Fi</string>
     <string name="settings_unable_to_open_settings">无法打开设置</string>
 
@@ -746,7 +734,6 @@
     <string name="settings_amoled_theme_title">AMOLED 主题</string>
     <string name="settings_device_theme_blocked_toast">当 Material You 主题启用时此项已被禁用</string>
     <string name="settings_device_theme_desc">将设备的动态调色板应用为应用自身的主题色彩</string>
-    <string name="settings_device_theme_title">Material You</string>
     <string name="settings_edit_label">编辑</string>
     <string name="settings_font_size_big">大</string>
     <string name="settings_font_size_extra_small">特小</string>
@@ -951,12 +938,7 @@
     <string name="settings_add_search_engine_error_multiple_placeholders">请仅使用一次 {{query}}。</string>
     <string name="settings_add_search_engine_error_placeholder">URL 必须包含占位符 {{query}}</string>
     <string name="settings_add_search_engine_error_required">请输入 URL 模板。</string>
-    <string name="settings_ai_provider_groq">Groq</string>
-    <string name="settings_ai_provider_meta">Meta AI</string>
-    <string name="settings_ai_provider_opencode">OpenCode</string>
-    <string name="settings_ai_provider_openai">OpenAI</string>
     <string name="settings_alias_label">别名：</string>
-    <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_amazon_domain_label">域名：</string>
     <string name="settings_api_key_setup_desc">配置 API 密钥以访问对应 AI 提供商的模型。</string>
     <string name="settings_api_key_setup_nav_desc">添加或移除提供商的 API 密钥</string>
@@ -966,7 +948,6 @@
     <string name="custom_provider_models_load_failed">无法从此提供商加载模型：%1$s</string>
     <string name="settings_custom_provider_advanced_payload_desc">合并到通过此提供商发送的每个请求中。</string>
     <string name="settings_custom_provider_advanced_payload_error">请输入有效的 JSON 对象。</string>
-    <string name="settings_custom_provider_advanced_payload_hint" translatable="false">Example: { \"tools\": [{ \"type\": \"openrouter:web_search\" }] }</string>
     <string name="settings_custom_provider_advanced_payload_title">高级请求负载</string>
     <string name="settings_free_api_key_tip_description">免费获取 Gemini API 密钥的步骤。</string>
     <string name="settings_open_free_api_key_guide">打开免费 API 密钥指南</string>
@@ -974,7 +955,6 @@
     <string name="settings_direct_search_how_to">获取免费 API 密钥</string>
     <string name="settings_direct_search_model_label">模型</string>
     <string name="settings_select_model">选择模型</string>
-    <string name="settings_ai_model_with_provider">%1$s · %2$s</string>
     <string name="ai_error_selected_model_unavailable">所选模型不可用。请在设置中选择其他模型。</string>
     <string name="settings_loading_models">正在加载模型…</string>
     <string name="settings_direct_search_personal_context">个人背景信息</string>
@@ -989,7 +969,6 @@
     <string name="settings_gemini_api_key_paste_hint">点击此处粘贴密钥</string>
     <string name="settings_gemini_api_key_reset">重置密钥</string>
     <string name="settings_gemini_api_key_saving">正在保存...</string>
-    <string name="settings_gemini_guide_url" translatable="false">https://medium.com/@tejakarlapudi.apps/setting-up-gemini-api-key-in-quick-search-25ee92aa4311</string>
     <string name="settings_model_picker_search_hint">搜索模型</string>
     <string name="settings_model_picker_more_models_hint">正在显示最新模型。搜索以查找其他模型。</string>
     <string name="settings_search_engine_alias_suffix_desc">当您在查询内容的末尾加上别名时触发该搜索引擎。别名放在句首时也将始终保持生效。</string>
@@ -1229,7 +1208,6 @@
     <string name="permissions_files_desc">用于在您的个人文档、下载内容和其他本地文件中开展精确检索。</string>
     <string name="permissions_files_title">文件读写权限</string>
     <string name="permissions_granted">已授予</string>
-    <string name="permissions_mandatory_indicator">*</string>
     <string name="permissions_reminder_dialog_message">若您后续改变了关于 %1$s 权限的想法，可以随时前往应用系统设置页面内重新授予该项权限。</string>
     <string name="permissions_reminder_dialog_title">权限未授予</string>
     <string name="permissions_screen_subtitle">所有权限均为可选。它们仅用于解锁额外功能，您的数据会保留在您的设备上。</string>
@@ -1268,32 +1246,12 @@
     <string name="browser_in_app_name">内置浏览器</string>
     <string name="open_with_engine">使用 %1$s 打开</string>
     <string name="search_engine_ai_mode">AI 模式</string>
-    <string name="search_engine_amazon">Amazon</string>
-    <string name="search_engine_bing">Bing</string>
     <string name="search_engine_brave">Brave 搜索</string>
-    <string name="search_engine_chatgpt">ChatGPT</string>
-    <string name="search_engine_claude">Claude</string>
     <string name="search_engine_custom">自定义搜索</string>
-    <string name="search_engine_duckduckgo">DuckDuckGo</string>
-    <string name="search_engine_fdroid">F-Droid</string>
-    <string name="search_engine_facebook_marketplace">Facebook Marketplace</string>
-    <string name="search_engine_gemini">Gemini</string>
-    <string name="search_engine_google">Google</string>
     <string name="search_engine_google_drive">Google Drive</string>
     <string name="search_engine_google_maps">Google Maps</string>
     <string name="search_engine_google_photos">Google Photos</string>
-    <string name="search_engine_google_play">Google Play</string>
-    <string name="search_engine_grok">Grok</string>
-    <string name="search_engine_perplexity">Perplexity</string>
-    <string name="search_engine_reddit">Reddit</string>
-    <string name="search_engine_spotify">Spotify</string>
-    <string name="search_engine_startpage">Startpage</string>
-    <string name="search_engine_waze">Waze</string>
     <string name="search_engine_wikipedia">维基百科 (Wikipedia)</string>
-    <string name="search_engine_x">X</string>
-    <string name="search_engine_you_com">You.com</string>
-    <string name="search_engine_youtube">YouTube</string>
-    <string name="search_engine_youtube_music">YouTube Music</string>
     <string name="search_on_engine">在 %1$s 上搜索</string>
 
     <!-- ============================================================================
@@ -1343,9 +1301,7 @@
     <string name="widget_custom_button_change_colour">更改颜色</string>
     <string name="widget_custom_button_choose_colour">选择文件夹颜色</string>
     <string name="search_engine_google_translate">谷歌翻译</string>
-    <string name="search_engine_kagi">Kagi</string>
     <string name="search_engine_kagi_assistant">Kagi Assistant</string>
-    <string name="search_engine_muse">Muse</string>
     <string name="tasker_integration_title">Tasker 操作</string>
     <string name="tasker_integration_description">使用广播 Intent 创建 Tasker 操作。</string>
     <string name="tasker_add_intent_title">添加 Tasker 广播 Intent</string>
@@ -1360,7 +1316,6 @@
     <string name="tasker_not_installed">未安装 Tasker</string>
     <string name="tasker_broadcast_failed">无法发送 Tasker 广播</string>
     <string name="settings_more_apps_from_developer_title">开发者的更多应用</string>
-    <string name="settings_github_label">GitHub</string>
     <string name="icon_picker_no_icon_packs">未安装可用于更改应用图标的图标包。</string>
     <string name="icon_picker_download_icon_packs">下载</string>
     <string name="app_menu_usage_today">今天已使用 %1$s · 已打开 %2$s</string>
@@ -1379,7 +1334,6 @@
     <string name="speed_bump_explainer_just_enabled">你刚刚为 %1$s 开启了此功能</string>
     <string name="speed_bump_overlay_prompt">%1$s 即将打开…</string>
     <string name="speed_bump_overlay_title">深呼吸一下</string>
-    <string name="speed_bump_title">SpeedBump</string>
     <string name="speed_bump_pause_action">暂停 SpeedBump</string>
     <string name="speed_bump_pause_menu_title">暂停 %1$s 的 SpeedBump</string>
     <string name="speed_bump_outside_quick_search_title">扩展 SpeedBump</string>

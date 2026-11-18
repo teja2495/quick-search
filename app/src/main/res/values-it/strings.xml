@@ -11,7 +11,6 @@
     <!-- ============================================================================
          App &amp; Search Entry
          ============================================================================ -->
-    <string name="app_name">Quick Search</string>
     <string name="direct_answer_contact_name">Risposta AI</string>
     <string name="direct_search_enter_query">Inserisci una query per cercare.</string>
     <string name="direct_search_ask_follow_up">Fai una domanda successiva</string>
@@ -358,11 +357,8 @@
     <string name="error_uninstall_self">Non puoi disinstallare Quick Search da qui.</string>
     <string name="failed_to_refresh_apps">Impossibile aggiornare le app</string>
     <string name="settings_app_apk_size_format">Dimensione APK: %1$.2f MB</string>
-    <string name="settings_app_columns_4">4</string>
-    <string name="settings_app_columns_5">5</string>
     <string name="settings_app_columns_title">App per riga</string>
     <string name="settings_app_result_rows_title">Righe dei risultati delle app</string>
-    <string name="settings_app_icon_size_percent">%1$d%%</string>
     <string name="settings_app_icon_size_title">Dimensione icone app</string>
     <string name="settings_app_info_install_date">Data di installazione</string>
     <string name="settings_app_info_last_update">Ultimo aggiornamento</string>
@@ -437,7 +433,6 @@
     <string name="settings_app_shortcuts_shortcut_name_label">Nome scorciatoia</string>
     <string name="settings_app_shortcuts_update_failed">Impossibile aggiornare la scorciatoia.</string>
     <string name="settings_app_shortcuts_update_success">Scorciatoia aggiornata.</string>
-    <string name="settings_app_shortcuts_url_label">URL</string>
     <string name="shortcut_song_search_label">Ricerca canzoni</string>
     <string name="shortcut_watch_later_label">Guarda più tardi</string>
 
@@ -447,17 +442,12 @@
     <string name="contact_method_call_label">Chiama</string>
     <string name="contact_method_email_label">Email</string>
     <string name="contact_method_fallback_label">Altro</string>
-    <string name="contact_method_google_meet_label">Google Meet</string>
     <string name="contact_method_message_label">Messaggio</string>
-    <string name="contact_method_signal_message_label">Signal</string>
     <string name="contact_method_signal_video_call_label">Videochiamata Signal</string>
     <string name="contact_method_signal_voice_call_label">Chiamata vocale Signal</string>
-    <string name="contact_method_telegram_message_label">Telegram</string>
     <string name="contact_method_telegram_video_call_label">Videochiamata Telegram</string>
     <string name="contact_method_telegram_voice_call_label">Chiamata vocale Telegram</string>
     <string name="contact_method_view_in_contacts_label">Visualizza nell\u2019app Contatti</string>
-    <string name="contact_method_whatsapp_message_label">WhatsApp</string>
-    <string name="contact_method_whatsapp_business_label">WhatsApp Business</string>
     <string name="contact_method_whatsapp_video_call_label">Videochiamata WhatsApp</string>
     <string name="contact_method_whatsapp_voice_call_label">Chiamata vocale WhatsApp</string>
     <string name="contact_button_sms">SMS</string>
@@ -676,7 +666,6 @@
     <string name="settings_shortcut_location">Posizione</string>
     <string name="settings_shortcut_mobile_data">Dati mobili</string>
     <string name="settings_shortcut_network">Rete e Internet</string>
-    <string name="settings_shortcut_nfc">NFC</string>
     <string name="settings_shortcut_notification_listener">Accesso alle notifiche</string>
     <string name="settings_shortcut_notification_history">Cronologia notifiche</string>
     <string name="notification_history_permission_desc">Consenti l\'accesso alle notifiche per raccoglierle qui. In questo elenco compaiono solo le notifiche ricevute dopo aver concesso l\'accesso.</string>
@@ -694,7 +683,6 @@
     <string name="settings_shortcut_storage">Spazio di archiviazione</string>
     <string name="settings_shortcut_usage_access">Accesso dati utilizzo</string>
     <string name="settings_shortcut_voice_input">Assistente digitale</string>
-    <string name="settings_shortcut_vpn">VPN</string>
     <string name="settings_shortcut_wifi">Wi\u2011Fi</string>
     <string name="settings_unable_to_open_settings">Impossibile aprire le impostazioni</string>
 
@@ -756,7 +744,6 @@
     <string name="settings_amoled_theme_title">Tema AMOLED</string>
     <string name="settings_device_theme_blocked_toast">Disattivato quando il tema Material You è attivo</string>
     <string name="settings_device_theme_desc">Usa la tavolozza dei colori dinamici del dispositivo come tema dell\u2019app</string>
-    <string name="settings_device_theme_title">Material You</string>
     <string name="settings_edit_label">Modifica</string>
     <string name="settings_font_size_big">Grande</string>
     <string name="settings_font_size_extra_small">Molto piccola</string>
@@ -963,12 +950,7 @@
     <string name="settings_add_search_engine_error_multiple_placeholders">Usa {{query}} una sola volta.</string>
     <string name="settings_add_search_engine_error_placeholder">L\u2019URL deve includere {{query}}</string>
     <string name="settings_add_search_engine_error_required">Inserisci un modello di URL.</string>
-    <string name="settings_ai_provider_groq">Groq</string>
-    <string name="settings_ai_provider_meta">Meta AI</string>
-    <string name="settings_ai_provider_opencode">OpenCode</string>
-    <string name="settings_ai_provider_openai">OpenAI</string>
     <string name="settings_alias_label">Alias:</string>
-    <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_amazon_domain_label">Dominio:</string>
     <string name="settings_api_key_setup_desc">Configura le chiavi API per accedere ai modelli dei rispettivi fornitori AI.</string>
     <string name="settings_api_key_setup_nav_desc">Aggiungi o rimuovi le chiavi API dei fornitori</string>
@@ -978,7 +960,6 @@
     <string name="custom_provider_models_load_failed">Impossibile caricare i modelli da questo provider: %1$s</string>
     <string name="settings_custom_provider_advanced_payload_desc">Unito in ogni richiesta inviata tramite questo provider.</string>
     <string name="settings_custom_provider_advanced_payload_error">Inserisci un oggetto JSON valido.</string>
-    <string name="settings_custom_provider_advanced_payload_hint" translatable="false">Example: { \"tools\": [{ \"type\": \"openrouter:web_search\" }] }</string>
     <string name="settings_custom_provider_advanced_payload_title">Payload di richiesta avanzato</string>
     <string name="settings_free_api_key_tip_description">Passaggi per ottenere gratuitamente una chiave API Gemini.</string>
     <string name="settings_open_free_api_key_guide">Apri la guida per la chiave API gratuita</string>
@@ -986,7 +967,6 @@
     <string name="settings_direct_search_how_to">Ottieni una chiave API gratuita</string>
     <string name="settings_direct_search_model_label">Modello</string>
     <string name="settings_select_model">Seleziona modello</string>
-    <string name="settings_ai_model_with_provider">%1$s · %2$s</string>
     <string name="ai_error_selected_model_unavailable">Il modello selezionato non è disponibile. Scegli un altro modello nelle impostazioni.</string>
     <string name="settings_loading_models">Caricamento modelli…</string>
     <string name="settings_direct_search_personal_context">Contesto personale</string>
@@ -1001,7 +981,6 @@
     <string name="settings_gemini_api_key_paste_hint">Tocca per incollare la chiave</string>
     <string name="settings_gemini_api_key_reset">Reimposta chiave</string>
     <string name="settings_gemini_api_key_saving">Salvataggio in corso...</string>
-    <string name="settings_gemini_guide_url" translatable="false">https://medium.com/@tejakarlapudi.apps/setting-up-gemini-api-key-in-quick-search-25ee92aa4311</string>
     <string name="settings_model_picker_search_hint">Cerca modelli</string>
     <string name="settings_model_picker_more_models_hint">Vengono mostrati i modelli più recenti. Cerca per trovarne altri.</string>
     <string name="settings_search_engine_alias_suffix_desc">Attiva il motore di ricerca quando inserisci un alias alla fine della query. Gli alias funzioneranno sempre all\u2019inizio.</string>
@@ -1241,7 +1220,6 @@
     <string name="permissions_files_desc">Richiesta per cercare tra i tuoi documenti e altri file.</string>
     <string name="permissions_files_title">Accesso ai file</string>
     <string name="permissions_granted">Concessa</string>
-    <string name="permissions_mandatory_indicator">*</string>
     <string name="permissions_reminder_dialog_message">Se in seguito dovessi cambiare idea sull\u2019autorizzazione %1$s, potrai concederla dalle impostazioni dell\u2019app.</string>
     <string name="permissions_reminder_dialog_title">Autorizzazioni non concesse</string>
     <string name="permissions_screen_subtitle">Tutte le autorizzazioni sono facoltative. Sbloccano solo funzionalità aggiuntive e i tuoi dati rimangono sul tuo dispositivo.</string>
@@ -1280,32 +1258,12 @@
     <string name="browser_in_app_name">Browser integrato (In-App)</string>
     <string name="open_with_engine">Apri con %1$s</string>
     <string name="search_engine_ai_mode">Modalità AI</string>
-    <string name="search_engine_amazon">Amazon</string>
-    <string name="search_engine_bing">Bing</string>
     <string name="search_engine_brave">Brave Search</string>
-    <string name="search_engine_chatgpt">ChatGPT</string>
-    <string name="search_engine_claude">Claude</string>
     <string name="search_engine_custom">Ricerca personalizzata</string>
-    <string name="search_engine_duckduckgo">DuckDuckGo</string>
-    <string name="search_engine_fdroid">F-Droid</string>
-    <string name="search_engine_facebook_marketplace">Facebook Marketplace</string>
-    <string name="search_engine_gemini">Gemini</string>
-    <string name="search_engine_google">Google</string>
     <string name="search_engine_google_drive">Google Drive</string>
     <string name="search_engine_google_maps">Google Maps</string>
     <string name="search_engine_google_photos">Google Photos</string>
-    <string name="search_engine_google_play">Google Play</string>
-    <string name="search_engine_grok">Grok</string>
-    <string name="search_engine_perplexity">Perplexity</string>
-    <string name="search_engine_reddit">Reddit</string>
-    <string name="search_engine_spotify">Spotify</string>
-    <string name="search_engine_startpage">Startpage</string>
-    <string name="search_engine_waze">Waze</string>
     <string name="search_engine_wikipedia">Wikipedia</string>
-    <string name="search_engine_x">X</string>
-    <string name="search_engine_you_com">You.com</string>
-    <string name="search_engine_youtube">YouTube</string>
-    <string name="search_engine_youtube_music">YouTube Music</string>
     <string name="search_on_engine">Cerca su %1$s</string>
 
     <!-- ============================================================================
@@ -1355,9 +1313,7 @@
     <string name="widget_custom_button_change_colour">Cambia colore</string>
     <string name="widget_custom_button_choose_colour">Scegli il colore della cartella</string>
     <string name="search_engine_google_translate">Google Traduttore</string>
-    <string name="search_engine_kagi">Kagi</string>
     <string name="search_engine_kagi_assistant">Kagi Assistant</string>
-    <string name="search_engine_muse">Muse</string>
     <string name="tasker_integration_title">Azioni Tasker</string>
     <string name="tasker_integration_description">Crea azioni Tasker utilizzando intent broadcast.</string>
     <string name="tasker_add_intent_title">Aggiungi intent broadcast Tasker</string>
@@ -1372,7 +1328,6 @@
     <string name="tasker_not_installed">Tasker non è installato</string>
     <string name="tasker_broadcast_failed">Impossibile inviare il broadcast di Tasker</string>
     <string name="settings_more_apps_from_developer_title">Altre app dello sviluppatore</string>
-    <string name="settings_github_label">GitHub</string>
     <string name="icon_picker_no_icon_packs">Non sono installati pacchetti di icone per modificare l\'icona dell\'app.</string>
     <string name="icon_picker_download_icon_packs">Scarica</string>
     <string name="app_menu_usage_today">%1$s oggi · Aperta %2$s</string>
@@ -1391,7 +1346,6 @@
     <string name="speed_bump_explainer_just_enabled">L\u2019hai appena attivata per %1$s</string>
     <string name="speed_bump_overlay_prompt">%1$s si aprirà a breve…</string>
     <string name="speed_bump_overlay_title">Fai un respiro profondo</string>
-    <string name="speed_bump_title">SpeedBump</string>
     <string name="speed_bump_pause_action">Sospendi SpeedBump</string>
     <string name="speed_bump_pause_menu_title">Sospendi SpeedBump per %1$s</string>
     <string name="speed_bump_outside_quick_search_title">Estendi SpeedBump</string>

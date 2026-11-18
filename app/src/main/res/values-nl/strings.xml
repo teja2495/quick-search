@@ -13,7 +13,6 @@
          App &amp; Search Entry
          ============================================================================ -->
 
-    <string name="app_name">Quick Search</string>
     <string name="direct_answer_contact_name">AI-antwoord</string>
     <string name="direct_search_enter_query">Voer een zoekopdracht in.</string>
     <string name="direct_search_ask_follow_up">Vervolgvraag stellen</string>
@@ -369,11 +368,8 @@
     <string name="error_uninstall_self">Je kunt Quick Search hier niet verwijderen.</string>
     <string name="failed_to_refresh_apps">Vernieuwen van apps mislukt</string>
     <string name="settings_app_apk_size_format">APK-grootte: %1$.2f MB</string>
-    <string name="settings_app_columns_4">4</string>
-    <string name="settings_app_columns_5">5</string>
     <string name="settings_app_columns_title">Apps per rij</string>
     <string name="settings_app_result_rows_title">Rijen met app-resultaten</string>
-    <string name="settings_app_icon_size_percent">%1$d%%</string>
     <string name="settings_app_icon_size_title">App-icoongrootte</string>
     <string name="settings_app_info_install_date">Installatiedatum</string>
     <string name="settings_app_info_last_update">Laatste update</string>
@@ -454,7 +450,6 @@
     <string name="settings_app_shortcuts_shortcut_name_label">Naam snelkoppeling</string>
     <string name="settings_app_shortcuts_update_failed">Kan snelkoppeling niet bijwerken.</string>
     <string name="settings_app_shortcuts_update_success">Snelkoppeling bijgewerkt.</string>
-    <string name="settings_app_shortcuts_url_label">URL</string>
     <string name="shortcut_song_search_label">Nummer zoeken</string>
     <string name="shortcut_watch_later_label">Later bekijken</string>
 
@@ -466,17 +461,12 @@
     <string name="contact_method_call_label">Bellen</string>
     <string name="contact_method_email_label">E-mail</string>
     <string name="contact_method_fallback_label">Overig</string>
-    <string name="contact_method_google_meet_label">Google Meet</string>
     <string name="contact_method_message_label">Bericht</string>
-    <string name="contact_method_signal_message_label">Signal</string>
     <string name="contact_method_signal_video_call_label">Signal-videogesprek</string>
     <string name="contact_method_signal_voice_call_label">Signal-spraakoproep</string>
-    <string name="contact_method_telegram_message_label">Telegram</string>
     <string name="contact_method_telegram_video_call_label">Telegram-videogesprek</string>
     <string name="contact_method_telegram_voice_call_label">Telegram-spraakoproep</string>
     <string name="contact_method_view_in_contacts_label">In Contacten-app bekijken</string>
-    <string name="contact_method_whatsapp_message_label">WhatsApp</string>
-    <string name="contact_method_whatsapp_business_label">WhatsApp Business</string>
     <string name="contact_method_whatsapp_video_call_label">WhatsApp-videogesprek</string>
     <string name="contact_method_whatsapp_voice_call_label">WhatsApp-spraakoproep</string>
     <string name="contact_button_sms">Sms</string>
@@ -705,7 +695,6 @@
     <string name="settings_shortcut_location">Locatie</string>
     <string name="settings_shortcut_mobile_data">Mobiele gegevens</string>
     <string name="settings_shortcut_network">Netwerk &amp; internet</string>
-    <string name="settings_shortcut_nfc">NFC</string>
     <string name="settings_shortcut_notification_listener">Toegang tot meldingen</string>
     <string name="settings_shortcut_notification_history">Meldingsgeschiedenis</string>
     <string name="notification_history_permission_desc">Sta toegang tot meldingen toe om ze hier te verzamelen. Alleen meldingen die na het verlenen van toegang binnenkomen, verschijnen in deze lijst.</string>
@@ -723,7 +712,6 @@
     <string name="settings_shortcut_storage">Opslag</string>
     <string name="settings_shortcut_usage_access">Toegang tot gebruiksstatistieken</string>
     <string name="settings_shortcut_voice_input">Digitale assistent</string>
-    <string name="settings_shortcut_vpn">VPN</string>
     <string name="settings_shortcut_wifi">Wifi</string>
     <string name="settings_unable_to_open_settings">Kan instellingen niet openen</string>
 
@@ -735,7 +723,6 @@
     <string name="settings_all_quick_search_features">Functielijst</string>
     <string name="settings_all_quick_search_features_desc">Bekijk de volledige lijst met functies en mogelijkheden</string>
     <string name="settings_more_apps_from_developer_title">Meer apps van de ontwikkelaar</string>
-    <string name="settings_github_label">GitHub</string>
     <string name="settings_app_settings_desc">Zoek naar Quick Search-instellingen</string>
     <string name="settings_features_load_failed">Kan functiedocumentatie niet laden.</string>
     <string name="settings_features_export">Functies downloaden en delen</string>
@@ -791,7 +778,6 @@
     <string name="settings_amoled_theme_title">AMOLED-thema</string>
     <string name="settings_device_theme_blocked_toast">Uitgeschakeld zolang het Material You-thema is ingeschakeld</string>
     <string name="settings_device_theme_desc">Gebruik het dynamische kleurenpalet van je apparaat als app-thema</string>
-    <string name="settings_device_theme_title">Material You</string>
     <string name="settings_edit_label">Bewerken</string>
     <string name="settings_font_size_big">Groot</string>
     <string name="settings_font_size_extra_small">Extra klein</string>
@@ -1003,12 +989,7 @@ www.google.com/search?q={{query}}</string>
     <string name="settings_add_search_engine_error_multiple_placeholders">Gebruik {{query}} slechts één keer.</string>
     <string name="settings_add_search_engine_error_placeholder">URL moet {{query}} bevatten</string>
     <string name="settings_add_search_engine_error_required">Voer een URL-sjabloon in.</string>
-    <string name="settings_ai_provider_groq">Groq</string>
-    <string name="settings_ai_provider_meta">Meta AI</string>
-    <string name="settings_ai_provider_opencode">OpenCode</string>
-    <string name="settings_ai_provider_openai">OpenAI</string>
     <string name="settings_alias_label">Alias:</string>
-    <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_amazon_domain_label">Domein:</string>
     <string name="settings_api_key_setup_desc">Configureer API-sleutels om toegang te krijgen tot modellen van de respectieve AI-provider.</string>
     <string name="settings_api_key_setup_nav_desc">Provider-API-sleutels toevoegen of verwijderen</string>
@@ -1018,7 +999,6 @@ www.google.com/search?q={{query}}</string>
     <string name="custom_provider_models_load_failed">Kan geen modellen laden van deze provider: %1$s</string>
     <string name="settings_custom_provider_advanced_payload_desc">Wordt toegevoegd aan elk verzoek dat via deze provider wordt verzonden.</string>
     <string name="settings_custom_provider_advanced_payload_error">Voer een geldig JSON-object in.</string>
-    <string name="settings_custom_provider_advanced_payload_hint" translatable="false">Example: { \"tools\": [{ \"type\": \"openrouter:web_search\" }] }</string>
     <string name="settings_custom_provider_advanced_payload_title">Geavanceerde verzoek-payload</string>
     <string name="settings_free_api_key_tip_description">Stappen om gratis een Gemini-API-sleutel te verkrijgen.</string>
     <string name="settings_open_free_api_key_guide">Handleiding voor gratis API-sleutel openen</string>
@@ -1026,7 +1006,6 @@ www.google.com/search?q={{query}}</string>
     <string name="settings_direct_search_how_to">Gratis API-sleutel ophalen</string>
     <string name="settings_direct_search_model_label">Model</string>
     <string name="settings_select_model">Model selecteren</string>
-    <string name="settings_ai_model_with_provider">%1$s · %2$s</string>
     <string name="ai_error_selected_model_unavailable">Het geselecteerde model is niet beschikbaar. Kies een ander model in de instellingen.</string>
     <string name="settings_loading_models">Modellen laden…</string>
     <string name="settings_direct_search_personal_context">Persoonlijke context</string>
@@ -1041,7 +1020,6 @@ www.google.com/search?q={{query}}</string>
     <string name="settings_gemini_api_key_paste_hint">Tik om de sleutel te plakken</string>
     <string name="settings_gemini_api_key_reset">Sleutel resetten</string>
     <string name="settings_gemini_api_key_saving">Opslaan…</string>
-    <string name="settings_gemini_guide_url" translatable="false">https://medium.com/@tejakarlapudi.apps/setting-up-gemini-api-key-in-quick-search-25ee92aa4311</string>
     <string name="settings_model_picker_search_hint">Modellen zoeken</string>
     <string name="settings_model_picker_more_models_hint">De nieuwste modellen worden getoond. Zoek om andere te vinden.</string>
     <string name="settings_search_engine_alias_suffix_desc">Activeert de zoekmachine wanneer je een alias aan het einde van de zoekopdracht toevoegt. Aliassen werken altijd aan het begin.</string>
@@ -1291,7 +1269,6 @@ www.google.com/search?q={{query}}</string>
     <string name="permissions_files_desc">Vereist om je documenten en andere bestanden te doorzoeken.</string>
     <string name="permissions_files_title">Bestandstoegang</string>
     <string name="permissions_granted">Verleend</string>
-    <string name="permissions_mandatory_indicator">*</string>
     <string name="permissions_reminder_dialog_message">Als je later van gedachten verandert over de machtiging %1$s, kun je deze verlenen via de app-instellingen.</string>
     <string name="permissions_reminder_dialog_title">Machtigingen niet verleend</string>
     <string name="permissions_screen_subtitle">Alle machtigingen zijn optioneel. Ze ontgrendelen alleen extra functies en je gegevens blijven op je apparaat.</string>
@@ -1332,36 +1309,14 @@ www.google.com/search?q={{query}}</string>
     <string name="browser_in_app_name">In-app browser</string>
     <string name="open_with_engine">Openen met %1$s</string>
     <string name="search_engine_ai_mode">AI-modus</string>
-    <string name="search_engine_amazon">Amazon</string>
-    <string name="search_engine_bing">Bing</string>
     <string name="search_engine_brave">Brave</string>
-    <string name="search_engine_chatgpt">ChatGPT</string>
-    <string name="search_engine_claude">Claude</string>
     <string name="search_engine_custom">Aangepast zoeken</string>
-    <string name="search_engine_duckduckgo">DuckDuckGo</string>
-    <string name="search_engine_fdroid">F-Droid</string>
-    <string name="search_engine_facebook_marketplace">Facebook Marketplace</string>
-    <string name="search_engine_gemini">Gemini</string>
-    <string name="search_engine_google">Google</string>
     <string name="search_engine_google_drive">Google Drive</string>
     <string name="search_engine_google_maps">Google Maps</string>
     <string name="search_engine_google_photos">Google Foto\'s</string>
     <string name="search_engine_google_translate">Google Translate</string>
-    <string name="search_engine_google_play">Google Play</string>
-    <string name="search_engine_grok">Grok</string>
-    <string name="search_engine_kagi">Kagi</string>
     <string name="search_engine_kagi_assistant">Kagi Assistant</string>
-    <string name="search_engine_muse">Muse</string>
-    <string name="search_engine_perplexity">Perplexity</string>
-    <string name="search_engine_reddit">Reddit</string>
-    <string name="search_engine_spotify">Spotify</string>
-    <string name="search_engine_startpage">Startpage</string>
-    <string name="search_engine_waze">Waze</string>
     <string name="search_engine_wikipedia">Wikipedia</string>
-    <string name="search_engine_x">X</string>
-    <string name="search_engine_you_com">You.com</string>
-    <string name="search_engine_youtube">YouTube</string>
-    <string name="search_engine_youtube_music">YouTube Music</string>
     <string name="search_on_engine">Zoeken op %1$s</string>
 
     
@@ -1447,7 +1402,6 @@ Gebruik {time} om de huidige datum en tijd in de prompt op te nemen.</string>
     <string name="speed_bump_explainer_just_enabled">Je hebt dit zojuist ingeschakeld voor %1$s</string>
     <string name="speed_bump_overlay_prompt">%1$s wordt zo geopend…</string>
     <string name="speed_bump_overlay_title">Haal even adem</string>
-    <string name="speed_bump_title">SpeedBump</string>
     <string name="speed_bump_pause_action">SpeedBump pauzeren</string>
     <string name="speed_bump_pause_menu_title">SpeedBump pauzeren voor %1$s</string>
     <string name="speed_bump_outside_quick_search_title">SpeedBump uitbreiden</string>

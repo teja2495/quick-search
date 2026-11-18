@@ -12,7 +12,6 @@
     <!-- ============================================================================
          App &amp; Search Entry
          ============================================================================ -->
-    <string name="app_name">Quick Search</string>
     <string name="direct_answer_contact_name">AI సమాధానం</string>
     <string name="direct_search_enter_query">దయచేసి శోధించడానికి ఒక ప్రశ్నను నమోదు చేయండి.</string>
     <string name="direct_search_ask_follow_up">తదుపరి ప్రశ్న అడగండి</string>
@@ -359,11 +358,8 @@
     <string name="error_uninstall_self">మీరు ఇక్కడి నుండి Quick Searchని అన్‌ఇన్‌స్టాల్ చేయలేరు.</string>
     <string name="failed_to_refresh_apps">యాప్‌లను రీఫ్రెష్ చేయడం విఫలమైంది</string>
     <string name="settings_app_apk_size_format">APK పరిమాణం: %1$.2f Mb</string>
-    <string name="settings_app_columns_4">4</string>
-    <string name="settings_app_columns_5">5</string>
     <string name="settings_app_columns_title">వరుసకు యాప్‌ల సంఖ్య</string>
     <string name="settings_app_result_rows_title">యాప్ ఫలితాల వరుసలు</string>
-    <string name="settings_app_icon_size_percent">%1$d%%</string>
     <string name="settings_app_icon_size_title">యాప్ ఐకాన్ పరిమాణం</string>
     <string name="settings_app_info_install_date">ఇన్‌స్టాల్ చేసిన తేదీ</string>
     <string name="settings_app_info_last_update">చివరిగా నవీకరించబడింది</string>
@@ -438,7 +434,6 @@
     <string name="settings_app_shortcuts_shortcut_name_label">షార్ట్‌కట్ పేరు</string>
     <string name="settings_app_shortcuts_update_failed">షార్ట్‌కట్‌ని నవీకరించడం సాధ్యపడలేదు.</string>
     <string name="settings_app_shortcuts_update_success">షార్ట్‌కట్ నవీకరించబడింది.</string>
-    <string name="settings_app_shortcuts_url_label">URL</string>
     <string name="shortcut_song_search_label">పాటల శోధన</string>
     <string name="shortcut_watch_later_label">తర్వాత చూడండి</string>
 
@@ -448,17 +443,12 @@
     <string name="contact_method_call_label">కాల్</string>
     <string name="contact_method_email_label">ఈమెయిల్</string>
     <string name="contact_method_fallback_label">ఇతర</string>
-    <string name="contact_method_google_meet_label">Google Meet</string>
     <string name="contact_method_message_label">సందేశం</string>
-    <string name="contact_method_signal_message_label">Signal</string>
     <string name="contact_method_signal_video_call_label">Signal వీడియో కాల్</string>
     <string name="contact_method_signal_voice_call_label">Signal వాయిస్ కాల్</string>
-    <string name="contact_method_telegram_message_label">Telegram</string>
     <string name="contact_method_telegram_video_call_label">Telegram వీడియో కాల్</string>
     <string name="contact_method_telegram_voice_call_label">Telegram వాయిస్ కాల్</string>
     <string name="contact_method_view_in_contacts_label">పరిచయాల యాప్‌లో చూడండి</string>
-    <string name="contact_method_whatsapp_message_label">WhatsApp</string>
-    <string name="contact_method_whatsapp_business_label">WhatsApp Business</string>
     <string name="contact_method_whatsapp_video_call_label">WhatsApp వీడియో కాల్</string>
     <string name="contact_method_whatsapp_voice_call_label">WhatsApp వాయిస్ కాల్</string>
     <string name="contact_button_sms">SMS</string>
@@ -677,7 +667,6 @@
     <string name="settings_shortcut_location">లొకేషన్</string>
     <string name="settings_shortcut_mobile_data">మొబైల్ డేటా</string>
     <string name="settings_shortcut_network">నెట్‌వర్క్ &amp; ఇంటర్నెట్</string>
-    <string name="settings_shortcut_nfc">NFC</string>
     <string name="settings_shortcut_notification_listener">నోటిఫికేషన్ యాక్సెస్</string>
     <string name="settings_shortcut_notification_history">నోటిఫికేషన్ చరిత్ర</string>
     <string name="notification_history_permission_desc">నోటిఫికేషన్‌లను ఇక్కడ సేకరించడానికి నోటిఫికేషన్ యాక్సెస్‌ను అనుమతించండి. యాక్సెస్ ఇచ్చిన తర్వాత వచ్చిన నోటిఫికేషన్‌లు మాత్రమే ఈ జాబితాలో కనిపిస్తాయి.</string>
@@ -695,7 +684,6 @@
     <string name="settings_shortcut_storage">స్టోరేజ్</string>
     <string name="settings_shortcut_usage_access">వినియోగ ప్రాప్యత</string>
     <string name="settings_shortcut_voice_input">డిజిటల్ అసిస్టెంట్</string>
-    <string name="settings_shortcut_vpn">VPN</string>
     <string name="settings_shortcut_wifi">Wi\u2011Fi</string>
     <string name="settings_unable_to_open_settings">సెట్టింగ్‌లను తెరవడం సాధ్యపడలేదు</string>
 
@@ -757,7 +745,6 @@
     <string name="settings_amoled_theme_title">AMOLED థీమ్</string>
     <string name="settings_device_theme_blocked_toast">Material You థీమ్ సక్రియంగా ఉన్నప్పుడు నిలిపివేయబడుతుంది</string>
     <string name="settings_device_theme_desc">మీ పరికరం యొక్క డైనమిక్ రంగుల ప్యాలెట్‌ను యాప్ థీమ్‌గా ఉపయోగించండి</string>
-    <string name="settings_device_theme_title">Material You</string>
     <string name="settings_edit_label">సవరించు</string>
     <string name="settings_font_size_big">పెద్దది</string>
     <string name="settings_font_size_extra_small">చాలా చిన్నది</string>
@@ -964,12 +951,7 @@
     <string name="settings_add_search_engine_error_multiple_placeholders">{{query}}ని ఒకసారి మాత్రమే ఉపయోగించండి.</string>
     <string name="settings_add_search_engine_error_placeholder">URLలో తప్పనిసరిగా {{query}} ఉండాలి</string>
     <string name="settings_add_search_engine_error_required">దయచేసి URL టెంప్లేట్‌ను నమోదు చేయండి.</string>
-    <string name="settings_ai_provider_groq">Groq</string>
-    <string name="settings_ai_provider_meta">Meta AI</string>
-    <string name="settings_ai_provider_opencode">OpenCode</string>
-    <string name="settings_ai_provider_openai">OpenAI</string>
     <string name="settings_alias_label">అలియాస్ (Alias):</string>
-    <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_amazon_domain_label">డొమైన్:</string>
     <string name="settings_api_key_setup_desc">సంబంధిత AI ప్రొవైడర్ నుండి మోడల్‌లను యాక్సెస్ చేయడానికి API కీలను కాన్ఫిగర్ చేయండి.</string>
     <string name="settings_api_key_setup_nav_desc">ప్రొవైడర్ API కీలను జోడించండి లేదా తీసివేయండి</string>
@@ -979,7 +961,6 @@
     <string name="custom_provider_models_load_failed">ఈ ప్రొవైడర్ నుండి మోడల్‌లను లోడ్ చేయడం సాధ్యం కాలేదు: %1$s</string>
     <string name="settings_custom_provider_advanced_payload_desc">ఈ ప్రొవైడర్ ద్వారా పంపబడే ప్రతి అభ్యర్థనలో విలీనం చేయబడుతుంది.</string>
     <string name="settings_custom_provider_advanced_payload_error">దయచేసి చెల్లుబాటు అయ్యే JSON ఆబ్జెక్ట్‌ను నమోదు చేయండి.</string>
-    <string name="settings_custom_provider_advanced_payload_hint" translatable="false">Example: { \"tools\": [{ \"type\": \"openrouter:web_search\" }] }</string>
     <string name="settings_custom_provider_advanced_payload_title">అధునాతన అభ్యర్థన పేలోడ్</string>
     <string name="settings_free_api_key_tip_description">Gemini API కీని ఉచితంగా పొందడానికి దశలు.</string>
     <string name="settings_open_free_api_key_guide">ఉచిత API కీ మార్గదర్శిని తెరువు</string>
@@ -987,7 +968,6 @@
     <string name="settings_direct_search_how_to">ఉచిత API కీని పొందండి</string>
     <string name="settings_direct_search_model_label">మోడల్</string>
     <string name="settings_select_model">మోడల్‌ను ఎంచుకోండి</string>
-    <string name="settings_ai_model_with_provider">%1$s · %2$s</string>
     <string name="ai_error_selected_model_unavailable">ఎంచుకున్న మోడల్ అందుబాటులో లేదు. సెట్టింగ్‌లలో మరొక మోడల్‌ను ఎంచుకోండి.</string>
     <string name="settings_loading_models">మోడల్‌లు లోడ్ అవుతున్నాయి…</string>
     <string name="settings_direct_search_personal_context">వ్యక్తిగత సందర్భం (Personal Context)</string>
@@ -1002,7 +982,6 @@
     <string name="settings_gemini_api_key_paste_hint">కీని అతికించడానికి నొక్కండి</string>
     <string name="settings_gemini_api_key_reset">కీని రీసెట్ చేయి</string>
     <string name="settings_gemini_api_key_saving">సేవ్ చేస్తోంది...</string>
-    <string name="settings_gemini_guide_url" translatable="false">https://medium.com/@tejakarlapudi.apps/setting-up-gemini-api-key-in-quick-search-25ee92aa4311</string>
     <string name="settings_model_picker_search_hint">మోడల్‌లను శోధించండి</string>
     <string name="settings_model_picker_more_models_hint">తాజా మోడళ్లు చూపబడుతున్నాయి. ఇతరవాటి కోసం వెతకండి.</string>
     <string name="settings_search_engine_alias_suffix_desc">ప్రశ్న ముగింపులో మీరు అలియాస్‌ను జోడించినప్పుడు శోధన ఇంజిన్‌ను ట్రిగ్గర్ చేస్తుంది. అలియాస్‌లు ఎల్లప్పుడూ ప్రారంభంలో పనిచేస్తాయి.</string>
@@ -1242,7 +1221,6 @@
     <string name="permissions_files_desc">మీ పత్రాలు మరియు ఇతర ఫైళ్లను శోధించడానికి అవసరం.</string>
     <string name="permissions_files_title">ఫైళ్ల యాక్సెస్</string>
     <string name="permissions_granted">మంజూరు చేయబడింది</string>
-    <string name="permissions_mandatory_indicator">*</string>
     <string name="permissions_reminder_dialog_message">ఒకవేళ మీరు తర్వాత %1$s అనుమతి గురించి మీ నిర్ణయాన్ని మార్చుకుంటే, మీరు యాప్ సెట్టింగ్‌ల నుండి అనుమతిని మంజూరు చేయవచ్చు.</string>
     <string name="permissions_reminder_dialog_title">అనుమతులు మంజూరు చేయబడలేదు</string>
     <string name="permissions_screen_subtitle">అన్ని అనుమతులు ఐచ్ఛికం. అవి అదనపు ఫీచర్‌లను మాత్రమే అన్‌లాక్ చేస్తాయి, మీ డేటా మీ పరికరంలోనే ఉంటుంది.</string>
@@ -1281,32 +1259,12 @@
     <string name="browser_in_app_name">ఇన్-యాప్ బ్రౌజర్</string>
     <string name="open_with_engine">%1$sతో తెరువు</string>
     <string name="search_engine_ai_mode">AI మోడ్</string>
-    <string name="search_engine_amazon">Amazon</string>
-    <string name="search_engine_bing">Bing</string>
     <string name="search_engine_brave">Brave శోధన</string>
-    <string name="search_engine_chatgpt">ChatGPT</string>
-    <string name="search_engine_claude">Claude</string>
     <string name="search_engine_custom">కస్టమ్ శోధన</string>
-    <string name="search_engine_duckduckgo">DuckDuckGo</string>
-    <string name="search_engine_fdroid">F-Droid</string>
-    <string name="search_engine_facebook_marketplace">Facebook Marketplace</string>
-    <string name="search_engine_gemini">Gemini</string>
-    <string name="search_engine_google">Google</string>
     <string name="search_engine_google_drive">Google Drive</string>
     <string name="search_engine_google_maps">Google Maps</string>
     <string name="search_engine_google_photos">Google Photos</string>
-    <string name="search_engine_google_play">Google Play</string>
-    <string name="search_engine_grok">Grok</string>
-    <string name="search_engine_perplexity">Perplexity</string>
-    <string name="search_engine_reddit">Reddit</string>
-    <string name="search_engine_spotify">Spotify</string>
-    <string name="search_engine_startpage">Startpage</string>
-    <string name="search_engine_waze">Waze</string>
     <string name="search_engine_wikipedia">Wikipedia</string>
-    <string name="search_engine_x">X</string>
-    <string name="search_engine_you_com">You.com</string>
-    <string name="search_engine_youtube">YouTube</string>
-    <string name="search_engine_youtube_music">YouTube Music</string>
     <string name="search_on_engine">%1$sలో శోధించండి</string>
 
     <!-- ============================================================================
@@ -1356,9 +1314,7 @@
     <string name="widget_custom_button_change_colour">రంగు మార్చండి</string>
     <string name="widget_custom_button_choose_colour">ఫోల్డర్ రంగును ఎంచుకోండి</string>
     <string name="search_engine_google_translate">గూగుల్ అనువాదం</string>
-    <string name="search_engine_kagi">Kagi</string>
     <string name="search_engine_kagi_assistant">Kagi Assistant</string>
-    <string name="search_engine_muse">Muse</string>
     <string name="tasker_integration_title">Tasker చర్యలు</string>
     <string name="tasker_integration_description">బ్రాడ్‌కాస్ట్ ఇంటెంట్‌లను ఉపయోగించి Tasker చర్యలను సృష్టించండి.</string>
     <string name="tasker_add_intent_title">Tasker బ్రాడ్‌కాస్ట్ ఇంటెంట్‌ను జోడించండి</string>
@@ -1373,7 +1329,6 @@
     <string name="tasker_not_installed">Tasker ఇన్‌స్టాల్ చేయబడలేదు</string>
     <string name="tasker_broadcast_failed">Tasker బ్రాడ్‌కాస్ట్‌ను పంపలేకపోయాము</string>
     <string name="settings_more_apps_from_developer_title">డెవలపర్ నుండి మరిన్ని యాప్‌లు</string>
-    <string name="settings_github_label">GitHub</string>
     <string name="icon_picker_no_icon_packs">యాప్ ఐకాన్‌ను మార్చడానికి ఐకాన్ ప్యాక్‌లు ఏవీ ఇన్‌స్టాల్ చేయబడలేదు.</string>
     <string name="icon_picker_download_icon_packs">డౌన్‌లోడ్ చేయండి</string>
     <string name="app_menu_usage_today">ఈరోజు %1$s ఉపయోగించారు · %2$s సార్లు తెరిచారు</string>
@@ -1392,7 +1347,6 @@
     <string name="speed_bump_explainer_just_enabled">మీరు దీన్ని ఇప్పుడే %1$s కోసం ఆన్ చేశారు</string>
     <string name="speed_bump_overlay_prompt">%1$s త్వరలో తెరుచుకుంటుంది…</string>
     <string name="speed_bump_overlay_title">ఒక దీర్ఘ శ్వాస తీసుకోండి</string>
-    <string name="speed_bump_title">SpeedBump</string>
     <string name="speed_bump_pause_action">SpeedBump‌ను తాత్కాలికంగా ఆపండి</string>
     <string name="speed_bump_pause_menu_title">%1$s కోసం SpeedBump‌ను తాత్కాలికంగా ఆపండి</string>
     <string name="speed_bump_outside_quick_search_title">SpeedBumpను విస్తరించండి</string>

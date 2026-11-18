@@ -12,7 +12,6 @@
     <!-- ============================================================================
          App &amp; Search Entry
          ============================================================================ -->
-    <string name="app_name">Quick Search</string>
     <string name="direct_answer_contact_name">AI उत्तर</string>
     <string name="direct_search_enter_query">खोजने के लिए कृपया कोई क्वेरी दर्ज करें।</string>
     <string name="direct_search_ask_follow_up">अगला सवाल पूछें</string>
@@ -359,11 +358,8 @@
     <string name="error_uninstall_self">आप यहां से Quick Search अनइंस्टॉल नहीं कर सकते।</string>
     <string name="failed_to_refresh_apps">ऐप्स रिफ्रेश नहीं हो सके</string>
     <string name="settings_app_apk_size_format">APK आकार: %1$.2f Mb</string>
-    <string name="settings_app_columns_4">4</string>
-    <string name="settings_app_columns_5">5</string>
     <string name="settings_app_columns_title">प्रति पंक्ति ऐप्स</string>
     <string name="settings_app_result_rows_title">ऐप परिणाम पंक्तियाँ</string>
-    <string name="settings_app_icon_size_percent">%1$d%%</string>
     <string name="settings_app_icon_size_title">ऐप आइकन आकार</string>
     <string name="settings_app_info_install_date">इंस्टॉल की तारीख</string>
     <string name="settings_app_info_last_update">अंतिम अपडेट</string>
@@ -438,7 +434,6 @@
     <string name="settings_app_shortcuts_shortcut_name_label">शॉर्टकट नाम</string>
     <string name="settings_app_shortcuts_update_failed">शॉर्टकट अपडेट नहीं हो सका।</string>
     <string name="settings_app_shortcuts_update_success">शॉर्टकट अपडेट हो गया।</string>
-    <string name="settings_app_shortcuts_url_label">URL</string>
     <string name="shortcut_song_search_label">गीत खोज</string>
     <string name="shortcut_watch_later_label">बाद में देखें</string>
 
@@ -448,17 +443,12 @@
     <string name="contact_method_call_label">कॉल</string>
     <string name="contact_method_email_label">ईमेल</string>
     <string name="contact_method_fallback_label">अन्य</string>
-    <string name="contact_method_google_meet_label">Google Meet</string>
     <string name="contact_method_message_label">संदेश</string>
-    <string name="contact_method_signal_message_label">Signal</string>
     <string name="contact_method_signal_video_call_label">Signal वीडियो कॉल</string>
     <string name="contact_method_signal_voice_call_label">Signal वॉइस कॉल</string>
-    <string name="contact_method_telegram_message_label">Telegram</string>
     <string name="contact_method_telegram_video_call_label">Telegram वीडियो कॉल</string>
     <string name="contact_method_telegram_voice_call_label">Telegram वॉइस कॉल</string>
     <string name="contact_method_view_in_contacts_label">कॉन्टैक्ट्स ऐप में देखें</string>
-    <string name="contact_method_whatsapp_message_label">WhatsApp</string>
-    <string name="contact_method_whatsapp_business_label">WhatsApp Business</string>
     <string name="contact_method_whatsapp_video_call_label">WhatsApp वीडियो कॉल</string>
     <string name="contact_method_whatsapp_voice_call_label">WhatsApp वॉइस कॉल</string>
     <string name="contact_button_sms">SMS</string>
@@ -677,7 +667,6 @@
     <string name="settings_shortcut_location">लोकेशन</string>
     <string name="settings_shortcut_mobile_data">मोबाइल डेटा</string>
     <string name="settings_shortcut_network">नेटवर्क और इंटरनेट</string>
-    <string name="settings_shortcut_nfc">NFC</string>
     <string name="settings_shortcut_notification_listener">अधिसूचनाओं तक पहुंच</string>
     <string name="settings_shortcut_notification_history">सूचना इतिहास</string>
     <string name="notification_history_permission_desc">सूचनाएं यहां एकत्र करने के लिए सूचना एक्सेस की अनुमति दें। इस सूची में केवल एक्सेस मिलने के बाद प्राप्त सूचनाएं दिखाई देती हैं।</string>
@@ -695,7 +684,6 @@
     <string name="settings_shortcut_storage">स्टोरेज</string>
     <string name="settings_shortcut_usage_access">उपयोग पहुंच</string>
     <string name="settings_shortcut_voice_input">डिजिटल असिस्टेंट</string>
-    <string name="settings_shortcut_vpn">VPN</string>
     <string name="settings_shortcut_wifi">Wi\u2011Fi</string>
     <string name="settings_unable_to_open_settings">सेटिंग्स नहीं खुल सकीं</string>
 
@@ -757,7 +745,6 @@
     <string name="settings_amoled_theme_title">AMOLED थीम</string>
     <string name="settings_device_theme_blocked_toast">Material You थीम चालू होने पर बंद</string>
     <string name="settings_device_theme_desc">ऐप थीम के रूप में अपने डिवाइस का डायनैमिक रंग पैलेट इस्तेमाल करें</string>
-    <string name="settings_device_theme_title">Material You</string>
     <string name="settings_edit_label">संपादित करें</string>
     <string name="settings_font_size_big">बड़ा</string>
     <string name="settings_font_size_extra_small">बहुत छोटा</string>
@@ -964,12 +951,7 @@
     <string name="settings_add_search_engine_error_multiple_placeholders">{{query}} का उपयोग केवल एक बार करें।</string>
     <string name="settings_add_search_engine_error_placeholder">URL में {{query}} होना चाहिए</string>
     <string name="settings_add_search_engine_error_required">कृपया URL टेम्पलेट दर्ज करें।</string>
-    <string name="settings_ai_provider_groq">Groq</string>
-    <string name="settings_ai_provider_meta">Meta AI</string>
-    <string name="settings_ai_provider_opencode">OpenCode</string>
-    <string name="settings_ai_provider_openai">OpenAI</string>
     <string name="settings_alias_label">उपनाम:</string>
-    <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_amazon_domain_label">डोमेन:</string>
     <string name="settings_api_key_setup_desc">संबंधित AI provider के मॉडल्स तक पहुंच के लिए API keys कॉन्फ़िगर करें।</string>
     <string name="settings_api_key_setup_nav_desc">provider API keys जोड़ें या हटाएं</string>
@@ -979,7 +961,6 @@
     <string name="custom_provider_models_load_failed">इस प्रदाता से मॉडल लोड नहीं हो सके: %1$s</string>
     <string name="settings_custom_provider_advanced_payload_desc">इस प्रदाता के माध्यम से भेजे गए प्रत्येक अनुरोध में विलय कर दिया गया।</string>
     <string name="settings_custom_provider_advanced_payload_error">एक मान्य JSON ऑब्जेक्ट दर्ज करें।</string>
-    <string name="settings_custom_provider_advanced_payload_hint" translatable="false">Example: { \"tools\": [{ \"type\": \"openrouter:web_search\" }] }</string>
     <string name="settings_custom_provider_advanced_payload_title">उन्नत अनुरोध पेलोड</string>
     <string name="settings_free_api_key_tip_description">मुफ्त में Gemini API Key प्राप्त करने के चरण।</string>
     <string name="settings_open_free_api_key_guide">मुफ्त API Key गाइड खोलें</string>
@@ -987,7 +968,6 @@
     <string name="settings_direct_search_how_to">मुफ्त API Key प्राप्त करें</string>
     <string name="settings_direct_search_model_label">मॉडल</string>
     <string name="settings_select_model">मॉडल चुनें</string>
-    <string name="settings_ai_model_with_provider">%1$s · %2$s</string>
     <string name="ai_error_selected_model_unavailable">चुना गया मॉडल उपलब्ध नहीं है। कृपया सेटिंग में कोई दूसरा मॉडल चुनें।</string>
     <string name="settings_loading_models">मॉडल लोड हो रहे हैं…</string>
     <string name="settings_direct_search_personal_context">व्यक्तिगत संदर्भ</string>
@@ -1002,7 +982,6 @@
     <string name="settings_gemini_api_key_paste_hint">key पेस्ट करने के लिए टैप करें</string>
     <string name="settings_gemini_api_key_reset">Key रीसेट करें</string>
     <string name="settings_gemini_api_key_saving">सहेजा जा रहा है...</string>
-    <string name="settings_gemini_guide_url" translatable="false">https://medium.com/@tejakarlapudi.apps/setting-up-gemini-api-key-in-quick-search-25ee92aa4311</string>
     <string name="settings_model_picker_search_hint">मॉडल खोजें</string>
     <string name="settings_model_picker_more_models_hint">नवीनतम मॉडल दिखाए जा रहे हैं। अन्य मॉडल खोजने के लिए सर्च करें।</string>
     <string name="settings_search_engine_alias_suffix_desc">क्वेरी के अंत में उपनाम जोड़ने पर सर्च इंजन ट्रिगर होता है। उपनाम शुरुआत में हमेशा काम करेंगे।</string>
@@ -1242,7 +1221,6 @@
     <string name="permissions_files_desc">आपके दस्तावेज़ों और अन्य फाइलों में खोजने के लिए आवश्यक।</string>
     <string name="permissions_files_title">फाइल पहुंच</string>
     <string name="permissions_granted">प्रदान की गई</string>
-    <string name="permissions_mandatory_indicator">*</string>
     <string name="permissions_reminder_dialog_message">यदि बाद में आप %1$s अनुमति के बारे में अपना निर्णय बदलते हैं, तो आप ऐप सेटिंग्स से अनुमति दे सकते हैं।</string>
     <string name="permissions_reminder_dialog_title">अनुमतियां प्रदान नहीं की गईं</string>
     <string name="permissions_screen_subtitle">सभी अनुमतियाँ वैकल्पिक हैं। ये केवल अतिरिक्त सुविधाएँ अनलॉक करती हैं और आपका डेटा आपके डिवाइस पर ही रहता है।</string>
@@ -1281,32 +1259,12 @@
     <string name="browser_in_app_name">इन-ऐप ब्राउज़र</string>
     <string name="open_with_engine">%1$s के साथ खोलें</string>
     <string name="search_engine_ai_mode">AI मोड</string>
-    <string name="search_engine_amazon">Amazon</string>
-    <string name="search_engine_bing">Bing</string>
     <string name="search_engine_brave">Brave Search</string>
-    <string name="search_engine_chatgpt">ChatGPT</string>
-    <string name="search_engine_claude">Claude</string>
     <string name="search_engine_custom">कस्टम खोज</string>
-    <string name="search_engine_duckduckgo">DuckDuckGo</string>
-    <string name="search_engine_fdroid">F-Droid</string>
-    <string name="search_engine_facebook_marketplace">Facebook Marketplace</string>
-    <string name="search_engine_gemini">Gemini</string>
-    <string name="search_engine_google">Google</string>
     <string name="search_engine_google_drive">Google Drive</string>
     <string name="search_engine_google_maps">Google Maps</string>
     <string name="search_engine_google_photos">Google Photos</string>
-    <string name="search_engine_google_play">Google Play</string>
-    <string name="search_engine_grok">Grok</string>
-    <string name="search_engine_perplexity">Perplexity</string>
-    <string name="search_engine_reddit">Reddit</string>
-    <string name="search_engine_spotify">Spotify</string>
-    <string name="search_engine_startpage">Startpage</string>
-    <string name="search_engine_waze">Waze</string>
     <string name="search_engine_wikipedia">Wikipedia</string>
-    <string name="search_engine_x">X</string>
-    <string name="search_engine_you_com">You.com</string>
-    <string name="search_engine_youtube">YouTube</string>
-    <string name="search_engine_youtube_music">YouTube Music</string>
     <string name="search_on_engine">%1$s पर खोजें</string>
 
     <!-- ============================================================================
@@ -1356,9 +1314,7 @@
     <string name="widget_custom_button_change_colour">रंग बदलें</string>
     <string name="widget_custom_button_choose_colour">फ़ोल्डर का रंग चुनें</string>
     <string name="search_engine_google_translate">Google अनुवाद</string>
-    <string name="search_engine_kagi">Kagi</string>
     <string name="search_engine_kagi_assistant">Kagi Assistant</string>
-    <string name="search_engine_muse">Muse</string>
     <string name="tasker_integration_title">Tasker क्रियाएं</string>
     <string name="tasker_integration_description">ब्रॉडकास्ट इंटेंट का उपयोग करके Tasker क्रियाएं बनाएं।</string>
     <string name="tasker_add_intent_title">Tasker ब्रॉडकास्ट इंटेंट जोड़ें</string>
@@ -1373,7 +1329,6 @@
     <string name="tasker_not_installed">Tasker इंस्टॉल नहीं है</string>
     <string name="tasker_broadcast_failed">Tasker ब्रॉडकास्ट नहीं भेजा जा सका</string>
     <string name="settings_more_apps_from_developer_title">डेवलपर के और ऐप्स</string>
-    <string name="settings_github_label">GitHub</string>
     <string name="icon_picker_no_icon_packs">ऐप आइकन बदलने के लिए कोई आइकन पैक इंस्टॉल नहीं है।</string>
     <string name="icon_picker_download_icon_packs">डाउनलोड करें</string>
     <string name="app_menu_usage_today">आज %1$s इस्तेमाल किया · %2$s बार खोला</string>
@@ -1392,7 +1347,6 @@
     <string name="speed_bump_explainer_just_enabled">आपने इसे अभी %1$s के लिए चालू किया</string>
     <string name="speed_bump_overlay_prompt">%1$s जल्द ही खुलेगा…</string>
     <string name="speed_bump_overlay_title">एक गहरी सांस लें</string>
-    <string name="speed_bump_title">SpeedBump</string>
     <string name="speed_bump_pause_action">SpeedBump रोकें</string>
     <string name="speed_bump_pause_menu_title">%1$s के लिए SpeedBump रोकें</string>
     <string name="speed_bump_outside_quick_search_title">SpeedBump का विस्तार करें</string>

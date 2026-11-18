@@ -13,7 +13,6 @@
     <!-- ============================================================================
          App &amp; Search Entry
          ============================================================================ -->
-    <string name="app_name">Quick Search</string>
     <string name="direct_answer_contact_name">AI Answer</string>
     <string name="direct_search_enter_query">يرجى إدخال عبارة بحث للبدء.</string>
     <string name="direct_search_ask_follow_up">اطرح سؤالاً تابعًا</string>
@@ -360,11 +359,8 @@
     <string name="error_uninstall_self">لا يمكنك إلغاء تثبيت Quick Search من هنا.</string>
     <string name="failed_to_refresh_apps">فشل تحديث التطبيقات</string>
     <string name="settings_app_apk_size_format">حجم APK: %1$.2f ميغابايت</string>
-    <string name="settings_app_columns_4">4</string>
-    <string name="settings_app_columns_5">5</string>
     <string name="settings_app_columns_title">عدد التطبيقات في كل صف</string>
     <string name="settings_app_result_rows_title">صفوف نتائج التطبيقات</string>
-    <string name="settings_app_icon_size_percent">%1$d%%</string>
     <string name="settings_app_icon_size_title">حجم أيقونات التطبيقات</string>
     <string name="settings_app_info_install_date">تاريخ التثبيت</string>
     <string name="settings_app_info_last_update">التحديث الأخير</string>
@@ -415,8 +411,12 @@
     <string name="settings_app_shortcuts_add_success">تمت إضافة الاختصار.</string>
     <string name="settings_app_shortcuts_add_success_with_app_name">تمت إضافة اختصار جديد إلى %1$s</string>
     <plurals name="settings_app_shortcuts_card_count">
+        <item quantity="zero">%d اختصار</item>
         <item quantity="one">%d اختصار</item>
-        <item quantity="other">%d اختصارات</item>
+        <item quantity="two">اختصاران</item>
+        <item quantity="few">%d اختصارات</item>
+        <item quantity="many">%d اختصارًا</item>
+        <item quantity="other">%d اختصار</item>
     </plurals>
     <string name="settings_app_shortcuts_collapse_all">طي الكل</string>
     <string name="settings_app_shortcuts_create_not_supported">لا تدعم التطبيقات إنشاء الاختصارات على هذا الجهاز.</string>
@@ -439,7 +439,6 @@
     <string name="settings_app_shortcuts_shortcut_name_label">اسم الاختصار</string>
     <string name="settings_app_shortcuts_update_failed">تعذر تحديث الاختصار.</string>
     <string name="settings_app_shortcuts_update_success">تم تحديث الاختصار.</string>
-    <string name="settings_app_shortcuts_url_label">URL</string>
     <string name="shortcut_song_search_label">البحث عن الأغاني</string>
     <string name="shortcut_watch_later_label">المشاهدة لاحقاً</string>
 
@@ -449,17 +448,12 @@
     <string name="contact_method_call_label">اتصال</string>
     <string name="contact_method_email_label">بريد إلكتروني</string>
     <string name="contact_method_fallback_label">أخرى</string>
-    <string name="contact_method_google_meet_label">Google Meet</string>
     <string name="contact_method_message_label">رسالة</string>
-    <string name="contact_method_signal_message_label">Signal</string>
     <string name="contact_method_signal_video_call_label">مكالمة فيديو عبر Signal</string>
     <string name="contact_method_signal_voice_call_label">مكالمة صوتية عبر Signal</string>
-    <string name="contact_method_telegram_message_label">Telegram</string>
     <string name="contact_method_telegram_video_call_label">مكالمة فيديو عبر Telegram</string>
     <string name="contact_method_telegram_voice_call_label">مكالمة صوتية عبر Telegram</string>
     <string name="contact_method_view_in_contacts_label">عرض في تطبيق جهات الاتصال</string>
-    <string name="contact_method_whatsapp_message_label">WhatsApp</string>
-    <string name="contact_method_whatsapp_business_label">WhatsApp Business</string>
     <string name="contact_method_whatsapp_video_call_label">مكالمة فيديو عبر WhatsApp</string>
     <string name="contact_method_whatsapp_voice_call_label">مكالمة صوتية عبر WhatsApp</string>
     <string name="contact_button_sms">رسالة SMS</string>
@@ -527,8 +521,12 @@
     <string name="action_folder_info">معلومات المجلد</string>
     <string name="file_info_contents">المحتويات</string>
     <plurals name="file_info_item_count">
+        <item quantity="zero">%d عنصر</item>
         <item quantity="one">%d عنصر</item>
-        <item quantity="other">%d عناصر</item>
+        <item quantity="two">عنصران</item>
+        <item quantity="few">%d عناصر</item>
+        <item quantity="many">%d عنصرًا</item>
+        <item quantity="other">%d عنصر</item>
     </plurals>
     <string name="file_path_sd_card">بطاقة SD</string>
     <string name="file_info_size">الحجم</string>
@@ -566,47 +564,81 @@
     <string name="calendar_create_event_select_date">اختر التاريخ</string>
     <string name="calendar_relative_ago_format">منذ %1$s</string>
     <plurals name="calendar_relative_days">
+        <item quantity="zero">%d يوم</item>
         <item quantity="one">%d يوم</item>
-        <item quantity="other">%d أيام</item>
+        <item quantity="two">يومان</item>
+        <item quantity="few">%d أيام</item>
+        <item quantity="many">%d يومًا</item>
+        <item quantity="other">%d يوم</item>
     </plurals>
     <plurals name="calendar_relative_hours">
+        <item quantity="zero">%d ساعة</item>
         <item quantity="one">%d ساعة</item>
-        <item quantity="other">%d ساعات</item>
+        <item quantity="two">ساعتان</item>
+        <item quantity="few">%d ساعات</item>
+        <item quantity="many">%d ساعة</item>
+        <item quantity="other">%d ساعة</item>
     </plurals>
     <string name="calendar_relative_in_format">بعد %1$s</string>
     <plurals name="calendar_relative_minutes">
+        <item quantity="zero">%d دقيقة</item>
         <item quantity="one">%d دقيقة</item>
+        <item quantity="two">دقيقتان</item>
         <item quantity="few">%d دقائق</item>
         <item quantity="many">%d دقيقة</item>
-        <item quantity="other">%d دقائق</item>
+        <item quantity="other">%d دقيقة</item>
     </plurals>
     <string name="calendar_relative_now">الآن</string>
     <plurals name="calendar_relative_months">
+        <item quantity="zero">%d شهر</item>
         <item quantity="one">%d شهر</item>
-        <item quantity="other">%d أشهر</item>
+        <item quantity="two">شهران</item>
+        <item quantity="few">%d أشهر</item>
+        <item quantity="many">%d شهرًا</item>
+        <item quantity="other">%d شهر</item>
     </plurals>
     <string name="calendar_relative_today">اليوم</string>
     <string name="calendar_relative_tomorrow">غداً</string>
     <plurals name="calendar_relative_years">
+        <item quantity="zero">%d سنة</item>
         <item quantity="one">%d سنة</item>
-        <item quantity="other">%d سنوات</item>
+        <item quantity="two">سنتان</item>
+        <item quantity="few">%d سنوات</item>
+        <item quantity="many">%d سنة</item>
+        <item quantity="other">%d سنة</item>
     </plurals>
     <string name="calendar_relative_yesterday">أمس</string>
     <string name="calendar_repeats_daily">يومياً</string>
     <plurals name="calendar_repeats_every_days">
+        <item quantity="zero">كل %d يوم</item>
         <item quantity="one">كل %d يوم</item>
+        <item quantity="two">كل يومين</item>
+        <item quantity="few">كل %d أيام</item>
+        <item quantity="many">كل %d يومًا</item>
         <item quantity="other">كل %d يوم</item>
     </plurals>
     <plurals name="calendar_repeats_every_months">
+        <item quantity="zero">كل %d شهر</item>
         <item quantity="one">كل %d شهر</item>
+        <item quantity="two">كل شهرين</item>
+        <item quantity="few">كل %d أشهر</item>
+        <item quantity="many">كل %d شهرًا</item>
         <item quantity="other">كل %d شهر</item>
     </plurals>
     <plurals name="calendar_repeats_every_weeks">
+        <item quantity="zero">كل %d أسبوع</item>
         <item quantity="one">كل %d أسبوع</item>
+        <item quantity="two">كل أسبوعين</item>
+        <item quantity="few">كل %d أسابيع</item>
+        <item quantity="many">كل %d أسبوعًا</item>
         <item quantity="other">كل %d أسبوع</item>
     </plurals>
     <plurals name="calendar_repeats_every_years">
+        <item quantity="zero">كل %d سنة</item>
         <item quantity="one">كل %d سنة</item>
+        <item quantity="two">كل سنتين</item>
+        <item quantity="few">كل %d سنوات</item>
+        <item quantity="many">كل %d سنة</item>
         <item quantity="other">كل %d سنة</item>
     </plurals>
     <string name="calendar_repeats_generic">متكرر</string>
@@ -680,7 +712,6 @@
     <string name="settings_shortcut_location">الموقع</string>
     <string name="settings_shortcut_mobile_data">بيانات الهاتف</string>
     <string name="settings_shortcut_network">الشبكة والإنترنت</string>
-    <string name="settings_shortcut_nfc">NFC</string>
     <string name="settings_shortcut_notification_listener">الوصول إلى الإشعارات</string>
     <string name="settings_shortcut_notification_history">سجل الإشعارات</string>
     <string name="notification_history_permission_desc">اسمح بالوصول إلى الإشعارات لجمع الإشعارات هنا. تظهر في هذه القائمة الإشعارات المستلمة بعد منح الوصول فقط.</string>
@@ -698,7 +729,6 @@
     <string name="settings_shortcut_storage">مساحة التخزين</string>
     <string name="settings_shortcut_usage_access">إذن الوصول إلى بيانات الاستخدام</string>
     <string name="settings_shortcut_voice_input">Digital Assistant</string>
-    <string name="settings_shortcut_vpn">VPN</string>
     <string name="settings_shortcut_wifi">Wi-Fi</string>
     <string name="settings_unable_to_open_settings">تعذر فتح الإعدادات</string>
 
@@ -760,7 +790,6 @@
     <string name="settings_amoled_theme_title">سمة AMOLED</string>
     <string name="settings_device_theme_blocked_toast">معطل عند تفعيل سمة Material You</string>
     <string name="settings_device_theme_desc">استخدام الألوان الديناميكية لجهازك كسمة للتطبيق</string>
-    <string name="settings_device_theme_title">Material You</string>
     <string name="settings_edit_label">تعديل</string>
     <string name="settings_font_size_big">كبير</string>
     <string name="settings_font_size_extra_small">صغير جدًا</string>
@@ -925,11 +954,19 @@
     <string name="app_notifications_add_keyword">إضافة “%1$s”</string>
     <string name="app_notifications_recent_matches">المطابقات الأخيرة</string>
     <plurals name="app_notifications_age_minutes">
+        <item quantity="zero">%d د</item>
         <item quantity="one">%d د</item>
+        <item quantity="two">%d د</item>
+        <item quantity="few">%d د</item>
+        <item quantity="many">%d د</item>
         <item quantity="other">%d د</item>
     </plurals>
     <plurals name="app_notifications_age_hours">
+        <item quantity="zero">%d س</item>
         <item quantity="one">%d س</item>
+        <item quantity="two">%d س</item>
+        <item quantity="few">%d س</item>
+        <item quantity="many">%d س</item>
         <item quantity="other">%d س</item>
     </plurals>
     <string name="app_notifications_choose_apps">اختيار تطبيق</string>
@@ -967,12 +1004,7 @@
     <string name="settings_add_search_engine_error_multiple_placeholders">يرجى استخدام {{query}} مرة واحدة فقط.</string>
     <string name="settings_add_search_engine_error_placeholder">يجب أن يحتوي الرابط على {{query}}</string>
     <string name="settings_add_search_engine_error_required">يرجى إدخال قالب رابط URL.</string>
-    <string name="settings_ai_provider_groq">Groq</string>
-    <string name="settings_ai_provider_meta">Meta AI</string>
-    <string name="settings_ai_provider_opencode">OpenCode</string>
-    <string name="settings_ai_provider_openai">OpenAI</string>
     <string name="settings_alias_label">الاسم المستعار:</string>
-    <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_amazon_domain_label">النطاق:</string>
     <string name="settings_api_key_setup_desc">إعداد مفاتيح API للوصول إلى النماذج من مزود AI المعني.</string>
     <string name="settings_api_key_setup_nav_desc">إضافة أو إزالة مفاتيح API للمزودين</string>
@@ -982,7 +1014,6 @@
     <string name="custom_provider_models_load_failed">تعذّر تحميل النماذج من هذا المزوّد: %1$s</string>
     <string name="settings_custom_provider_advanced_payload_desc">يتم دمجها في كل طلب يتم إرساله عبر هذا الموفر.</string>
     <string name="settings_custom_provider_advanced_payload_error">أدخل كائن JSON صالحًا.</string>
-    <string name="settings_custom_provider_advanced_payload_hint" translatable="false">Example: { \"tools\": [{ \"type\": \"openrouter:web_search\" }] }</string>
     <string name="settings_custom_provider_advanced_payload_title">حمولة الطلب المتقدمة</string>
     <string name="settings_free_api_key_tip_description">خطوات الحصول على مفتاح Gemini API مجانًا.</string>
     <string name="settings_open_free_api_key_guide">فتح دليل مفتاح API المجاني</string>
@@ -990,7 +1021,6 @@
     <string name="settings_direct_search_how_to">احصل على مفتاح API مجاناً</string>
     <string name="settings_direct_search_model_label">النموذج</string>
     <string name="settings_select_model">اختيار نموذج</string>
-    <string name="settings_ai_model_with_provider">%1$s · %2$s</string>
     <string name="ai_error_selected_model_unavailable">النموذج المحدد غير متاح. يُرجى اختيار نموذج آخر من الإعدادات.</string>
     <string name="settings_loading_models">جارٍ تحميل النماذج…</string>
     <string name="settings_direct_search_personal_context">السياق الشخصي</string>
@@ -1005,7 +1035,6 @@
     <string name="settings_gemini_api_key_paste_hint">انقر هنا للصق المفتاح</string>
     <string name="settings_gemini_api_key_reset">إعادة تعيين المفتاح</string>
     <string name="settings_gemini_api_key_saving">جارٍ الحفظ…</string>
-    <string name="settings_gemini_guide_url" translatable="false">https://medium.com/@tejakarlapudi.apps/setting-up-gemini-api-key-in-quick-search-25ee92aa4311</string>
     <string name="settings_model_picker_search_hint">ابحث عن النماذج</string>
     <string name="settings_model_picker_more_models_hint">يتم عرض أحدث النماذج. ابحث للعثور على غيرها.</string>
     <string name="settings_search_engine_alias_suffix_desc">تفعيل محرك البحث عند إضافة الاسم المستعار في نهاية عبارة البحث. سيعمل الاسم المستعار دائماً في بداية العبارة.</string>
@@ -1245,7 +1274,6 @@
     <string name="permissions_files_desc">مطلوب للبحث في ملفاتك ومستنداتك المختلفة.</string>
     <string name="permissions_files_title">إذن الوصول إلى الملفات</string>
     <string name="permissions_granted">ممنوح</string>
-    <string name="permissions_mandatory_indicator">*</string>
     <string name="permissions_reminder_dialog_message">إذا غيرت رأيك لاحقاً بشأن إذن %1$s، يمكنك منحه في أي وقت من إعدادات التطبيق.</string>
     <string name="permissions_reminder_dialog_title">الأذونات غير ممنوحة</string>
     <string name="permissions_screen_subtitle">جميع الأذونات اختيارية. فهي تفتح ميزات إضافية فقط، وتظل بياناتك على جهازك.</string>
@@ -1284,32 +1312,12 @@
     <string name="browser_in_app_name">In-App Browser</string>
     <string name="open_with_engine">فتح باستخدام %1$s</string>
     <string name="search_engine_ai_mode">AI mode</string>
-    <string name="search_engine_amazon">Amazon</string>
-    <string name="search_engine_bing">Bing</string>
     <string name="search_engine_brave">Brave Search</string>
-    <string name="search_engine_chatgpt">ChatGPT</string>
-    <string name="search_engine_claude">Claude</string>
     <string name="search_engine_custom">Custom Search</string>
-    <string name="search_engine_duckduckgo">DuckDuckGo</string>
-    <string name="search_engine_fdroid">F-Droid</string>
-    <string name="search_engine_facebook_marketplace">Facebook Marketplace</string>
-    <string name="search_engine_gemini">Gemini</string>
-    <string name="search_engine_google">Google</string>
     <string name="search_engine_google_drive">Google Drive</string>
     <string name="search_engine_google_maps">Google Maps</string>
     <string name="search_engine_google_photos">Google Photos</string>
-    <string name="search_engine_google_play">Google Play</string>
-    <string name="search_engine_grok">Grok</string>
-    <string name="search_engine_perplexity">Perplexity</string>
-    <string name="search_engine_reddit">Reddit</string>
-    <string name="search_engine_spotify">Spotify</string>
-    <string name="search_engine_startpage">Startpage</string>
-    <string name="search_engine_waze">Waze</string>
     <string name="search_engine_wikipedia">Wikipedia</string>
-    <string name="search_engine_x">X</string>
-    <string name="search_engine_you_com">You.com</string>
-    <string name="search_engine_youtube">YouTube</string>
-    <string name="search_engine_youtube_music">YouTube Music</string>
     <string name="search_on_engine">البحث في %1$s</string>
 
     <!-- ============================================================================
@@ -1360,9 +1368,7 @@
     <string name="widget_custom_button_change_colour">تغيير اللون</string>
     <string name="widget_custom_button_choose_colour">اختيار لون المجلد</string>
     <string name="search_engine_google_translate">ترجمة Google</string>
-    <string name="search_engine_kagi">Kagi</string>
     <string name="search_engine_kagi_assistant">Kagi Assistant</string>
-    <string name="search_engine_muse">Muse</string>
     <string name="tasker_integration_title">إجراءات Tasker</string>
     <string name="tasker_integration_description">إنشاء إجراءات Tasker باستخدام نوايا البث (broadcast intents).</string>
     <string name="tasker_add_intent_title">إضافة نية بث لـ Tasker</string>
@@ -1377,14 +1383,34 @@
     <string name="tasker_not_installed">Tasker غير مثبت</string>
     <string name="tasker_broadcast_failed">تعذر إرسال بث Tasker</string>
     <string name="settings_more_apps_from_developer_title">المزيد من التطبيقات من المطور</string>
-    <string name="settings_github_label">GitHub</string>
     <string name="icon_picker_no_icon_packs">لا توجد حزم أيقونات مثبتة لتغيير أيقونة التطبيق.</string>
     <string name="icon_picker_download_icon_packs">تنزيل</string>
     <string name="app_menu_usage_today">%1$s اليوم · فُتح %2$s</string>
     <string name="app_menu_version">الإصدار %1$s</string>
-    <plurals name="app_menu_opened_count"><item quantity="one">مرة واحدة</item><item quantity="other">%d مرات</item></plurals>
-    <plurals name="app_menu_usage_hours"><item quantity="one">ساعة واحدة</item><item quantity="other">%d س</item></plurals>
-    <plurals name="app_menu_usage_minutes"><item quantity="one">دقيقة واحدة</item><item quantity="other">%d د</item></plurals>
+    <plurals name="app_menu_opened_count">
+        <item quantity="zero">%d مرة</item>
+        <item quantity="one">مرة واحدة</item>
+        <item quantity="two">مرتان</item>
+        <item quantity="few">%d مرات</item>
+        <item quantity="many">%d مرة</item>
+        <item quantity="other">%d مرة</item>
+    </plurals>
+    <plurals name="app_menu_usage_hours">
+        <item quantity="zero">%d س</item>
+        <item quantity="one">ساعة واحدة</item>
+        <item quantity="two">%d س</item>
+        <item quantity="few">%d س</item>
+        <item quantity="many">%d س</item>
+        <item quantity="other">%d س</item>
+    </plurals>
+    <plurals name="app_menu_usage_minutes">
+        <item quantity="zero">%d د</item>
+        <item quantity="one">دقيقة واحدة</item>
+        <item quantity="two">%d د</item>
+        <item quantity="few">%d د</item>
+        <item quantity="many">%d د</item>
+        <item quantity="other">%d د</item>
+    </plurals>
     <string name="app_menu_usage_hours_decimal">%1$s س</string>
     <string name="other_screen_time_today_title">وقت استخدام الشاشة اليوم</string>
     <string name="other_screen_time_hours_minutes">%1$d س %2$d د</string>
@@ -1396,7 +1422,6 @@
     <string name="speed_bump_explainer_just_enabled">لقد فعّلتها للتو لـ %1$s</string>
     <string name="speed_bump_overlay_prompt">سيُفتح %1$s قريبًا…</string>
     <string name="speed_bump_overlay_title">خذ نفسًا عميقًا</string>
-    <string name="speed_bump_title">SpeedBump</string>
     <string name="speed_bump_pause_action">إيقاف SpeedBump مؤقتًا</string>
     <string name="speed_bump_pause_menu_title">إيقاف SpeedBump مؤقتًا لتطبيق %1$s</string>
     <string name="speed_bump_outside_quick_search_title">توسيع SpeedBump</string>

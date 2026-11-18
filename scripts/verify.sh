@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # One-shot verification for a finished change. Run from anywhere in the repo.
 #
-#   scripts/verify.sh               compile standard flavor, unit tests, checks, debug APK
+#   scripts/verify.sh               compile standard flavor, run checks, build debug APK
 #   scripts/verify.sh --no-assemble same, but skip building the APK (and the device install)
 #   scripts/verify.sh --no-device   build the APK but don't install it on a connected device
 #
 # After a clean build, install and launch on all USB devices if any are connected, otherwise
 # all wireless devices, skipping Android TVs when ~/.local/bin/android-targets is installed.
 # ANDROID_SERIAL overrides this selection. Installation revokes accessibility.
+# Unit tests run when app/build.gradle.kts changes versionCode relative to HEAD.
 #
 # Extra arguments after the flags are passed to Gradle (e.g. --offline).
 # Output is kept short: Gradle's full log goes to build/verify-gradle.log, and on failure only
@@ -56,10 +57,24 @@ if [[ -n "$oversized" ]]; then
     failures+=("file size")
 fi
 
-tasks=(
-    :app:compileStandardDebugKotlin
-    :app:testStandardDebugUnitTest
-)
+read_version_code() {
+    sed -nE 's@^[[:space:]]*versionCode[[:space:]]*=[[:space:]]*([0-9]+)[[:space:]]*(//.*)?$@\1@p' "$@"
+}
+
+tasks=(:app:compileStandardDebugKotlin)
+app_gradle=app/build.gradle.kts
+head_version_code=$(git show "HEAD:$app_gradle" | read_version_code)
+version_code=$(read_version_code "$app_gradle")
+if [[ ! "$head_version_code" =~ ^[0-9]+$ || ! "$version_code" =~ ^[0-9]+$ ]]; then
+    echo "VERIFY FAILED: expected one numeric versionCode in $app_gradle and in HEAD"
+    exit 1
+fi
+if [[ "$head_version_code" != "$version_code" ]]; then
+    echo "==> Unit tests: versionCode changed ($head_version_code to $version_code)"
+    tasks+=(:app:testStandardDebugUnitTest)
+else
+    echo "==> Unit tests skipped: versionCode unchanged ($version_code)"
+fi
 if $assemble; then
     tasks+=(assembleStandardDebug)
 fi

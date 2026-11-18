@@ -12,7 +12,6 @@
     <!-- ============================================================================
      App &amp; Search Entry
      ============================================================================ -->
-<string name="app_name">Quick Search</string>
 <string name="direct_answer_contact_name">AI-ответ</string>
     <string name="direct_search_enter_query">Введите запрос для поиска.</string>
     <string name="direct_search_ask_follow_up">Задать уточняющий вопрос</string>
@@ -359,11 +358,8 @@
 <string name="error_uninstall_self">Вы не можете удалить Quick Search отсюда.</string>
 <string name="failed_to_refresh_apps">Не удалось обновить список приложений</string>
 <string name="settings_app_apk_size_format">Размер APK: %1$.2f МБ</string>
-<string name="settings_app_columns_4">4</string>
-<string name="settings_app_columns_5">5</string>
 <string name="settings_app_columns_title">Приложений в строке</string>
 <string name="settings_app_result_rows_title">Строки результатов приложений</string>
-<string name="settings_app_icon_size_percent">%1$d%%</string>
 <string name="settings_app_icon_size_title">Размер значков</string>
 <string name="settings_app_info_install_date">Дата установки</string>
 <string name="settings_app_info_last_update">Последнее обновление</string>
@@ -440,7 +436,6 @@
 <string name="settings_app_shortcuts_shortcut_name_label">Название ярлыка</string>
 <string name="settings_app_shortcuts_update_failed">Не удалось обновить ярлык.</string>
 <string name="settings_app_shortcuts_update_success">Ярлык обновлен.</string>
-<string name="settings_app_shortcuts_url_label">URL</string>
 <string name="shortcut_song_search_label">Поиск песни</string>
 <string name="shortcut_watch_later_label">Смотреть позже</string>
 
@@ -450,17 +445,12 @@
 <string name="contact_method_call_label">Позвонить</string>
 <string name="contact_method_email_label">Эл. почта</string>
 <string name="contact_method_fallback_label">Другое</string>
-<string name="contact_method_google_meet_label">Google Meet</string>
 <string name="contact_method_message_label">Написать СМС</string>
-<string name="contact_method_signal_message_label">Signal</string>
 <string name="contact_method_signal_video_call_label">Видеозвонок в Signal</string>
 <string name="contact_method_signal_voice_call_label">Аудиозвонок в Signal</string>
-<string name="contact_method_telegram_message_label">Telegram</string>
 <string name="contact_method_telegram_video_call_label">Видеозвонок в Telegram</string>
 <string name="contact_method_telegram_voice_call_label">Аудиозвонок в Telegram</string>
 <string name="contact_method_view_in_contacts_label">Открыть в «Контактах»</string>
-<string name="contact_method_whatsapp_message_label">WhatsApp</string>
-<string name="contact_method_whatsapp_business_label">WhatsApp Business</string>
 <string name="contact_method_whatsapp_video_call_label">Видеозвонок в WhatsApp</string>
 <string name="contact_method_whatsapp_voice_call_label">Аудиозвонок в WhatsApp</string>
 <string name="contact_button_sms">СМС</string>
@@ -699,7 +689,6 @@
 <string name="settings_shortcut_location">Местоположение</string>
 <string name="settings_shortcut_mobile_data">Мобильный интернет</string>
 <string name="settings_shortcut_network">Сеть и интернет</string>
-<string name="settings_shortcut_nfc">NFC</string>
 <string name="settings_shortcut_notification_listener">Доступ к уведомлениям</string>
     <string name="settings_shortcut_notification_history">История уведомлений</string>
     <string name="notification_history_permission_desc">Разрешите доступ к уведомлениям, чтобы собирать их здесь. В этом списке отображаются только уведомления, полученные после предоставления доступа.</string>
@@ -717,7 +706,6 @@
 <string name="settings_shortcut_storage">Хранилище</string>
 <string name="settings_shortcut_usage_access">Доступ к истории использования</string>
 <string name="settings_shortcut_voice_input">Цифровой помощник</string>
-<string name="settings_shortcut_vpn">VPN</string>
 <string name="settings_shortcut_wifi">Wi\u2011Fi</string>
 <string name="settings_unable_to_open_settings">Не удалось открыть настройки</string>
 
@@ -779,7 +767,6 @@
 <string name="settings_amoled_theme_title">Тема AMOLED</string>
 <string name="settings_device_theme_blocked_toast">Недоступно, пока включена тема Material You</string>
 <string name="settings_device_theme_desc">Использовать динамическую цветовую палитру устройства для темы приложения</string>
-<string name="settings_device_theme_title">Material You</string>
 <string name="settings_edit_label">Изменить</string>
 <string name="settings_font_size_big">Большой</string>
 <string name="settings_font_size_extra_small">Очень маленький</string>
@@ -990,12 +977,7 @@
 <string name="settings_add_search_engine_error_multiple_placeholders">Используйте {{query}} только один раз.</string>
 <string name="settings_add_search_engine_error_placeholder">URL должен содержать {{query}}</string>
     <string name="settings_add_search_engine_error_required">Введите шаблон URL.</string>
-    <string name="settings_ai_provider_groq">Groq</string>
-    <string name="settings_ai_provider_meta">Meta AI</string>
-    <string name="settings_ai_provider_opencode">OpenCode</string>
-<string name="settings_ai_provider_openai">OpenAI</string>
 <string name="settings_alias_label">Алиас:</string>
-<string name="settings_amazon_domain_default">amazon.com</string>
 <string name="settings_amazon_domain_label">Домен:</string>
 <string name="settings_api_key_setup_desc">Настройте API-ключи для доступа к моделям соответствующего AI-провайдера.</string>
 <string name="settings_api_key_setup_nav_desc">Добавление или удаление API-ключей провайдеров</string>
@@ -1005,7 +987,6 @@
     <string name="custom_provider_models_load_failed">Не удалось загрузить модели этого провайдера: %1$s</string>
     <string name="settings_custom_provider_advanced_payload_desc">Объединяется с каждым запросом, отправленным через этого провайдера.</string>
     <string name="settings_custom_provider_advanced_payload_error">Введите допустимый объект JSON.</string>
-    <string name="settings_custom_provider_advanced_payload_hint" translatable="false">Example: { \"tools\": [{ \"type\": \"openrouter:web_search\" }] }</string>
     <string name="settings_custom_provider_advanced_payload_title">Расширенная полезная нагрузка запроса</string>
 <string name="settings_free_api_key_tip_description">Инструкция по бесплатному получению API-ключа Gemini.</string>
 <string name="settings_open_free_api_key_guide">Открыть руководство по бесплатному API-ключу</string>
@@ -1013,7 +994,6 @@
 <string name="settings_direct_search_how_to">Получить бесплатный API-ключ</string>
 <string name="settings_direct_search_model_label">Модель</string>
 <string name="settings_select_model">Выберите модель</string>
-<string name="settings_ai_model_with_provider">%1$s · %2$s</string>
 <string name="ai_error_selected_model_unavailable">Выбранная модель недоступна. Выберите другую модель в настройках.</string>
 <string name="settings_loading_models">Загрузка моделей…</string>
 <string name="settings_direct_search_personal_context">Персональный контекст</string>
@@ -1028,7 +1008,6 @@
 <string name="settings_gemini_api_key_paste_hint">Нажмите, чтобы вставить ключ</string>
 <string name="settings_gemini_api_key_reset">Сбросить ключ</string>
 <string name="settings_gemini_api_key_saving">Сохранение...</string>
-    <string name="settings_gemini_guide_url" translatable="false">https://medium.com/@tejakarlapudi.apps/setting-up-gemini-api-key-in-quick-search-25ee92aa4311</string>
 <string name="settings_model_picker_search_hint">Поиск моделей</string>
 <string name="settings_model_picker_more_models_hint">Показаны новейшие модели. Используйте поиск, чтобы найти другие.</string>
 <string name="settings_search_engine_alias_suffix_desc">Активирует поисковую систему, если добавить алиас в конце запроса. Алиасы в начале запроса работают всегда.</string>
@@ -1268,7 +1247,6 @@
 <string name="permissions_files_desc">Требуется для поиска по вашим документам и другим файлам.</string>
 <string name="permissions_files_title">Доступ к файлам</string>
 <string name="permissions_granted">Предоставлено</string>
-<string name="permissions_mandatory_indicator">*</string>
 <string name="permissions_reminder_dialog_message">Если вы позже передумаете насчет разрешения «%1$s», вы сможете предоставить его в настройках приложения.</string>
 <string name="permissions_reminder_dialog_title">Разрешения не предоставлены</string>
 <string name="permissions_screen_subtitle">Все разрешения необязательны. Они лишь открывают дополнительные функции, а ваши данные остаются на устройстве.</string>
@@ -1307,32 +1285,12 @@
 <string name="browser_in_app_name">Встроенный браузер</string>
 <string name="open_with_engine">Открыть с помощью %1$s</string>
 <string name="search_engine_ai_mode">Режим ИИ</string>
-<string name="search_engine_amazon">Amazon</string>
-<string name="search_engine_bing">Bing</string>
 <string name="search_engine_brave">Brave Search</string>
-<string name="search_engine_chatgpt">ChatGPT</string>
-<string name="search_engine_claude">Claude</string>
 <string name="search_engine_custom">Кастомный поиск</string>
-    <string name="search_engine_duckduckgo">DuckDuckGo</string>
-    <string name="search_engine_fdroid">F-Droid</string>
-    <string name="search_engine_facebook_marketplace">Facebook Marketplace</string>
-<string name="search_engine_gemini">Gemini</string>
-<string name="search_engine_google">Google</string>
 <string name="search_engine_google_drive">Google Диск</string>
 <string name="search_engine_google_maps">Google Карты</string>
 <string name="search_engine_google_photos">Google Фото</string>
-<string name="search_engine_google_play">Google Play</string>
-<string name="search_engine_grok">Grok</string>
-<string name="search_engine_perplexity">Perplexity</string>
-<string name="search_engine_reddit">Reddit</string>
-<string name="search_engine_spotify">Spotify</string>
-<string name="search_engine_startpage">Startpage</string>
-<string name="search_engine_waze">Waze</string>
 <string name="search_engine_wikipedia">Википедия</string>
-<string name="search_engine_x">X</string>
-<string name="search_engine_you_com">You.com</string>
-<string name="search_engine_youtube">YouTube</string>
-<string name="search_engine_youtube_music">YouTube Music</string>
 <string name="search_on_engine">Искать в %1$s</string>
 
 <!-- ============================================================================
@@ -1382,9 +1340,7 @@
     <string name="widget_custom_button_change_colour">Изменить цвет</string>
     <string name="widget_custom_button_choose_colour">Выбрать цвет папки</string>
     <string name="search_engine_google_translate">Google Переводчик</string>
-    <string name="search_engine_kagi">Kagi</string>
     <string name="search_engine_kagi_assistant">Kagi Assistant</string>
-    <string name="search_engine_muse">Muse</string>
     <string name="tasker_integration_title">Действия Tasker</string>
     <string name="tasker_integration_description">Создавайте действия Tasker с помощью широковещательных интентов (broadcast intents).</string>
     <string name="tasker_add_intent_title">Добавить интент Tasker</string>
@@ -1399,14 +1355,28 @@
     <string name="tasker_not_installed">Приложение Tasker не установлено</string>
     <string name="tasker_broadcast_failed">Не удалось отправить трансляцию Tasker</string>
     <string name="settings_more_apps_from_developer_title">Другие приложения разработчика</string>
-    <string name="settings_github_label">GitHub</string>
 <string name="icon_picker_no_icon_packs">Для изменения значка приложения не установлены пакеты значков.</string>
 <string name="icon_picker_download_icon_packs">Скачать</string>
     <string name="app_menu_usage_today">%1$s сегодня · Открыто %2$s</string>
     <string name="app_menu_version">Версия %1$s</string>
-    <plurals name="app_menu_opened_count"><item quantity="one">%d раз</item><item quantity="other">%d раз</item></plurals>
-    <plurals name="app_menu_usage_hours"><item quantity="one">%d ч</item><item quantity="other">%d ч</item></plurals>
-    <plurals name="app_menu_usage_minutes"><item quantity="one">%d мин</item><item quantity="other">%d мин</item></plurals>
+    <plurals name="app_menu_opened_count">
+        <item quantity="one">%d раз</item>
+        <item quantity="few">%d раза</item>
+        <item quantity="many">%d раз</item>
+        <item quantity="other">%d раза</item>
+    </plurals>
+    <plurals name="app_menu_usage_hours">
+        <item quantity="one">%d ч</item>
+        <item quantity="few">%d ч</item>
+        <item quantity="many">%d ч</item>
+        <item quantity="other">%d ч</item>
+    </plurals>
+    <plurals name="app_menu_usage_minutes">
+        <item quantity="one">%d мин</item>
+        <item quantity="few">%d мин</item>
+        <item quantity="many">%d мин</item>
+        <item quantity="other">%d мин</item>
+    </plurals>
     <string name="app_menu_usage_hours_decimal">%1$s ч</string>
     <string name="other_screen_time_today_title">Экранное время сегодня</string>
     <string name="other_screen_time_hours_minutes">%1$d ч %2$d мин</string>
@@ -1418,7 +1388,6 @@
     <string name="speed_bump_explainer_just_enabled">Вы только что включили её для %1$s</string>
     <string name="speed_bump_overlay_prompt">%1$s скоро откроется…</string>
     <string name="speed_bump_overlay_title">Сделайте глубокий вдох</string>
-    <string name="speed_bump_title">SpeedBump</string>
     <string name="speed_bump_pause_action">Приостановить SpeedBump</string>
     <string name="speed_bump_pause_menu_title">Приостановить SpeedBump для %1$s</string>
     <string name="speed_bump_outside_quick_search_title">Расширить SpeedBump</string>
