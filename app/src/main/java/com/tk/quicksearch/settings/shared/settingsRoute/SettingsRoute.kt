@@ -216,9 +216,10 @@ fun SettingsRoute(
         val isDefaultHomeApp = context.isDefaultHomeApp()
         val shouldEnableOverlay = enabled && !isDefaultHomeApp
         if (shouldEnableOverlay) {
-            viewModel.setOverlayModeEnabled(true)
-            OverlayModeController.startOverlay(context)
-            (context as? android.app.Activity)?.finish()
+            viewModel.setOverlayModeEnabled(true) {
+                OverlayModeController.startOverlay(context)
+                (context as? android.app.Activity)?.finish()
+            }
         } else if (!enabled) {
             viewModel.setOverlayModeEnabled(false) {
                 OverlayModeController.openMainActivity(context, returnToOverlay = false)

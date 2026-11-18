@@ -122,12 +122,13 @@ internal fun rememberRouteSettingActions(
                 val isDefaultHomeApp = context.isDefaultHomeApp()
                 val shouldEnableOverlay = enabled && !isDefaultHomeApp
                 if (shouldEnableOverlay) {
-                    viewModel.setOverlayModeEnabled(true)
-                    OverlayModeController.startOverlay(
-                        context = context,
-                        initialQuery = uiState.query.takeIf { it.isNotBlank() },
-                    )
-                    (context as? android.app.Activity)?.finish()
+                    viewModel.setOverlayModeEnabled(true) {
+                        OverlayModeController.startOverlay(
+                            context = context,
+                            initialQuery = uiState.query.takeIf { it.isNotBlank() },
+                        )
+                        (context as? android.app.Activity)?.finish()
+                    }
                 } else if (!enabled) {
                     viewModel.setOverlayModeEnabled(false) {
                         if (isOverlayPresentation) {

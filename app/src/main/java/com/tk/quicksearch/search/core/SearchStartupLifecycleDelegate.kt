@@ -335,7 +335,7 @@ internal class SearchStartupLifecycleDelegate(
         withContext(Dispatchers.Main) {
             userPreferences.setOverlayModeEnabled(false)
             updateUiState { it.copy(overlayModeEnabled = false) }
-            OverlayModeController.stopOverlay(applicationProvider())
+            OverlayModeController.stopOverlay()
         }
     }
 

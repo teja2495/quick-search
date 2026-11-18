@@ -80,6 +80,7 @@ class OverlayActivity : FragmentActivity() {
         enableEdgeToEdge(statusBarStyle, navigationBarStyle)
 
         super.onCreate(savedInstanceState)
+        OverlayModeController.onOverlayCreated(this)
         lockPortraitOrientationOnPhones()
         UiSurfaceMemoryManager.onSurfaceCreated()
         isActivityInstanceTracked = true
@@ -98,10 +99,6 @@ class OverlayActivity : FragmentActivity() {
                 mode = StartupMode.OVERLAY,
             )
 
-        if (intent?.getBooleanExtra(OverlayModeController.EXTRA_CLOSE_OVERLAY, false) == true) {
-            finish()
-            return
-        }
         animationToken = intent?.getLongExtra(OverlayModeController.EXTRA_ANIMATION_TOKEN, 0L) ?: 0L
         applyPinnedGlanceMode(intent)
         initializeVoiceSearchHandler()
@@ -117,10 +114,6 @@ class OverlayActivity : FragmentActivity() {
 
     override fun onNewIntent(intent: android.content.Intent) {
         super.onNewIntent(intent)
-        if (intent.getBooleanExtra(OverlayModeController.EXTRA_CLOSE_OVERLAY, false)) {
-            finish()
-            return
-        }
         animationToken = intent.getLongExtra(OverlayModeController.EXTRA_ANIMATION_TOKEN, animationToken)
         applyPinnedGlanceMode(intent)
         renderOverlayContent()
@@ -151,6 +144,7 @@ class OverlayActivity : FragmentActivity() {
     }
 
     override fun onDestroy() {
+        OverlayModeController.onOverlayDestroyed(this)
         super.onDestroy()
         if (!isActivityInstanceTracked) return
         isActivityInstanceTracked = false

@@ -295,7 +295,7 @@ internal fun SearchPreferencesDelegate.setAutoCloseOverlayEnabled(enabled: Boole
 
 internal fun SearchPreferencesDelegate.setOverlayModeEnabled(
     enabled: Boolean,
-    onDisabled: (() -> Unit)? = null,
+    onModeChanged: (() -> Unit)? = null,
 ) {
     scope.launch(Dispatchers.IO) {
         userPreferences.setOverlayModeEnabled(enabled)
@@ -307,10 +307,10 @@ internal fun SearchPreferencesDelegate.setOverlayModeEnabled(
                 wallpaperBlurRadius = stateAccess.wallpaperBlurRadius,
             )
         }
-        if (!enabled) {
-            withContext(Dispatchers.Main) {
-                OverlayModeController.stopOverlay(applicationProvider())
-                onDisabled?.invoke()
+        withContext(Dispatchers.Main) {
+            onModeChanged?.invoke()
+            if (!enabled) {
+                OverlayModeController.stopOverlay()
             }
         }
     }

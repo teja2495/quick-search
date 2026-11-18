@@ -5,6 +5,7 @@ import android.content.Intent
 import com.tk.quicksearch.app.MainActivity
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.widgets.searchWidget.MicAction
+import java.lang.ref.WeakReference
 
 object OverlayModeController {
     const val EXTRA_FORCE_NORMAL_LAUNCH = "overlay_force_normal_launch"
@@ -12,7 +13,6 @@ object OverlayModeController {
     const val EXTRA_OPEN_SETTINGS_DETAIL = "overlay_open_settings_detail"
     const val EXTRA_OPEN_NOTE_ID = "overlay_open_note_id"
     const val EXTRA_OPEN_WIDGETS_PANEL = "overlay_open_widgets_panel"
-    const val EXTRA_CLOSE_OVERLAY = "overlay_close"
     const val EXTRA_START_VOICE_SEARCH = "overlay_start_voice_search"
     const val EXTRA_MIC_ACTION = "overlay_mic_action"
     const val EXTRA_ANIMATION_TOKEN = "overlay_animation_token"
@@ -20,6 +20,18 @@ object OverlayModeController {
     const val EXTRA_RETURN_TO_OVERLAY = "overlay_return_to_overlay"
     const val EXTRA_PINNED_GLANCE_ONLY = "overlay_pinned_glance_only"
     const val EXTRA_ANCHOR_X = "overlay_anchor_x"
+
+    private var activeOverlay: WeakReference<OverlayActivity>? = null
+
+    internal fun onOverlayCreated(activity: OverlayActivity) {
+        activeOverlay = WeakReference(activity)
+    }
+
+    internal fun onOverlayDestroyed(activity: OverlayActivity) {
+        if (activeOverlay?.get() === activity) {
+            activeOverlay = null
+        }
+    }
 
     fun startOverlay(
         context: Context,
@@ -44,17 +56,8 @@ object OverlayModeController {
         context.startActivity(intent)
     }
 
-    fun stopOverlay(context: Context) {
-        val intent =
-            Intent(context, OverlayActivity::class.java).apply {
-                putExtra(EXTRA_CLOSE_OVERLAY, true)
-                addFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK or
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                        Intent.FLAG_ACTIVITY_SINGLE_TOP,
-                )
-            }
-        context.startActivity(intent)
+    fun stopOverlay() {
+        activeOverlay?.get()?.takeUnless { it.isFinishing }?.finish()
     }
 
     fun openMainActivity(
