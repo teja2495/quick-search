@@ -167,7 +167,7 @@ internal enum class ResizeEdge(
 internal fun rememberWidgetsPanelHost(): WidgetPanelHost {
     val appContext = LocalContext.current.applicationContext
     val host = remember(appContext) {
-        WidgetPanelHost(appContext, QUICK_SEARCH_WIDGET_HOST_ID).apply { setSuspended(true) }
+        WidgetPanelHost(appContext, QUICK_SEARCH_WIDGET_HOST_ID, isPanelHost = true).apply { setSuspended(true) }
     }
     DisposableEffect(host) {
         onDispose { host.release() }
@@ -311,6 +311,7 @@ internal fun WidgetsPanelScreen(
         val storedIds = storedWidgets.mapTo(HashSet()) { it.appWidgetId }
         val invalidIds = storedIds - appWidgetHost.preloadProviderInfo(storedIds)
         if (invalidIds.isNotEmpty()) {
+            invalidIds.forEach(appWidgetHost::removeSnapshot)
             persistWidgets(widgets.filterNot { it.appWidgetId in invalidIds })
         }
         quickNoteWidget = storedQuickNote
@@ -538,6 +539,8 @@ internal fun WidgetsPanelScreen(
                                     } else {
                                         if (widget.home == null) {
                                             appWidgetHost.deleteAppWidgetId(widget.appWidgetId)
+                                        } else {
+                                            appWidgetHost.removeSnapshot(widget.appWidgetId)
                                         }
                                         persistWidgets(
                                             preferences.removeWidget(widget.appWidgetId),

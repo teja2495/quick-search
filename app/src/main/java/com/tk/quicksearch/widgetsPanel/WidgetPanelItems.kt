@@ -97,6 +97,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -342,6 +343,7 @@ internal fun HostedWidget(
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
     val context = LocalContext.current
+    val graphicsContext = LocalGraphicsContext.current
     val widthPx = with(density) { width.roundToPx() }
     val heightPx = with(density) { height.roundToPx() }
     val widthDp = width.value.toInt()
@@ -371,7 +373,7 @@ internal fun HostedWidget(
             factory = { ctx ->
                 // createView already binds the id/provider and loads the system's cached RemoteViews;
                 // a view kept from an earlier showing is reused instead.
-                appWidgetHost.obtainView(ctx, appWidgetId, providerInfo).apply {
+                appWidgetHost.obtainView(ctx, appWidgetId, providerInfo, graphicsContext).apply {
                     layoutParams = ViewGroup.LayoutParams(widthPx, heightPx)
                 }
             },

@@ -8,6 +8,8 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.graphics.Bitmap
+import android.os.Process
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.fadeIn
@@ -18,6 +20,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
@@ -54,8 +57,11 @@ import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -401,6 +407,7 @@ internal fun WidgetPanelGrid(
                     val canHost = showHostedWidgets || widget.appWidgetId in keptViewIds
                     WidgetPanelGridItem(
                         widget = widget,
+                        isNearViewport = isNearViewport,
                         showHostedWidget = canHost && (isNearViewport || isEditing),
                         appWidgetManager = appWidgetManager,
                         appWidgetHost = appWidgetHost,
@@ -459,6 +466,7 @@ internal fun WidgetPanelGrid(
 @Composable
 private fun BoxScope.WidgetPanelGridItem(
     widget: PanelWidgetInfo,
+    isNearViewport: Boolean,
     showHostedWidget: Boolean,
     appWidgetManager: AppWidgetManager,
     appWidgetHost: WidgetPanelHost,
@@ -531,6 +539,23 @@ private fun BoxScope.WidgetPanelGridItem(
     }
     if (providerInfo == null) return
 
+    val showsLiveContent = showHostedWidget && hasWidgetContent
+    val shouldReadSnapshot =
+        isNearViewport && !showsLiveContent && providerInfo.profile == Process.myUserHandle()
+    var snapshot by remember(widget.appWidgetId, providerInfo.provider, shouldReadSnapshot) {
+        mutableStateOf<Bitmap?>(null)
+    }
+    var snapshotPending by remember(widget.appWidgetId, providerInfo.provider, shouldReadSnapshot) {
+        mutableStateOf(shouldReadSnapshot)
+    }
+    LaunchedEffect(widget.appWidgetId, providerInfo.provider, shouldReadSnapshot) {
+        if (shouldReadSnapshot) {
+            snapshot = WidgetPanelSnapshots.read(context.applicationContext, widget.appWidgetId, providerInfo.provider)
+            snapshotPending = false
+        }
+    }
+    val preview = remember(snapshot) { snapshot?.asImageBitmap() }
+
     val configureIntent =
         remember(providerInfo, widget.appWidgetId) {
             providerInfo.configure?.let {
@@ -554,6 +579,14 @@ private fun BoxScope.WidgetPanelGridItem(
                     scaleY = editScale
                 },
     ) {
+        if (preview != null) {
+            Image(
+                bitmap = preview,
+                contentDescription = null,
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier.matchParentSize().clip(AppShapes.widgetPanelCard),
+            )
+        }
         if (showHostedWidget) {
             HostedWidget(
                 appWidgetId = widget.appWidgetId,
@@ -564,10 +597,10 @@ private fun BoxScope.WidgetPanelGridItem(
                 height = height,
                 columnSpan = columnSpan,
                 rowSpan = rowSpan,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().clip(AppShapes.widgetPanelCard),
             )
         }
-        if (!hasWidgetContent) {
+        if (isNearViewport && !showsLiveContent && preview == null && !snapshotPending) {
             // A plain Box rather than Surface: Surface consumes touches, which would block the host
             // view's long-press and leave a widget whose provider never sends content impossible
             // to edit or remove.

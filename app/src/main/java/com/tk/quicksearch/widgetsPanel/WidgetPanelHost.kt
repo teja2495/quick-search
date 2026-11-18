@@ -5,8 +5,12 @@ import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
+import android.content.ComponentName
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Outline
+import android.os.Build
+import android.os.Process
 import android.os.SystemClock
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
@@ -17,6 +21,7 @@ import android.view.ViewOutlineProvider
 import android.widget.RemoteViews
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -25,6 +30,7 @@ import com.tk.quicksearch.shared.util.MemoryDiagnostics
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.abs
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.withContext
 
 private const val WIDGET_EDIT_LONG_PRESS_CONFIRMATION_MS = 100L
@@ -40,6 +46,7 @@ private val widgetCornerRadiusDp = DesignTokens.WidgetPanelCornerRadius.value
 internal class WidgetPanelHost(
     context: Context,
     hostId: Int,
+    private val isPanelHost: Boolean = false,
 ) : AppWidgetHost(context, hostId) {
     init {
         MemoryDiagnostics.widgetHostCreated()
@@ -69,7 +76,8 @@ internal class WidgetPanelHost(
     /** The latest view made for each widget, kept while detached so showing it again reuses it. */
     private val viewsById = mutableMapOf<Int, WidgetPanelHostView>()
 
-    private val appWidgetManager = AppWidgetManager.getInstance(context.applicationContext)
+    private val appContext = context.applicationContext
+    private val appWidgetManager = AppWidgetManager.getInstance(appContext)
 
     /** Provider info by widget id; refreshed by the provider-change callbacks below. */
     private val providerInfoCache = ConcurrentHashMap<Int, AppWidgetProviderInfo>()
@@ -101,6 +109,7 @@ internal class WidgetPanelHost(
         context: Context,
         appWidgetId: Int,
         info: AppWidgetProviderInfo,
+        graphicsContext: GraphicsContext,
     ): AppWidgetHostView {
         val cached = viewsById[appWidgetId]
         if (
@@ -113,7 +122,11 @@ internal class WidgetPanelHost(
             if (liveViews.add(cached)) MemoryDiagnostics.widgetViewCreated()
             return cached
         }
-        return createView(context, appWidgetId, info)
+        return createView(context, appWidgetId, info).also { view ->
+            if (isPanelHost && info.profile == Process.myUserHandle()) {
+                (view as WidgetPanelHostView).startSnapshotCapture(appWidgetId, info.provider, graphicsContext)
+            }
+        }
     }
 
     /** Ids of widgets whose kept view can be shown again without fetching and inflating it. */
@@ -134,9 +147,15 @@ internal class WidgetPanelHost(
 
     override fun deleteAppWidgetId(appWidgetId: Int) {
         super.deleteAppWidgetId(appWidgetId)
+        removeSnapshot(appWidgetId)
         providerInfoCache.remove(appWidgetId)
         widgetContentAvailable.remove(appWidgetId)
         viewsById.remove(appWidgetId)?.let { view -> if (!view.isAttachedToWindow) view.releaseCallbacks() }
+    }
+
+    fun removeSnapshot(appWidgetId: Int) {
+        viewsById[appWidgetId]?.stopSnapshotCapture()
+        WidgetPanelSnapshots.remove(appContext, appWidgetId)
     }
 
     override fun onCreateView(
@@ -144,13 +163,22 @@ internal class WidgetPanelHost(
         appWidgetId: Int,
         appWidget: AppWidgetProviderInfo?,
     ): AppWidgetHostView =
-        WidgetPanelHostView(context).also { view ->
+        WidgetPanelHostView(context, isPanelHost).also { view ->
             appWidget?.provider?.packageName?.let(CrashLogManager::registerHostedWidgetPackage)
             view.onLongPress = { onWidgetLongPress?.invoke(appWidgetId) }
             view.onDragMove = { dx, dy -> onWidgetDragMove?.invoke(appWidgetId, dx, dy) }
             view.onDragEnd = { onWidgetDragEnd?.invoke(appWidgetId) }
             view.onTouchStarted = { onWidgetTouch?.invoke(appWidgetId) ?: false }
-            view.onContentChanged = { hasContent -> widgetContentAvailable[appWidgetId] = hasContent }
+            if (isPanelHost) {
+                viewsById[appWidgetId]?.stopSnapshotCapture()
+                widgetContentAvailable.remove(appWidgetId)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    view.setExecutor(panelInflationExecutor)
+                }
+            }
+            view.onContentChanged = { hasContent ->
+                if (viewsById[appWidgetId] === view) widgetContentAvailable[appWidgetId] = hasContent
+            }
             view.isScrollInProgressProvider = { isScrollInProgressProvider() }
             view.onDetached = {
                 if (liveViews.remove(view)) MemoryDiagnostics.widgetViewsReleased(1)
@@ -280,6 +308,8 @@ internal class WidgetPanelHost(
     }
 
     private companion object {
+        val panelInflationExecutor = Dispatchers.Default.limitedParallelism(2).asExecutor()
+
         // Main-thread only: hosts are created and released from composition effects.
         val activeHosts = mutableListOf<WidgetPanelHost>()
     }
@@ -295,6 +325,7 @@ internal class WidgetPanelHost(
  */
 private class WidgetPanelHostView(
     context: Context,
+    private val isPanelHost: Boolean,
 ) : AppWidgetHostView(context) {
     var onLongPress: (() -> Unit)? = null
     var onDragMove: ((deltaX: Float, deltaY: Float) -> Unit)? = null
@@ -303,6 +334,57 @@ private class WidgetPanelHostView(
     var onContentChanged: ((Boolean) -> Unit)? = null
     var onDetached: (() -> Unit)? = null
     var isScrollInProgressProvider: () -> Boolean = { false }
+    private var snapshotCapture: WidgetPanelSnapshots.Capture? = null
+    private var fallbackView: View? = null
+    private var reportedContent = false
+    private val reportDrawnContent = Runnable {
+        val hasContent = renderedContent() != null
+        if (reportedContent != hasContent) {
+            reportedContent = hasContent
+            onContentChanged?.invoke(hasContent)
+        }
+    }
+
+    fun startSnapshotCapture(appWidgetId: Int, provider: ComponentName, graphicsContext: GraphicsContext) {
+        snapshotCapture =
+            WidgetPanelSnapshots.Capture(this, { renderedContent() != null }, appWidgetId, provider, graphicsContext)
+    }
+
+    fun stopSnapshotCapture() {
+        snapshotCapture?.cancel()
+        snapshotCapture = null
+    }
+
+    private fun renderedContent(): View? =
+        getChildAt(0)?.takeIf { it !== fallbackView }
+
+    override fun getDefaultView(): View = super.getDefaultView().also(::rememberFallbackView)
+
+    override fun getErrorView(): View = super.getErrorView().also(::rememberFallbackView)
+
+    private fun rememberFallbackView(view: View) {
+        if (!isPanelHost) return
+        view.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+        fallbackView = view
+    }
+
+    override fun dispatchDraw(canvas: Canvas) {
+        if (!isPanelHost) {
+            super.dispatchDraw(canvas)
+            return
+        }
+        // Android may still be inflating the widget or showing its default/error view.
+        // Keep the preview until the provider's content is actually drawn.
+        val hasContent = renderedContent() != null
+        if (hasContent) {
+            super.dispatchDraw(canvas)
+            snapshotCapture?.onDraw()
+        }
+        if (hasContent != reportedContent) {
+            removeCallbacks(reportDrawnContent)
+            post(reportDrawnContent)
+        }
+    }
 
     fun cancelPendingLongPress() {
         longPressArmed = false
@@ -311,6 +393,9 @@ private class WidgetPanelHostView(
 
     fun releaseCallbacks() {
         removeCallbacks(longPressRunnable)
+        removeCallbacks(reportDrawnContent)
+        stopSnapshotCapture()
+        if (isPanelHost && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) setExecutor(null)
         onLongPress = null
         onDragMove = null
         onDragEnd = null
@@ -333,7 +418,7 @@ private class WidgetPanelHostView(
 
     override fun updateAppWidget(remoteViews: RemoteViews?) {
         super.updateAppWidget(remoteViews)
-        onContentChanged?.invoke(remoteViews != null)
+        if (!isPanelHost) onContentChanged?.invoke(remoteViews != null)
     }
 
     init {
@@ -427,7 +512,8 @@ private class WidgetPanelHostView(
         return handled || (ev.actionMasked == MotionEvent.ACTION_DOWN && longPressArmed)
     }
 
-    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean = longPressFired
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean =
+        longPressFired || (isPanelHost && renderedContent() == null)
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         // The synthetic cancel sent to the widget's children must not end the drag that the
@@ -450,6 +536,8 @@ private class WidgetPanelHostView(
 
     override fun onDetachedFromWindow() {
         removeCallbacks(longPressRunnable)
+        removeCallbacks(reportDrawnContent)
+        snapshotCapture?.cancel()
         onDetached?.invoke()
         super.onDetachedFromWindow()
     }
