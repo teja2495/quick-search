@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -25,8 +26,6 @@ import com.tk.quicksearch.onboarding.permissionScreen.PermissionState
 import com.tk.quicksearch.reminders.ReminderPermissions
 import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
 import com.tk.quicksearch.search.data.AppsRepository
-import com.tk.quicksearch.search.data.CalendarRepository
-import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -88,9 +87,7 @@ fun PermissionsCardSection(
 ) {
     val context = LocalContext.current
     val appsRepository = remember { AppsRepository(context) }
-    val contactRepository = remember { ContactRepository(context) }
     val fileRepository = remember { FileSearchRepository(context) }
-    val calendarRepository = remember { CalendarRepository(context) }
     var showAccessibilityDisclosure by remember { mutableStateOf(false) }
     var accessibilityPermissionState by remember {
         mutableStateOf(createInitialPermissionState(LockScreenAccessibilityService.isEnabled(context)))
@@ -99,22 +96,15 @@ fun PermissionsCardSection(
     var usagePermissionState by remember {
         mutableStateOf(createInitialPermissionState(appsRepository.hasUsageAccess()))
     }
-    var contactsPermissionState by remember {
-        mutableStateOf(createInitialPermissionState(contactRepository.hasPermission()))
-    }
     var filesPermissionState by remember {
         mutableStateOf(createInitialPermissionState(fileRepository.hasPermission()))
     }
-    var calendarPermissionState by remember {
-        mutableStateOf(createInitialPermissionState(calendarRepository.hasPermission()))
-    }
-    var callingPermissionState by remember {
-        mutableStateOf(
-            createInitialPermissionState(
-                ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) ==
-                    PackageManager.PERMISSION_GRANTED,
-            ),
-        )
+    val runtimeStates = remember(context) {
+        mutableStateMapOf<RuntimePermissionRow, PermissionState>().apply {
+            RuntimePermissionRow.entries.forEach { row ->
+                put(row, createInitialPermissionState(row.isGranted(context)))
+            }
+        }
     }
     var notificationsPermissionState by remember {
         mutableStateOf(createInitialPermissionState(hasNotificationsPermission(context)))
@@ -161,86 +151,16 @@ fun PermissionsCardSection(
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestMultiplePermissions(),
         ) { permissions ->
-            permissions[Manifest.permission.READ_CONTACTS]?.let { contactsGranted ->
-                val contactsWasPreviouslyDenied = contactsPermissionState.wasDenied
-                val shouldShowContactsRationale =
-                    PermissionHelper.shouldShowRuntimePermissionRationale(
-                        context = context,
-                        permission = Manifest.permission.READ_CONTACTS,
-                    )
-                val shouldOpenContactsSettings =
-                    !contactsGranted &&
-                        contactsWasPreviouslyDenied &&
-                        !shouldShowContactsRationale
-                contactsPermissionState =
-                    updatePermissionState(
-                        isGranted = contactsGranted,
-                        isEnabled = contactsGranted,
-                        wasDenied =
-                            !contactsGranted &&
-                                (
-                                    contactsWasPreviouslyDenied ||
-                                        shouldShowContactsRationale
-                                ),
-                    )
-
-                if (shouldOpenContactsSettings) {
-                    PermissionHelper.launchAppSettingsRequest(context)
-                }
-            }
-
-            permissions[Manifest.permission.CALL_PHONE]?.let { callingGranted ->
-                val callingWasPreviouslyDenied = callingPermissionState.wasDenied
-                val shouldShowCallingRationale =
-                    PermissionHelper.shouldShowRuntimePermissionRationale(
-                        context = context,
-                        permission = Manifest.permission.CALL_PHONE,
-                    )
-                val shouldOpenCallingSettings =
-                    !callingGranted &&
-                        callingWasPreviouslyDenied &&
-                        !shouldShowCallingRationale
-                callingPermissionState =
-                    updatePermissionState(
-                        isGranted = callingGranted,
-                        isEnabled = callingGranted,
-                        wasDenied =
-                            !callingGranted &&
-                                (
-                                    callingWasPreviouslyDenied ||
-                                        shouldShowCallingRationale
-                                ),
-                    )
-
-                if (shouldOpenCallingSettings) {
-                    PermissionHelper.launchAppSettingsRequest(context)
-                }
-            }
-
-            permissions[Manifest.permission.READ_CALENDAR]?.let { calendarGranted ->
-                val calendarWasPreviouslyDenied = calendarPermissionState.wasDenied
-                val shouldShowCalendarRationale =
-                    PermissionHelper.shouldShowRuntimePermissionRationale(
-                        context = context,
-                        permission = Manifest.permission.READ_CALENDAR,
-                    )
-                val shouldOpenCalendarSettings =
-                    !calendarGranted &&
-                        calendarWasPreviouslyDenied &&
-                        !shouldShowCalendarRationale
-                calendarPermissionState =
-                    updatePermissionState(
-                        isGranted = calendarGranted,
-                        isEnabled = calendarGranted,
-                        wasDenied =
-                            !calendarGranted &&
-                                (
-                                    calendarWasPreviouslyDenied ||
-                                        shouldShowCalendarRationale
-                                ),
-                    )
-
-                if (shouldOpenCalendarSettings) {
+            for (row in RuntimePermissionRow.entries) {
+                val granted = permissions[row.permission] ?: continue
+                val previous = runtimeStates.getValue(row)
+                val rationale = PermissionHelper.shouldShowRuntimePermissionRationale(context, row.permission)
+                runtimeStates[row] = updatePermissionState(
+                    isGranted = granted,
+                    isEnabled = granted,
+                    wasDenied = !granted && (previous.wasDenied || rationale),
+                )
+                if (!granted && previous.wasDenied && !rationale) {
                     PermissionHelper.launchAppSettingsRequest(context)
                 }
             }
@@ -271,33 +191,20 @@ fun PermissionsCardSection(
             LifecycleEventObserver { _, event ->
                 if (event == Lifecycle.Event.ON_RESUME) {
                     val hasUsageAccess = appsRepository.hasUsageAccess()
-                    val hasContactsPermission = contactRepository.hasPermission()
                     val hasFilesPermission = fileRepository.hasPermission()
-                    val hasCalendarPermission = calendarRepository.hasPermission()
-
                     usagePermissionState = updatePermissionState(hasUsageAccess, hasUsageAccess)
-
-                    if (hasContactsPermission) {
-                        contactsPermissionState = updatePermissionState(hasContactsPermission, true)
-                    }
 
                     if (hasFilesPermission) {
                         filesPermissionState = updatePermissionState(hasFilesPermission, true, wasDenied = false)
                     }
 
-                    if (hasCalendarPermission) {
-                        calendarPermissionState = updatePermissionState(hasCalendarPermission, true, wasDenied = false)
-                    }
-
-                    val hasCallingPermission =
-                        ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) ==
-                            PackageManager.PERMISSION_GRANTED
-                    callingPermissionState =
-                        if (hasCallingPermission) {
-                            updatePermissionState(isGranted = true, isEnabled = true, wasDenied = false)
-                        } else {
-                            callingPermissionState.copy(isGranted = false)
+                    for (row in RuntimePermissionRow.entries) {
+                        if (row.isGranted(context)) {
+                            runtimeStates[row] = PermissionState.granted()
+                        } else if (row.refreshRevocations) {
+                            runtimeStates[row] = runtimeStates.getValue(row).copy(isGranted = false)
                         }
+                    }
 
                     val notificationsGranted = hasNotificationsPermission(context)
                     notificationsPermissionState =
@@ -330,10 +237,10 @@ fun PermissionsCardSection(
     val states =
         PermissionCardStates(
             usage = usagePermissionState,
-            contacts = contactsPermissionState,
+            contacts = runtimeStates.getValue(RuntimePermissionRow.CONTACTS),
             files = filesPermissionState,
-            calendar = if (showCalendarPermission) calendarPermissionState else PermissionState.granted(),
-            calling = if (showCallingPermission) callingPermissionState else PermissionState.granted(),
+            calendar = if (showCalendarPermission) runtimeStates.getValue(RuntimePermissionRow.CALENDAR) else PermissionState.granted(),
+            calling = if (showCallingPermission) runtimeStates.getValue(RuntimePermissionRow.CALLING) else PermissionState.granted(),
             notifications =
                 if (showNotificationsPermission) notificationsPermissionState else PermissionState.granted(),
             notificationAccess = notificationAccessPermissionState,
@@ -342,6 +249,29 @@ fun PermissionsCardSection(
     LaunchedEffect(states) {
         onStatesChanged(states)
     }
+
+    fun runtimeRows(position: RuntimePermissionRow.Position): List<PermissionCardItem> =
+        RuntimePermissionRow.entries.filter { row ->
+            row.position == position && row.isVisible(showCallingPermission, showCalendarPermission)
+        }.map { row ->
+            val state = runtimeStates.getValue(row)
+            PermissionCardItem(
+                title = row.title(context, texts),
+                icon = row.icon(),
+                description = row.description(context, texts),
+                permissionState = state,
+                isMandatory = false,
+                onToggleChange = { enabled ->
+                    val current = runtimeStates.getValue(row)
+                    runtimeStates[row] = current.copy(isEnabled = enabled)
+                    if (enabled && !current.isGranted) {
+                        runCatching { multiplePermissionsLauncher.launch(arrayOf(row.permission)) }
+                            .onFailure { PermissionHelper.launchAppSettingsRequest(context) }
+                    }
+                },
+                onGrantedClick = { PermissionHelper.launchAppSettingsRequest(context) },
+            )
+        }
 
     val items =
         buildList {
@@ -362,26 +292,7 @@ fun PermissionsCardSection(
                     onGrantedClick = { PermissionHelper.launchUsageAccessRequest(context) },
                 ),
             )
-            add(
-                PermissionCardItem(
-                    title = texts.contactsTitle,
-                    icon = MaterialSymbols.Contacts,
-                    description = texts.contactsDescription,
-                    permissionState = contactsPermissionState,
-                    isMandatory = false,
-                    onToggleChange = { enabled ->
-                        contactsPermissionState = contactsPermissionState.copy(isEnabled = enabled)
-                        if (enabled && !contactsPermissionState.isGranted) {
-                            runCatching {
-                                multiplePermissionsLauncher.launch(arrayOf(Manifest.permission.READ_CONTACTS))
-                            }.onFailure {
-                                PermissionHelper.launchAppSettingsRequest(context)
-                            }
-                        }
-                    },
-                    onGrantedClick = { PermissionHelper.launchAppSettingsRequest(context) },
-                ),
-            )
+            addAll(runtimeRows(RuntimePermissionRow.Position.AFTER_USAGE))
             add(
                 PermissionCardItem(
                     title = texts.filesTitle,
@@ -404,28 +315,7 @@ fun PermissionsCardSection(
                     onGrantedClick = { PermissionHelper.launchFilesAccessSettings(context) },
                 ),
             )
-            if (showCalendarPermission) {
-                add(
-                    PermissionCardItem(
-                        title = texts.calendarTitle,
-                        icon = MaterialSymbols.CalendarMonth,
-                        description = texts.calendarDescription,
-                        permissionState = calendarPermissionState,
-                        isMandatory = false,
-                        onToggleChange = { enabled ->
-                            calendarPermissionState = calendarPermissionState.copy(isEnabled = enabled)
-                            if (enabled && !calendarPermissionState.isGranted) {
-                                runCatching {
-                                    multiplePermissionsLauncher.launch(arrayOf(Manifest.permission.READ_CALENDAR))
-                                }.onFailure {
-                                    PermissionHelper.launchAppSettingsRequest(context)
-                                }
-                            }
-                        },
-                        onGrantedClick = { PermissionHelper.launchAppSettingsRequest(context) },
-                    ),
-                )
-            }
+            addAll(runtimeRows(RuntimePermissionRow.Position.AFTER_FILES))
             if (showAccessibilityPermission) {
                 add(
                     PermissionCardItem(
@@ -449,28 +339,7 @@ fun PermissionsCardSection(
                     ),
                 )
             }
-            if (showCallingPermission) {
-                add(
-                    PermissionCardItem(
-                        title = texts.callingTitle,
-                        icon = MaterialSymbols.Call,
-                        description = texts.callingDescription,
-                        permissionState = callingPermissionState,
-                        isMandatory = false,
-                        onToggleChange = { enabled ->
-                            callingPermissionState = callingPermissionState.copy(isEnabled = enabled)
-                            if (enabled && !callingPermissionState.isGranted) {
-                                runCatching {
-                                    multiplePermissionsLauncher.launch(arrayOf(Manifest.permission.CALL_PHONE))
-                                }.onFailure {
-                                    PermissionHelper.launchAppSettingsRequest(context)
-                                }
-                            }
-                        },
-                        onGrantedClick = { PermissionHelper.launchAppSettingsRequest(context) },
-                    ),
-                )
-            }
+            addAll(runtimeRows(RuntimePermissionRow.Position.AFTER_ACCESSIBILITY))
             if (showNotificationsPermission) {
                 add(
                     PermissionCardItem(

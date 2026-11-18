@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.apps
 
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
+import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
@@ -53,7 +55,6 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.LocalItemCustomizationRemover
-import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.appSettings.LocalOpenAppSettingDestination
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppsRepository
@@ -408,7 +409,7 @@ fun AppItemDropdownMenu(
             add(ItemMenuRow(
                 label = stringResource(R.string.action_manage_all_apps),
                 icon = { Icon(imageVector = MaterialSymbols.Settings, contentDescription = null) },
-                onClick = { onDismiss(); openDestination(AppSettingsDestination.APP_MANAGEMENT) },
+                onClick = { onDismiss(); openDestination(AppSettingsTarget.Page(SettingsDetailType.APP_MANAGEMENT)) },
                 iconOnly = true,
             ))
         }

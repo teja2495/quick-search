@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.appSettings
 
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import android.content.Context
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSectionRegistry
@@ -16,11 +17,11 @@ internal class AppSettingDescriptionResolver(private val context: Context) {
         if (
             !setting.isNavigateAction ||
             queryContext.tokens.isEmpty() ||
-            setting.destination == AppSettingsDestination.AI_MODEL
+            setting.destination == AppSettingsRouteAction.AI_MODEL
         ) {
             return setting.description
         }
-        if (setting.destination == AppSettingsDestination.APPEARANCE) {
+        if (setting.destination == AppSettingsTarget.Page(SettingsDetailType.APPEARANCE)) {
             val appearanceDescription = getAppearanceSearchDescription(queryContext.tokens.toSet())
             if (appearanceDescription != null) {
                 return appearanceDescription

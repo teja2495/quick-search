@@ -14,19 +14,6 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import com.tk.quicksearch.R
-import com.tk.quicksearch.widgets.atAGlanceWidget.AtAGlanceWidget
-import com.tk.quicksearch.widgets.atAGlanceWidget.AtAGlanceWidgetReceiver
-import com.tk.quicksearch.widgets.customButtonsWidget.CustomButtonsWidgetReceiver
-import com.tk.quicksearch.widgets.mediaControlsWidget.MediaControlsWidget
-import com.tk.quicksearch.widgets.mediaControlsWidget.MediaControlsWidgetReceiver
-import com.tk.quicksearch.widgets.countdownWidget.CountdownWidget
-import com.tk.quicksearch.widgets.countdownWidget.CountdownWidgetReceiver
-import com.tk.quicksearch.widgets.noteWidget.NoteWidget
-import com.tk.quicksearch.widgets.noteWidget.NoteWidgetReceiver
-import com.tk.quicksearch.widgets.searchWidget.SearchWidget
-import com.tk.quicksearch.widgets.searchWidget.SearchWidgetReceiver
-import com.tk.quicksearch.widgets.worldClockWidget.WorldClockWidget
-import com.tk.quicksearch.widgets.worldClockWidget.WorldClockWidgetReceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -52,7 +39,7 @@ private fun requestPinForAndroidOPlus(context: Context) {
         return
     }
 
-    val provider = ComponentName(context, SearchWidgetReceiver::class.java)
+    val provider = ComponentName(context, BuiltInWidget.SEARCH.receiver)
     try {
         val requested = appWidgetManager.requestPinAppWidget(provider, null, null)
         if (!requested) {
@@ -84,35 +71,18 @@ private fun showToast(
  * Play/Pause button's icon reflects a playback-state change that just happened outside of this app.
  */
 suspend fun refreshAllWidgets(context: Context) {
-    refreshAndDrawNow(context, SearchWidgetReceiver::class.java, SearchWidget(WidgetVariant.STANDARD), SearchWidget.DEFAULT_SIZE)
-    refreshAndDrawNow(
-        context,
-        CustomButtonsWidgetReceiver::class.java,
-        SearchWidget(WidgetVariant.CUSTOM_BUTTONS_ONLY),
-        SearchWidget.DEFAULT_SIZE,
-    )
-    refreshMediaControlsWidgets(context)
+    for (definition in BuiltInWidget.entries) {
+        if (definition.updatesWithPlayback) refreshBuiltInWidget(context, definition)
+    }
 }
 
-/** Redraws placed media controls widgets, e.g. when the playing track's title or artwork changes. */
-suspend fun refreshMediaControlsWidgets(context: Context) {
-    refreshAndDrawNow(context, MediaControlsWidgetReceiver::class.java, MediaControlsWidget(), MediaControlsWidget.DEFAULT_SIZE)
-}
+suspend fun refreshMediaControlsWidgets(context: Context) = refreshBuiltInWidget(context, BuiltInWidget.MEDIA_CONTROLS)
 
-/** Redraws placed Note widgets, e.g. after a note is edited, deleted or restored from a backup. */
-suspend fun refreshNoteWidgets(context: Context) {
-    refreshAndDrawNow(context, NoteWidgetReceiver::class.java, NoteWidget(), NoteWidget.DEFAULT_SIZE)
-}
+suspend fun refreshNoteWidgets(context: Context) = refreshBuiltInWidget(context, BuiltInWidget.NOTE)
 
-/** Redraws placed Countdown widgets, e.g. when the day changes. */
-suspend fun refreshCountdownWidgets(context: Context) {
-    refreshAndDrawNow(context, CountdownWidgetReceiver::class.java, CountdownWidget(), CountdownWidget.DEFAULT_SIZE)
-}
+suspend fun refreshCountdownWidgets(context: Context) = refreshBuiltInWidget(context, BuiltInWidget.COUNTDOWN)
 
-/** Redraws placed World Clock widgets, e.g. when the device's time zone or clock format changes. */
-suspend fun refreshWorldClockWidgets(context: Context) {
-    refreshAndDrawNow(context, WorldClockWidgetReceiver::class.java, WorldClockWidget(), WorldClockWidget.DEFAULT_SIZE)
-}
+suspend fun refreshWorldClockWidgets(context: Context) = refreshBuiltInWidget(context, BuiltInWidget.WORLD_CLOCK)
 
 /**
  * How much the launcher shrinks or grows a placed widget's content. Samsung One UI Home draws
@@ -133,12 +103,7 @@ fun launcherWidgetContentScale(
 private const val ONE_UI_RESIZE_RATIO_OPTION = "hsResizeRatio"
 
 /** Redraws placed At a Glance widgets, e.g. when a notification, device state or reminder changes. */
-suspend fun refreshAtAGlanceWidgets(context: Context) {
-    val widget = AtAGlanceWidget()
-    refreshWidgets(context, AtAGlanceWidgetReceiver::class.java, widget) { appWidgetId, glanceId ->
-        widget.drawNow(context, appWidgetId, glanceId)
-    }
-}
+suspend fun refreshAtAGlanceWidgets(context: Context) = refreshBuiltInWidget(context, BuiltInWidget.AT_A_GLANCE)
 
 /** Fire-and-forget [refreshNoteWidgets] for callers outside a coroutine. */
 fun requestNoteWidgetsRefresh(context: Context) {
@@ -148,7 +113,7 @@ fun requestNoteWidgetsRefresh(context: Context) {
         runCatching {
             AppWidgetManager
                 .getInstance(appContext)
-                .getAppWidgetIds(ComponentName(appContext, NoteWidgetReceiver::class.java))
+                .getAppWidgetIds(ComponentName(appContext, BuiltInWidget.NOTE.receiver))
                 .isNotEmpty()
         }.getOrDefault(false)
     if (!hasNoteWidgets) return
@@ -157,35 +122,15 @@ fun requestNoteWidgetsRefresh(context: Context) {
 
 /** The Glance widget that renders [variant]'s placed instances. */
 fun glanceWidgetFor(variant: WidgetVariant): GlanceAppWidget =
-    when (variant) {
-        WidgetVariant.STANDARD,
-        WidgetVariant.CUSTOM_BUTTONS_ONLY,
-        -> SearchWidget(variant)
-        WidgetVariant.MEDIA_CONTROLS -> MediaControlsWidget()
-        WidgetVariant.NOTE -> NoteWidget()
-        WidgetVariant.AT_A_GLANCE -> AtAGlanceWidget()
-    }
+    BuiltInWidget.forVariant(variant).createWidget()
 
-/** The size [variant]'s widget is drawn at until the host reports the placed size. */
-fun defaultWidgetSize(variant: WidgetVariant): DpSize =
-    when (variant) {
-        WidgetVariant.STANDARD,
-        WidgetVariant.CUSTOM_BUTTONS_ONLY,
-        -> SearchWidget.DEFAULT_SIZE
-        WidgetVariant.MEDIA_CONTROLS -> MediaControlsWidget.DEFAULT_SIZE
-        WidgetVariant.NOTE -> NoteWidget.DEFAULT_SIZE
-        WidgetVariant.AT_A_GLANCE -> AtAGlanceWidget.DEFAULT_SIZE
-    }
+/** The size the widget is drawn at until the host reports the placed size. */
+fun defaultWidgetSize(variant: WidgetVariant): DpSize = BuiltInWidget.forVariant(variant).defaultSize()
 
-/** [refreshWidgets], drawing each widget right away instead of waiting for Glance's session worker. */
-private suspend fun refreshAndDrawNow(
-    context: Context,
-    receiverClass: Class<*>,
-    widget: GlanceAppWidget,
-    defaultSize: DpSize,
-) {
-    refreshWidgets(context, receiverClass, widget) { appWidgetId, glanceId ->
-        widget.drawNow(context, appWidgetId, glanceId, defaultSize)
+internal suspend fun refreshBuiltInWidget(context: Context, definition: BuiltInWidget) {
+    val widget = definition.createWidget()
+    refreshWidgets(context, definition.receiver, widget) { appWidgetId, glanceId ->
+        definition.drawPlaced(context, widget, appWidgetId, glanceId)
     }
 }
 

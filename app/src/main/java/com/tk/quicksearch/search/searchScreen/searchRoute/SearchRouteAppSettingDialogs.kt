@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.searchRoute
 
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
+import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import com.tk.quicksearch.search.apps.speedBump.SpeedBumpAccessibilityDisclosureHost
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -12,7 +14,6 @@ import androidx.compose.ui.platform.LocalContext
 import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
-import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.settings.appearanceSettings.LauncherIconDrawer
 import com.tk.quicksearch.settings.appearanceSettings.PinnedSectionsOrderDrawer
 import com.tk.quicksearch.settings.settingsDetailScreen.AiApiKeyRequiredDialog
@@ -112,7 +113,7 @@ internal fun AppSettingRouteDialogs(
             AiApiKeyRequiredDialog(
                 onDismiss = onDismiss,
                 onSetupKey = {
-                    settingActions.onOpenAppSettingDestination(AppSettingsDestination.API_KEY_SETUP)
+                    settingActions.onOpenAppSettingDestination(AppSettingsTarget.Page(SettingsDetailType.API_KEY_SETUP))
                 },
             )
         AppSettingRouteDialog.AI_MODEL -> {

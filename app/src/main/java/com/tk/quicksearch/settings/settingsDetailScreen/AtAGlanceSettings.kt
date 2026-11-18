@@ -53,7 +53,7 @@ import com.tk.quicksearch.customInfo.CustomInfoItem
 import com.tk.quicksearch.customInfo.CustomInfoRepository
 import com.tk.quicksearch.customInfo.CustomInfoScheduler
 import com.tk.quicksearch.customInfo.customInfoRepeatLabel
-import com.tk.quicksearch.search.data.preferences.GlancePreferences
+import com.tk.quicksearch.search.glance.glanceStatusItems
 import com.tk.quicksearch.search.data.preferences.UpcomingAlarmPreferences
 import com.tk.quicksearch.search.data.preferences.WidgetGlanceItemSettings
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
@@ -497,16 +497,14 @@ fun AtAGlanceSettingsSection(
                 title = stringResource(R.string.settings_at_a_glance_charging_title),
                 description = stringResource(R.string.settings_at_a_glance_charging_desc),
             ),
+        ) + glanceStatusItems.map { item ->
+            val status = checkNotNull(item.status)
             simpleToggle(
-                item = GlanceItem.LOW_STORAGE,
-                title = stringResource(R.string.settings_at_a_glance_storage_title),
-                description =
-                    stringResource(
-                        R.string.settings_at_a_glance_storage_desc,
-                        GlancePreferences.LOW_STORAGE_THRESHOLD_PERCENT,
-                    ),
-            ),
-        )
+                item = item,
+                title = stringResource(status.settingsTitle),
+                description = status.settingsDescription(context),
+            )
+        }
     val query = searchQuery.trim()
     val visibleToggles =
         if (query.isEmpty()) toggles else toggles.filter { it.searchText.contains(query, ignoreCase = true) }

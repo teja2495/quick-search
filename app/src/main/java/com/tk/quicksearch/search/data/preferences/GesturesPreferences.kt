@@ -35,17 +35,41 @@ enum class HomeSwipeGestureAction {
 class GesturesPreferences(
     context: Context,
 ) : BasePreferences(context) {
-    fun getSwipeRightAction(): SwipeGestureAction =
-        getGestureAction(KEY_SWIPE_RIGHT_ACTION, SwipeGestureAction.WIDGETS_PANEL)
+    fun actionFor(direction: SwipeDirection): SwipeGestureAction =
+        prefs.getString(direction.actionKey, null)
+            ?.let { stored -> SwipeGestureAction.entries.firstOrNull { it.name == stored } }
+            ?: direction.defaultAction
 
-    fun setSwipeRightAction(action: SwipeGestureAction) =
-        setGestureAction(KEY_SWIPE_RIGHT_ACTION, action)
+    fun actionFor(gesture: HomeGesture, isDefaultLauncher: Boolean = true): HomeSwipeGestureAction =
+        prefs.getString(gesture.actionKey, null)
+            ?.let { stored -> HomeSwipeGestureAction.entries.firstOrNull { it.name == stored } }
+            ?: gesture.defaultAction(isDefaultLauncher)
 
-    fun getSwipeRightCustomAction(): String? = prefs.getString(KEY_SWIPE_RIGHT_CUSTOM_ACTION, null)
+    fun setActionFor(direction: SwipeDirection, action: SwipeGestureAction) =
+        setAction(direction.actionKey, action.name)
 
-    fun setSwipeRightCustomAction(actionJson: String?) = setCustomAction(KEY_SWIPE_RIGHT_CUSTOM_ACTION, actionJson)
-    fun getSwipeRightAliasTarget(): String? = prefs.getString(KEY_SWIPE_RIGHT_ALIAS_TARGET, null)
-    fun setSwipeRightAliasTarget(targetId: String?) = setCustomAction(KEY_SWIPE_RIGHT_ALIAS_TARGET, targetId)
+    fun setActionFor(gesture: HomeGesture, action: HomeSwipeGestureAction) =
+        setAction(gesture.actionKey, action.name)
+
+    fun customActionFor(direction: SwipeDirection): String? = prefs.getString(direction.customActionKey, null)
+
+    fun customActionFor(gesture: HomeGesture): String? = prefs.getString(gesture.customActionKey, null)
+
+    fun setCustomActionFor(direction: SwipeDirection, actionJson: String?) =
+        setOptionalValue(direction.customActionKey, actionJson)
+
+    fun setCustomActionFor(gesture: HomeGesture, actionJson: String?) =
+        setOptionalValue(gesture.customActionKey, actionJson)
+
+    fun aliasTargetFor(direction: SwipeDirection): String? = prefs.getString(direction.aliasTargetKey, null)
+
+    fun aliasTargetFor(gesture: HomeGesture): String? = prefs.getString(gesture.aliasTargetKey, null)
+
+    fun setAliasTargetFor(direction: SwipeDirection, targetId: String?) =
+        setOptionalValue(direction.aliasTargetKey, targetId)
+
+    fun setAliasTargetFor(gesture: HomeGesture, targetId: String?) =
+        setOptionalValue(gesture.aliasTargetKey, targetId)
 
     fun isLauncherSwipeRightEnabled(): Boolean =
         PreferenceUtils.getBooleanPref(prefs, KEY_LAUNCHER_SWIPE_RIGHT_ENABLED, true)
@@ -53,207 +77,35 @@ class GesturesPreferences(
     fun setLauncherSwipeRightEnabled(enabled: Boolean) =
         PreferenceUtils.setBooleanPref(prefs, KEY_LAUNCHER_SWIPE_RIGHT_ENABLED, enabled)
 
-    fun getSwipeLeftAction(): SwipeGestureAction =
-        getGestureAction(KEY_SWIPE_LEFT_ACTION, SwipeGestureAction.SETTINGS)
-
-    fun setSwipeLeftAction(action: SwipeGestureAction) =
-        setGestureAction(KEY_SWIPE_LEFT_ACTION, action)
-
-    fun getSwipeLeftCustomAction(): String? = prefs.getString(KEY_SWIPE_LEFT_CUSTOM_ACTION, null)
-
-    fun setSwipeLeftCustomAction(actionJson: String?) = setCustomAction(KEY_SWIPE_LEFT_CUSTOM_ACTION, actionJson)
-    fun getSwipeLeftAliasTarget(): String? = prefs.getString(KEY_SWIPE_LEFT_ALIAS_TARGET, null)
-    fun setSwipeLeftAliasTarget(targetId: String?) = setCustomAction(KEY_SWIPE_LEFT_ALIAS_TARGET, targetId)
-
-    fun getSwipeUpAction(): SwipeGestureAction =
-        getGestureAction(KEY_SWIPE_UP_ACTION, SwipeGestureAction.OPEN_KEYBOARD)
-
-    fun setSwipeUpAction(action: SwipeGestureAction) =
-        setGestureAction(KEY_SWIPE_UP_ACTION, action)
-
-    fun getSwipeUpCustomAction(): String? = prefs.getString(KEY_SWIPE_UP_CUSTOM_ACTION, null)
-
-    fun setSwipeUpCustomAction(actionJson: String?) = setCustomAction(KEY_SWIPE_UP_CUSTOM_ACTION, actionJson)
-    fun getSwipeUpAliasTarget(): String? = prefs.getString(KEY_SWIPE_UP_ALIAS_TARGET, null)
-    fun setSwipeUpAliasTarget(targetId: String?) = setCustomAction(KEY_SWIPE_UP_ALIAS_TARGET, targetId)
-
-    fun getSwipeDownAction(): SwipeGestureAction =
-        getGestureAction(KEY_SWIPE_DOWN_ACTION, SwipeGestureAction.CLOSE_KEYBOARD_OR_NOTIFICATIONS)
-
-    fun setSwipeDownAction(action: SwipeGestureAction) =
-        setGestureAction(KEY_SWIPE_DOWN_ACTION, action)
-
-    fun getSwipeDownCustomAction(): String? = prefs.getString(KEY_SWIPE_DOWN_CUSTOM_ACTION, null)
-
-    fun setSwipeDownCustomAction(actionJson: String?) = setCustomAction(KEY_SWIPE_DOWN_CUSTOM_ACTION, actionJson)
-    fun getSwipeDownAliasTarget(): String? = prefs.getString(KEY_SWIPE_DOWN_ALIAS_TARGET, null)
-    fun setSwipeDownAliasTarget(targetId: String?) = setCustomAction(KEY_SWIPE_DOWN_ALIAS_TARGET, targetId)
-
-    fun getHomeSwipeUpAction(): HomeSwipeGestureAction =
-        getHomeGestureAction(
-            key = KEY_HOME_SWIPE_UP_ACTION,
-            default = HomeSwipeGestureAction.NONE,
-        )
-
-    fun setHomeSwipeUpAction(action: HomeSwipeGestureAction) =
-        setHomeGestureAction(KEY_HOME_SWIPE_UP_ACTION, action)
-
-    fun getHomeSwipeUpCustomAction(): String? = prefs.getString(KEY_HOME_SWIPE_UP_CUSTOM_ACTION, null)
-
-    fun setHomeSwipeUpCustomAction(actionJson: String?) = setCustomAction(KEY_HOME_SWIPE_UP_CUSTOM_ACTION, actionJson)
-    fun getHomeSwipeUpAliasTarget(): String? = prefs.getString(KEY_HOME_SWIPE_UP_ALIAS_TARGET, null)
-    fun setHomeSwipeUpAliasTarget(targetId: String?) = setCustomAction(KEY_HOME_SWIPE_UP_ALIAS_TARGET, targetId)
-
-    fun getHomeSwipeDownAction(isDefaultLauncher: Boolean = true): HomeSwipeGestureAction =
-        getHomeGestureAction(
-            key = KEY_HOME_SWIPE_DOWN_ACTION,
-            default =
-                if (isDefaultLauncher) {
-                    HomeSwipeGestureAction.NOTIFICATION_PANEL
-                } else {
-                    HomeSwipeGestureAction.NONE
-                },
-        )
-
-    fun setHomeSwipeDownAction(action: HomeSwipeGestureAction) =
-        setHomeGestureAction(KEY_HOME_SWIPE_DOWN_ACTION, action)
-
-    fun getHomeSwipeDownCustomAction(): String? = prefs.getString(KEY_HOME_SWIPE_DOWN_CUSTOM_ACTION, null)
-
-    fun setHomeSwipeDownCustomAction(actionJson: String?) = setCustomAction(KEY_HOME_SWIPE_DOWN_CUSTOM_ACTION, actionJson)
-    fun getHomeSwipeDownAliasTarget(): String? = prefs.getString(KEY_HOME_SWIPE_DOWN_ALIAS_TARGET, null)
-    fun setHomeSwipeDownAliasTarget(targetId: String?) = setCustomAction(KEY_HOME_SWIPE_DOWN_ALIAS_TARGET, targetId)
-
-    fun getHomeDoubleTapAction(): HomeSwipeGestureAction =
-        getHomeGestureAction(
-            KEY_HOME_DOUBLE_TAP_ACTION,
-            HomeSwipeGestureAction.NONE,
-        )
-
-    fun setHomeDoubleTapAction(action: HomeSwipeGestureAction) =
-        setHomeGestureAction(KEY_HOME_DOUBLE_TAP_ACTION, action)
-
-    fun getHomeDoubleTapCustomAction(): String? = prefs.getString(KEY_HOME_DOUBLE_TAP_CUSTOM_ACTION, null)
-
-    fun setHomeDoubleTapCustomAction(actionJson: String?) = setCustomAction(KEY_HOME_DOUBLE_TAP_CUSTOM_ACTION, actionJson)
-    fun getHomeDoubleTapAliasTarget(): String? = prefs.getString(KEY_HOME_DOUBLE_TAP_ALIAS_TARGET, null)
-    fun setHomeDoubleTapAliasTarget(targetId: String?) = setCustomAction(KEY_HOME_DOUBLE_TAP_ALIAS_TARGET, targetId)
-
-    fun getHomeTwoFingerSwipeUpAction(): HomeSwipeGestureAction =
-        getHomeGestureAction(KEY_HOME_TWO_FINGER_SWIPE_UP_ACTION, HomeSwipeGestureAction.NONE)
-
-    fun setHomeTwoFingerSwipeUpAction(action: HomeSwipeGestureAction) =
-        setHomeGestureAction(KEY_HOME_TWO_FINGER_SWIPE_UP_ACTION, action)
-
-    fun getHomeTwoFingerSwipeUpCustomAction(): String? = prefs.getString(KEY_HOME_TWO_FINGER_SWIPE_UP_CUSTOM_ACTION, null)
-
-    fun setHomeTwoFingerSwipeUpCustomAction(actionJson: String?) = setCustomAction(KEY_HOME_TWO_FINGER_SWIPE_UP_CUSTOM_ACTION, actionJson)
-    fun getHomeTwoFingerSwipeUpAliasTarget(): String? = prefs.getString(KEY_HOME_TWO_FINGER_SWIPE_UP_ALIAS_TARGET, null)
-    fun setHomeTwoFingerSwipeUpAliasTarget(targetId: String?) = setCustomAction(KEY_HOME_TWO_FINGER_SWIPE_UP_ALIAS_TARGET, targetId)
-
-    fun getHomeTwoFingerSwipeDownAction(): HomeSwipeGestureAction =
-        getHomeGestureAction(KEY_HOME_TWO_FINGER_SWIPE_DOWN_ACTION, HomeSwipeGestureAction.NONE)
-
-    fun setHomeTwoFingerSwipeDownAction(action: HomeSwipeGestureAction) =
-        setHomeGestureAction(KEY_HOME_TWO_FINGER_SWIPE_DOWN_ACTION, action)
-
-    fun getHomeTwoFingerSwipeDownCustomAction(): String? = prefs.getString(KEY_HOME_TWO_FINGER_SWIPE_DOWN_CUSTOM_ACTION, null)
-
-    fun setHomeTwoFingerSwipeDownCustomAction(actionJson: String?) = setCustomAction(KEY_HOME_TWO_FINGER_SWIPE_DOWN_CUSTOM_ACTION, actionJson)
-    fun getHomeTwoFingerSwipeDownAliasTarget(): String? = prefs.getString(KEY_HOME_TWO_FINGER_SWIPE_DOWN_ALIAS_TARGET, null)
-    fun setHomeTwoFingerSwipeDownAliasTarget(targetId: String?) = setCustomAction(KEY_HOME_TWO_FINGER_SWIPE_DOWN_ALIAS_TARGET, targetId)
-
-    fun getNotchSingleTapAction(): HomeSwipeGestureAction =
-        getHomeGestureAction(KEY_NOTCH_SINGLE_TAP_ACTION, HomeSwipeGestureAction.NONE)
-
-    fun setNotchSingleTapAction(action: HomeSwipeGestureAction) =
-        setHomeGestureAction(KEY_NOTCH_SINGLE_TAP_ACTION, action)
-
-    fun getNotchSingleTapCustomAction(): String? = prefs.getString(KEY_NOTCH_SINGLE_TAP_CUSTOM_ACTION, null)
-
-    fun setNotchSingleTapCustomAction(actionJson: String?) = setCustomAction(KEY_NOTCH_SINGLE_TAP_CUSTOM_ACTION, actionJson)
-    fun getNotchSingleTapAliasTarget(): String? = prefs.getString(KEY_NOTCH_SINGLE_TAP_ALIAS_TARGET, null)
-    fun setNotchSingleTapAliasTarget(targetId: String?) = setCustomAction(KEY_NOTCH_SINGLE_TAP_ALIAS_TARGET, targetId)
-
-    fun getNotchDoubleTapAction(): HomeSwipeGestureAction =
-        getHomeGestureAction(KEY_NOTCH_DOUBLE_TAP_ACTION, HomeSwipeGestureAction.NONE)
-
-    fun setNotchDoubleTapAction(action: HomeSwipeGestureAction) =
-        setHomeGestureAction(KEY_NOTCH_DOUBLE_TAP_ACTION, action)
-
-    fun getNotchDoubleTapCustomAction(): String? = prefs.getString(KEY_NOTCH_DOUBLE_TAP_CUSTOM_ACTION, null)
-
-    fun setNotchDoubleTapCustomAction(actionJson: String?) = setCustomAction(KEY_NOTCH_DOUBLE_TAP_CUSTOM_ACTION, actionJson)
-    fun getNotchDoubleTapAliasTarget(): String? = prefs.getString(KEY_NOTCH_DOUBLE_TAP_ALIAS_TARGET, null)
-    fun setNotchDoubleTapAliasTarget(targetId: String?) = setCustomAction(KEY_NOTCH_DOUBLE_TAP_ALIAS_TARGET, targetId)
-
-    fun getNotchLongPressAction(): HomeSwipeGestureAction =
-        getHomeGestureAction(KEY_NOTCH_LONG_PRESS_ACTION, HomeSwipeGestureAction.NONE)
-
-    fun setNotchLongPressAction(action: HomeSwipeGestureAction) =
-        setHomeGestureAction(KEY_NOTCH_LONG_PRESS_ACTION, action)
-
-    fun getNotchLongPressCustomAction(): String? = prefs.getString(KEY_NOTCH_LONG_PRESS_CUSTOM_ACTION, null)
-
-    fun setNotchLongPressCustomAction(actionJson: String?) = setCustomAction(KEY_NOTCH_LONG_PRESS_CUSTOM_ACTION, actionJson)
-    fun getNotchLongPressAliasTarget(): String? = prefs.getString(KEY_NOTCH_LONG_PRESS_ALIAS_TARGET, null)
-    fun setNotchLongPressAliasTarget(targetId: String?) = setCustomAction(KEY_NOTCH_LONG_PRESS_ALIAS_TARGET, targetId)
-
     fun registerListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) =
         prefs.registerOnSharedPreferenceChangeListener(listener)
 
     fun unregisterListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) =
         prefs.unregisterOnSharedPreferenceChangeListener(listener)
 
-    private fun getGestureAction(key: String, default: SwipeGestureAction): SwipeGestureAction {
-        val stored = prefs.getString(key, default.name) ?: return default
-        return SwipeGestureAction.entries.firstOrNull { it.name == stored } ?: default
+    private fun setAction(key: String, actionName: String) {
+        prefs.edit().putString(key, actionName).apply()
     }
 
-    private fun setGestureAction(key: String, action: SwipeGestureAction) {
-        prefs.edit().putString(key, action.name).apply()
-    }
-
-    private fun getHomeGestureAction(key: String, default: HomeSwipeGestureAction): HomeSwipeGestureAction =
-        prefs.getString(key, default.name)
-            ?.let { value -> HomeSwipeGestureAction.entries.firstOrNull { it.name == value } }
-            ?: default
-
-    private fun setHomeGestureAction(key: String, action: HomeSwipeGestureAction) {
-        prefs.edit().putString(key, action.name).apply()
-    }
-
-    private fun setCustomAction(key: String, actionJson: String?) {
+    private fun setOptionalValue(key: String, value: String?) {
         prefs.edit().apply {
-            if (actionJson == null) remove(key) else putString(key, actionJson)
+            if (value == null) remove(key) else putString(key, value)
             apply()
         }
     }
 
     companion object {
-        private const val NOTCH_KEY_PREFIX = "notch_gesture_"
-        private const val KEY_NOTCH_SINGLE_TAP_ACTION = "${NOTCH_KEY_PREFIX}single_tap_action"
-        private const val KEY_NOTCH_SINGLE_TAP_CUSTOM_ACTION = "${NOTCH_KEY_PREFIX}single_tap_custom_action"
-        private const val KEY_NOTCH_SINGLE_TAP_ALIAS_TARGET = "${NOTCH_KEY_PREFIX}single_tap_alias_target"
-        private const val KEY_NOTCH_DOUBLE_TAP_ACTION = "${NOTCH_KEY_PREFIX}double_tap_action"
-        private const val KEY_NOTCH_DOUBLE_TAP_CUSTOM_ACTION = "${NOTCH_KEY_PREFIX}double_tap_custom_action"
-        private const val KEY_NOTCH_DOUBLE_TAP_ALIAS_TARGET = "${NOTCH_KEY_PREFIX}double_tap_alias_target"
-        private const val KEY_NOTCH_LONG_PRESS_ACTION = "${NOTCH_KEY_PREFIX}long_press_action"
-        private const val KEY_NOTCH_LONG_PRESS_CUSTOM_ACTION = "${NOTCH_KEY_PREFIX}long_press_custom_action"
-        private const val KEY_NOTCH_LONG_PRESS_ALIAS_TARGET = "${NOTCH_KEY_PREFIX}long_press_alias_target"
+        fun isNotchGestureKey(key: String?): Boolean = isNotchGesturePreference(key)
 
-        fun isNotchGestureKey(key: String?): Boolean = key?.startsWith(NOTCH_KEY_PREFIX) == true
-
-        private val ROUTE_GESTURE_KEY_PREFIXES =
-            listOf("swipe_", "home_swipe_", "home_double_tap_", "home_two_finger_swipe_")
+        private val routeGestureKeys =
+            SwipeDirection.entries.flatMap { listOf(it.actionKey, it.customActionKey, it.aliasTargetKey) } +
+                HomeGesture.entries.filterNot(HomeGesture::isNotch)
+                    .flatMap { listOf(it.actionKey, it.customActionKey, it.aliasTargetKey) }
 
         /**
-         * True for keys the search route's swipe, double-tap, and two-finger gestures read, and for a
-         * null key (sent when the file is cleared), so listeners can skip unrelated preference writes.
+         * True for keys the search route's gestures read, and for a null key (the file was cleared).
          */
         fun isRouteGestureKey(key: String?): Boolean =
-            key == null ||
-                key == BasePreferences.KEY_LAUNCHER_SWIPE_RIGHT_ENABLED ||
-                ROUTE_GESTURE_KEY_PREFIXES.any(key::startsWith)
+            key == null || key == BasePreferences.KEY_LAUNCHER_SWIPE_RIGHT_ENABLED || key in routeGestureKeys
     }
 }

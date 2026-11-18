@@ -74,11 +74,7 @@ internal fun ColumnScope.SettingsNestedDetailBody(
                 onToggleNumberSearch = callbacks.onToggleNumberSearch,
                 hasCallPermission = PermissionHelper.checkCallPermission(context),
                 contactsSectionEnabled = true,
-                isWhatsAppInstalled = state.isWhatsAppInstalled,
-                isWhatsAppBusinessInstalled = state.isWhatsAppBusinessInstalled,
-                isTelegramInstalled = state.isTelegramInstalled,
-                isSignalInstalled = state.isSignalInstalled,
-                isGoogleMeetInstalled = state.isGoogleMeetInstalled,
+                installedContactProviders = state.installedContactProviders,
                 modifier = Modifier,
             )
         }

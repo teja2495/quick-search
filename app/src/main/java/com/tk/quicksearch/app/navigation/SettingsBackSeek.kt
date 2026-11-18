@@ -14,8 +14,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
-import com.tk.quicksearch.settings.settingsDetailScreen.isNestedDetail
-import com.tk.quicksearch.settings.settingsDetailScreen.resolveBackDestination
 import com.tk.quicksearch.shared.ui.components.PredictiveBackPreviewHandler
 import com.tk.quicksearch.shared.ui.components.PredictiveBackPreviewState
 import kotlinx.coroutines.CancellationException

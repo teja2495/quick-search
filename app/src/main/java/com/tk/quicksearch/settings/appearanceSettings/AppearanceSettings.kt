@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.appearanceSettings
 
+import com.tk.quicksearch.search.data.preferences.SwipeDirection
+import com.tk.quicksearch.search.data.preferences.actionKey
 import android.content.Context
 import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
@@ -128,7 +130,7 @@ fun AppearanceSettingsSection(
     val gesturePreferences =
         remember(appearanceContext) { UserAppPreferences(appearanceContext.applicationContext) }
     var settingsIconRequired by remember {
-        mutableStateOf(gesturePreferences.getSwipeLeftAction() != SwipeGestureAction.SETTINGS)
+        mutableStateOf(gesturePreferences.actionFor(SwipeDirection.LEFT) != SwipeGestureAction.SETTINGS)
     }
     DisposableEffect(gesturePreferences) {
         val preferences =
@@ -137,9 +139,9 @@ fun AppearanceSettingsSection(
                 Context.MODE_PRIVATE,
             )
         val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-            if (key == BasePreferences.KEY_SWIPE_LEFT_ACTION) {
+            if (key == SwipeDirection.LEFT.actionKey) {
                 settingsIconRequired =
-                    gesturePreferences.getSwipeLeftAction() != SwipeGestureAction.SETTINGS
+                    gesturePreferences.actionFor(SwipeDirection.LEFT) != SwipeGestureAction.SETTINGS
             }
         }
         preferences.registerOnSharedPreferenceChangeListener(listener)

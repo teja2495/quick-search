@@ -52,12 +52,10 @@ import androidx.glance.color.ColorProvider as DayNightColorProvider
 import androidx.glance.unit.ColorProvider
 import com.tk.quicksearch.R
 import com.tk.quicksearch.app.MainActivity
-import com.tk.quicksearch.media.MediaCommand
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
-import com.tk.quicksearch.widgets.customButtonsWidget.CustomButtonsWidgetMediaAction
+import com.tk.quicksearch.widgets.customButtonsWidget.WidgetCommandActionCallback
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
 import com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity
-import com.tk.quicksearch.widgets.customButtonsWidget.playPauseIconRes
 import com.tk.quicksearch.widgets.customButtonsWidget.rememberWidgetButtonIcon
 import com.tk.quicksearch.widgets.utils.BorderColorOption
 import com.tk.quicksearch.widgets.utils.TextIconColorOverride
@@ -74,31 +72,20 @@ import com.tk.quicksearch.widgets.utils.toWidgetPreferences
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
-/**
- * Media commands run in-process via [CustomButtonsWidgetMediaAction] instead of launching
- * [WidgetActionActivity], since prev/next are tapped repeatedly and an activity launch on every
- * tap would be slow and would flash over whatever the user is looking at.
- */
 private fun Context.customButtonWidgetClickAction(action: CustomWidgetButtonAction): Action =
-    if (action is CustomWidgetButtonAction.Media) {
-        actionRunCallback<CustomButtonsWidgetMediaAction>(
-            actionParametersOf(CustomButtonsWidgetMediaAction.MEDIA_COMMAND_KEY to action.command.value),
+    if (action is CustomWidgetButtonAction.Command) {
+        actionRunCallback<WidgetCommandActionCallback>(
+            actionParametersOf(
+                WidgetCommandActionCallback.TYPE to action.type.value,
+                WidgetCommandActionCallback.COMMAND_ID to action.commandId,
+            ),
         )
     } else {
         actionStartActivity(WidgetActionActivity.createIntent(this, action))
     }
 
-/**
- * Extra `remember` key for [rememberWidgetButtonIcon]: a Play/Pause button's icon depends on live
- * playback state, not just [action] itself, so without this the icon would be cached from the
- * button's first render and never flip again across the redraws that a playback change triggers.
- */
-private fun Context.mediaButtonPlaybackKey(action: CustomWidgetButtonAction): Int? =
-    if (action is CustomWidgetButtonAction.Media && action.command == MediaCommand.PLAY_PAUSE) {
-        playPauseIconRes(this)
-    } else {
-        null
-    }
+private fun Context.commandButtonIconKey(action: CustomWidgetButtonAction): Int? =
+    (action as? CustomWidgetButtonAction.Command)?.choice()?.currentIcon?.invoke(this)
 
 @Composable
 internal fun CustomButtonsOnlyWidgetContent(
@@ -195,7 +182,7 @@ internal fun CustomButtonsOnlyWidgetContent(
                                     iconPackPackage,
                                     iconSizePx,
                                     textIconColor,
-                                    context.mediaButtonPlaybackKey(action),
+                                    context.commandButtonIconKey(action),
                                 ) {
                                     rememberWidgetButtonIcon(
                                         context = context,
@@ -409,7 +396,7 @@ internal fun WidgetContent(
                                         iconPackPackage,
                                         iconSizePx,
                                         textIconColor,
-                                        context.mediaButtonPlaybackKey(action),
+                                        context.commandButtonIconKey(action),
                                     ) {
                                         rememberWidgetButtonIcon(
                                             context = context,

@@ -12,6 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.contacts.models.ContactActionIconStyle
 import com.tk.quicksearch.search.contacts.models.ContactButtonAction
 import com.tk.quicksearch.shared.ui.components.AppVoiceCallIcon
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -66,28 +67,19 @@ internal fun ContactButtonActionIcon(
                 tint = callIconTint,
                 modifier = Modifier.size(iconSize),
             )
-        ContactButtonAction.GOOGLE_MEET -> LogoIcon(R.drawable.google_meet)
-        ContactButtonAction.WHATSAPP_MESSAGE,
-        ContactButtonAction.WHATSAPP_BUSINESS_MESSAGE,
-        -> LogoIcon(R.drawable.whatsapp)
-        ContactButtonAction.WHATSAPP_CALL,
-        ContactButtonAction.WHATSAPP_BUSINESS_CALL,
-        -> AppVoiceCallIcon(logoPainterRes = R.drawable.whatsapp_call, size = iconSize, enabled = enabled)
-        ContactButtonAction.WHATSAPP_VIDEO_CALL,
-        ContactButtonAction.WHATSAPP_BUSINESS_VIDEO_CALL,
-        -> LogoIcon(R.drawable.whatsapp_video_call)
-        ContactButtonAction.TELEGRAM_MESSAGE -> LogoIcon(R.drawable.telegram)
-        ContactButtonAction.TELEGRAM_CALL ->
-            AppVoiceCallIcon(logoPainterRes = R.drawable.telegram_call, size = iconSize, enabled = enabled)
-        ContactButtonAction.TELEGRAM_VIDEO_CALL -> LogoIcon(R.drawable.telegram_video_call)
-        ContactButtonAction.SIGNAL_MESSAGE ->
-            LogoIcon(
-                res = R.drawable.signal,
-                tint = if (enabled) AppColors.ActionSignal else disabledTint,
-                size = DesignTokens.SignalMessageIconSize,
-            )
-        ContactButtonAction.SIGNAL_CALL ->
-            AppVoiceCallIcon(logoPainterRes = R.drawable.signal_call, size = iconSize, enabled = enabled)
-        ContactButtonAction.SIGNAL_VIDEO_CALL -> LogoIcon(R.drawable.signal_video_call)
+        else -> {
+            val drawable = checkNotNull(action.drawableRes)
+            when (action.iconStyle) {
+                ContactActionIconStyle.LOGO -> LogoIcon(drawable)
+                ContactActionIconStyle.APP_VOICE_CALL ->
+                    AppVoiceCallIcon(logoPainterRes = drawable, size = iconSize, enabled = enabled)
+                ContactActionIconStyle.SIGNAL_MESSAGE ->
+                    LogoIcon(
+                        res = drawable,
+                        tint = if (enabled) AppColors.ActionSignal else disabledTint,
+                        size = DesignTokens.SignalMessageIconSize,
+                    )
+            }
+        }
     }
 }

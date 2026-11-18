@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.search.data.preferences.SwipeDirection
 import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.overlay.OverlayModeController
@@ -187,7 +188,7 @@ internal fun SearchPreferencesDelegate.setSearchHintsEnabled(enabled: Boolean) {
     }
 
 internal fun SearchPreferencesDelegate.setSettingsIconEnabled(enabled: Boolean) {
-        if (!enabled && userPreferences.getSwipeLeftAction() != SwipeGestureAction.SETTINGS) {
+        if (!enabled && userPreferences.actionFor(SwipeDirection.LEFT) != SwipeGestureAction.SETTINGS) {
             return
         }
         updateBooleanPreference(

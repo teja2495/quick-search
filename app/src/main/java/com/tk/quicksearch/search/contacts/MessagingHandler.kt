@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.contacts
 
+import com.tk.quicksearch.search.contacts.models.ContactActionProvider
 import android.app.Application
 import com.tk.quicksearch.search.contacts.models.ContactButtonAction
 import com.tk.quicksearch.search.core.MessagingApp
@@ -16,53 +17,14 @@ class MessagingHandler(
     var secondaryContactButton: ContactButtonAction = userPreferences.getSecondaryContactButton()
         private set
 
-    var isWhatsAppInstalled: Boolean = false
-        private set
-    var isWhatsAppBusinessInstalled: Boolean = false
-        private set
+    private var installedProviders = emptySet<ContactActionProvider>()
 
-    var isTelegramInstalled: Boolean = false
-        private set
-    var isSignalInstalled: Boolean = false
-        private set
-    var isGoogleMeetInstalled: Boolean = false
-        private set
+    private fun resolveInstalled(action: ContactButtonAction, isPrimary: Boolean): ContactButtonAction =
+        if (action.isAppInstalled(installedProviders)) action else ContactButtonAction.fallback(isPrimary)
 
-    private fun resolveInstalled(
-        action: ContactButtonAction,
-        isPrimary: Boolean,
-    ): ContactButtonAction =
-        if (
-            action.isAppInstalled(
-                isWhatsAppInstalled = isWhatsAppInstalled,
-                isWhatsAppBusinessInstalled = isWhatsAppBusinessInstalled,
-                isTelegramInstalled = isTelegramInstalled,
-                isSignalInstalled = isSignalInstalled,
-                isGoogleMeetInstalled = isGoogleMeetInstalled,
-            )
-        ) {
-            action
-        } else {
-            ContactButtonAction.fallback(isPrimary)
-        }
-
-    /**
-     * Records which contact apps are installed and falls the contact buttons back to Call/SMS
-     * when their app is no longer installed.
-     */
-    fun updateMessagingAvailability(
-        whatsappInstalled: Boolean,
-        whatsappBusinessInstalled: Boolean,
-        telegramInstalled: Boolean,
-        signalInstalled: Boolean,
-        googleMeetInstalled: Boolean,
-        updateState: Boolean = true,
-    ) {
-        isWhatsAppInstalled = whatsappInstalled
-        isWhatsAppBusinessInstalled = whatsappBusinessInstalled
-        isTelegramInstalled = telegramInstalled
-        isSignalInstalled = signalInstalled
-        isGoogleMeetInstalled = googleMeetInstalled
+    /** Records installed contact apps and falls back to Call/SMS when an app is no longer available. */
+    fun updateMessagingAvailability(installed: Set<ContactActionProvider>, updateState: Boolean = true) {
+        installedProviders = installed
 
         val resolvedPrimary = resolveInstalled(primaryContactButton, isPrimary = true)
         if (resolvedPrimary != primaryContactButton) {
@@ -80,11 +42,7 @@ class MessagingHandler(
                 state.copy(
                     primaryContactButton = primaryContactButton,
                     secondaryContactButton = secondaryContactButton,
-                    isWhatsAppInstalled = whatsappInstalled,
-                    isWhatsAppBusinessInstalled = whatsappBusinessInstalled,
-                    isTelegramInstalled = telegramInstalled,
-                    isSignalInstalled = signalInstalled,
-                    isGoogleMeetInstalled = googleMeetInstalled,
+                    installedContactProviders = installedProviders,
                 )
             }
         }
@@ -109,13 +67,7 @@ class MessagingHandler(
     }
 
     private fun refreshAvailability() {
-        updateMessagingAvailability(
-            whatsappInstalled = isWhatsAppInstalled,
-            whatsappBusinessInstalled = isWhatsAppBusinessInstalled,
-            telegramInstalled = isTelegramInstalled,
-            signalInstalled = isSignalInstalled,
-            googleMeetInstalled = isGoogleMeetInstalled,
-        )
+        updateMessagingAvailability(installedProviders)
     }
 
     fun isPackageInstalled(packageName: String): Boolean {

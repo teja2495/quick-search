@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.shared
 
+import com.tk.quicksearch.search.contacts.models.ContactActionProvider
 import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.other.OtherSearchItemRegistry
@@ -121,11 +122,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState {
         disabledAppShortcutIds = appShortcuts.disabledAppShortcutIds,
         primaryContactButton = appShortcuts.primaryContactButton,
         secondaryContactButton = appShortcuts.secondaryContactButton,
-        isWhatsAppInstalled = appShortcuts.isWhatsAppInstalled,
-        isWhatsAppBusinessInstalled = appShortcuts.isWhatsAppBusinessInstalled,
-        isTelegramInstalled = appShortcuts.isTelegramInstalled,
-        isSignalInstalled = appShortcuts.isSignalInstalled,
-        isGoogleMeetInstalled = appShortcuts.isGoogleMeetInstalled,
+        installedContactProviders = appShortcuts.installedContactProviders,
         directDialEnabled = appShortcuts.directDialEnabled,
         numberSearchEnabled = appShortcuts.numberSearchEnabled,
     )
@@ -363,11 +360,7 @@ private data class AppShortcutsMapperState(
     val disabledAppShortcutIds: Set<String>,
     val primaryContactButton: com.tk.quicksearch.search.contacts.models.ContactButtonAction,
     val secondaryContactButton: com.tk.quicksearch.search.contacts.models.ContactButtonAction,
-    val isWhatsAppInstalled: Boolean,
-    val isWhatsAppBusinessInstalled: Boolean,
-    val isTelegramInstalled: Boolean,
-    val isSignalInstalled: Boolean,
-    val isGoogleMeetInstalled: Boolean,
+    val installedContactProviders: Set<ContactActionProvider>,
     val directDialEnabled: Boolean,
     val numberSearchEnabled: Boolean,
 )
@@ -380,11 +373,7 @@ private fun SearchUiState.toAppShortcutsSettingsState() =
         disabledAppShortcutIds = disabledAppShortcutIds,
         primaryContactButton = primaryContactButton,
         secondaryContactButton = secondaryContactButton,
-        isWhatsAppInstalled = isWhatsAppInstalled,
-        isWhatsAppBusinessInstalled = isWhatsAppBusinessInstalled,
-        isTelegramInstalled = isTelegramInstalled,
-        isSignalInstalled = isSignalInstalled,
-        isGoogleMeetInstalled = isGoogleMeetInstalled,
+        installedContactProviders = installedContactProviders,
         directDialEnabled = directDialEnabled,
         numberSearchEnabled = numberSearchEnabled,
     )

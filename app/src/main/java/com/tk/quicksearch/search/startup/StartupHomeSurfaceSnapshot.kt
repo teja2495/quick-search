@@ -5,7 +5,7 @@ import android.net.Uri
 import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.appSettings.AppSettingResultAction
 import com.tk.quicksearch.search.appSettings.AppSettingResultSource
-import com.tk.quicksearch.search.appSettings.AppSettingsDestination
+import com.tk.quicksearch.search.appSettings.registeredBooleanSettings
 import com.tk.quicksearch.search.appSettings.AppSettingsToggleKey
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
@@ -360,14 +360,19 @@ internal object StartupHomeSurfaceSnapshotJson {
         put("keywords", setting.keywords.toStringArray())
         put("source", setting.source.name)
         put("action", setting.action.name)
-        setting.destination?.let { put("destination", it.name) }
+        setting.destination?.let { put("destination", it.snapshotValue()) }
+        setting.booleanSetting?.let { put("booleanSetting", it.preferenceKey) }
         setting.toggleKey?.let { put("toggleKey", it.name) }
     }
 
     private fun appSettingFromJson(json: JSONObject): AppSettingResult? {
         val id = json.stringOrNull("id") ?: return null
         val action = json.enumOrNull<AppSettingResultAction>("action") ?: return null
-        val destination = json.enumOrNull<AppSettingsDestination>("destination")
+        val destination = json.stringOrNull("destination")?.let { readStartupSettingsTarget(it, id) }
+        val booleanKey = json.stringOrNull("booleanSetting")
+        val booleanSetting = booleanKey?.let { key ->
+            registeredBooleanSettings.firstOrNull { it.preferenceKey == key && it.searchId == id }
+        }
         val toggleKey = json.enumOrNull<AppSettingsToggleKey>("toggleKey")
         return runCatching {
             AppSettingResult(
@@ -379,6 +384,7 @@ internal object StartupHomeSurfaceSnapshotJson {
                 action = action,
                 destination = destination,
                 toggleKey = toggleKey,
+                booleanSetting = booleanSetting,
             )
         }.getOrNull()
     }

@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.searchRoute
 
+import com.tk.quicksearch.search.data.preferences.HomeGesture
+import com.tk.quicksearch.search.data.preferences.SwipeDirection
 import android.app.Activity
 import android.app.KeyguardManager
 import android.content.Context
@@ -129,43 +131,43 @@ internal fun rememberRouteGestures(
     var swipeActions by remember {
         mutableStateOf(
             listOf(
-                gesturePreferences.getSwipeRightAction(),
-                gesturePreferences.getSwipeLeftAction(),
-                gesturePreferences.getSwipeUpAction(),
-                gesturePreferences.getSwipeDownAction(),
+                gesturePreferences.actionFor(SwipeDirection.RIGHT),
+                gesturePreferences.actionFor(SwipeDirection.LEFT),
+                gesturePreferences.actionFor(SwipeDirection.UP),
+                gesturePreferences.actionFor(SwipeDirection.DOWN),
             ),
         )
     }
     var customSwipeActions by remember {
         mutableStateOf(
             listOf(
-                gesturePreferences.getSwipeRightCustomAction(),
-                gesturePreferences.getSwipeLeftCustomAction(),
-                gesturePreferences.getSwipeUpCustomAction(),
-                gesturePreferences.getSwipeDownCustomAction(),
+                gesturePreferences.customActionFor(SwipeDirection.RIGHT),
+                gesturePreferences.customActionFor(SwipeDirection.LEFT),
+                gesturePreferences.customActionFor(SwipeDirection.UP),
+                gesturePreferences.customActionFor(SwipeDirection.DOWN),
             ),
         )
     }
-    var swipeAliasTargets by remember { mutableStateOf(listOf(gesturePreferences.getSwipeRightAliasTarget(), gesturePreferences.getSwipeLeftAliasTarget(), gesturePreferences.getSwipeUpAliasTarget(), gesturePreferences.getSwipeDownAliasTarget())) }
+    var swipeAliasTargets by remember { mutableStateOf(listOf(gesturePreferences.aliasTargetFor(SwipeDirection.RIGHT), gesturePreferences.aliasTargetFor(SwipeDirection.LEFT), gesturePreferences.aliasTargetFor(SwipeDirection.UP), gesturePreferences.aliasTargetFor(SwipeDirection.DOWN))) }
     var homeSwipeUpAction by remember {
-        mutableStateOf(gesturePreferences.getHomeSwipeUpAction())
+        mutableStateOf(gesturePreferences.actionFor(HomeGesture.SWIPE_UP))
     }
     var homeSwipeDownAction by remember {
-        mutableStateOf(gesturePreferences.getHomeSwipeDownAction(isDefaultLauncher))
+        mutableStateOf(gesturePreferences.actionFor(HomeGesture.SWIPE_DOWN, isDefaultLauncher))
     }
     var homeDoubleTapAction by remember {
-        mutableStateOf(gesturePreferences.getHomeDoubleTapAction())
+        mutableStateOf(gesturePreferences.actionFor(HomeGesture.DOUBLE_TAP))
     }
     var homeCustomSwipeActions by remember {
         mutableStateOf(
             listOf(
-                gesturePreferences.getHomeSwipeUpCustomAction(),
-                gesturePreferences.getHomeSwipeDownCustomAction(),
-                gesturePreferences.getHomeDoubleTapCustomAction(),
+                gesturePreferences.customActionFor(HomeGesture.SWIPE_UP),
+                gesturePreferences.customActionFor(HomeGesture.SWIPE_DOWN),
+                gesturePreferences.customActionFor(HomeGesture.DOUBLE_TAP),
             ),
         )
     }
-    var homeAliasTargets by remember { mutableStateOf(listOf(gesturePreferences.getHomeSwipeUpAliasTarget(), gesturePreferences.getHomeSwipeDownAliasTarget(), gesturePreferences.getHomeDoubleTapAliasTarget())) }
+    var homeAliasTargets by remember { mutableStateOf(listOf(gesturePreferences.aliasTargetFor(HomeGesture.SWIPE_UP), gesturePreferences.aliasTargetFor(HomeGesture.SWIPE_DOWN), gesturePreferences.aliasTargetFor(HomeGesture.DOUBLE_TAP))) }
     var isLauncherSwipeRightEnabled by remember { mutableStateOf(gesturePreferences.isLauncherSwipeRightEnabled()) }
     var twoFingerSwipeUp by remember { mutableStateOf(gesturePreferences.twoFingerSwipeUpGesture()) }
     var twoFingerSwipeDown by remember { mutableStateOf(gesturePreferences.twoFingerSwipeDownGesture()) }
@@ -181,29 +183,29 @@ internal fun rememberRouteGestures(
             }
             swipeActions =
                 listOf(
-                    gesturePreferences.getSwipeRightAction(),
-                    gesturePreferences.getSwipeLeftAction(),
-                    gesturePreferences.getSwipeUpAction(),
-                    gesturePreferences.getSwipeDownAction(),
+                    gesturePreferences.actionFor(SwipeDirection.RIGHT),
+                    gesturePreferences.actionFor(SwipeDirection.LEFT),
+                    gesturePreferences.actionFor(SwipeDirection.UP),
+                    gesturePreferences.actionFor(SwipeDirection.DOWN),
                 )
             customSwipeActions =
                 listOf(
-                    gesturePreferences.getSwipeRightCustomAction(),
-                    gesturePreferences.getSwipeLeftCustomAction(),
-                    gesturePreferences.getSwipeUpCustomAction(),
-                    gesturePreferences.getSwipeDownCustomAction(),
+                    gesturePreferences.customActionFor(SwipeDirection.RIGHT),
+                    gesturePreferences.customActionFor(SwipeDirection.LEFT),
+                    gesturePreferences.customActionFor(SwipeDirection.UP),
+                    gesturePreferences.customActionFor(SwipeDirection.DOWN),
                 )
-            swipeAliasTargets = listOf(gesturePreferences.getSwipeRightAliasTarget(), gesturePreferences.getSwipeLeftAliasTarget(), gesturePreferences.getSwipeUpAliasTarget(), gesturePreferences.getSwipeDownAliasTarget())
-            homeSwipeUpAction = gesturePreferences.getHomeSwipeUpAction()
-            homeSwipeDownAction = gesturePreferences.getHomeSwipeDownAction(isDefaultLauncher)
-            homeDoubleTapAction = gesturePreferences.getHomeDoubleTapAction()
+            swipeAliasTargets = listOf(gesturePreferences.aliasTargetFor(SwipeDirection.RIGHT), gesturePreferences.aliasTargetFor(SwipeDirection.LEFT), gesturePreferences.aliasTargetFor(SwipeDirection.UP), gesturePreferences.aliasTargetFor(SwipeDirection.DOWN))
+            homeSwipeUpAction = gesturePreferences.actionFor(HomeGesture.SWIPE_UP)
+            homeSwipeDownAction = gesturePreferences.actionFor(HomeGesture.SWIPE_DOWN, isDefaultLauncher)
+            homeDoubleTapAction = gesturePreferences.actionFor(HomeGesture.DOUBLE_TAP)
             homeCustomSwipeActions =
                 listOf(
-                    gesturePreferences.getHomeSwipeUpCustomAction(),
-                    gesturePreferences.getHomeSwipeDownCustomAction(),
-                    gesturePreferences.getHomeDoubleTapCustomAction(),
+                    gesturePreferences.customActionFor(HomeGesture.SWIPE_UP),
+                    gesturePreferences.customActionFor(HomeGesture.SWIPE_DOWN),
+                    gesturePreferences.customActionFor(HomeGesture.DOUBLE_TAP),
                 )
-            homeAliasTargets = listOf(gesturePreferences.getHomeSwipeUpAliasTarget(), gesturePreferences.getHomeSwipeDownAliasTarget(), gesturePreferences.getHomeDoubleTapAliasTarget())
+            homeAliasTargets = listOf(gesturePreferences.aliasTargetFor(HomeGesture.SWIPE_UP), gesturePreferences.aliasTargetFor(HomeGesture.SWIPE_DOWN), gesturePreferences.aliasTargetFor(HomeGesture.DOUBLE_TAP))
             isLauncherSwipeRightEnabled = gesturePreferences.isLauncherSwipeRightEnabled()
             twoFingerSwipeUp = gesturePreferences.twoFingerSwipeUpGesture()
             twoFingerSwipeDown = gesturePreferences.twoFingerSwipeDownGesture()
@@ -215,18 +217,18 @@ internal fun rememberRouteGestures(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 isDefaultLauncher = context.isDefaultHomeApp()
-                homeSwipeDownAction = gesturePreferences.getHomeSwipeDownAction(isDefaultLauncher)
+                homeSwipeDownAction = gesturePreferences.actionFor(HomeGesture.SWIPE_DOWN, isDefaultLauncher)
                 // Clear the lock action only when the user turned the service off. A service that is
                 // on but not running yet (or stopped by Android) must not wipe the user's choice.
                 // Check the saved action first so the accessibility lookups only run when it matters.
                 if (
-                    gesturePreferences.getHomeDoubleTapAction() == HomeSwipeGestureAction.LOCK_SCREEN &&
+                    gesturePreferences.actionFor(HomeGesture.DOUBLE_TAP) == HomeSwipeGestureAction.LOCK_SCREEN &&
                     !LockScreenAccessibilityService.isEnabled(context) &&
                     !LockScreenAccessibilityService.isTurnedOnInSettings(context)
                 ) {
-                    gesturePreferences.setHomeDoubleTapAction(HomeSwipeGestureAction.NONE)
+                    gesturePreferences.setActionFor(HomeGesture.DOUBLE_TAP, HomeSwipeGestureAction.NONE)
                 }
-                homeDoubleTapAction = gesturePreferences.getHomeDoubleTapAction()
+                homeDoubleTapAction = gesturePreferences.actionFor(HomeGesture.DOUBLE_TAP)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -390,14 +392,14 @@ internal data class TwoFingerSwipeGesture(
 
 private fun UserAppPreferences.twoFingerSwipeUpGesture() =
     TwoFingerSwipeGesture(
-        getHomeTwoFingerSwipeUpAction(),
-        getHomeTwoFingerSwipeUpCustomAction(),
-        getHomeTwoFingerSwipeUpAliasTarget(),
+        actionFor(HomeGesture.TWO_FINGER_SWIPE_UP),
+        customActionFor(HomeGesture.TWO_FINGER_SWIPE_UP),
+        aliasTargetFor(HomeGesture.TWO_FINGER_SWIPE_UP),
     )
 
 private fun UserAppPreferences.twoFingerSwipeDownGesture() =
     TwoFingerSwipeGesture(
-        getHomeTwoFingerSwipeDownAction(),
-        getHomeTwoFingerSwipeDownCustomAction(),
-        getHomeTwoFingerSwipeDownAliasTarget(),
+        actionFor(HomeGesture.TWO_FINGER_SWIPE_DOWN),
+        customActionFor(HomeGesture.TWO_FINGER_SWIPE_DOWN),
+        aliasTargetFor(HomeGesture.TWO_FINGER_SWIPE_DOWN),
     )

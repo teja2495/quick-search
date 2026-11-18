@@ -234,7 +234,7 @@ internal fun AppSettingResultRow(
     val effectiveDescription =
         if (isBlockedByLauncher) {
             stringResource(R.string.settings_overlay_mode_desc_launcher_blocked)
-        } else if (setting.destination == AppSettingsDestination.APP_LANGUAGE) {
+        } else if (setting.destination == AppSettingsRouteAction.APP_LANGUAGE) {
             val selectedLanguageLabel =
                 remember(context) { AppLanguageManager.getSelectedLanguageLabel(context) }
             stringResource(R.string.settings_app_language_desc, selectedLanguageLabel)
@@ -359,7 +359,7 @@ internal fun AppSettingResultRow(
                 selectedRowCount = appSettingAppResultRowCount,
                 onSelectRowCount = onAppSettingAppResultRowCountChange,
             )
-        } else if (setting.destination == AppSettingsDestination.AI_MODEL) {
+        } else if (setting.destination == AppSettingsRouteAction.AI_MODEL) {
             Icon(
                 imageVector = MaterialSymbols.UnfoldMore,
                 contentDescription = null,
@@ -401,9 +401,9 @@ internal fun AppSettingResultRow(
                 ),
             )
         } else {
-            val isReloadDestination = setting.destination == AppSettingsDestination.RELOAD_APPS ||
-                setting.destination == AppSettingsDestination.RELOAD_CONTACTS ||
-                setting.destination == AppSettingsDestination.RELOAD_FILES
+            val isReloadDestination = setting.destination == AppSettingsAction.RELOAD_APPS ||
+                setting.destination == AppSettingsAction.RELOAD_CONTACTS ||
+                setting.destination == AppSettingsAction.RELOAD_FILES
             Icon(
                 imageVector = if (isReloadDestination) MaterialSymbols.Refresh else MaterialSymbols.ChevronRight,
                 contentDescription = stringResource(R.string.desc_navigate_forward),

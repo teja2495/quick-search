@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.search.contacts.models.ContactActionProvider
 import com.tk.quicksearch.search.contacts.models.ContactButtonAction
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
@@ -289,11 +290,7 @@ data class SearchUiState(
         // Messaging / calling
         val primaryContactButton: ContactButtonAction = ContactButtonAction.CALL,
         val secondaryContactButton: ContactButtonAction = ContactButtonAction.SMS,
-        val isWhatsAppInstalled: Boolean = false,
-        val isWhatsAppBusinessInstalled: Boolean = false,
-        val isTelegramInstalled: Boolean = false,
-        val isSignalInstalled: Boolean = false,
-        val isGoogleMeetInstalled: Boolean = false,
+        val installedContactProviders: Set<ContactActionProvider> = emptySet(),
         // Wallpaper / appearance
         val showWallpaperBackground: Boolean = true,
         val wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA,
@@ -534,11 +531,7 @@ fun SearchUiState(
                 wallpaperAvailable = permissions.wallpaperAvailable,
                 primaryContactButton = permissions.primaryContactButton,
                 secondaryContactButton = permissions.secondaryContactButton,
-                isWhatsAppInstalled = permissions.isWhatsAppInstalled,
-                isWhatsAppBusinessInstalled = permissions.isWhatsAppBusinessInstalled,
-                isTelegramInstalled = permissions.isTelegramInstalled,
-                isSignalInstalled = permissions.isSignalInstalled,
-                isGoogleMeetInstalled = permissions.isGoogleMeetInstalled,
+                installedContactProviders = permissions.installedContactProviders,
                 // ── SearchFeatureState ────────────────────────────────────────────
                 searchTargetsOrder = features.searchTargetsOrder,
                 defaultBrowserPackage = features.defaultBrowserPackage,

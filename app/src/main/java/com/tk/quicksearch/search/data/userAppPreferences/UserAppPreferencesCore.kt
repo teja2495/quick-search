@@ -476,100 +476,40 @@ open class UserAppPreferencesCore(protected val context: Context) {
     // Gesture Preferences
     // ============================================================================
 
-    fun getSwipeRightAction(): SwipeGestureAction = gesturesPreferences.getSwipeRightAction()
+    fun actionFor(direction: SwipeDirection): SwipeGestureAction = gesturesPreferences.actionFor(direction)
 
-    fun setSwipeRightAction(action: SwipeGestureAction) = gesturesPreferences.setSwipeRightAction(action)
+    fun actionFor(gesture: HomeGesture, isDefaultLauncher: Boolean = true): HomeSwipeGestureAction =
+        gesturesPreferences.actionFor(gesture, isDefaultLauncher)
 
-    fun getSwipeRightCustomAction(): String? = gesturesPreferences.getSwipeRightCustomAction()
+    fun setActionFor(direction: SwipeDirection, action: SwipeGestureAction) =
+        gesturesPreferences.setActionFor(direction, action)
 
-    fun setSwipeRightCustomAction(actionJson: String?) = gesturesPreferences.setSwipeRightCustomAction(actionJson)
-    fun getSwipeRightAliasTarget(): String? = gesturesPreferences.getSwipeRightAliasTarget()
-    fun setSwipeRightAliasTarget(targetId: String?) = gesturesPreferences.setSwipeRightAliasTarget(targetId)
+    fun setActionFor(gesture: HomeGesture, action: HomeSwipeGestureAction) =
+        gesturesPreferences.setActionFor(gesture, action)
+
+    fun customActionFor(direction: SwipeDirection): String? = gesturesPreferences.customActionFor(direction)
+
+    fun customActionFor(gesture: HomeGesture): String? = gesturesPreferences.customActionFor(gesture)
+
+    fun setCustomActionFor(direction: SwipeDirection, actionJson: String?) =
+        gesturesPreferences.setCustomActionFor(direction, actionJson)
+
+    fun setCustomActionFor(gesture: HomeGesture, actionJson: String?) =
+        gesturesPreferences.setCustomActionFor(gesture, actionJson)
+
+    fun aliasTargetFor(direction: SwipeDirection): String? = gesturesPreferences.aliasTargetFor(direction)
+
+    fun aliasTargetFor(gesture: HomeGesture): String? = gesturesPreferences.aliasTargetFor(gesture)
+
+    fun setAliasTargetFor(direction: SwipeDirection, targetId: String?) =
+        gesturesPreferences.setAliasTargetFor(direction, targetId)
+
+    fun setAliasTargetFor(gesture: HomeGesture, targetId: String?) =
+        gesturesPreferences.setAliasTargetFor(gesture, targetId)
 
     fun isLauncherSwipeRightEnabled(): Boolean = gesturesPreferences.isLauncherSwipeRightEnabled()
 
     fun setLauncherSwipeRightEnabled(enabled: Boolean) = gesturesPreferences.setLauncherSwipeRightEnabled(enabled)
-
-    fun getSwipeLeftAction(): SwipeGestureAction = gesturesPreferences.getSwipeLeftAction()
-
-    fun setSwipeLeftAction(action: SwipeGestureAction) = gesturesPreferences.setSwipeLeftAction(action)
-
-    fun getSwipeLeftCustomAction(): String? = gesturesPreferences.getSwipeLeftCustomAction()
-
-    fun setSwipeLeftCustomAction(actionJson: String?) = gesturesPreferences.setSwipeLeftCustomAction(actionJson)
-    fun getSwipeLeftAliasTarget(): String? = gesturesPreferences.getSwipeLeftAliasTarget()
-    fun setSwipeLeftAliasTarget(targetId: String?) = gesturesPreferences.setSwipeLeftAliasTarget(targetId)
-
-    fun getSwipeUpAction(): SwipeGestureAction = gesturesPreferences.getSwipeUpAction()
-
-    fun setSwipeUpAction(action: SwipeGestureAction) = gesturesPreferences.setSwipeUpAction(action)
-
-    fun getSwipeUpCustomAction(): String? = gesturesPreferences.getSwipeUpCustomAction()
-
-    fun setSwipeUpCustomAction(actionJson: String?) = gesturesPreferences.setSwipeUpCustomAction(actionJson)
-    fun getSwipeUpAliasTarget(): String? = gesturesPreferences.getSwipeUpAliasTarget()
-    fun setSwipeUpAliasTarget(targetId: String?) = gesturesPreferences.setSwipeUpAliasTarget(targetId)
-
-    fun getSwipeDownAction(): SwipeGestureAction = gesturesPreferences.getSwipeDownAction()
-
-    fun setSwipeDownAction(action: SwipeGestureAction) = gesturesPreferences.setSwipeDownAction(action)
-
-    fun getSwipeDownCustomAction(): String? = gesturesPreferences.getSwipeDownCustomAction()
-
-    fun setSwipeDownCustomAction(actionJson: String?) = gesturesPreferences.setSwipeDownCustomAction(actionJson)
-    fun getSwipeDownAliasTarget(): String? = gesturesPreferences.getSwipeDownAliasTarget()
-    fun setSwipeDownAliasTarget(targetId: String?) = gesturesPreferences.setSwipeDownAliasTarget(targetId)
-
-    fun getHomeSwipeUpAction(): HomeSwipeGestureAction = gesturesPreferences.getHomeSwipeUpAction()
-
-    fun setHomeSwipeUpAction(action: HomeSwipeGestureAction) = gesturesPreferences.setHomeSwipeUpAction(action)
-
-    fun getHomeSwipeUpCustomAction(): String? = gesturesPreferences.getHomeSwipeUpCustomAction()
-
-    fun setHomeSwipeUpCustomAction(actionJson: String?) = gesturesPreferences.setHomeSwipeUpCustomAction(actionJson)
-    fun getHomeSwipeUpAliasTarget(): String? = gesturesPreferences.getHomeSwipeUpAliasTarget()
-    fun setHomeSwipeUpAliasTarget(targetId: String?) = gesturesPreferences.setHomeSwipeUpAliasTarget(targetId)
-
-    fun getHomeSwipeDownAction(isDefaultLauncher: Boolean = true): HomeSwipeGestureAction =
-        gesturesPreferences.getHomeSwipeDownAction(isDefaultLauncher)
-
-    fun setHomeSwipeDownAction(action: HomeSwipeGestureAction) = gesturesPreferences.setHomeSwipeDownAction(action)
-
-    fun getHomeSwipeDownCustomAction(): String? = gesturesPreferences.getHomeSwipeDownCustomAction()
-
-    fun setHomeSwipeDownCustomAction(actionJson: String?) = gesturesPreferences.setHomeSwipeDownCustomAction(actionJson)
-    fun getHomeSwipeDownAliasTarget(): String? = gesturesPreferences.getHomeSwipeDownAliasTarget()
-    fun setHomeSwipeDownAliasTarget(targetId: String?) = gesturesPreferences.setHomeSwipeDownAliasTarget(targetId)
-
-    fun getHomeDoubleTapAction(): HomeSwipeGestureAction = gesturesPreferences.getHomeDoubleTapAction()
-
-    fun setHomeDoubleTapAction(action: HomeSwipeGestureAction) = gesturesPreferences.setHomeDoubleTapAction(action)
-
-    fun getHomeDoubleTapCustomAction(): String? = gesturesPreferences.getHomeDoubleTapCustomAction()
-
-    fun setHomeDoubleTapCustomAction(actionJson: String?) = gesturesPreferences.setHomeDoubleTapCustomAction(actionJson)
-    fun getHomeDoubleTapAliasTarget(): String? = gesturesPreferences.getHomeDoubleTapAliasTarget()
-    fun setHomeDoubleTapAliasTarget(targetId: String?) = gesturesPreferences.setHomeDoubleTapAliasTarget(targetId)
-
-    fun getHomeTwoFingerSwipeUpAction(): HomeSwipeGestureAction = gesturesPreferences.getHomeTwoFingerSwipeUpAction()
-
-    fun setHomeTwoFingerSwipeUpAction(action: HomeSwipeGestureAction) = gesturesPreferences.setHomeTwoFingerSwipeUpAction(action)
-
-    fun getHomeTwoFingerSwipeUpCustomAction(): String? = gesturesPreferences.getHomeTwoFingerSwipeUpCustomAction()
-
-    fun setHomeTwoFingerSwipeUpCustomAction(actionJson: String?) = gesturesPreferences.setHomeTwoFingerSwipeUpCustomAction(actionJson)
-    fun getHomeTwoFingerSwipeUpAliasTarget(): String? = gesturesPreferences.getHomeTwoFingerSwipeUpAliasTarget()
-    fun setHomeTwoFingerSwipeUpAliasTarget(targetId: String?) = gesturesPreferences.setHomeTwoFingerSwipeUpAliasTarget(targetId)
-
-    fun getHomeTwoFingerSwipeDownAction(): HomeSwipeGestureAction = gesturesPreferences.getHomeTwoFingerSwipeDownAction()
-
-    fun setHomeTwoFingerSwipeDownAction(action: HomeSwipeGestureAction) = gesturesPreferences.setHomeTwoFingerSwipeDownAction(action)
-
-    fun getHomeTwoFingerSwipeDownCustomAction(): String? = gesturesPreferences.getHomeTwoFingerSwipeDownCustomAction()
-
-    fun setHomeTwoFingerSwipeDownCustomAction(actionJson: String?) = gesturesPreferences.setHomeTwoFingerSwipeDownCustomAction(actionJson)
-    fun getHomeTwoFingerSwipeDownAliasTarget(): String? = gesturesPreferences.getHomeTwoFingerSwipeDownAliasTarget()
-    fun setHomeTwoFingerSwipeDownAliasTarget(targetId: String?) = gesturesPreferences.setHomeTwoFingerSwipeDownAliasTarget(targetId)
 
     // ============================================================================
     // App Shortcut Preferences

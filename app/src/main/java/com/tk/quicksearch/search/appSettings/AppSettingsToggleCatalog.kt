@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.appSettings
 
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import android.content.Context
 import android.os.Build
 import com.tk.quicksearch.R
@@ -47,7 +48,7 @@ internal fun AppSettingsCatalogBuilder.addToggleAndInlineSettings(context: Conte
         id = "app_settings_pinned_sections_order",
         titleRes = R.string.settings_pinned_sections_order_title,
         descriptionRes = R.string.settings_pinned_sections_order_desc,
-        destination = AppSettingsDestination.PINNED_SECTIONS_ORDER,
+        destination = AppSettingsRouteAction.PINNED_SECTIONS_ORDER,
         keywords = listOf("pinned", "sections", "order", "reorder", "home"),
     )
     addToggle(
@@ -147,7 +148,7 @@ internal fun AppSettingsCatalogBuilder.addToggleAndInlineSettings(context: Conte
         id = "app_settings_app_suggestion_tabs",
         titleRes = R.string.app_suggestions_tabs_dialog_title,
         descriptionRes = R.string.app_suggestions_tabs_dialog_message,
-        destination = AppSettingsDestination.APP_SUGGESTION_TABS,
+        destination = AppSettingsRouteAction.APP_SUGGESTION_TABS,
         keywords = listOf("app suggestions", "tabs", "recents", "most used", "new", "updated"),
     )
     addToggle(
@@ -215,13 +216,13 @@ internal fun AppSettingsCatalogBuilder.addToggleAndInlineSettings(context: Conte
         id = "app_settings_top_matches_priority",
         titleRes = R.string.top_matches_priority_title,
         descriptionRes = R.string.top_matches_priority_desc,
-        destination = AppSettingsDestination.TOP_MATCHES_PRIORITY,
+        destination = AppSettingsRouteAction.TOP_MATCHES_PRIORITY,
         keywords = listOf("top matches", "priority", "order", "reorder"),
     )
     addNavigation(
         id = TOP_MATCHES_COUNT_SETTING_ID,
         titleRes = R.string.top_matches_count_label,
-        destination = AppSettingsDestination.SEARCH_RESULTS,
+        destination = AppSettingsTarget.Page(SettingsDetailType.SEARCH_RESULTS),
         keywords = listOf("top matches", "count", "number", "limit"),
     )
     addToggle(
@@ -242,7 +243,7 @@ internal fun AppSettingsCatalogBuilder.addToggleAndInlineSettings(context: Conte
         id = "app_settings_search_result_ranking",
         titleRes = R.string.secondary_ranking_title,
         descriptionRes = R.string.secondary_ranking_dialog_desc,
-        destination = AppSettingsDestination.SEARCH_RESULT_RANKING,
+        destination = AppSettingsRouteAction.SEARCH_RESULT_RANKING,
         keywords = listOf("ranking", "recency", "most opened", "sort", "order"),
     )
     addToggle(

@@ -13,7 +13,6 @@ import androidx.compose.runtime.setValue
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.tk.quicksearch.R
-import com.tk.quicksearch.media.MediaControls
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import com.tk.quicksearch.search.contacts.dialogs.ContactActionsPopup
 import com.tk.quicksearch.search.contacts.dialogs.ContactActionsPopupState
@@ -420,8 +419,8 @@ class WidgetActionActivity : FragmentActivity() {
 
             // Reached from pinned launcher shortcuts and notifications, which can only start an
             // activity; in-app taps and the widget dispatch directly instead (see launch()).
-            is CustomWidgetButtonAction.Media -> {
-                MediaControls.dispatch(this, action.command)
+            is CustomWidgetButtonAction.Command -> {
+                action.dispatch(this)
             }
         }
     }
@@ -460,8 +459,8 @@ class WidgetActionActivity : FragmentActivity() {
             context: Context,
             action: CustomWidgetButtonAction,
         ) {
-            if (action is CustomWidgetButtonAction.Media) {
-                MediaControls.dispatch(context, action.command)
+            if (action is CustomWidgetButtonAction.Command) {
+                action.dispatch(context)
             } else {
                 context.startActivity(createIntent(context, action))
             }

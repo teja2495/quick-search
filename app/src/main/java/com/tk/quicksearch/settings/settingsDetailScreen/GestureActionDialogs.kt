@@ -15,8 +15,9 @@ import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.searchEngines.getDisplayName
 import com.tk.quicksearch.searchEngines.shared.SearchTargetIcon
-import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
+import com.tk.quicksearch.search.data.preferences.SwipeDirection
 import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
+import com.tk.quicksearch.search.data.preferences.HomeGesture
 import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
@@ -43,38 +44,11 @@ internal fun LauncherSwipeRightActionDialog(
     )
 }
 
-internal fun SwipeDirection.gestureIcon() =
-    when (this) {
-        SwipeDirection.RIGHT -> MaterialSymbols.ArrowForward
-        SwipeDirection.LEFT -> MaterialSymbols.ArrowBack
-        SwipeDirection.UP -> MaterialSymbols.ArrowUpward
-        SwipeDirection.DOWN -> MaterialSymbols.ArrowDownward
-    }
-
-internal fun HomeGesture.icon() =
-    when (this) {
-        HomeGesture.SWIPE_UP -> MaterialSymbols.ArrowUpward
-        HomeGesture.SWIPE_DOWN,
-        HomeGesture.DOUBLE_TAP,
-        -> MaterialSymbols.ArrowDownward
-        HomeGesture.TWO_FINGER_SWIPE_UP -> MaterialSymbols.SwipeUp
-        HomeGesture.TWO_FINGER_SWIPE_DOWN -> MaterialSymbols.SwipeDown
-        HomeGesture.NOTCH_SINGLE_TAP,
-        HomeGesture.NOTCH_DOUBLE_TAP,
-        HomeGesture.NOTCH_LONG_PRESS,
-        -> MaterialSymbols.Swipe
-    }
-
 @Composable
 internal fun HomeVerticalGestureDialog(
     titleResId: Int,
-    allowsNotificationPanel: Boolean,
-    allowsQuickSettings: Boolean,
-    allowsCloseQuickSearch: Boolean,
-    allowsLockScreen: Boolean,
-    allowsAllApps: Boolean,
+    availableActions: List<HomeSwipeGestureAction>,
     hasLockScreenAccessibilityPermission: Boolean,
-    allowsAppSurfaces: Boolean = false,
     selectedAction: HomeSwipeGestureAction,
     selectedCustomActionJson: String?,
     selectedAliasTarget: String?,
@@ -95,34 +69,23 @@ internal fun HomeVerticalGestureDialog(
     fun option(action: HomeSwipeGestureAction) = homeOption(action, selectedAction, onSelectDefault)
 
     val actionOptions =
-        buildList {
-            add(option(HomeSwipeGestureAction.NONE))
-            if (allowsAppSurfaces) {
-                add(option(HomeSwipeGestureAction.OPEN_QUICK_SEARCH))
-                add(option(HomeSwipeGestureAction.PINNED_GLANCE))
-            }
-            if (allowsAllApps) add(option(HomeSwipeGestureAction.ALL_APPS))
-            if (allowsAppSurfaces) add(option(HomeSwipeGestureAction.WIDGETS_PANEL))
-            if (allowsCloseQuickSearch) add(option(HomeSwipeGestureAction.CLOSE_QUICK_SEARCH))
-            if (allowsNotificationPanel) add(option(HomeSwipeGestureAction.NOTIFICATION_PANEL))
-            if (allowsQuickSettings) add(option(HomeSwipeGestureAction.QUICK_SETTINGS))
-            if (allowsLockScreen) {
-                add(
-                    GestureOption(
-                        key = HomeSwipeGestureAction.LOCK_SCREEN.name,
-                        label = stringResource(R.string.settings_gesture_lock_screen),
-                        subtitle =
-                            if (hasLockScreenAccessibilityPermission) {
-                                null
-                            } else {
-                                stringResource(R.string.settings_gesture_lock_screen_requires_accessibility)
-                            },
-                        selected = selectedAction == HomeSwipeGestureAction.LOCK_SCREEN,
-                        onClick = onSelectLockScreen,
-                    ),
+        availableActions.map { action ->
+            if (action == HomeSwipeGestureAction.LOCK_SCREEN) {
+                GestureOption(
+                    key = action.name,
+                    label = stringResource(R.string.settings_gesture_lock_screen),
+                    subtitle =
+                        if (hasLockScreenAccessibilityPermission) {
+                            null
+                        } else {
+                            stringResource(R.string.settings_gesture_lock_screen_requires_accessibility)
+                        },
+                    selected = selectedAction == action,
+                    onClick = onSelectLockScreen,
                 )
+            } else {
+                option(action)
             }
-            if (allowsAppSurfaces) add(option(HomeSwipeGestureAction.PLAY_PAUSE_MEDIA))
         }
     GestureActionDrawer(
         title = stringResource(titleResId),
@@ -347,135 +310,6 @@ internal fun aliasDisplayName(
     state.searchTargetsOrder.firstOrNull { it.getId() == targetId }?.getDisplayName()
         ?: gestureToolItems(state).firstOrNull { it.first == targetId }?.second
         ?: targetId
-
-internal fun UserAppPreferences.actionFor(direction: SwipeDirection): SwipeGestureAction =
-    when (direction) {
-        SwipeDirection.RIGHT -> getSwipeRightAction()
-        SwipeDirection.LEFT -> getSwipeLeftAction()
-        SwipeDirection.UP -> getSwipeUpAction()
-        SwipeDirection.DOWN -> getSwipeDownAction()
-    }
-
-internal fun UserAppPreferences.customActionFor(direction: SwipeDirection): String? =
-    when (direction) {
-        SwipeDirection.RIGHT -> getSwipeRightCustomAction()
-        SwipeDirection.LEFT -> getSwipeLeftCustomAction()
-        SwipeDirection.UP -> getSwipeUpCustomAction()
-        SwipeDirection.DOWN -> getSwipeDownCustomAction()
-    }
-
-internal fun UserAppPreferences.setActionFor(direction: SwipeDirection, action: SwipeGestureAction) {
-    when (direction) {
-        SwipeDirection.RIGHT -> setSwipeRightAction(action)
-        SwipeDirection.LEFT -> setSwipeLeftAction(action)
-        SwipeDirection.UP -> setSwipeUpAction(action)
-        SwipeDirection.DOWN -> setSwipeDownAction(action)
-    }
-}
-
-internal fun UserAppPreferences.setCustomActionFor(direction: SwipeDirection, actionJson: String?) {
-    when (direction) {
-        SwipeDirection.RIGHT -> setSwipeRightCustomAction(actionJson)
-        SwipeDirection.LEFT -> setSwipeLeftCustomAction(actionJson)
-        SwipeDirection.UP -> setSwipeUpCustomAction(actionJson)
-        SwipeDirection.DOWN -> setSwipeDownCustomAction(actionJson)
-    }
-}
-
-internal fun UserAppPreferences.aliasTargetFor(direction: SwipeDirection): String? =
-    when (direction) {
-        SwipeDirection.RIGHT -> getSwipeRightAliasTarget()
-        SwipeDirection.LEFT -> getSwipeLeftAliasTarget()
-        SwipeDirection.UP -> getSwipeUpAliasTarget()
-        SwipeDirection.DOWN -> getSwipeDownAliasTarget()
-    }
-
-internal fun UserAppPreferences.setAliasTargetFor(direction: SwipeDirection, targetId: String?) {
-    when (direction) {
-        SwipeDirection.RIGHT -> setSwipeRightAliasTarget(targetId)
-        SwipeDirection.LEFT -> setSwipeLeftAliasTarget(targetId)
-        SwipeDirection.UP -> setSwipeUpAliasTarget(targetId)
-        SwipeDirection.DOWN -> setSwipeDownAliasTarget(targetId)
-    }
-}
-
-internal fun UserAppPreferences.homeActionFor(
-    gesture: HomeGesture,
-    isDefaultLauncher: Boolean,
-): HomeSwipeGestureAction =
-    when (gesture) {
-        HomeGesture.SWIPE_UP -> getHomeSwipeUpAction()
-        HomeGesture.SWIPE_DOWN -> getHomeSwipeDownAction(isDefaultLauncher)
-        HomeGesture.DOUBLE_TAP -> getHomeDoubleTapAction()
-        HomeGesture.TWO_FINGER_SWIPE_UP -> getHomeTwoFingerSwipeUpAction()
-        HomeGesture.TWO_FINGER_SWIPE_DOWN -> getHomeTwoFingerSwipeDownAction()
-        HomeGesture.NOTCH_SINGLE_TAP -> getNotchSingleTapAction()
-        HomeGesture.NOTCH_DOUBLE_TAP -> getNotchDoubleTapAction()
-        HomeGesture.NOTCH_LONG_PRESS -> getNotchLongPressAction()
-    }
-
-internal fun UserAppPreferences.setHomeActionFor(gesture: HomeGesture, action: HomeSwipeGestureAction) {
-    when (gesture) {
-        HomeGesture.SWIPE_UP -> setHomeSwipeUpAction(action)
-        HomeGesture.SWIPE_DOWN -> setHomeSwipeDownAction(action)
-        HomeGesture.DOUBLE_TAP -> setHomeDoubleTapAction(action)
-        HomeGesture.TWO_FINGER_SWIPE_UP -> setHomeTwoFingerSwipeUpAction(action)
-        HomeGesture.TWO_FINGER_SWIPE_DOWN -> setHomeTwoFingerSwipeDownAction(action)
-        HomeGesture.NOTCH_SINGLE_TAP -> setNotchSingleTapAction(action)
-        HomeGesture.NOTCH_DOUBLE_TAP -> setNotchDoubleTapAction(action)
-        HomeGesture.NOTCH_LONG_PRESS -> setNotchLongPressAction(action)
-    }
-}
-
-internal fun UserAppPreferences.homeCustomActionFor(gesture: HomeGesture): String? =
-    when (gesture) {
-        HomeGesture.SWIPE_UP -> getHomeSwipeUpCustomAction()
-        HomeGesture.SWIPE_DOWN -> getHomeSwipeDownCustomAction()
-        HomeGesture.DOUBLE_TAP -> getHomeDoubleTapCustomAction()
-        HomeGesture.TWO_FINGER_SWIPE_UP -> getHomeTwoFingerSwipeUpCustomAction()
-        HomeGesture.TWO_FINGER_SWIPE_DOWN -> getHomeTwoFingerSwipeDownCustomAction()
-        HomeGesture.NOTCH_SINGLE_TAP -> getNotchSingleTapCustomAction()
-        HomeGesture.NOTCH_DOUBLE_TAP -> getNotchDoubleTapCustomAction()
-        HomeGesture.NOTCH_LONG_PRESS -> getNotchLongPressCustomAction()
-    }
-
-internal fun UserAppPreferences.setHomeCustomActionFor(gesture: HomeGesture, actionJson: String?) {
-    when (gesture) {
-        HomeGesture.SWIPE_UP -> setHomeSwipeUpCustomAction(actionJson)
-        HomeGesture.SWIPE_DOWN -> setHomeSwipeDownCustomAction(actionJson)
-        HomeGesture.DOUBLE_TAP -> setHomeDoubleTapCustomAction(actionJson)
-        HomeGesture.TWO_FINGER_SWIPE_UP -> setHomeTwoFingerSwipeUpCustomAction(actionJson)
-        HomeGesture.TWO_FINGER_SWIPE_DOWN -> setHomeTwoFingerSwipeDownCustomAction(actionJson)
-        HomeGesture.NOTCH_SINGLE_TAP -> setNotchSingleTapCustomAction(actionJson)
-        HomeGesture.NOTCH_DOUBLE_TAP -> setNotchDoubleTapCustomAction(actionJson)
-        HomeGesture.NOTCH_LONG_PRESS -> setNotchLongPressCustomAction(actionJson)
-    }
-}
-
-internal fun UserAppPreferences.homeAliasTargetFor(gesture: HomeGesture): String? =
-    when (gesture) {
-        HomeGesture.SWIPE_UP -> getHomeSwipeUpAliasTarget()
-        HomeGesture.SWIPE_DOWN -> getHomeSwipeDownAliasTarget()
-        HomeGesture.DOUBLE_TAP -> getHomeDoubleTapAliasTarget()
-        HomeGesture.TWO_FINGER_SWIPE_UP -> getHomeTwoFingerSwipeUpAliasTarget()
-        HomeGesture.TWO_FINGER_SWIPE_DOWN -> getHomeTwoFingerSwipeDownAliasTarget()
-        HomeGesture.NOTCH_SINGLE_TAP -> getNotchSingleTapAliasTarget()
-        HomeGesture.NOTCH_DOUBLE_TAP -> getNotchDoubleTapAliasTarget()
-        HomeGesture.NOTCH_LONG_PRESS -> getNotchLongPressAliasTarget()
-    }
-
-internal fun UserAppPreferences.setHomeAliasTargetFor(gesture: HomeGesture, targetId: String?) {
-    when (gesture) {
-        HomeGesture.SWIPE_UP -> setHomeSwipeUpAliasTarget(targetId)
-        HomeGesture.SWIPE_DOWN -> setHomeSwipeDownAliasTarget(targetId)
-        HomeGesture.DOUBLE_TAP -> setHomeDoubleTapAliasTarget(targetId)
-        HomeGesture.TWO_FINGER_SWIPE_UP -> setHomeTwoFingerSwipeUpAliasTarget(targetId)
-        HomeGesture.TWO_FINGER_SWIPE_DOWN -> setHomeTwoFingerSwipeDownAliasTarget(targetId)
-        HomeGesture.NOTCH_SINGLE_TAP -> setNotchSingleTapAliasTarget(targetId)
-        HomeGesture.NOTCH_DOUBLE_TAP -> setNotchDoubleTapAliasTarget(targetId)
-        HomeGesture.NOTCH_LONG_PRESS -> setNotchLongPressAliasTarget(targetId)
-    }
-}
 
 @Composable
 internal fun GestureToolPickerDialog(

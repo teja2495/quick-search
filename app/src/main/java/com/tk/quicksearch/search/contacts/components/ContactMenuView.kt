@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.contacts.components
 
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
+import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -20,7 +22,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.appSettings.LocalOpenAppSettingDestination
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.ItemMenuLongPressOption
@@ -219,7 +220,7 @@ fun ContactDropdownMenu(
                                 },
                                 onClick = {
                                     onDismissRequest()
-                                    openDestination(AppSettingsDestination.CALLS_TEXTS)
+                                    openDestination(AppSettingsTarget.Page(SettingsDetailType.CALLS_TEXTS))
                                 },
                         ),
                 )

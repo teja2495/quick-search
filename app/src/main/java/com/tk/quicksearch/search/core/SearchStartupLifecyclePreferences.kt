@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.search.contacts.models.ContactActionProvider
 import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
 import com.tk.quicksearch.search.contacts.models.ContactButtonAction
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
@@ -14,7 +15,6 @@ import com.tk.quicksearch.search.apps.AppSearchPerformanceLogger
 import com.tk.quicksearch.search.apps.prefetchAppIcons
 import com.tk.quicksearch.searchEngines.getAppPackageCandidates
 import com.tk.quicksearch.shared.permissions.PermissionHelper
-import com.tk.quicksearch.shared.util.PackageConstants
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
 import com.tk.quicksearch.overlay.OverlayModeController
@@ -231,51 +231,13 @@ internal suspend fun SearchStartupLifecycleDelegate.publishStartupAppSuggestions
     }
 
 internal fun SearchStartupLifecycleDelegate.getMessagingAppInfo(packageNames: Set<String>): MessagingAppInfo {
-        val isWhatsAppInstalled =
-            if (packageNames.isNotEmpty()) {
-                packageNames.contains(PackageConstants.WHATSAPP_PACKAGE)
-            } else {
-                messagingHandler.isPackageInstalled(PackageConstants.WHATSAPP_PACKAGE)
-            }
-        val isWhatsAppBusinessInstalled =
-            if (packageNames.isNotEmpty()) {
-                packageNames.contains(PackageConstants.WHATSAPP_BUSINESS_PACKAGE)
-            } else {
-                messagingHandler.isPackageInstalled(PackageConstants.WHATSAPP_BUSINESS_PACKAGE)
-            }
-        val isTelegramInstalled =
-            if (packageNames.isNotEmpty()) {
-                packageNames.contains(PackageConstants.TELEGRAM_PACKAGE)
-            } else {
-                messagingHandler.isPackageInstalled(PackageConstants.TELEGRAM_PACKAGE)
-            }
-        val isSignalInstalled =
-            if (packageNames.isNotEmpty()) {
-                packageNames.contains(PackageConstants.SIGNAL_PACKAGE)
-            } else {
-                messagingHandler.isPackageInstalled(PackageConstants.SIGNAL_PACKAGE)
-            }
-        val isGoogleMeetInstalled =
-            if (packageNames.isNotEmpty()) {
-                packageNames.contains(PackageConstants.GOOGLE_MEET_PACKAGE)
-            } else {
-                messagingHandler.isPackageInstalled(PackageConstants.GOOGLE_MEET_PACKAGE)
-            }
-        messagingHandler.updateMessagingAvailability(
-            whatsappInstalled = isWhatsAppInstalled,
-            whatsappBusinessInstalled = isWhatsAppBusinessInstalled,
-            telegramInstalled = isTelegramInstalled,
-            signalInstalled = isSignalInstalled,
-            googleMeetInstalled = isGoogleMeetInstalled,
-            updateState = false,
-        )
-
+        val installed = ContactActionProvider.entries.filterTo(linkedSetOf()) { provider ->
+            if (packageNames.isEmpty()) messagingHandler.isPackageInstalled(provider.packageName)
+            else provider.packageName in packageNames
+        }
+        messagingHandler.updateMessagingAvailability(installed, updateState = false)
         return MessagingAppInfo(
-            isWhatsAppInstalled,
-            isWhatsAppBusinessInstalled,
-            isTelegramInstalled,
-            isSignalInstalled,
-            isGoogleMeetInstalled,
+            installed,
             messagingHandler.primaryContactButton,
             messagingHandler.secondaryContactButton,
         )
@@ -315,11 +277,7 @@ internal fun SearchStartupLifecycleDelegate.normalizeCustomToolModels(tools: Lis
     }
 
 internal data class MessagingAppInfo(
-        val isWhatsAppInstalled: Boolean,
-        val isWhatsAppBusinessInstalled: Boolean,
-        val isTelegramInstalled: Boolean,
-        val isSignalInstalled: Boolean,
-        val isGoogleMeetInstalled: Boolean,
+        val installedContactProviders: Set<ContactActionProvider>,
         val primaryContactButton: ContactButtonAction,
         val secondaryContactButton: ContactButtonAction,
     )

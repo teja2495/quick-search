@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.search.contacts.models.ContactActionProvider
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -36,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.contacts.models.ContactActionIconStyle
 import com.tk.quicksearch.search.contacts.models.ContactButtonAction
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
@@ -73,22 +75,6 @@ private data class PendingContactButton(
     val isPrimary: Boolean,
 )
 
-/** Third-party app calls go through CALL_PHONE, so choosing one asks for it up front. */
-private val ContactButtonAction.requiresCallPermission: Boolean
-    get() =
-        when (this) {
-            ContactButtonAction.WHATSAPP_CALL,
-            ContactButtonAction.WHATSAPP_VIDEO_CALL,
-            ContactButtonAction.WHATSAPP_BUSINESS_CALL,
-            ContactButtonAction.WHATSAPP_BUSINESS_VIDEO_CALL,
-            ContactButtonAction.TELEGRAM_CALL,
-            ContactButtonAction.TELEGRAM_VIDEO_CALL,
-            ContactButtonAction.SIGNAL_CALL,
-            ContactButtonAction.SIGNAL_VIDEO_CALL,
-            -> true
-            else -> false
-        }
-
 /**
  * Default messaging app picker used during onboarding. Hidden when no third-party messaging app
  * is installed.
@@ -101,31 +87,21 @@ private val ContactButtonAction.requiresCallPermission: Boolean
 fun MessagingSection(
     messagingApp: MessagingApp?,
     onMessagingAppSelected: (MessagingApp) -> Unit,
-    isWhatsAppInstalled: Boolean = false,
-    isWhatsAppBusinessInstalled: Boolean = false,
-    isTelegramInstalled: Boolean = false,
-    isSignalInstalled: Boolean = false,
+    installedContactProviders: Set<ContactActionProvider> = emptySet(),
     modifier: Modifier = Modifier,
 ) {
-    val hasAnyThirdPartyMessagingApp = isWhatsAppInstalled || isWhatsAppBusinessInstalled || isTelegramInstalled || isSignalInstalled
+    val hasAnyThirdPartyMessagingApp = installedContactProviders.any { it.messagingLabel != null }
     if (!hasAnyThirdPartyMessagingApp) {
         return
     }
 
     val messagingOptions =
         buildList {
-            add(MessagingOption(MessagingApp.MESSAGES, R.string.settings_messaging_option_messages))
-            if (isWhatsAppInstalled) {
-                add(MessagingOption(MessagingApp.WHATSAPP, R.string.contact_method_whatsapp_message_label))
-            }
-            if (isWhatsAppBusinessInstalled) {
-                add(MessagingOption(MessagingApp.WHATSAPP_BUSINESS, R.string.contact_method_whatsapp_business_label))
-            }
-            if (isTelegramInstalled) {
-                add(MessagingOption(MessagingApp.TELEGRAM, R.string.contact_method_telegram_message_label))
-            }
-            if (isSignalInstalled) {
-                add(MessagingOption(MessagingApp.SIGNAL, R.string.contact_method_signal_message_label))
+            for (app in MessagingApp.entries) {
+                val action = ContactButtonAction.fromMessagingApp(app)
+                if (action.isAppInstalled(installedContactProviders)) {
+                    add(MessagingOption(app, action.messagingLabelRes))
+                }
             }
         }
 
@@ -310,46 +286,24 @@ private fun MessagingOptionChip(
 
 @Composable
 private fun MessagingOptionIcon(app: MessagingApp) {
-    when (app) {
-        MessagingApp.MESSAGES -> {
-            Icon(
-                imageVector = MaterialSymbols.Sms,
-                contentDescription = null,
-                tint = AppColors.IconTintSecondary,
-                modifier = Modifier.size(MessagingSpacing.iconSize),
-            )
-        }
-
-        MessagingApp.WHATSAPP -> {
-            Image(
-                painter = painterResource(id = R.drawable.whatsapp),
-                contentDescription = null,
-                modifier = Modifier.size(MessagingSpacing.iconSize),
-            )
-        }
-        MessagingApp.WHATSAPP_BUSINESS -> {
-            Image(
-                painter = painterResource(id = R.drawable.whatsapp),
-                contentDescription = null,
-                modifier = Modifier.size(MessagingSpacing.iconSize),
-            )
-        }
-
-        MessagingApp.TELEGRAM -> {
-            Image(
-                painter = painterResource(id = R.drawable.telegram),
-                contentDescription = null,
-                modifier = Modifier.size(MessagingSpacing.iconSize),
-            )
-        }
-
-        MessagingApp.SIGNAL -> {
-            Image(
-                painter = painterResource(id = R.drawable.signal),
-                contentDescription = null,
-                modifier = Modifier.size(DesignTokens.SignalMessageIconSize),
-            )
-        }
+    val action = ContactButtonAction.fromMessagingApp(app)
+    val drawable = action.drawableRes
+    if (drawable != null) {
+        Image(
+            painter = painterResource(id = drawable),
+            contentDescription = null,
+            modifier = Modifier.size(
+                if (action.iconStyle == ContactActionIconStyle.SIGNAL_MESSAGE) DesignTokens.SignalMessageIconSize
+                else MessagingSpacing.iconSize,
+            ),
+        )
+    } else {
+        Icon(
+            imageVector = MaterialSymbols.Sms,
+            contentDescription = null,
+            tint = AppColors.IconTintSecondary,
+            modifier = Modifier.size(MessagingSpacing.iconSize),
+        )
     }
 }
 
@@ -369,11 +323,7 @@ fun CallsTextsSettingsSection(
     onToggleNumberSearch: (Boolean) -> Unit,
     hasCallPermission: Boolean,
     contactsSectionEnabled: Boolean = true,
-    isWhatsAppInstalled: Boolean = false,
-    isWhatsAppBusinessInstalled: Boolean = false,
-    isTelegramInstalled: Boolean = false,
-    isSignalInstalled: Boolean = false,
-    isGoogleMeetInstalled: Boolean = false,
+    installedContactProviders: Set<ContactActionProvider> = emptySet(),
     modifier: Modifier = Modifier,
 ) {
     if (!contactsSectionEnabled) {
@@ -423,24 +373,9 @@ fun CallsTextsSettingsSection(
         }
     }
 
-    val availableActions =
-        remember(
-            isWhatsAppInstalled,
-            isWhatsAppBusinessInstalled,
-            isTelegramInstalled,
-            isSignalInstalled,
-            isGoogleMeetInstalled,
-        ) {
-            ContactButtonAction.entries.filter { action ->
-                action.isAppInstalled(
-                    isWhatsAppInstalled = isWhatsAppInstalled,
-                    isWhatsAppBusinessInstalled = isWhatsAppBusinessInstalled,
-                    isTelegramInstalled = isTelegramInstalled,
-                    isSignalInstalled = isSignalInstalled,
-                    isGoogleMeetInstalled = isGoogleMeetInstalled,
-                )
-            }
-        }
+    val availableActions = remember(installedContactProviders) {
+        ContactButtonAction.entries.filter { it.isAppInstalled(installedContactProviders) }
+    }
 
     Column(modifier = modifier) {
         DirectDialCard(

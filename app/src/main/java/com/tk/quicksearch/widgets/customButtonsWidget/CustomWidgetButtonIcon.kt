@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.contacts.components.ContactAvatar
 import com.tk.quicksearch.search.data.appShortcutRepository.rememberShortcutIcon
@@ -178,9 +179,9 @@ fun CustomWidgetButtonIcon(
             )
         }
 
-        is CustomWidgetButtonAction.Media -> {
+        is CustomWidgetButtonAction.Command -> {
             Icon(
-                imageVector = ImageVector.vectorResource(action.command.iconRes),
+                imageVector = ImageVector.vectorResource(action.choice()?.iconRes ?: R.drawable.ic_widget_settings),
                 contentDescription = action.contentDescription(),
                 tint = tintColor,
                 modifier = modifier.size(iconSize),

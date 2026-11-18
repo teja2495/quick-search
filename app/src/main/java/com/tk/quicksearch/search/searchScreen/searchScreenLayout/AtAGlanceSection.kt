@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
+import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
@@ -39,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
 import com.tk.quicksearch.reminders.ReminderEditorRequests
-import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.appSettings.LocalOpenAppSettingDestination
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
@@ -140,7 +141,7 @@ internal fun rememberAtAGlanceItems(
     val alarm = rememberUpcomingAlarmGlance(enabled)
     val reminders = rememberUpcomingRemindersGlance(enabled)
     val birthdays = rememberBirthdaysGlance(enabled, onShowContactMethods)
-    val lowStorage = rememberLowStorageGlance(enabled)
+    val sampledStatusRows = rememberSampledGlanceStatusRows(enabled)
     val doNotDisturb = rememberDoNotDisturbGlance(enabled)
     val wifiSignIn = rememberWifiSignInGlance(enabled)
     val flashlight = rememberFlashlightGlance(enabled)
@@ -248,8 +249,7 @@ internal fun rememberAtAGlanceItems(
             listOfNotNull(hotspot?.let { AtAGlanceItem(key = "hotspot") { HotspotRow(it) } }),
             listOfNotNull(flashlight?.let { AtAGlanceItem(key = "flashlight") { FlashlightRow(it) } }),
             listOfNotNull(battery.charging?.let { AtAGlanceItem(key = "charging") { ChargingRow(it) } }),
-            listOfNotNull(lowStorage?.let { AtAGlanceItem(key = "low-storage") { LowStorageRow(it) } }),
-        )
+        ) + sampledStatusRows.map { listOf(it) }
     return rememberRetainedAtAGlanceItems(enabled, (if (reversed) groups.asReversed() else groups).flatten())
 }
 
@@ -367,7 +367,7 @@ internal fun AtAGlanceTitle(showWallpaperBackground: Boolean) {
         showWallpaperBackground = showWallpaperBackground,
         modifier =
             Modifier.clickable(enabled = openAppSettingDestination != null, role = Role.Button) {
-                openAppSettingDestination?.invoke(AppSettingsDestination.AT_A_GLANCE)
+                openAppSettingDestination?.invoke(AppSettingsTarget.Page(SettingsDetailType.AT_A_GLANCE))
             },
     )
 }

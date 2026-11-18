@@ -2,7 +2,7 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.appSettings.AppSettingsDestination
+import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import com.tk.quicksearch.search.appSettings.AppSettingsToggleKey
 import com.tk.quicksearch.search.appSettings.BooleanSetting
 import com.tk.quicksearch.searchEngines.AliasHandler
@@ -29,7 +29,7 @@ internal data class ToolSettingDefinition(
     val toggleKey: AppSettingsToggleKey? = null,
     val booleanSetting: BooleanSetting? = null,
     val searchId: String = booleanSetting?.searchId ?: "app_toggle_$id",
-    val searchDestination: AppSettingsDestination? = null,
+    val searchDestination: AppSettingsTarget? = null,
     val keywords: List<String> = emptyList(),
     val infoDestination: SettingsDetailType? = null,
     val aiBackedModelConfigurable: Boolean = false,

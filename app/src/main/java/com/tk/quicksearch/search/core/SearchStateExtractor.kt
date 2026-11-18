@@ -95,11 +95,7 @@ internal object SearchStateExtractor {
             wallpaperAvailable = s.wallpaperAvailable,
             primaryContactButton = s.primaryContactButton,
             secondaryContactButton = s.secondaryContactButton,
-            isWhatsAppInstalled = s.isWhatsAppInstalled,
-            isWhatsAppBusinessInstalled = s.isWhatsAppBusinessInstalled,
-            isTelegramInstalled = s.isTelegramInstalled,
-            isSignalInstalled = s.isSignalInstalled,
-            isGoogleMeetInstalled = s.isGoogleMeetInstalled,
+            installedContactProviders = s.installedContactProviders,
         )
 
     fun extractFeatureState(s: SearchUiState) =

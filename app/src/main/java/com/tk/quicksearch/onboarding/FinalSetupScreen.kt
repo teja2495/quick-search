@@ -1,5 +1,6 @@
 package com.tk.quicksearch.onboarding
 
+import com.tk.quicksearch.search.contacts.models.ContactButtonAction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,7 +21,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppTheme
-import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -94,73 +94,16 @@ fun FinalSetupScreen(
                 ) {
                     MessagingSection(
                         messagingApp = uiState.secondaryContactButton.toMessagingApp(),
-                        isWhatsAppInstalled = uiState.isWhatsAppInstalled,
-                        isWhatsAppBusinessInstalled = uiState.isWhatsAppBusinessInstalled,
-                        isTelegramInstalled = uiState.isTelegramInstalled,
-                        isSignalInstalled = uiState.isSignalInstalled,
+                        installedContactProviders = uiState.installedContactProviders,
                         onMessagingAppSelected = @Suppress("LocalContextGetResourceValueCall") { app ->
-                            val isInstalled =
-                                when (app) {
-                                    MessagingApp.MESSAGES -> {
-                                        true
-                                    }
-
-                                    MessagingApp.WHATSAPP -> {
-                                        uiState.isWhatsAppInstalled
-                                    }
-
-                                    MessagingApp.WHATSAPP_BUSINESS -> {
-                                        uiState.isWhatsAppBusinessInstalled
-                                    }
-
-                                    MessagingApp.TELEGRAM -> {
-                                        uiState.isTelegramInstalled
-                                    }
-
-                                    MessagingApp.SIGNAL -> {
-                                        uiState.isSignalInstalled
-                                    }
-                                }
-
-                            if (isInstalled) {
+                            val action = ContactButtonAction.fromMessagingApp(app)
+                            if (action.isAppInstalled(uiState.installedContactProviders)) {
                                 viewModel.setMessagingApp(app)
                             } else {
-                                val appName =
-                                    when (app) {
-                                        MessagingApp.WHATSAPP -> {
-                                            context.getString(
-                                                R.string
-                                                    .contact_method_whatsapp_message_label,
-                                            )
-                                        }
-
-                                        MessagingApp.WHATSAPP_BUSINESS -> {
-                                            context.getString(R.string.contact_method_whatsapp_business_label)
-                                        }
-
-                                        MessagingApp.TELEGRAM -> {
-                                            context.getString(
-                                                R.string
-                                                    .contact_method_telegram_message_label,
-                                            )
-                                        }
-
-                                        MessagingApp.SIGNAL -> {
-                                            context.getString(
-                                                R.string
-                                                    .contact_method_signal_message_label,
-                                            )
-                                        }
-
-                                        MessagingApp.MESSAGES -> {
-                                            ""
-                                        }
-                                    }
                                 onShowToast(
                                     context.getString(
-                                        R.string
-                                            .settings_messaging_app_not_installed,
-                                        appName,
+                                        R.string.settings_messaging_app_not_installed,
+                                        context.getString(action.messagingLabelRes),
                                     ),
                                 )
                             }

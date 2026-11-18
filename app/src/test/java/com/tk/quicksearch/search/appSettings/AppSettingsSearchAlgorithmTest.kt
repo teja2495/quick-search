@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.appSettings
 
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -95,7 +96,7 @@ class AppSettingsSearchAlgorithmTest {
             description = null,
             keywords = emptyList(),
             action = AppSettingResultAction.NAVIGATE,
-            destination = AppSettingsDestination.SEARCH_RESULTS,
+            destination = AppSettingsTarget.Page(SettingsDetailType.SEARCH_RESULTS),
             toggleKey = null,
         )
 }

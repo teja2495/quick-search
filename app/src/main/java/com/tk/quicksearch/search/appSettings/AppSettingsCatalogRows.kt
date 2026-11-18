@@ -2,37 +2,27 @@ package com.tk.quicksearch.search.appSettings
 
 import android.content.Context
 import com.tk.quicksearch.R
+import com.tk.quicksearch.notchGesture.NotchGestureSupport
+import com.tk.quicksearch.settings.settingsDetailScreen.GestureSettingTarget
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchSectionRegistry
 import com.tk.quicksearch.tools.tasker.TaskerIntegration
 
 internal const val AI_MODEL_SETTING_ID = "app_settings_ai_model"
 
-/** One searchable row per gesture; titles match the rows on the Gestures settings page. */
-internal val GESTURE_APP_SETTINGS: List<Triple<String, Int, AppSettingsDestination>> =
-    listOf(
-        Triple("app_settings_gesture_swipe_left", R.string.settings_gesture_swipe_left, AppSettingsDestination.GESTURE_SWIPE_LEFT),
-        Triple("app_settings_gesture_swipe_right", R.string.settings_gesture_swipe_right, AppSettingsDestination.GESTURE_SWIPE_RIGHT),
-        Triple("app_settings_gesture_swipe_up", R.string.settings_gesture_swipe_up, AppSettingsDestination.GESTURE_SWIPE_UP),
-        Triple("app_settings_gesture_swipe_down", R.string.settings_gesture_swipe_down, AppSettingsDestination.GESTURE_SWIPE_DOWN),
-        Triple("app_settings_gesture_double_tap", R.string.settings_gesture_double_tap_home, AppSettingsDestination.GESTURE_DOUBLE_TAP),
-        Triple("app_settings_gesture_two_finger_swipe_up", R.string.settings_gesture_two_finger_swipe_up_home, AppSettingsDestination.GESTURE_TWO_FINGER_SWIPE_UP),
-        Triple("app_settings_gesture_two_finger_swipe_down", R.string.settings_gesture_two_finger_swipe_down_home, AppSettingsDestination.GESTURE_TWO_FINGER_SWIPE_DOWN),
-        Triple("app_settings_gesture_open_keyboard", R.string.action_open_keyboard, AppSettingsDestination.GESTURE_OPEN_KEYBOARD),
-        Triple("app_settings_gesture_close_keyboard", R.string.settings_gesture_close_keyboard, AppSettingsDestination.GESTURE_CLOSE_KEYBOARD),
-        Triple("app_settings_gesture_notch_single_tap", R.string.settings_notch_single_tap_search_title, AppSettingsDestination.GESTURE_NOTCH_SINGLE_TAP),
-        Triple("app_settings_gesture_notch_double_tap", R.string.settings_notch_double_tap_search_title, AppSettingsDestination.GESTURE_NOTCH_DOUBLE_TAP),
-        Triple("app_settings_gesture_notch_long_press", R.string.settings_notch_long_press_search_title, AppSettingsDestination.GESTURE_NOTCH_LONG_PRESS),
-    )
+internal fun AppSettingsCatalogBuilder.addGestureSettings(context: Context) {
+    for (target in GestureSettingTarget.searchableRows(NotchGestureSupport.isSupported(context))) {
+        addNavigation(
+            id = target.searchId,
+            titleRes = target.searchTitleResId,
+            descriptionRes = R.string.settings_gestures_title,
+            destination = AppSettingsTarget.Gesture(target),
+        )
+    }
+}
 
 internal fun Context.isTaskerInstalled(): Boolean =
     runCatching { packageManager.getPackageInfo(TaskerIntegration.PACKAGE_NAME, 0) }.isSuccess
-
-internal val AppSettingsDestination.isNotchGestureDestination: Boolean
-    get() =
-        this == AppSettingsDestination.GESTURE_NOTCH_SINGLE_TAP ||
-            this == AppSettingsDestination.GESTURE_NOTCH_DOUBLE_TAP ||
-            this == AppSettingsDestination.GESTURE_NOTCH_LONG_PRESS
 
 /** Null for sections without a settings toggle (Noted). */
 internal fun searchSectionToggleId(section: SearchSection): String? =

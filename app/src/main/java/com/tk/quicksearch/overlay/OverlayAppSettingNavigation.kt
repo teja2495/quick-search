@@ -7,14 +7,14 @@ import com.tk.quicksearch.app.navigation.launchDevelopmentPage
 import com.tk.quicksearch.app.navigation.launchRateQuickSearch
 import com.tk.quicksearch.app.navigation.openDefaultAssistantSettings
 import com.tk.quicksearch.app.navigation.openDefaultLauncherSettings
-import com.tk.quicksearch.search.appSettings.AppSettingsDestination
+import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.shared.util.FeedbackUtils
 
 internal fun handleOverlayAppSettingDestination(
     context: Context,
-    destination: AppSettingsDestination,
+    destination: AppSettingsTarget.Host,
     viewModel: SearchViewModel,
     autoCloseOverlay: Boolean,
     onCloseRequested: () -> Unit,

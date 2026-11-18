@@ -1,5 +1,6 @@
 package com.tk.quicksearch.notchGesture
 
+import com.tk.quicksearch.search.data.preferences.HomeGesture
 import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
 import android.app.KeyguardManager
@@ -66,21 +67,21 @@ class NotchGestureOverlay(
     fun refresh() {
         singleTap =
             NotchTapAction(
-                preferences.getNotchSingleTapAction(),
-                preferences.getNotchSingleTapCustomAction(),
-                preferences.getNotchSingleTapAliasTarget(),
+                preferences.actionFor(HomeGesture.NOTCH_SINGLE_TAP),
+                preferences.customActionFor(HomeGesture.NOTCH_SINGLE_TAP),
+                preferences.aliasTargetFor(HomeGesture.NOTCH_SINGLE_TAP),
             )
         doubleTap =
             NotchTapAction(
-                preferences.getNotchDoubleTapAction(),
-                preferences.getNotchDoubleTapCustomAction(),
-                preferences.getNotchDoubleTapAliasTarget(),
+                preferences.actionFor(HomeGesture.NOTCH_DOUBLE_TAP),
+                preferences.customActionFor(HomeGesture.NOTCH_DOUBLE_TAP),
+                preferences.aliasTargetFor(HomeGesture.NOTCH_DOUBLE_TAP),
             )
         longPress =
             NotchTapAction(
-                preferences.getNotchLongPressAction(),
-                preferences.getNotchLongPressCustomAction(),
-                preferences.getNotchLongPressAliasTarget(),
+                preferences.actionFor(HomeGesture.NOTCH_LONG_PRESS),
+                preferences.customActionFor(HomeGesture.NOTCH_LONG_PRESS),
+                preferences.aliasTargetFor(HomeGesture.NOTCH_LONG_PRESS),
             )
         if (listOf(singleTap, doubleTap, longPress).all { it.action == HomeSwipeGestureAction.NONE }) {
             removeView()

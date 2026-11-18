@@ -6,12 +6,13 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.BatteryManager
 import android.os.PowerManager
-import android.text.format.Formatter
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.preferences.BatteryPreferences
 import com.tk.quicksearch.search.data.preferences.BatteryPreferences.Companion.CRITICAL_BATTERY_THRESHOLD_PERCENT
 import com.tk.quicksearch.search.data.preferences.GlanceItem
+import com.tk.quicksearch.search.glance.GlanceStatusSurface
+import com.tk.quicksearch.search.glance.glanceStatusItems
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.ACTION_WIFI_AP_STATE_CHANGED
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.BatteryStatus
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.WifiSignInDismissal
@@ -20,9 +21,6 @@ import com.tk.quicksearch.search.searchScreen.searchScreenLayout.hasCaptivePorta
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.isAirplaneModeOn
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.isDoNotDisturbOn
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.isHotspotOn
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.isLowStorage
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.readInternalStorage
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.updateLowStorageDismissal
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import java.text.NumberFormat
 
@@ -109,7 +107,7 @@ internal fun AtAGlanceWidgetRowLoader.wifiSignInRows(): List<AtAGlanceWidgetRow>
     )
 }
 
-/** Device states that are on, then charging and low storage, in the home card's order. */
+/** Device states, then charging and sampled status rows, in the home card's order. */
 internal fun AtAGlanceWidgetRowLoader.deviceStateRows(): List<AtAGlanceWidgetRow> =
     buildList {
         val notificationManager = context.getSystemService(NotificationManager::class.java)
@@ -133,7 +131,7 @@ internal fun AtAGlanceWidgetRowLoader.deviceStateRows(): List<AtAGlanceWidgetRow
             add(turnOffRow(AtAGlanceWidgetTapType.FLASHLIGHT, MaterialSymbols.FlashlightOn, R.string.home_flashlight_on))
         }
         addAll(chargingRows())
-        addAll(lowStorageRows())
+        addAll(sampledStatusRows())
     }
 
 private fun AtAGlanceWidgetRowLoader.chargingRows(): List<AtAGlanceWidgetRow> {
@@ -168,22 +166,19 @@ private fun AtAGlanceWidgetRowLoader.chargingRows(): List<AtAGlanceWidgetRow> {
     )
 }
 
-private fun AtAGlanceWidgetRowLoader.lowStorageRows(): List<AtAGlanceWidgetRow> {
-    if (!items.isShown(GlanceItem.LOW_STORAGE)) return emptyList()
-    val (free, total) = readInternalStorage() ?: return emptyList()
-    if (!isLowStorage(free, total) || updateLowStorageDismissal(glancePreferences, free, total)) return emptyList()
-    return listOf(
-        deviceRow(
-            type = AtAGlanceWidgetTapType.LOW_STORAGE,
-            icon = AtAGlanceWidgetIcon.Vector(MaterialSymbols.Storage, AtAGlanceWidgetTint.ERROR),
-            title = string(R.string.home_storage_almost_full),
-            subtitle =
-                string(
-                    R.string.home_storage_free,
-                    Formatter.formatShortFileSize(context, free),
-                    Formatter.formatShortFileSize(context, total),
-                ),
-            dismiss = AtAGlanceWidgetDismissType.LOW_STORAGE,
-        ),
-    )
-}
+private fun AtAGlanceWidgetRowLoader.sampledStatusRows(): List<AtAGlanceWidgetRow> =
+    glanceStatusItems.mapNotNull { item ->
+        if (!items.isShown(item)) return@mapNotNull null
+        val status = checkNotNull(item.status)
+        val value = status.read(context, GlanceStatusSurface.WIDGET) ?: return@mapNotNull null
+        val tint = if (status.isError) AtAGlanceWidgetTint.ERROR else AtAGlanceWidgetTint.TITLE
+        AtAGlanceWidgetRow(
+            key = item.name,
+            icon = AtAGlanceWidgetIcon.Vector(status.icon(), tint),
+            title = string(status.rowTitle),
+            subtitle = value.subtitle,
+            tap = AtAGlanceWidgetTap(AtAGlanceWidgetTapType.STATUS_ITEM, key = item.key),
+            dismiss = status.dismissFromWidget?.let { AtAGlanceWidgetDismissType.STATUS_ITEM },
+            tappable = status.open != null,
+        )
+    }

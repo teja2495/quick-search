@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.tk.quicksearch.search.data.AppNotificationFilters
 import com.tk.quicksearch.search.data.AppNotificationFiltersCodec
+import com.tk.quicksearch.search.glance.GlanceStatusDefinition
 
 /**
  * Stores the home At a Glance toggles for contact birthdays, low storage, running timers, live
@@ -15,9 +16,11 @@ class GlancePreferences(context: Context) : BasePreferences(context) {
 
     fun setShowBirthdaysEnabled(enabled: Boolean) = setBooleanPref(KEY_SHOW_BIRTHDAYS, enabled)
 
-    fun isShowLowStorageEnabled(): Boolean = getBooleanPref(KEY_SHOW_LOW_STORAGE, true)
+    internal fun isStatusShown(status: GlanceStatusDefinition): Boolean =
+        getBooleanPref(status.preferenceKey, status.enabledByDefault)
 
-    fun setShowLowStorageEnabled(enabled: Boolean) = setBooleanPref(KEY_SHOW_LOW_STORAGE, enabled)
+    internal fun setStatusShown(status: GlanceStatusDefinition, shown: Boolean) =
+        setBooleanPref(status.preferenceKey, shown)
 
     fun isShowTimersEnabled(): Boolean = getBooleanPref(KEY_SHOW_TIMERS, true)
 
@@ -143,11 +146,7 @@ class GlancePreferences(context: Context) : BasePreferences(context) {
     }
 
     companion object {
-        /** The low storage row appears once free space drops to this share of the total. */
-        const val LOW_STORAGE_THRESHOLD_PERCENT = 10
-
         private const val KEY_SHOW_BIRTHDAYS = "home_show_birthdays"
-        private const val KEY_SHOW_LOW_STORAGE = "home_show_low_storage"
         private const val KEY_SHOW_TIMERS = "home_show_timers"
         private const val KEY_SHOW_PROGRESS_NOTIFICATIONS = "home_show_progress_notifications"
         private const val KEY_DISMISSED_BIRTHDAYS_DAY = "home_dismissed_birthdays_day"

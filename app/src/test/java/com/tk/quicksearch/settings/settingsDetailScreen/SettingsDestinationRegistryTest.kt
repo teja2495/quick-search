@@ -7,11 +7,11 @@ import org.junit.Test
 class SettingsDestinationRegistryTest {
 
     @Test
-    fun registryCoversAllSettingsDestinations() {
-        assertEquals(
-            SettingsDetailType.entries.size,
-            SettingsDestinationRegistry.coveredDestinationCount(),
-        )
+    fun searchablePageIdsAreStableAndUnique() {
+        val ids = SettingsDetailType.entries.mapNotNull { it.searchShortcut?.id }
+        assertEquals(ids.size, ids.toSet().size)
+        assertEquals("app_settings_gemini_api", SettingsDetailType.GEMINI_API_CONFIG.searchShortcut?.id)
+        assertEquals("app_settings_bookmarks_list", SettingsDetailType.BOOKMARKS.searchShortcut?.id)
     }
 
     @Test

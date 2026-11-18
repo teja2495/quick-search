@@ -14,6 +14,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchUiState
+import com.tk.quicksearch.search.data.preferences.HomeGesture
 import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
@@ -46,16 +47,14 @@ internal fun NotchGesturesCard(
         title = stringResource(R.string.settings_notch_gestures_title),
         description = stringResource(R.string.settings_notch_gestures_desc),
     ) {
-        listOf(
-            HomeGesture.NOTCH_SINGLE_TAP,
-            HomeGesture.NOTCH_DOUBLE_TAP,
-            HomeGesture.NOTCH_LONG_PRESS,
-        ).forEachIndexed { index, gesture ->
+        val rows = GestureSettingTarget.notchTargets
+        rows.forEachIndexed { index, target ->
+            val gesture = target.gesture
             SettingsSegmentNavigationRow(
                 item =
                     SettingsCardItem(
-                        title = stringResource(gesture.titleResId),
-                        icon = gesture.icon(),
+                        title = stringResource(target.titleResId),
+                        icon = target.icon,
                         description =
                             if (state.isLockScreenAccessibilityEnabled) {
                                 homeGestureDescription(
@@ -67,10 +66,10 @@ internal fun NotchGesturesCard(
                             } else {
                                 stringResource(R.string.settings_notch_accessibility_needed)
                             },
-                        actionOnPress = { state.openNotchGesture(gesture, context) },
+                        actionOnPress = { state.open(target, context) },
                     ),
                 index = index,
-                count = 3,
+                count = rows.size,
             )
         }
     }
@@ -87,7 +86,7 @@ internal fun NotchLaunchOptionRow(modifier: Modifier = Modifier) {
     val preferences = remember(context) { UserAppPreferences(context.applicationContext) }
     var isAccessibilityEnabled by remember { mutableStateOf(LockScreenAccessibilityService.isEnabled(context)) }
     var opensQuickSearch by remember {
-        mutableStateOf(preferences.getNotchSingleTapAction() == HomeSwipeGestureAction.OPEN_QUICK_SEARCH)
+        mutableStateOf(preferences.actionFor(HomeGesture.NOTCH_SINGLE_TAP) == HomeSwipeGestureAction.OPEN_QUICK_SEARCH)
     }
     var showDisclosure by remember { mutableStateOf(false) }
 
@@ -97,7 +96,7 @@ internal fun NotchLaunchOptionRow(modifier: Modifier = Modifier) {
                 if (event == Lifecycle.Event.ON_RESUME) {
                     isAccessibilityEnabled = LockScreenAccessibilityService.isEnabled(context)
                     opensQuickSearch =
-                        preferences.getNotchSingleTapAction() == HomeSwipeGestureAction.OPEN_QUICK_SEARCH
+                        preferences.actionFor(HomeGesture.NOTCH_SINGLE_TAP) == HomeSwipeGestureAction.OPEN_QUICK_SEARCH
                 }
             }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -136,11 +135,12 @@ internal fun NotchLaunchOptionRow(modifier: Modifier = Modifier) {
                     role = Role.Switch,
                     onValueChange = { enabled ->
                         hapticToggle(view)()
-                        preferences.setNotchSingleTapAction(
+                        preferences.setActionFor(
+                            HomeGesture.NOTCH_SINGLE_TAP,
                             if (enabled) HomeSwipeGestureAction.OPEN_QUICK_SEARCH else HomeSwipeGestureAction.NONE,
                         )
-                        preferences.setNotchSingleTapCustomAction(null)
-                        preferences.setNotchSingleTapAliasTarget(null)
+                        preferences.setCustomActionFor(HomeGesture.NOTCH_SINGLE_TAP, null)
+                        preferences.setAliasTargetFor(HomeGesture.NOTCH_SINGLE_TAP, null)
                         opensQuickSearch = enabled
                     },
                 )

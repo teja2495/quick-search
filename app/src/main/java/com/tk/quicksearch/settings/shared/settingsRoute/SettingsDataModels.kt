@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.shared.settingsRoute
 
+import com.tk.quicksearch.search.contacts.models.ContactActionProvider
 import com.tk.quicksearch.search.contacts.models.ContactButtonAction
 import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.search.core.SearchTarget
@@ -69,11 +70,7 @@ data class SettingsScreenState(
     val disabledAppShortcutIds: Set<String>,
     val primaryContactButton: ContactButtonAction,
     val secondaryContactButton: ContactButtonAction,
-    val isWhatsAppInstalled: Boolean,
-    val isWhatsAppBusinessInstalled: Boolean,
-    val isTelegramInstalled: Boolean,
-    val isSignalInstalled: Boolean,
-    val isGoogleMeetInstalled: Boolean,
+    val installedContactProviders: Set<ContactActionProvider>,
     val hasWallpaperPermission: Boolean,
     val wallpaperAvailable: Boolean,
     val wallpaperBackgroundAlpha: Float,
@@ -276,11 +273,7 @@ data class SettingsScreenState(
                 disabledAppShortcutIds = disabledAppShortcutIds,
                 primaryContactButton = primaryContactButton,
                 secondaryContactButton = secondaryContactButton,
-                isWhatsAppInstalled = isWhatsAppInstalled,
-                isWhatsAppBusinessInstalled = isWhatsAppBusinessInstalled,
-                isTelegramInstalled = isTelegramInstalled,
-                isSignalInstalled = isSignalInstalled,
-                isGoogleMeetInstalled = isGoogleMeetInstalled,
+                installedContactProviders = installedContactProviders,
                 directDialEnabled = directDialEnabled,
                 numberSearchEnabled = numberSearchEnabled,
             )
@@ -626,11 +619,7 @@ data class AppShortcutsSettingsState(
     val disabledAppShortcutIds: Set<String>,
     val primaryContactButton: ContactButtonAction,
     val secondaryContactButton: ContactButtonAction,
-    val isWhatsAppInstalled: Boolean,
-    val isWhatsAppBusinessInstalled: Boolean,
-    val isTelegramInstalled: Boolean,
-    val isSignalInstalled: Boolean,
-    val isGoogleMeetInstalled: Boolean,
+    val installedContactProviders: Set<ContactActionProvider>,
     val directDialEnabled: Boolean,
     val numberSearchEnabled: Boolean,
 )

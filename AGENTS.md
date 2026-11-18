@@ -36,7 +36,7 @@ Repository playbook for coding agents. When prose and code disagree, trust the c
 
 - Repositories: `search/data/`; feature-specific policies/handlers stay in their feature package.
 - Plain searchable boolean settings use `search/appSettings/BooleanSetting.kt`. For other preferences, use the relevant class in `search/data/preferences/` and expose it through `UserAppPreferences`.
-- Startup-critical reads go through `search/data/userAppPreferences/StartupPreferencesFacade.kt`. No one-off blocking reads in startup paths or composables.
+- Startup-critical reads go through `search/data/userAppPreferences/StartupPreferencesFacade.kt`. No one-off blocking reads in startup paths or composables. Add new typed snapshot fields to `StartupPreferences` and decode them once in `StartupPreferenceDecoder.kt`.
 - Search history: `search/searchHistory/SearchHistoryPreferences.kt`.
 - Searchable settings catalog: `search/appSettings/AppSettingsRepository.kt`. New user-facing settings must be wired here as well as in the Settings UI.
 
@@ -63,6 +63,13 @@ Repository playbook for coding agents. When prose and code disagree, trust the c
 Read the matching guide before implementing. Claude Code loads the skill of the same name from `.claude/skills/` automatically; other agents should open the file.
 
 - Built-in AI provider: `tools/aiSearch/new-ai-provider.md`
+- Contact button action: `search/contacts/new-contact-action.md`
+- Built-in widget: `widgets/utils/new-built-in-widget.md`
+- Widget or gesture command: `widgets/customButtonsWidget/new-widget-command.md`
+- Runtime permission row: `shared/permissions/new-runtime-permission.md`
+- At a Glance device status: `search/data/preferences/new-glance-item.md`
+- Configurable gesture: `search/data/preferences/new-gesture.md`
+- Settings backup section: `settings/settingsScreen/new-backup-section.md`
 - Built-in search engine: `searchEngines/new-search-engine.md`
 - Searchable app-setting row (every new user-facing setting): `search/appSettings/new-app-setting.md`
 - New search tool (`tools/<name>/`): `.claude/skills/new-search-tool/SKILL.md`

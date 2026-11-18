@@ -1,10 +1,8 @@
 package com.tk.quicksearch.search.appSettings
 
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
-import com.tk.quicksearch.search.appSettings.AppSettingsDestination.EXCLUDED_ITEMS
-import com.tk.quicksearch.search.appSettings.AppSettingsDestination.NICKNAMES
-import com.tk.quicksearch.search.appSettings.AppSettingsDestination.TRIGGERS
 import com.tk.quicksearch.search.utils.CachedSearchMatcher
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import com.tk.quicksearch.search.utils.SearchTextCache
@@ -117,19 +115,19 @@ class AppSettingsSearchHandler(
         return availableSettings.filter { setting ->
             val hidden =
                 when {
-                    setting.destination == EXCLUDED_ITEMS && hideExcludedItems -> true
-                    setting.destination == NICKNAMES && hideNicknames -> true
-                    setting.destination == TRIGGERS && hideTriggers -> true
-                    setting.destination == AppSettingsDestination.PINNED_NOTIFICATION_ITEMS &&
+                    setting.destination == AppSettingsTarget.Page(SettingsDetailType.EXCLUDED_ITEMS) && hideExcludedItems -> true
+                    setting.destination == AppSettingsTarget.Page(SettingsDetailType.NICKNAMES) && hideNicknames -> true
+                    setting.destination == AppSettingsTarget.Page(SettingsDetailType.TRIGGERS) && hideTriggers -> true
+                    setting.destination == AppSettingsRouteAction.PINNED_NOTIFICATION_ITEMS &&
                         hidePinnedNotificationItems -> true
                     setting.toggleKey == AppSettingsToggleKey.TOP_RESULT_INDICATOR && hideTopResultIndicator -> true
-                    setting.destination == AppSettingsDestination.PINNED_SECTIONS_ORDER && hidePinnedSectionsOrder -> true
+                    setting.destination == AppSettingsRouteAction.PINNED_SECTIONS_ORDER && hidePinnedSectionsOrder -> true
                     setting.toggleKey == AppSettingsToggleKey.ALIAS_TRIGGER_AFTER_SPACE && hideAliasTriggerAfterSpace -> true
-                    (setting.destination == AppSettingsDestination.TOP_MATCHES_PRIORITY ||
+                    (setting.destination == AppSettingsRouteAction.TOP_MATCHES_PRIORITY ||
                         setting.id == TOP_MATCHES_COUNT_SETTING_ID) && hideTopMatchesOptions -> true
-                    setting.destination == AppSettingsDestination.APP_SUGGESTION_TABS && hideAppSuggestionTabs -> true
-                    (setting.destination == AppSettingsDestination.GEMINI_API ||
-                        setting.destination == AppSettingsDestination.AI_MODEL) && hideAiProvider -> true
+                    setting.destination == AppSettingsRouteAction.APP_SUGGESTION_TABS && hideAppSuggestionTabs -> true
+                    (setting.destination == AppSettingsTarget.Page(SettingsDetailType.GEMINI_API_CONFIG) ||
+                        setting.destination == AppSettingsRouteAction.AI_MODEL) && hideAiProvider -> true
                     setting.toggleKey == AppSettingsToggleKey.FUZZY_SEARCH && isLowRamDevice -> true
                     setting.toggleKey == AppSettingsToggleKey.APP_RESULT_ROWS && hideAppResultRows -> true
                     setting.toggleKey == AppSettingsToggleKey.INCLUDE_ARCHIVED_APPS_IN_SEARCH && hideArchivedApps -> true

@@ -14,6 +14,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.search.data.preferences.HomeGesture
+import com.tk.quicksearch.search.data.preferences.SwipeDirection
 import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
 import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
@@ -24,22 +26,6 @@ import com.tk.quicksearch.shared.permissions.shouldShowAccessibilityDisclosure
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonPickerDialog
-
-/** A single gesture row, as listed on the Gestures settings page. */
-enum class GestureSettingTarget {
-    SWIPE_LEFT,
-    SWIPE_RIGHT,
-    SWIPE_UP,
-    SWIPE_DOWN,
-    DOUBLE_TAP,
-    TWO_FINGER_SWIPE_UP,
-    TWO_FINGER_SWIPE_DOWN,
-    NOTCH_SINGLE_TAP,
-    NOTCH_DOUBLE_TAP,
-    NOTCH_LONG_PRESS,
-    OPEN_KEYBOARD,
-    CLOSE_KEYBOARD,
-}
 
 /** Gesture assignments plus the dialog chain used to edit them, shared by Settings and search results. */
 internal class GestureSettingsState(
@@ -54,10 +40,10 @@ internal class GestureSettingsState(
     var isLauncherSwipeRightEnabled by mutableStateOf(preferences.isLauncherSwipeRightEnabled())
         private set
     var homeActions by mutableStateOf(
-        HomeGesture.entries.associateWith { gesture -> preferences.homeActionFor(gesture, isDefaultLauncher) },
+        HomeGesture.entries.associateWith { gesture -> preferences.actionFor(gesture, isDefaultLauncher) },
     )
-    var homeCustomActions by mutableStateOf(HomeGesture.entries.associateWith(preferences::homeCustomActionFor))
-    var homeAliasTargets by mutableStateOf(HomeGesture.entries.associateWith(preferences::homeAliasTargetFor))
+    var homeCustomActions by mutableStateOf(HomeGesture.entries.associateWith(preferences::customActionFor))
+    var homeAliasTargets by mutableStateOf(HomeGesture.entries.associateWith(preferences::aliasTargetFor))
     var isLockScreenAccessibilityEnabled by mutableStateOf(isLockScreenAccessibilityEnabled)
 
     var selectedDirection by mutableStateOf<SwipeDirection?>(null)
@@ -85,19 +71,15 @@ internal class GestureSettingsState(
 
     fun open(target: GestureSettingTarget, context: Context) {
         when (target) {
-            GestureSettingTarget.SWIPE_LEFT -> selectedDirection = SwipeDirection.LEFT
-            GestureSettingTarget.SWIPE_RIGHT -> selectedDirection = SwipeDirection.RIGHT
-            GestureSettingTarget.SWIPE_UP -> selectedHomeGesture = HomeGesture.SWIPE_UP
-            GestureSettingTarget.SWIPE_DOWN -> selectedHomeGesture = HomeGesture.SWIPE_DOWN
-            GestureSettingTarget.DOUBLE_TAP -> selectedHomeGesture = HomeGesture.DOUBLE_TAP
-            GestureSettingTarget.TWO_FINGER_SWIPE_UP -> selectedHomeGesture = HomeGesture.TWO_FINGER_SWIPE_UP
-            GestureSettingTarget.TWO_FINGER_SWIPE_DOWN -> selectedHomeGesture = HomeGesture.TWO_FINGER_SWIPE_DOWN
-            GestureSettingTarget.NOTCH_SINGLE_TAP -> openNotchGesture(HomeGesture.NOTCH_SINGLE_TAP, context)
-            GestureSettingTarget.NOTCH_DOUBLE_TAP -> openNotchGesture(HomeGesture.NOTCH_DOUBLE_TAP, context)
-            GestureSettingTarget.NOTCH_LONG_PRESS -> openNotchGesture(HomeGesture.NOTCH_LONG_PRESS, context)
-            GestureSettingTarget.OPEN_KEYBOARD -> selectedKeyboardAction = SwipeGestureAction.OPEN_KEYBOARD
-            GestureSettingTarget.CLOSE_KEYBOARD ->
-                selectedKeyboardAction = SwipeGestureAction.CLOSE_KEYBOARD_OR_NOTIFICATIONS
+            is GestureSettingTarget.Swipe -> selectedDirection = target.direction
+            is GestureSettingTarget.Home -> {
+                if (target.gesture.isNotch) {
+                    openNotchGesture(target.gesture, context)
+                } else {
+                    selectedHomeGesture = target.gesture
+                }
+            }
+            is GestureSettingTarget.Keyboard -> selectedKeyboardAction = target.action
         }
     }
 
@@ -126,7 +108,7 @@ internal class GestureSettingsState(
             }
             pendingLockScreenGesture = null
         }
-        homeActions = homeActions + (HomeGesture.DOUBLE_TAP to preferences.getHomeDoubleTapAction())
+        homeActions = homeActions + (HomeGesture.DOUBLE_TAP to preferences.actionFor(HomeGesture.DOUBLE_TAP))
     }
 
     fun save(
@@ -152,9 +134,9 @@ internal class GestureSettingsState(
         customActionJson: String? = null,
         aliasTarget: String? = null,
     ) {
-        preferences.setHomeActionFor(gesture, action)
-        preferences.setHomeCustomActionFor(gesture, customActionJson)
-        preferences.setHomeAliasTargetFor(gesture, aliasTarget)
+        preferences.setActionFor(gesture, action)
+        preferences.setCustomActionFor(gesture, customActionJson)
+        preferences.setAliasTargetFor(gesture, aliasTarget)
         homeActions = homeActions + (gesture to action)
         homeCustomActions = homeCustomActions + (gesture to customActionJson)
         homeAliasTargets = homeAliasTargets + (gesture to aliasTarget)
@@ -186,8 +168,8 @@ internal class GestureSettingsState(
         }
         HomeGesture.entries.forEach { gesture ->
             if (homeCustomActions[gesture] == actionJson) {
-                preferences.setHomeActionFor(gesture, gesture.defaultAction)
-                preferences.setHomeCustomActionFor(gesture, null)
+                preferences.setActionFor(gesture, gesture.defaultAction)
+                preferences.setCustomActionFor(gesture, null)
                 homeActions = homeActions + (gesture to gesture.defaultAction)
                 homeCustomActions = homeCustomActions + (gesture to null)
             }
@@ -419,20 +401,8 @@ internal fun GestureSettingsDialogs(
     state.selectedHomeGesture?.let { gesture ->
         HomeVerticalGestureDialog(
             titleResId = gesture.titleResId,
-            allowsNotificationPanel =
-                gesture == HomeGesture.SWIPE_DOWN ||
-                    gesture == HomeGesture.DOUBLE_TAP ||
-                    gesture == HomeGesture.TWO_FINGER_SWIPE_DOWN,
-            allowsQuickSettings = gesture == HomeGesture.SWIPE_DOWN || gesture == HomeGesture.TWO_FINGER_SWIPE_DOWN,
-            allowsCloseQuickSearch = !state.isDefaultLauncher && !gesture.isTwoFinger && !gesture.isNotch,
-            allowsLockScreen = gesture == HomeGesture.DOUBLE_TAP || gesture.isNotch,
-            allowsAllApps =
-                gesture == HomeGesture.SWIPE_UP ||
-                    gesture == HomeGesture.SWIPE_DOWN ||
-                    gesture == HomeGesture.TWO_FINGER_SWIPE_UP ||
-                    gesture.isNotch,
+            availableActions = gesture.availableActions(state.isDefaultLauncher),
             hasLockScreenAccessibilityPermission = state.isLockScreenAccessibilityEnabled,
-            allowsAppSurfaces = gesture.isNotch,
             selectedAction = state.homeActions.getValue(gesture),
             selectedCustomActionJson = state.homeCustomActions[gesture],
             selectedAliasTarget = state.homeAliasTargets[gesture],

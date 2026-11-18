@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.search.contacts.models.ContactActionProvider
 import com.tk.quicksearch.search.contacts.models.ContactButtonAction
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.preferences.UiPreferences
@@ -147,11 +148,7 @@ data class SearchPermissionState(
         // Contact card button actions (depend on installed apps)
         val primaryContactButton: ContactButtonAction = ContactButtonAction.CALL,
         val secondaryContactButton: ContactButtonAction = ContactButtonAction.SMS,
-        val isWhatsAppInstalled: Boolean = false,
-        val isWhatsAppBusinessInstalled: Boolean = false,
-        val isTelegramInstalled: Boolean = false,
-        val isSignalInstalled: Boolean = false,
-        val isGoogleMeetInstalled: Boolean = false,
+        val installedContactProviders: Set<ContactActionProvider> = emptySet(),
 )
 
 // ---------------------------------------------------------------------------

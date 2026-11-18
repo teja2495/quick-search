@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.search.contacts.models.ContactActionProvider
 import android.app.Application
 import android.content.Context
 import android.os.SystemClock
@@ -9,7 +10,6 @@ import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.startup.StartupHomeSurfaceSnapshot
 import com.tk.quicksearch.search.startup.StartupSurfaceSnapshot
 import com.tk.quicksearch.search.startup.StartupSurfaceStore
-import com.tk.quicksearch.shared.util.PackageConstants
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.getAppGridColumns
 import java.util.Locale
@@ -321,28 +321,13 @@ internal class SearchDerivedStateDelegate(
     fun refreshMessagingState() {
         val apps = appSearchManager.cachedApps
         val packageNames = apps.map { it.packageName }.toSet()
-        val isWhatsAppInstalled = packageNames.contains(PackageConstants.WHATSAPP_PACKAGE)
-        val isWhatsAppBusinessInstalled = packageNames.contains(PackageConstants.WHATSAPP_BUSINESS_PACKAGE)
-        val isTelegramInstalled = packageNames.contains(PackageConstants.TELEGRAM_PACKAGE)
-        val isSignalInstalled = packageNames.contains(PackageConstants.SIGNAL_PACKAGE)
-        val isGoogleMeetInstalled = packageNames.contains(PackageConstants.GOOGLE_MEET_PACKAGE)
-        messagingHandler.updateMessagingAvailability(
-            whatsappInstalled = isWhatsAppInstalled,
-            whatsappBusinessInstalled = isWhatsAppBusinessInstalled,
-            telegramInstalled = isTelegramInstalled,
-            signalInstalled = isSignalInstalled,
-            googleMeetInstalled = isGoogleMeetInstalled,
-            updateState = false,
-        )
+        val installed = ContactActionProvider.entries.filterTo(linkedSetOf()) { it.packageName in packageNames }
+        messagingHandler.updateMessagingAvailability(installed, updateState = false)
         updatePermissionState {
             it.copy(
                 primaryContactButton = messagingHandler.primaryContactButton,
                 secondaryContactButton = messagingHandler.secondaryContactButton,
-                isWhatsAppInstalled = isWhatsAppInstalled,
-                isWhatsAppBusinessInstalled = isWhatsAppBusinessInstalled,
-                isTelegramInstalled = isTelegramInstalled,
-                isSignalInstalled = isSignalInstalled,
-                isGoogleMeetInstalled = isGoogleMeetInstalled,
+                installedContactProviders = installed,
             )
         }
     }

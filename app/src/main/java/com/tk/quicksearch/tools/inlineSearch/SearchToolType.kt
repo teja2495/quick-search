@@ -1,9 +1,9 @@
 package com.tk.quicksearch.tools.inlineSearch
 
+import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.appSettings.BooleanSetting
 import com.tk.quicksearch.search.core.CalculatorState
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
@@ -22,7 +22,7 @@ enum class SearchToolType(
     val searchSettingsOrder: Int = settingsOrder,
     val aliasFeatureId: String? = null,
     val infoDestination: SettingsDetailType? = null,
-    val searchDestination: AppSettingsDestination? = null,
+    val searchDestination: AppSettingsTarget? = null,
     val autoDetect: Boolean = true,
     val replacesSearchResults: Boolean = true,
     val settingsIcon: () -> ImageVector,
@@ -57,7 +57,7 @@ enum class SearchToolType(
         settingsOrder = 1,
         aliasFeatureId = "unit_converter_mode",
         infoDestination = SettingsDetailType.UNIT_CONVERTER_INFO,
-        searchDestination = AppSettingsDestination.UNIT_CONVERTER_INFO,
+        searchDestination = AppSettingsTarget.Page(SettingsDetailType.UNIT_CONVERTER_INFO),
         settingsIcon = { MaterialSymbols.Straighten },
         attributionIcon = { MaterialSymbols.StraightenOutlined },
         evaluate = { query, _ -> evaluateUnitConverter(query) },
@@ -91,7 +91,7 @@ enum class SearchToolType(
         settingsOrder = 2,
         aliasFeatureId = "date_calculator_mode",
         infoDestination = SettingsDetailType.DATE_CALCULATOR_INFO,
-        searchDestination = AppSettingsDestination.DATE_CALCULATOR_INFO,
+        searchDestination = AppSettingsTarget.Page(SettingsDetailType.DATE_CALCULATOR_INFO),
         replacesSearchResults = false,
         settingsIcon = { MaterialSymbols.CalendarMonth },
         attributionIcon = { MaterialSymbols.CalendarMonthOutlined },

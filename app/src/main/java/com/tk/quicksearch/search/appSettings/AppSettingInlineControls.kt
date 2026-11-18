@@ -91,7 +91,7 @@ internal val AppSettingResult.hasInlineControl: Boolean
             toggleKey == AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE ||
             id == THEME_MODE_SETTING_ID ||
             id == TOP_MATCHES_COUNT_SETTING_ID ||
-            destination == AppSettingsDestination.AI_MODEL
+            destination == AppSettingsRouteAction.AI_MODEL
 
 @Composable
 internal fun AppSettingInlineControlContent(setting: AppSettingResult) {
@@ -135,7 +135,7 @@ internal fun AppSettingInlineControlContent(setting: AppSettingResult) {
             ThemeModeInlineChips(controls)
         setting.id == TOP_MATCHES_COUNT_SETTING_ID ->
             TopMatchesCountInlineSlider(controls.topMatchesLimit, controls.onTopMatchesLimitChange)
-        setting.destination == AppSettingsDestination.AI_MODEL -> AiModelInlineContent(controls.aiModel)
+        setting.destination == AppSettingsRouteAction.AI_MODEL -> AiModelInlineContent(controls.aiModel)
     }
 }
 

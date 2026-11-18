@@ -1,6 +1,7 @@
 package com.tk.quicksearch.settings.shared.settingsRoute
 
 import android.Manifest
+import com.tk.quicksearch.shared.permissions.RuntimePermissionRow
 import android.content.Context
 import android.os.Build
 import android.os.Environment
@@ -59,7 +60,7 @@ fun rememberSectionToggleHandler(
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestMultiplePermissions(),
         ) { permissions ->
-            val contactsGranted = permissions[Manifest.permission.READ_CONTACTS] == true
+            val contactsGranted = permissions[RuntimePermissionRow.CONTACTS.permission] == true
             val filesGranted =
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
                     permissions[Manifest.permission.READ_EXTERNAL_STORAGE] == true
@@ -80,7 +81,7 @@ fun rememberSectionToggleHandler(
                         } else {
                             PermissionHelper.handleDeniedRuntimePermission(
                                 context = context,
-                                permission = Manifest.permission.READ_CONTACTS,
+                                permission = RuntimePermissionRow.CONTACTS.permission,
                                 wasPreviouslyDenied = true,
                                 onOpenSettings = {
                                     openSettingsWithDialog(SearchSection.CONTACTS)
@@ -111,13 +112,13 @@ fun rememberSectionToggleHandler(
                     }
 
                     SearchSectionPermissionRequirement.CALENDAR -> {
-                        val calendarGranted = permissions[Manifest.permission.READ_CALENDAR] == true
+                        val calendarGranted = permissions[RuntimePermissionRow.CALENDAR.permission] == true
                         if (calendarGranted) {
                             viewModel.setSectionEnabled(section, true)
                         } else {
                             PermissionHelper.handleDeniedRuntimePermission(
                                 context = context,
-                                permission = Manifest.permission.READ_CALENDAR,
+                                permission = RuntimePermissionRow.CALENDAR.permission,
                                 wasPreviouslyDenied = true,
                                 onOpenSettings = {
                                     openSettingsWithDialog(SearchSection.CALENDAR)
@@ -162,7 +163,7 @@ fun rememberSectionToggleHandler(
                             pendingSectionEnable.value = section
                             PermissionHelper.requestRuntimePermissionOrOpenSettings(
                                 context = context,
-                                permission = Manifest.permission.READ_CONTACTS,
+                                permission = RuntimePermissionRow.CONTACTS.permission,
                                 wasPreviouslyDenied = contactsWasDenied.value,
                                 runtimeLauncher = runtimePermissionsLauncher,
                                 onOpenSettings = {
@@ -188,7 +189,7 @@ fun rememberSectionToggleHandler(
                             pendingSectionEnable.value = section
                             PermissionHelper.requestRuntimePermissionOrOpenSettings(
                                 context = context,
-                                permission = Manifest.permission.READ_CALENDAR,
+                                permission = RuntimePermissionRow.CALENDAR.permission,
                                 wasPreviouslyDenied = false,
                                 runtimeLauncher = runtimePermissionsLauncher,
                                 onOpenSettings = {

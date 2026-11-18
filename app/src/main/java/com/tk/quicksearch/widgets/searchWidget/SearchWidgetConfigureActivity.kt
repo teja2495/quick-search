@@ -43,21 +43,14 @@ import com.tk.quicksearch.shared.util.AppLanguageManager
 import com.tk.quicksearch.widgets.widgetConfigScreen.WidgetConfigScreen
 import com.tk.quicksearch.widgets.mediaControlsWidget.rememberMediaControlsAccess
 import com.tk.quicksearch.widgets.utils.launcherWidgetContentScale
+import com.tk.quicksearch.widgets.utils.BuiltInWidget
 import com.tk.quicksearch.widgets.utils.WidgetPreferences
 import com.tk.quicksearch.widgets.utils.WidgetTheme
 import com.tk.quicksearch.widgets.utils.WidgetVariant
 import com.tk.quicksearch.widgets.utils.hasStoredWidgetConfig
 import com.tk.quicksearch.widgets.utils.applyWidgetPreferences
-import com.tk.quicksearch.widgets.countdownWidget.CountdownWidgetConfigContent
-import com.tk.quicksearch.widgets.countdownWidget.CountdownWidgetReceiver
-import com.tk.quicksearch.widgets.worldClockWidget.WorldClockWidgetConfigContent
-import com.tk.quicksearch.widgets.worldClockWidget.WorldClockWidgetReceiver
-import com.tk.quicksearch.widgets.customButtonsWidget.CustomButtonsWidgetReceiver
-import com.tk.quicksearch.widgets.mediaControlsWidget.MediaControlsWidgetReceiver
 import com.tk.quicksearch.widgets.noteWidget.NoteWidgetPickerScreen
-import com.tk.quicksearch.widgets.noteWidget.NoteWidgetReceiver
 import com.tk.quicksearch.widgets.atAGlanceWidget.AtAGlanceWidget
-import com.tk.quicksearch.widgets.atAGlanceWidget.AtAGlanceWidgetReceiver
 import com.tk.quicksearch.widgets.noteWidget.withNoteWidgetDefaults
 import com.tk.quicksearch.widgets.utils.glanceWidgetFor
 import com.tk.quicksearch.widgets.utils.defaultWidgetSize
@@ -103,10 +96,9 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
             finish()
             return
         }
-        widgetVariant = resolveWidgetVariant(appWidgetId)
-        val providerClass = providerClassName(appWidgetId)
-        val isCountdownWidget = providerClass == CountdownWidgetReceiver::class.java.name
-        val isWorldClockWidget = providerClass == WorldClockWidgetReceiver::class.java.name
+        val definition = BuiltInWidget.forReceiver(providerClassName(appWidgetId))
+        widgetVariant = definition?.variant ?: WidgetVariant.STANDARD
+        val configure = definition?.configure
 
         setContent {
             val uiState by searchViewModel.uiState.collectAsStateWithLifecycle()
@@ -147,23 +139,14 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
                 customAccentColorArgb = uiState.customAccentColorArgb,
                 deviceThemeEnabled = uiState.deviceThemeEnabled,
             ) {
-                if (isCountdownWidget) {
-                    CountdownWidgetConfigContent(
-                        appWidgetId = appWidgetId,
-                        onSaved = {
+                if (configure != null) {
+                    configure(
+                        appWidgetId,
+                        {
                             setResult(Activity.RESULT_OK, createResultIntent())
                             finish()
                         },
-                        onCancel = { finish() },
-                    )
-                } else if (isWorldClockWidget) {
-                    WorldClockWidgetConfigContent(
-                        appWidgetId = appWidgetId,
-                        onSaved = {
-                            setResult(Activity.RESULT_OK, createResultIntent())
-                            finish()
-                        },
-                        onCancel = { finish() },
+                        { finish() },
                     )
                 } else {
                     WidgetConfigurationContent(
@@ -236,16 +219,6 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
             .getAppWidgetInfo(appWidgetId)
             ?.provider
             ?.className
-
-    private fun resolveWidgetVariant(appWidgetId: Int): WidgetVariant {
-        return when (providerClassName(appWidgetId)) {
-            CustomButtonsWidgetReceiver::class.java.name -> WidgetVariant.CUSTOM_BUTTONS_ONLY
-            MediaControlsWidgetReceiver::class.java.name -> WidgetVariant.MEDIA_CONTROLS
-            NoteWidgetReceiver::class.java.name -> WidgetVariant.NOTE
-            AtAGlanceWidgetReceiver::class.java.name -> WidgetVariant.AT_A_GLANCE
-            else -> WidgetVariant.STANDARD
-        }
-    }
 
     private fun resolveDeviceThemeBackgroundColor(useDarkTheme: Boolean): Int {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

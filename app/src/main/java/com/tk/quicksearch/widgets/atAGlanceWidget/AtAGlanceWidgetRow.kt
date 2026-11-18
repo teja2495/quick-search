@@ -104,7 +104,8 @@ internal enum class AtAGlanceWidgetTapType {
 
     /** Not tappable; only names the row. */
     CHARGING,
-    LOW_STORAGE,
+    LOW_STORAGE, // Kept for already rendered widgets.
+    STATUS_ITEM,
     DO_NOT_DISTURB,
     AIRPLANE_MODE,
     HOTSPOT,
@@ -150,7 +151,8 @@ internal enum class AtAGlanceWidgetDismissType {
     CUSTOM_INFO,
     WIFI_SIGN_IN,
     CHARGING,
-    LOW_STORAGE,
+    LOW_STORAGE, // Kept for already rendered widgets.
+    STATUS_ITEM,
 }
 
 internal data class AtAGlanceWidgetTap(

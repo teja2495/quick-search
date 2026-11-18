@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.searchRoute
 
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
+import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import com.tk.quicksearch.search.searchScreen.LocalPinnedGlanceOnly
 import com.tk.quicksearch.search.searchScreen.forPinnedGlanceOnly
 import android.Manifest
@@ -49,7 +51,6 @@ import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
-import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.appSettings.LocalOpenAppSettingDestination
 import com.tk.quicksearch.search.appSettings.LocalAppSettingInlineControls
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
@@ -86,7 +87,7 @@ fun SearchRoute(
     onOpenToolsSettings: () -> Unit = {},
     onOpenCustomToolSettings: (String) -> Unit = {},
     onOpenReleaseNotesFeatures: () -> Unit = {},
-    onOpenAppSettingDestination: (AppSettingsDestination) -> Unit = {},
+    onOpenAppSettingDestination: (AppSettingsTarget.Host) -> Unit = {},
     onOpenNotesDetail: (Long?) -> Unit = {},
     onOpenNotificationHistory: () -> Unit = {},
     onOpenWidgetsPanelFromSwipe: (() -> Unit)? = null,
@@ -691,14 +692,14 @@ fun SearchRoute(
             onOverlayNumberKeyboardUiChanged = onOverlayNumberKeyboardUiChanged,
             onOverlayScrollableContentChanged = onOverlayScrollableContentChanged,
             onOpenPermissionsSettings = {
-                onOpenAppSettingDestination(AppSettingsDestination.PERMISSIONS)
+                onOpenAppSettingDestination(AppSettingsTarget.Page(SettingsDetailType.PERMISSIONS))
             },
             onHomePinnedSectionOrderChange = viewModel::setHomePinnedSectionOrder,
             onChangeWallpaperClick = {
                 launchSystemWallpaperPicker(context)
             },
             onOpenGesturesSettingsClick = {
-                onOpenAppSettingDestination(AppSettingsDestination.GESTURES)
+                onOpenAppSettingDestination(AppSettingsTarget.Page(SettingsDetailType.GESTURES))
             },
             swipeUpAction = swipeActions[2],
             swipeDownAction = swipeActions[3],

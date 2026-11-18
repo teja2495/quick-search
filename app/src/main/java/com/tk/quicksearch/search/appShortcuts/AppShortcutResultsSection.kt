@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.appShortcuts
 
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
+import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
@@ -69,7 +71,6 @@ import com.tk.quicksearch.search.data.appShortcutRepository.rememberShortcutIcon
 import com.tk.quicksearch.search.data.appShortcutRepository.shortcutDisplayName
 import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
-import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.appSettings.LocalOpenAppSettingDestination
 import com.tk.quicksearch.search.core.LocalItemCustomizationRemover
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
@@ -660,7 +661,7 @@ private fun AppShortcutDropdownMenu(
                         add(AppShortcutMenuItem(
                                 textResId = R.string.action_app_shortcuts_settings,
                                 icon = { Icon(imageVector = MaterialSymbols.Settings, contentDescription = null) },
-                                onClick = { onDismissRequest(); openDestination(AppSettingsDestination.APP_SHORTCUTS) },
+                                onClick = { onDismissRequest(); openDestination(AppSettingsTarget.Page(SettingsDetailType.APP_SHORTCUTS)) },
                                 group = ItemMenuGroup.BEHAVIOR,
                         ))
                 }

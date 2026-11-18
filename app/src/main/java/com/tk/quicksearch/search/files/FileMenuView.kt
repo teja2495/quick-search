@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.files
 
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
+import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import android.provider.OpenableColumns
 import android.text.format.DateUtils
 import androidx.compose.foundation.layout.Arrangement
@@ -34,7 +36,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
-import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.appSettings.LocalOpenAppSettingDestination
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.utils.FileUtils
@@ -417,7 +418,7 @@ fun FileDropdownMenu(
             add(FileMenuItem(
                     textResId = R.string.action_files_settings,
                     icon = { Icon(imageVector = MaterialSymbols.Settings, contentDescription = null) },
-                    onClick = { onDismissRequest(); openDestination(AppSettingsDestination.FILES) },
+                    onClick = { onDismissRequest(); openDestination(AppSettingsTarget.Page(SettingsDetailType.FILES)) },
                     group = FileMenuGroup.ROWS,
             ))
         }

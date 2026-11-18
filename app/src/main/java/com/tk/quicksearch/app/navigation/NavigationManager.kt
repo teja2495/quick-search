@@ -57,8 +57,6 @@ import com.tk.quicksearch.search.searchScreen.rememberSharedPageWallpaper
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.LocalHomeAppearedContentKeys
 import com.tk.quicksearch.search.searchScreen.SharedPageBackdrop
 import com.tk.quicksearch.search.searchScreen.searchRoute.SearchRoute
-import com.tk.quicksearch.settings.settingsDetailScreen.level
-import com.tk.quicksearch.settings.settingsDetailScreen.resolveBackDestination
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailRoute
 import com.tk.quicksearch.settings.settingsDetailScreen.LocalSettingsPageData
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsPageData
@@ -281,7 +279,7 @@ fun MainContent(
                         ) == android.content.pm.PackageManager.PERMISSION_GRANTED
                     }
                 val hasAnyThirdPartyMessagingAppForImport =
-                    uiState.isWhatsAppInstalled || uiState.isTelegramInstalled || uiState.isSignalInstalled
+                    uiState.installedContactProviders.any { it.showsMessagingSetup }
                 val willShowFinalSetup =
                     hasFilesPermission || (hasContactsPermission && hasAnyThirdPartyMessagingAppForImport)
                 val importTotalSteps = if (willShowFinalSetup) 4 else 3
@@ -331,7 +329,7 @@ fun MainContent(
                         ) == android.content.pm.PackageManager.PERMISSION_GRANTED
                     }
                 val hasAnyThirdPartyMessagingApp =
-                    uiState.isWhatsAppInstalled || uiState.isTelegramInstalled || uiState.isSignalInstalled
+                    uiState.installedContactProviders.any { it.showsMessagingSetup }
                 val shouldShowFinalSetup =
                     hasFilesPermission || (hasContactsPermission && hasAnyThirdPartyMessagingApp)
                 val skipFinalSetup = !shouldShowFinalSetup

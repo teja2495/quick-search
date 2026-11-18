@@ -608,11 +608,7 @@ internal class SearchStartupLifecycleDelegate(
                 state.copy(
                     primaryContactButton = messagingInfo.primaryContactButton,
                     secondaryContactButton = messagingInfo.secondaryContactButton,
-                    isWhatsAppInstalled = messagingInfo.isWhatsAppInstalled,
-                    isWhatsAppBusinessInstalled = messagingInfo.isWhatsAppBusinessInstalled,
-                    isTelegramInstalled = messagingInfo.isTelegramInstalled,
-                    isSignalInstalled = messagingInfo.isSignalInstalled,
-                    isGoogleMeetInstalled = messagingInfo.isGoogleMeetInstalled,
+                    installedContactProviders = messagingInfo.installedContactProviders,
                 )
             }
             updateFeatureState { state ->

@@ -16,10 +16,10 @@ import com.tk.quicksearch.search.data.dismissTodayGlanceEvent
 import com.tk.quicksearch.search.data.dismissTomorrowGlanceEvent
 import com.tk.quicksearch.search.data.preferences.BatteryPreferences
 import com.tk.quicksearch.search.data.preferences.CalendarPreferences
+import com.tk.quicksearch.search.data.preferences.GlanceItem
 import com.tk.quicksearch.search.data.preferences.GlancePreferences
+import com.tk.quicksearch.search.glance.glanceStatusForKey
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.WifiSignInDismissal
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.freePercent
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.readInternalStorage
 import com.tk.quicksearch.widgets.utils.refreshAtAGlanceWidgets
 import java.time.LocalDate
 
@@ -86,10 +86,8 @@ class AtAGlanceWidgetDismissAction : ActionCallback {
                 AtAGlanceWidgetRowLoader(context, System.currentTimeMillis())
                     .batteryStatus()
                     ?.let { BatteryPreferences(context).dismissCharging(it.percent) }
-            AtAGlanceWidgetDismissType.LOW_STORAGE ->
-                readInternalStorage()?.let { (free, total) ->
-                    glancePreferences.setLowStorageDismissedFreePercent(freePercent(free, total))
-                }
+            AtAGlanceWidgetDismissType.LOW_STORAGE -> GlanceItem.LOW_STORAGE.status?.dismissFromWidget?.invoke(context)
+            AtAGlanceWidgetDismissType.STATUS_ITEM -> glanceStatusForKey(key)?.dismissFromWidget?.invoke(context)
         }
     }
 

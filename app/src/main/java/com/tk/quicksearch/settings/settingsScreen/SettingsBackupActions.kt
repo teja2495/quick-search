@@ -22,16 +22,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
-import com.tk.quicksearch.search.data.notes.NotesRoomStore
-import com.tk.quicksearch.search.data.preferences.BasePreferences
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.core.content.FileProvider
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import com.tk.quicksearch.search.data.bookmarks.BookmarkRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,43 +36,11 @@ import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 /** Builds the export dialog's initial selection. Reads encrypted storage, so call off the main thread. */
 internal fun loadExportSelectionState(context: Context): ExportSelectionState {
-    val userPrefs = context.getSharedPreferences(BasePreferences.PREFS_NAME, Context.MODE_PRIVATE)
-    val hasPinnedItems =
-        listOf(
-            BasePreferences.KEY_PINNED,
-            BasePreferences.KEY_PINNED_CONTACT_IDS,
-            BasePreferences.KEY_PINNED_FILE_URIS,
-            BasePreferences.KEY_PINNED_SETTINGS,
-            BasePreferences.KEY_PINNED_CALENDAR_EVENT_IDS,
-            BasePreferences.KEY_PINNED_REMINDER_IDS,
-            BasePreferences.KEY_PINNED_APP_SHORTCUTS,
-        ).any { key ->
-            userPrefs.getStringSet(key, emptySet()).orEmpty().isNotEmpty()
-        }
-    val hasNotes =
-            NotesRoomStore(context).hasAny()
-    val hasReminders =
-        run {
-            val remindersJson = userPrefs.getString(BasePreferences.KEY_REMINDERS_DATA, null).orEmpty()
-            remindersJson.isNotBlank() && remindersJson != "[]"
-        }
-    val hasBookmarks = BookmarkRepository(context).hasBookmarks()
-    val searchHistoryEnabled = userPrefs.getBoolean(BasePreferences.KEY_RECENT_QUERIES_ENABLED, true)
-    val hasApiKeys = UserAppPreferences(context).hasAnyLlmApiKey()
-    return ExportSelectionState(
-        includePinnedItems = hasPinnedItems,
-        includeNotes = hasNotes,
-        includeReminders = hasReminders,
-        includeBookmarks = hasBookmarks,
-        includeSearchHistory = searchHistoryEnabled,
-        includeApiKeys = false,
-        showPinnedItemsOption = hasPinnedItems,
-        showNotesOption = hasNotes,
-        showRemindersOption = hasReminders,
-        showBookmarksOption = hasBookmarks,
-        showSearchHistoryOption = searchHistoryEnabled,
-        showApiKeysOption = hasApiKeys,
-    )
+    val source = BackupSectionAvailability(context)
+    val available = SettingsBackupManager.ExportItem.selectableItems.filterTo(mutableSetOf()) { section ->
+        section.option?.isAvailable?.invoke(source) == true
+    }
+    return ExportSelectionState.forAvailable(available)
 }
 
 internal fun defaultBackupFileName(): String {

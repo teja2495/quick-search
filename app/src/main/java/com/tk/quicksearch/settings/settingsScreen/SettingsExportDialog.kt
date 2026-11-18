@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.R
+import com.tk.quicksearch.settings.settingsScreen.SettingsBackupManager.ExportItem
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
@@ -35,25 +36,16 @@ fun SettingsExportDialog(
 ) {
     val options = buildList {
         add(ExportOption(R.string.settings_gesture_settings, MaterialSymbols.Tune, true, enabled = false))
-        if (selectionState.showPinnedItemsOption) add(ExportOption(
-            R.string.settings_backup_export_option_pinned_items_title, MaterialSymbols.PushPin,
-            selectionState.includePinnedItems,
-        ) { onSelectionStateChange(selectionState.copy(includePinnedItems = it)) })
-        if (selectionState.showNotesOption) add(ExportOption(
-            R.string.section_notes, MaterialSymbols.Description, selectionState.includeNotes,
-        ) { onSelectionStateChange(selectionState.copy(includeNotes = it)) })
-        if (selectionState.showRemindersOption) add(ExportOption(
-            R.string.section_reminders, MaterialSymbols.NotificationsActive, selectionState.includeReminders,
-        ) { onSelectionStateChange(selectionState.copy(includeReminders = it)) })
-        if (selectionState.showBookmarksOption) add(ExportOption(
-            R.string.section_bookmarks, MaterialSymbols.Bookmark, selectionState.includeBookmarks,
-        ) { onSelectionStateChange(selectionState.copy(includeBookmarks = it)) })
-        if (selectionState.showSearchHistoryOption) add(ExportOption(
-            R.string.recent_queries_toggle_title, MaterialSymbols.History, selectionState.includeSearchHistory,
-        ) { onSelectionStateChange(selectionState.copy(includeSearchHistory = it)) })
-        if (selectionState.showApiKeysOption) add(ExportOption(
-            R.string.settings_backup_export_option_api_keys, MaterialSymbols.Key, selectionState.includeApiKeys,
-        ) { onSelectionStateChange(selectionState.copy(includeApiKeys = it)) })
+        ExportItem.selectableItems.forEach { section ->
+            if (section in selectionState.available) {
+                val option = checkNotNull(section.option)
+                add(
+                    ExportOption(option.titleRes, option.icon(), section in selectionState.selected) {
+                        onSelectionStateChange(selectionState.withSelection(section, it))
+                    },
+                )
+            }
+        }
     }
     AppPickerDrawer(
         title = stringResource(R.string.settings_backup_export_selection_title),
@@ -94,7 +86,7 @@ fun SettingsExportDialog(
                     }
                 }
             }
-            if (selectionState.showApiKeysOption && selectionState.includeApiKeys) {
+            if (ExportItem.API_KEYS in selectionState.available && ExportItem.API_KEYS in selectionState.selected) {
                 Text(
                     text = stringResource(R.string.settings_backup_export_api_key_warning_message),
                     style = MaterialTheme.typography.bodyMedium,
@@ -115,32 +107,17 @@ private data class ExportOption(
 )
 
 data class ExportSelectionState(
-    val includePinnedItems: Boolean = true,
-    val includeNotes: Boolean = true,
-    val includeReminders: Boolean = true,
-    val includeBookmarks: Boolean = true,
-    val includeSearchHistory: Boolean = true,
-    val includeApiKeys: Boolean = false,
-    val showPinnedItemsOption: Boolean = true,
-    val showNotesOption: Boolean = true,
-    val showRemindersOption: Boolean = false,
-    val showBookmarksOption: Boolean = false,
-    val showSearchHistoryOption: Boolean = false,
-    val showApiKeysOption: Boolean = false,
+    val available: Set<ExportItem> = emptySet(),
+    val selected: Set<ExportItem> = emptySet(),
 ) {
-    fun toExportOptions(): SettingsBackupManager.ExportOptions {
-        val items = buildSet {
-            // Settings and search engines are always exported.
-            add(SettingsBackupManager.ExportItem.SETTINGS)
-            add(SettingsBackupManager.ExportItem.SEARCH_ENGINES)
-            if (includePinnedItems) add(SettingsBackupManager.ExportItem.PINNED_ITEMS)
-            add(SettingsBackupManager.ExportItem.SHORTCUTS)
-            if (includeNotes) add(SettingsBackupManager.ExportItem.NOTES)
-            if (includeReminders) add(SettingsBackupManager.ExportItem.REMINDERS)
-            if (includeBookmarks) add(SettingsBackupManager.ExportItem.BOOKMARKS)
-            if (includeSearchHistory && showSearchHistoryOption) add(SettingsBackupManager.ExportItem.SEARCH_HISTORY)
-            if (includeApiKeys && showApiKeysOption) add(SettingsBackupManager.ExportItem.API_KEYS)
-        }
-        return SettingsBackupManager.ExportOptions(selectedItems = items)
+    internal fun withSelection(item: ExportItem, checked: Boolean): ExportSelectionState =
+        copy(selected = if (checked) selected + item else selected - item)
+
+    fun toExportOptions(): SettingsBackupManager.ExportOptions =
+        SettingsBackupManager.ExportOptions(ExportItem.requiredItems + selected.intersect(available))
+
+    internal companion object {
+        fun forAvailable(available: Set<ExportItem>): ExportSelectionState =
+            ExportSelectionState(available, available.intersect(ExportItem.defaultSelection))
     }
 }

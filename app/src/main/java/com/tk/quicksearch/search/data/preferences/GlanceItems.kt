@@ -4,11 +4,14 @@ import android.content.Context
 import com.tk.quicksearch.customInfo.CustomInfoItem
 import com.tk.quicksearch.customInfo.CustomInfoScheduler
 import com.tk.quicksearch.search.data.AppNotificationsSettings
+import com.tk.quicksearch.search.glance.GlanceStatusDefinition
+import com.tk.quicksearch.search.glance.lowStorageStatus
 import com.tk.quicksearch.widgets.atAGlanceWidget.AtAGlanceWidgetUpdater
 
 /** An At a Glance toggle; [key] names it in the At a Glance widget's stored overrides. */
 enum class GlanceItem(
     val key: String,
+    internal val status: GlanceStatusDefinition? = null,
 ) {
     NOW_PLAYING("now_playing"),
     TODAY_EVENTS("today_events"),
@@ -33,7 +36,7 @@ enum class GlanceItem(
     PROGRESS("progress"),
     LOW_BATTERY("low_battery"),
     CHARGING("charging"),
-    LOW_STORAGE("low_storage"),
+    LOW_STORAGE("low_storage", status = lowStorageStatus),
 }
 
 /** Which At a Glance items show, for the home card or for an At a Glance widget. */
@@ -90,7 +93,7 @@ class AppGlanceItemSettings(
             GlanceItem.PROGRESS -> glance.isShowProgressNotificationsEnabled()
             GlanceItem.LOW_BATTERY -> battery.isShowLowBatteryEnabled()
             GlanceItem.CHARGING -> battery.isShowChargingEnabled()
-            GlanceItem.LOW_STORAGE -> glance.isShowLowStorageEnabled()
+            else -> glance.isStatusShown(checkNotNull(item.status))
         }
 
     override fun setShown(
@@ -121,7 +124,7 @@ class AppGlanceItemSettings(
             GlanceItem.PROGRESS -> glance.setShowProgressNotificationsEnabled(shown)
             GlanceItem.LOW_BATTERY -> battery.setShowLowBatteryEnabled(shown)
             GlanceItem.CHARGING -> battery.setShowChargingEnabled(shown)
-            GlanceItem.LOW_STORAGE -> glance.setShowLowStorageEnabled(shown)
+            else -> glance.setStatusShown(checkNotNull(item.status), shown)
         }
         // Placed widgets follow these settings unless overridden, and nothing else reports the change.
         AtAGlanceWidgetUpdater.startIfPlaced(appContext)

@@ -382,7 +382,7 @@ object PinnedNotifications {
             is CustomWidgetButtonAction.Setting -> "setting:$id"
             is CustomWidgetButtonAction.AppShortcut -> "shortcut:$packageName:$id"
             is CustomWidgetButtonAction.Note -> "note:$noteId"
-            is CustomWidgetButtonAction.Media -> "media:${command.value}"
+            is CustomWidgetButtonAction.Command -> "${type.value}:$commandId"
         }
 
     private fun String.normalizedNotificationText(): String =

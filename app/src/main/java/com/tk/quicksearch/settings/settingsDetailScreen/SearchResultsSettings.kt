@@ -45,7 +45,6 @@ import com.tk.quicksearch.search.models.SecondaryRankingSignal
 import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
-import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonType
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -454,16 +453,7 @@ internal fun PinnedNotificationItemsDialog(
                             key = action.toJson(),
                         ) { isDragging ->
                             if (index > 0) HorizontalDivider(color = AppColors.SettingsDivider)
-                            val category =
-                                when (action.type) {
-                                    CustomWidgetButtonType.APP -> stringResource(R.string.notification_pinned_item_type_app)
-                                    CustomWidgetButtonType.APP_SHORTCUT -> stringResource(R.string.notification_pinned_item_type_app_shortcut)
-                                    CustomWidgetButtonType.CONTACT -> stringResource(R.string.notification_pinned_item_type_contact)
-                                    CustomWidgetButtonType.FILE -> stringResource(R.string.notification_pinned_item_type_file)
-                                    CustomWidgetButtonType.SETTING -> stringResource(R.string.settings_gesture_settings)
-                                    CustomWidgetButtonType.NOTE -> stringResource(R.string.notification_pinned_item_type_note)
-                                    CustomWidgetButtonType.MEDIA -> stringResource(R.string.section_media)
-                                }
+                            val category = stringResource(action.type.categoryRes)
                             Surface(
                                 color = if (isDragging) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
                                 modifier = Modifier.fillMaxWidth(),
