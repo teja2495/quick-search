@@ -161,8 +161,6 @@ internal fun SearchContentArea(
                 || com.tk.quicksearch.tools.aiSearch.QuickSearchHelp.questionOrNull(state.query) != null
     val hasQuery = state.query.isNotBlank()
     val isUrlQuery = remember(state.query) { isLikelyWebUrl(state.query) }
-    val hasAnySearchContent =
-        shouldShowAnySection(renderingState, contactsParams, filesParams, calendarParams)
     val alignResultsToBottom =
             useOneHandedMode &&
                     !showAiSearch &&

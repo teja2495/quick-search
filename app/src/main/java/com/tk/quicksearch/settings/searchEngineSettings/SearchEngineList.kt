@@ -71,8 +71,6 @@ fun SearchEngineListCard(
     shortcutCodes: Map<String, String>,
     setAliasCode: ((SearchTarget, String) -> Unit)?,
     shortcutEnabled: Map<String, Boolean>,
-    setAliasEnabled: ((SearchTarget, Boolean) -> Unit)?,
-    isSearchEngineCompactMode: Boolean,
     isSearchEngineAliasSuffixEnabled: Boolean = true,
     amazonDomain: String? = null,
     onSetAmazonDomain: ((String?) -> Unit)? = null,
@@ -112,7 +110,6 @@ fun SearchEngineListCard(
                     browserPackage,
                 )
                 setAliasCode?.invoke(SearchTarget.Custom(editingEngine), shortcutCode)
-                setAliasEnabled?.invoke(SearchTarget.Custom(editingEngine), true)
                 customEngineToEdit = null
             },
             onDelete = {
@@ -196,10 +193,6 @@ fun SearchEngineListCard(
                                     shortcutEnabled = isShortcutEnabled,
                                     onShortcutCodeChange =
                                         setAliasCode?.let { { code -> it(engine, code) } },
-                                    onShortcutToggle =
-                                        engineInfo?.let {
-                                            setAliasEnabled?.let { { enabled -> it(engine, enabled) } }
-                                        },
                                     showToggle = true,
                                     switchEnabled = true,
                                     amazonDomain =
@@ -355,10 +348,6 @@ fun SearchEngineListCard(
                                 shortcutEnabled = isShortcutEnabled,
                                 onShortcutCodeChange =
                                     setAliasCode?.let { { code -> it(engine, code) } },
-                                onShortcutToggle =
-                                    engineInfo?.let {
-                                        setAliasEnabled?.let { { enabled -> it(engine, enabled) } }
-                                    },
                                 showToggle = true,
                                 switchEnabled = true,
                                 amazonDomain =
@@ -419,7 +408,6 @@ private fun SearchEngineRowContent(
     shortcutCode: String = "",
     shortcutEnabled: Boolean = true,
     onShortcutCodeChange: ((String) -> Unit)? = null,
-    onShortcutToggle: ((Boolean) -> Unit)? = null,
     showToggle: Boolean = true,
     switchEnabled: Boolean = true,
     amazonDomain: String? = null,

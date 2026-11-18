@@ -21,7 +21,6 @@ import com.tk.quicksearch.shared.ui.components.SegmentedTileToggleHorizontalPadd
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
-import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.searchEngines.isInAppBrowserPackage
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -41,22 +40,8 @@ fun SearchEngines(
     shortcutCodes: Map<String, String> = emptyMap(),
     setAliasCode: ((SearchTarget, String) -> Unit)? = null,
     shortcutEnabled: Map<String, Boolean> = emptyMap(),
-    setAliasEnabled: ((SearchTarget, Boolean) -> Unit)? = null,
-    isSearchEngineCompactMode: Boolean = true,
-    onToggleSearchEngineCompactMode: ((Boolean) -> Unit)? = null,
     amazonDomain: String? = null,
     onSetAmazonDomain: ((String?) -> Unit)? = null,
-    onSetLlmApiKeyForDetectedProvider: ((String?) -> Unit)? = null,
-    activeLlmApiKeyLast4: String? = null,
-    isSavingLlmApiKey: Boolean = false,
-    personalContext: String = "",
-    onSetPersonalContext: ((String?) -> Unit)? = null,
-    activeLlmModel: String,
-    activeLlmGroundingEnabled: Boolean,
-    activeLlmAvailableModels: List<LlmTextModel>,
-    onSetActiveLlmModel: ((String?) -> Unit)? = null,
-    onSetActiveLlmGroundingEnabled: ((Boolean) -> Unit)? = null,
-    onRefreshAvailableLlmModels: (() -> Unit)? = null,
     onOpenAiSearchConfigure: (() -> Unit)? = null,
     isSearchEngineAliasSuffixEnabled: Boolean = true,
     onToggleSearchEngineAliasSuffixEnabled: ((Boolean) -> Unit)? = null,
@@ -64,8 +49,6 @@ fun SearchEngines(
     onToggleAliasTriggerAfterSpaceEnabled: ((Boolean) -> Unit)? = null,
     showTitle: Boolean = true,
     aiSearchAvailable: Boolean = false,
-    aiSearchSetupExpanded: Boolean = true,
-    onToggleAiSearchSetupExpanded: (() -> Unit)? = null,
     showAddSearchEngineButton: Boolean = true,
     onAddCustomSearchEngine: ((String, String, String, String?) -> Unit)? = null,
     onUpdateCustomSearchEngine: ((String, String, String, String?, String?) -> Unit)? = null,
@@ -144,8 +127,6 @@ fun SearchEngines(
         shortcutCodes = shortcutCodes,
         setAliasCode = setAliasCode,
         shortcutEnabled = shortcutEnabled,
-        setAliasEnabled = setAliasEnabled,
-        isSearchEngineCompactMode = isSearchEngineCompactMode,
         isSearchEngineAliasSuffixEnabled = isSearchEngineAliasSuffixEnabled,
         amazonDomain = amazonDomain,
         onSetAmazonDomain = onSetAmazonDomain,

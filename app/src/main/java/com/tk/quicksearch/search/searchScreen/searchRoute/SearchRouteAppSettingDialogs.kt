@@ -27,7 +27,6 @@ import com.tk.quicksearch.settings.settingsScreen.SettingsBackupFlow
 import com.tk.quicksearch.settings.settingsScreen.SettingsBackupRequest
 import com.tk.quicksearch.settings.shared.applySettingsCommand
 import com.tk.quicksearch.shared.util.AppLanguageManager
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.tools.aiSearch.ModelPickerDialog
 
 /** Settings dialogs opened directly from app-setting search results. */
@@ -57,7 +56,7 @@ internal fun AppSettingRouteDialogs(
         AppSettingRouteDialog.TOP_MATCHES_PRIORITY -> {
             val priorityItems =
                 remember(uiState.topMatchesSectionOrder) {
-                    uiState.topMatchesSectionOrder.filter(FeatureFlags::isSearchSectionEnabled)
+                    uiState.topMatchesSectionOrder
                 }
             PriorityReorderDialog(
                 items = priorityItems,

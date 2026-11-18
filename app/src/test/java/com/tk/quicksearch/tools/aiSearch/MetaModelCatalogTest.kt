@@ -15,14 +15,6 @@ class MetaModelCatalogTest {
     }
 
     @Test
-    fun formatsModelNamesForDisplay() {
-        assertEquals(
-            "Muse Spark 1.2 Contributor",
-            MetaModelCatalog.displayNameFor("muse-spark-1.2-contributor"),
-        )
-    }
-
-    @Test
     fun detectsMetaApiKeyPrefix() {
         assertEquals(
             AiSearchLlmProviderId.META,

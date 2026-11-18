@@ -639,11 +639,6 @@ private fun eventDistanceToNow(
     nowMillis: Long,
 ): Long = if (startMillis >= nowMillis) startMillis - nowMillis else nowMillis - startMillis
 
-private fun firstInstanceOnOrAfter(
-    instances: List<CalendarEventInfo>,
-    thresholdMillis: Long,
-): CalendarEventInfo? = instances.firstOrNull { it.startMillis >= thresholdMillis }
-
 private fun startOfTodayMillis(): Long =
     Calendar.getInstance()
         .apply {

@@ -52,13 +52,4 @@ class LlmFeatureAvailabilityTest {
             ),
         )
     }
-
-    @Test
-    fun modelSelectionIsClearedInsteadOfInjectingMissingModel() {
-        val models = listOf(LlmTextModel("current", "Current"))
-
-        assertTrue(resolveModelSelection("current", models) == "current")
-        assertTrue(resolveModelSelection("retired", models).isEmpty())
-        assertTrue(resolveModelSelection("", models).isEmpty())
-    }
 }

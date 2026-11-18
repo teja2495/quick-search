@@ -352,17 +352,6 @@ class AliasHandler(
         }
     }
 
-    fun setAliasEnabled(
-        target: SearchTarget,
-        enabled: Boolean,
-    ) {
-        scope.launch(Dispatchers.IO) {
-            val id = target.getId()
-            aliasEnabled = aliasEnabled.toMutableMap().apply { put(id, getAlias(target).isNotEmpty()) }
-            uiStateUpdater { it.copy(shortcutEnabled = aliasEnabled) }
-        }
-    }
-
     fun getAlias(target: SearchTarget): String {
         val id = target.getId()
         return aliasCodes[id]

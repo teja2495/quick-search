@@ -8,18 +8,6 @@ import org.junit.Test
 class AppLanguageManagerTest {
 
     @Test
-    fun supportedLanguageTagsIncludesIndonesian() {
-        assertTrue(
-            "supportedLanguageTags must include 'id'",
-            AppLanguageManager.supportedLanguageTags.contains("id"),
-        )
-        assertFalse(
-            "supportedLanguageTags should use modern 'id' instead of legacy 'in'",
-            AppLanguageManager.supportedLanguageTags.contains("in"),
-        )
-    }
-
-    @Test
     fun normalizeLanguageTagMapsLegacyInToId() {
         assertEquals("id", AppLanguageManager.normalizeLanguageTag("in"))
         assertEquals("id", AppLanguageManager.normalizeLanguageTag("id"))

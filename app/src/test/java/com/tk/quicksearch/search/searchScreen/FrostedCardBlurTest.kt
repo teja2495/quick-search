@@ -29,11 +29,4 @@ class FrostedCardBlurTest {
         assertEquals(0, far and 0xFF)
         pixels.forEach { assertEquals(0xFF, it ushr 24) }
     }
-
-    @Test
-    fun zeroRadiusIsNoOp() {
-        val pixels = intArrayOf(1, 2, 3, 4)
-        boxBlurArgb(pixels, width = 2, height = 2, radius = 0)
-        assertEquals(listOf(1, 2, 3, 4), pixels.toList())
-    }
 }

@@ -80,10 +80,7 @@ fun PermissionsSettings(
             showNotificationsPermission = true,
             showBackgroundUsage = showBackgroundUsage,
             onRequestUsagePermission = onRequestUsagePermission,
-            onRequestContactPermission = onRequestContactPermission,
             onRequestFilePermission = onRequestFilePermission,
-            onRequestCalendarPermission = onRequestCalendarPermission,
-            onRequestCallPermission = onRequestCallPermission,
             cardContainer = { cardModifier, content ->
                 Column(modifier = cardModifier) { content() }
             },

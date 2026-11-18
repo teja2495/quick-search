@@ -47,7 +47,6 @@ class CalendarRepository(
         private const val PAST_WINDOW_YEARS = 2L
         private const val FUTURE_WINDOW_YEARS = 2L
         private const val MILLIS_PER_YEAR = 1000L * 60L * 60L * 24L * 365L
-        internal const val TIMED_EVENT_HIDE_DELAY_MILLIS = 15L * 60L * 1000L
 
         // Without past events, search reads from a day before today: all-day instances are stored
         // at UTC midnight, which can fall before local midnight.
@@ -262,11 +261,6 @@ class CalendarRepository(
 
     fun getTodayEvents(limit: Int = 50): List<CalendarEventInfo> = getEventsOn(LocalDate.now(), limit)
 
-    /** [day]'s all-day events, such as tomorrow's for the evening At a Glance rows. */
-    fun getAllDayEventsOn(
-        day: LocalDate,
-        limit: Int = 50,
-    ): List<CalendarEventInfo> = getEventsOn(day, limit).filter { it.allDay }
 
     /** Events on [day], all-day and timed, including ones that started earlier and run into it; earliest first. */
     fun getEventsOn(

@@ -410,10 +410,6 @@ open class UserAppPreferencesCore(protected val context: Context) {
 
     fun unpinNote(noteId: Long): Set<Long> = notesPreferences.unpinNote(noteId)
 
-    fun getNotesJson(): String = notesPreferences.getNotesJson()
-
-    fun setNotesJson(json: String) = notesPreferences.setNotesJson(json)
-
     fun nextNoteId(): Long = notesPreferences.nextNoteId()
 
     fun ensureNoteIdCounterAtLeast(nextCandidate: Long) =

@@ -2,8 +2,6 @@ package com.tk.quicksearch.search.utils
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotSame
-import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -127,19 +125,6 @@ class SearchRankingUtilsTest {
     }
 
     @Test
-    fun cachedMatcherAppliesNicknameStepDown() {
-        val matcher = CachedSearchMatcher(SearchTextCache())
-        val query = SearchQueryContext.fromRawQuery("music")
-
-        assertTrue(
-            matcher.match("Music", query, null) < matcher.match("Spotify", query, "Music"),
-        )
-        assertTrue(
-            matcher.match("Spotify", query, "Music") < matcher.match("YouTube Music", query, null),
-        )
-    }
-
-    @Test
     fun commaSeparatedNicknamesEachMatchOnTheirOwn() {
         listOf("tv", "remote", "cast").forEach { query ->
             val priority =
@@ -200,15 +185,5 @@ class SearchRankingUtilsTest {
                 cachedMatcher.match(text, query, nickname),
             )
         }
-    }
-
-    @Test
-    fun textCacheReusesIdenticalContentWithoutStalingChangedContent() {
-        val cache = SearchTextCache()
-        val first = cache.prepare("Localized label")
-
-        assertSame(first, cache.prepare("Localized label"))
-        assertNotSame(first, cache.prepare("Changed localized label"))
-        assertEquals("changed localized label", cache.prepare("Changed localized label").normalized)
     }
 }

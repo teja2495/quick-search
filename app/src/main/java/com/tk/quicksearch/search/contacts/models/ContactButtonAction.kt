@@ -2,7 +2,6 @@ package com.tk.quicksearch.search.contacts.models
 
 import androidx.annotation.StringRes
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.MessagingApp
 
 /**
@@ -77,16 +76,6 @@ enum class ContactButtonAction(
                 MessagingApp.WHATSAPP_BUSINESS -> WHATSAPP_BUSINESS_MESSAGE
                 MessagingApp.TELEGRAM -> TELEGRAM_MESSAGE
                 MessagingApp.SIGNAL -> SIGNAL_MESSAGE
-            }
-
-        fun fromCallingApp(app: CallingApp): ContactButtonAction =
-            when (app) {
-                CallingApp.CALL -> CALL
-                CallingApp.GOOGLE_MEET -> GOOGLE_MEET
-                CallingApp.WHATSAPP -> WHATSAPP_CALL
-                CallingApp.WHATSAPP_BUSINESS -> WHATSAPP_BUSINESS_CALL
-                CallingApp.TELEGRAM -> TELEGRAM_CALL
-                CallingApp.SIGNAL -> SIGNAL_CALL
             }
     }
 }

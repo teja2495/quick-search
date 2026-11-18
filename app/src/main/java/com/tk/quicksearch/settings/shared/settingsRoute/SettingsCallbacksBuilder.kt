@@ -70,7 +70,6 @@ internal fun buildSettingsScreenCallbacks(
         onToggleOverlayMode = handlers.onToggleOverlayMode,
         onDismissOverlayAssistantTip = viewModel::dismissOverlayAssistantTip,
         setAliasCode = viewModel::setAlias,
-        setAliasEnabled = viewModel::setAliasEnabled,
         onSetPrimaryContactButton = viewModel::setPrimaryContactButton,
         onSetSecondaryContactButton = viewModel::setSecondaryContactButton,
         onWallpaperBackgroundAlphaChange = viewModel::setWallpaperBackgroundAlpha,

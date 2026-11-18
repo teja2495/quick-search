@@ -113,25 +113,6 @@ open class AliasPreferences(
         customizationStore.putString(aliasKey, normalizedCode)
     }
 
-    fun isAliasEnabled(engine: SearchEngine): Boolean {
-        return getAliasCode(engine).isNotEmpty()
-    }
-
-    fun setAliasEnabled(
-        engine: SearchEngine,
-        enabled: Boolean,
-    ) = Unit
-
-    fun isAliasEnabled(
-        targetId: String,
-        defaultValue: Boolean,
-    ): Boolean = getAliasCodeAllowSingleChar(targetId)?.isNotEmpty() == true
-
-    fun setAliasEnabled(
-        targetId: String,
-        enabled: Boolean,
-    ) = Unit
-
     fun getAllAliasCodes(): Map<SearchEngine, String> =
         SearchEngine.values().associateWith { getAliasCode(it) }
 

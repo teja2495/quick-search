@@ -42,9 +42,6 @@ fun SettingsExportDialog(
         if (selectionState.showNotesOption) add(ExportOption(
             R.string.section_notes, MaterialSymbols.Description, selectionState.includeNotes,
         ) { onSelectionStateChange(selectionState.copy(includeNotes = it)) })
-        if (selectionState.showCalendarEventsOption) add(ExportOption(
-            R.string.section_calendar, MaterialSymbols.CalendarMonth, selectionState.includeCalendarEvents,
-        ) { onSelectionStateChange(selectionState.copy(includeCalendarEvents = it)) })
         if (selectionState.showRemindersOption) add(ExportOption(
             R.string.section_reminders, MaterialSymbols.NotificationsActive, selectionState.includeReminders,
         ) { onSelectionStateChange(selectionState.copy(includeReminders = it)) })
@@ -120,14 +117,12 @@ private data class ExportOption(
 data class ExportSelectionState(
     val includePinnedItems: Boolean = true,
     val includeNotes: Boolean = true,
-    val includeCalendarEvents: Boolean = true,
     val includeReminders: Boolean = true,
     val includeBookmarks: Boolean = true,
     val includeSearchHistory: Boolean = true,
     val includeApiKeys: Boolean = false,
     val showPinnedItemsOption: Boolean = true,
     val showNotesOption: Boolean = true,
-    val showCalendarEventsOption: Boolean = false,
     val showRemindersOption: Boolean = false,
     val showBookmarksOption: Boolean = false,
     val showSearchHistoryOption: Boolean = false,
@@ -141,7 +136,6 @@ data class ExportSelectionState(
             if (includePinnedItems) add(SettingsBackupManager.ExportItem.PINNED_ITEMS)
             add(SettingsBackupManager.ExportItem.SHORTCUTS)
             if (includeNotes) add(SettingsBackupManager.ExportItem.NOTES)
-            if (includeCalendarEvents) add(SettingsBackupManager.ExportItem.CALENDAR_EVENTS)
             if (includeReminders) add(SettingsBackupManager.ExportItem.REMINDERS)
             if (includeBookmarks) add(SettingsBackupManager.ExportItem.BOOKMARKS)
             if (includeSearchHistory && showSearchHistoryOption) add(SettingsBackupManager.ExportItem.SEARCH_HISTORY)

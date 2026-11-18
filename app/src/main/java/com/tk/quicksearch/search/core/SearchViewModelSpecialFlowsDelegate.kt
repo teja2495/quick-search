@@ -156,27 +156,4 @@ internal class SearchViewModelSpecialFlowsDelegate(
         updateConfigState { it.copy(showSearchBarWelcomeAnimation = false) }
     }
 
-    fun resetUsagePermissionBannerSessionDismissed() {
-        userPreferences.resetUsagePermissionBannerSessionDismissed()
-        refreshUsagePermissionBannerState()
-    }
-
-    fun incrementUsagePermissionBannerDismissCount() {
-        userPreferences.incrementUsagePermissionBannerDismissCount()
-        refreshUsagePermissionBannerState()
-    }
-
-    fun setUsagePermissionBannerSessionDismissed(dismissed: Boolean) {
-        userPreferences.setUsagePermissionBannerSessionDismissed(dismissed)
-        refreshUsagePermissionBannerState()
-    }
-
-    fun refreshUsagePermissionBannerState() {
-        updateFeatureState {
-            it.copy(
-                shouldShowUsagePermissionBanner =
-                    userPreferences.shouldShowUsagePermissionBanner(),
-            )
-        }
-    }
 }

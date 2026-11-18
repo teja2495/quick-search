@@ -43,19 +43,12 @@ class WeatherPreferences(context: Context) : BasePreferences(context) {
         prefs.edit().putString(KEY_MODEL, "").apply()
     }
 
-    fun getProviderId(): AiSearchLlmProviderId =
-        AiSearchLlmProviderId.fromStorageValue(prefs.getString(KEY_PROVIDER_ID, null))
-
     fun getProviderIdOverride(): AiSearchLlmProviderId? =
         prefs.getString(KEY_PROVIDER_ID, null)?.let(AiSearchLlmProviderId::fromStorageValue)
 
     fun setProviderId(providerId: AiSearchLlmProviderId) {
         prefs.edit().putString(KEY_PROVIDER_ID, providerId.storageValue).apply()
     }
-
-    fun isGroundingEnabled(): Boolean = getBooleanPref(KEY_GROUNDING_ENABLED, true)
-
-    fun setGroundingEnabled(enabled: Boolean) = setBooleanPref(KEY_GROUNDING_ENABLED, enabled)
 
     fun isThinkingEnabled(): Boolean = getBooleanPref(KEY_THINKING_ENABLED, false)
 
@@ -108,7 +101,6 @@ class WeatherPreferences(context: Context) : BasePreferences(context) {
         private const val KEY_SYSTEM_PROMPT = "weather_system_prompt"
         private const val KEY_MODEL = "weather_model"
         private const val KEY_PROVIDER_ID = "weather_provider_id"
-        private const val KEY_GROUNDING_ENABLED = "weather_grounding_enabled"
         private const val KEY_THINKING_ENABLED = "weather_thinking_enabled"
         private const val KEY_TEMPERATURE_UNIT = "weather_temperature_unit"
         private const val KEY_WIND_SPEED_UNIT = "weather_wind_speed_unit"

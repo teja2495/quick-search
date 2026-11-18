@@ -25,7 +25,6 @@ import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotKe
 import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.app.startup.StartupTrace
 import com.tk.quicksearch.search.core.AppSuggestionTabType
-import com.tk.quicksearch.search.core.StartupPhase
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.AppInfo
@@ -55,7 +54,6 @@ fun AppGridView(
         selectedSuggestionTab: AppSuggestionTabType,
         enabledSuggestionTabs: Set<AppSuggestionTabType>,
         onSuggestionTabSelected: (AppSuggestionTabType) -> Unit,
-        hasAppResults: Boolean,
         showAllAppsButton: Boolean,
         onAppClick: (AppInfo) -> Unit,
         onAppShortcutClick: (StaticShortcut) -> Unit,
@@ -80,9 +78,7 @@ fun AppGridView(
         iconPackPackage: String? = null,
         showAppLabels: Boolean = true,
         oneHandedMode: Boolean = false,
-        isInitializing: Boolean = false,
         isOverlayPresentation: Boolean = false,
-        startupPhase: StartupPhase = StartupPhase.COMPLETE,
         predictedTarget: PredictedSubmitTarget? = null,
         suppressTopResultIndicator: Boolean = false,
         appIconShape: AppIconShape = AppIconShape.DEFAULT,

@@ -39,7 +39,6 @@ import com.tk.quicksearch.settings.shared.SettingsCardItem
 import com.tk.quicksearch.settings.shared.SettingsNavigationRow
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.settings.searchEngineSettings.SearchEngineAppearanceCard
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
@@ -419,7 +418,6 @@ internal fun PinnedSectionsOrderDrawer(
     val visibleOrder =
         remember(homePinnedSectionOrder, pinnedAppShortcutsInAppGrid) {
             homePinnedSectionOrder.filter { section ->
-                FeatureFlags.isSearchSectionEnabled(section) &&
                     section != SearchSection.NOTED &&
                     !(pinnedAppShortcutsInAppGrid && section == SearchSection.APP_SHORTCUTS)
             }

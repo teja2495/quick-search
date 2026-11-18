@@ -180,8 +180,6 @@ internal interface SearchViewModelPreferencesApi {
     fun setLauncherAppIcon(selection: LauncherAppIcon) =
         preferencesApiDelegate.setLauncherAppIcon(selection)
 
-    fun onSystemDarkModeChanged(isDarkMode: Boolean) =
-        preferencesApiDelegate.onSystemDarkModeChanged(isDarkMode)
 
     fun setThemedIconsEnabled(enabled: Boolean) = preferencesApiDelegate.setThemedIconsEnabled(enabled)
 
@@ -474,9 +472,6 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
     fun setLauncherAppIcon(selection: LauncherAppIcon) =
         preferencesDelegate.setLauncherAppIcon(selection)
 
-    fun onSystemDarkModeChanged(isDarkMode: Boolean) {
-        preferencesDelegate.onSystemDarkModeChanged(isDarkMode, configStateProvider().appThemeMode)
-    }
 
     fun setThemedIconsEnabled(enabled: Boolean) = preferencesDelegate.setThemedIconsEnabled(enabled)
 

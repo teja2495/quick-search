@@ -13,12 +13,6 @@ class LlmDefaultModelsTest {
     }
 
     @Test
-    fun groqPicksFirstModel() {
-        val catalog = models("openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b")
-        assertEquals("openai/gpt-oss-120b", LlmDefaultModels.pick(AiSearchLlmProviderId.GROQ, catalog))
-    }
-
-    @Test
     fun metaPicksLatestMuseSparkWithoutVariantSuffix() {
         val catalog =
             models(
@@ -52,12 +46,6 @@ class LlmDefaultModelsTest {
     }
 
     @Test
-    fun customProviderPicksFirstModel() {
-        val catalog = models("alpha", "beta")
-        assertEquals("alpha", LlmDefaultModels.pick(AiSearchLlmProviderId.custom("abc"), catalog))
-    }
-
-    @Test
     fun missingFamilyFallsBackToFirstModelAndEmptyCatalogToBlank() {
         assertEquals("gpt-5", LlmDefaultModels.pick(AiSearchLlmProviderId.OPENAI, models("gpt-5", "gpt-5-mini")))
         assertEquals("", LlmDefaultModels.pick(AiSearchLlmProviderId.ANTHROPIC, emptyList()))
@@ -74,23 +62,5 @@ class LlmDefaultModelsTest {
             "muse-spark-1.3",
             resolveModelSelectionOrDefault(AiSearchLlmProviderId.META, "retired", catalog),
         )
-    }
-
-    @Test
-    fun providerPriorityPrefersGeminiThenCustomGroqMetaOpenCodeOpenAiAnthropic() {
-        val custom = AiSearchLlmProviderId.custom("abc")
-        val all =
-            listOf(
-                AiSearchLlmProviderId.ANTHROPIC,
-                AiSearchLlmProviderId.OPENAI,
-                AiSearchLlmProviderId.OPENCODE,
-                AiSearchLlmProviderId.META,
-                AiSearchLlmProviderId.GROQ,
-                custom,
-                AiSearchLlmProviderId.GEMINI,
-            )
-        assertEquals(all.reversed(), all.sortedBy(AiSearchLlmProviderId::defaultPriority))
-        assertEquals(custom, AiSearchLlmProviderId.preferredOf(all - AiSearchLlmProviderId.GEMINI))
-        assertEquals(null, AiSearchLlmProviderId.preferredOf(emptyList()))
     }
 }

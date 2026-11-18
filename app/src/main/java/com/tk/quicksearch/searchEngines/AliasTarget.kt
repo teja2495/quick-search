@@ -10,10 +10,3 @@ sealed interface AliasTarget {
 
     data class Feature(val featureId: String) : AliasTarget
 }
-
-fun AliasTarget.asSearchTargetOrNull(): SearchTarget? =
-    when (this) {
-        is AliasTarget.Search -> target
-        is AliasTarget.Section -> null
-        is AliasTarget.Feature -> null
-    }

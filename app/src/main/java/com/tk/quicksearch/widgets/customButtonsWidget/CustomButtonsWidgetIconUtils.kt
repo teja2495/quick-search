@@ -367,7 +367,6 @@ private fun createCircularBitmap(sourceBitmap: Bitmap): Bitmap {
 
     val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     val rect = android.graphics.Rect(0, 0, size, size)
-    val rectF = android.graphics.RectF(rect)
 
     // Draw circular mask
     paint.style = Paint.Style.FILL

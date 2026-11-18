@@ -178,12 +178,6 @@ internal fun firstIndexBySeekLetter(appNames: List<String>): Map<Char, Int> {
     return map
 }
 
-internal fun seekLettersForApps(appNames: List<String>): List<Char> {
-    if (appNames.isEmpty()) return emptyList()
-    val hasHash = appNames.any { appSeekLetter(it) == '#' }
-    return if (hasHash) AlphabetSeekLetters else AlphabetSeekLetters.filter { it != '#' }
-}
-
 internal fun indexForSeekLetter(
         letter: Char,
         firstIndexByLetter: Map<Char, Int>,

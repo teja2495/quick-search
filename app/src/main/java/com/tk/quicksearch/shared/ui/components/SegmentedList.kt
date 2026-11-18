@@ -53,7 +53,7 @@ import androidx.compose.ui.graphics.Shape
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 /**
- * True inside a [SegmentedTile]. Shared rows ([SettingsToggleRow], [SettingsCheckboxRow]) then
+ * True inside a [SegmentedTile]. Shared rows such as [SettingsToggleRow] then
  * drop their dividers, since tiles are separated by their gap, and use the tile's inset.
  */
 val LocalInSegmentedTile = staticCompositionLocalOf { false }

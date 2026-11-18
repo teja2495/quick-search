@@ -181,13 +181,6 @@ internal class StartupConfigReader(private val context: Context) {
                                 ] as?
                                         Boolean
                                 ?: false,
-                        hasSeenSearchEngineOnboarding =
-                                allPrefs[
-                                        com.tk.quicksearch.search.data.preferences.BasePreferences
-                                                .KEY_SEARCH_ENGINE_ONBOARDING_SEEN,
-                                ] as?
-                                        Boolean
-                                ?: false,
                         wallpaperBackgroundAlpha =
                                 run {
                                     val isDark = computeIsDarkMode(context, allPrefs)

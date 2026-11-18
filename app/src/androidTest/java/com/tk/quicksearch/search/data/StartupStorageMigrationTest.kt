@@ -8,15 +8,11 @@ import com.tk.quicksearch.search.core.SearchViewModelInitialStateFactory
 import com.tk.quicksearch.search.data.assets.ManagedAssetStore
 import com.tk.quicksearch.search.data.notes.NotesRoomStore
 import com.tk.quicksearch.search.data.preferences.BasePreferences
-import com.tk.quicksearch.search.data.preferences.BootstrapPreferences
-import com.tk.quicksearch.search.data.preferences.TriggerPreferences
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.startup.StartupSurfaceStore
-import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -29,17 +25,6 @@ class StartupStorageMigrationTest {
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
-    }
-
-    @Test
-    fun bootstrapFirstLaunchReadsTinyDedicatedState() {
-        context.getSharedPreferences("bootstrap_preferences", Context.MODE_PRIVATE).edit().clear().commit()
-        context.getSharedPreferences(BasePreferences.FIRST_LAUNCH_PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putBoolean(BasePreferences.KEY_FIRST_LAUNCH, false)
-            .commit()
-
-        assertFalse(BootstrapPreferences.isFirstLaunch(context))
     }
 
     @Test
@@ -88,28 +73,6 @@ class StartupStorageMigrationTest {
     }
 
     @Test
-    fun triggerMigrationPartitionsOverlappingPrefixes() {
-        context.getSharedPreferences("search_customization_index", Context.MODE_PRIVATE).edit().clear().commit()
-        val legacy = context.getSharedPreferences(BasePreferences.PREFS_NAME, Context.MODE_PRIVATE)
-        legacy.edit()
-            .putString(
-                "${BasePreferences.KEY_TRIGGER_APP_PREFIX}pkg",
-                JSONObject().put("word", "app").put("afterSpace", false).toString(),
-            )
-            .putString(
-                "${BasePreferences.KEY_TRIGGER_APP_SHORTCUT_PREFIX}shortcut",
-                JSONObject().put("word", "shortcut").put("afterSpace", true).toString(),
-            )
-            .commit()
-
-        val words = TriggerPreferences(context).getAllTriggerWordsById()
-
-        assertEquals("app", words["app:pkg"])
-        assertEquals("shortcut", words["shortcut:shortcut"])
-        assertNull(words["app:shortcut_shortcut"])
-    }
-
-    @Test
     fun roomStoreSupportsBatchedIdsAndAtomicReplacement() {
         val notes =
             listOf(
@@ -117,7 +80,7 @@ class StartupStorageMigrationTest {
                 NoteInfo(92L, "Two", "second", 3L, 4L),
             )
         val store = NotesRoomStore(context)
-        store.replaceFromBackup(notes)
+        store.replaceAll(notes)
 
         assertEquals(listOf(92L), store.getByIds(listOf(92L)).map { it.noteId })
         assertEquals(notes.map { it.noteId }.toSet(), store.getAll().map { it.noteId }.toSet())

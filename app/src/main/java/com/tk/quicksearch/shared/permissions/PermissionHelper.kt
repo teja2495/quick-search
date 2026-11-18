@@ -87,12 +87,6 @@ object PermissionHelper {
             Manifest.permission.READ_CONTACTS,
         ) == PackageManager.PERMISSION_GRANTED
 
-    fun checkCalendarPermission(context: Context): Boolean =
-        ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.READ_CALENDAR,
-        ) == PackageManager.PERMISSION_GRANTED
-
     /**
      * Opens the user-managed battery optimization list. This deliberately avoids the
      * REQUEST_IGNORE_BATTERY_OPTIMIZATIONS permission and its direct exemption prompt.

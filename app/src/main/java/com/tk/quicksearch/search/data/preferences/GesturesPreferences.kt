@@ -92,7 +92,6 @@ class GesturesPreferences(
     fun getHomeSwipeUpAction(): HomeSwipeGestureAction =
         getHomeGestureAction(
             key = KEY_HOME_SWIPE_UP_ACTION,
-            legacyNotificationKey = KEY_HOME_SWIPE_UP_NOTIFICATION_ENABLED,
             default = HomeSwipeGestureAction.NONE,
         )
 
@@ -108,7 +107,6 @@ class GesturesPreferences(
     fun getHomeSwipeDownAction(isDefaultLauncher: Boolean = true): HomeSwipeGestureAction =
         getHomeGestureAction(
             key = KEY_HOME_SWIPE_DOWN_ACTION,
-            legacyNotificationKey = KEY_HOME_SWIPE_DOWN_NOTIFICATION_ENABLED,
             default =
                 if (isDefaultLauncher) {
                     HomeSwipeGestureAction.NOTIFICATION_PANEL
@@ -209,27 +207,11 @@ class GesturesPreferences(
 
     private fun getGestureAction(key: String, default: SwipeGestureAction): SwipeGestureAction {
         val stored = prefs.getString(key, default.name) ?: return default
-        if (stored == LEGACY_QUICK_NOTE_ACTION) return SwipeGestureAction.WIDGETS_PANEL
         return SwipeGestureAction.entries.firstOrNull { it.name == stored } ?: default
     }
 
     private fun setGestureAction(key: String, action: SwipeGestureAction) {
         prefs.edit().putString(key, action.name).apply()
-    }
-
-    private fun getHomeGestureAction(
-        key: String,
-        legacyNotificationKey: String,
-        default: HomeSwipeGestureAction,
-    ): HomeSwipeGestureAction {
-        prefs.getString(key, null)
-            ?.let { value -> HomeSwipeGestureAction.entries.firstOrNull { it.name == value } }
-            ?.let { return it }
-        return if (prefs.getBoolean(legacyNotificationKey, default == HomeSwipeGestureAction.NOTIFICATION_PANEL)) {
-            HomeSwipeGestureAction.NOTIFICATION_PANEL
-        } else {
-            HomeSwipeGestureAction.NONE
-        }
     }
 
     private fun getHomeGestureAction(key: String, default: HomeSwipeGestureAction): HomeSwipeGestureAction =
@@ -249,7 +231,6 @@ class GesturesPreferences(
     }
 
     companion object {
-        private const val LEGACY_QUICK_NOTE_ACTION = "QUICK_NOTE"
         private const val NOTCH_KEY_PREFIX = "notch_gesture_"
         private const val KEY_NOTCH_SINGLE_TAP_ACTION = "${NOTCH_KEY_PREFIX}single_tap_action"
         private const val KEY_NOTCH_SINGLE_TAP_CUSTOM_ACTION = "${NOTCH_KEY_PREFIX}single_tap_custom_action"

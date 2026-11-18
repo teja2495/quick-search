@@ -24,14 +24,11 @@
 <string name="quick_search_help_intro">Quick Search özellikleri ve ayarları hakkında yanıt almak için @help\'ten sonra bir soru yazın.</string>
 <string name="gemini_web_search_quota_fallback_tip">Gemini web arama kotasına ulaşıldığı için bu yanıt web araması kullanılmadan oluşturuldu.</string>
 <string name="direct_search_powered_by">Destekleyen:</string>
-<string name="empty_state_subtitle">Önerileri görmek için bir uygulama başlatın veya aramanızı detaylandırın.</string>
-<string name="empty_state_title">Henüz gösterilecek bir şey yok</string>
 <string name="error_action_not_available">İşlem kullanılabilir değil</string>
 <string name="error_gemini_empty_response">Gemini\'den boş yanıt</string>
 <string name="error_gemini_load_models_failed">Gemini modelleri yüklenemedi</string>
 <string name="error_gemini_request_failed">İstek başarısız oldu (%1$d)</string>
 <string name="error_unknown">Bilinmeyen hata</string>
-<string name="gemini_model_flash_latest">Gemini Flash (En Yeni)</string>
 <string name="keyboard_switch_back">Normal klavye</string>
 <string name="keyboard_switch_to_number">Sayı klavyesi</string>
 <string name="no_results_found">Sonuç bulunamadı. Web\'de aramak için aşağıdaki arama motorlarından birine dokunmayı deneyin.</string>
@@ -150,7 +147,6 @@
 <string name="settings_gesture_view_all_apps">Tüm uygulamaları görüntüle</string>
 <string name="settings_gesture_lock_screen">Ekranı Kilitle</string>
 <string name="settings_gesture_lock_screen_requires_accessibility">Erişilebilirlik İzni Gerekir</string>
-<string name="accessibility_lock_screen_service_label">Quick Search</string>
 <string name="accessibility_lock_screen_service_description">Quick Search\'ün ana ekrandaki çift dokunma hareketiyle ekranı kilitlemesine, çentiğe dokunmalara yanıt vermesine, herhangi bir uygulamada kenardan kaydırma veya kayan bir düğmeyle açılmasına ve Quick Search dışında açılan uygulamalar için SpeedBump göstermesine izin verir. Yalnızca hangi uygulamanın açık olduğunu kontrol eder, ekran içeriğini okumaz.</string>
 <string name="accessibility_service_stopped_hint">Android, Quick Search erişilebilirlik hizmetini durdurdu. Erişilebilirlik ayarlarından kapatıp tekrar açın.</string>
 <string name="accessibility_permission_disclaimer_title">Erişilebilirlik İzni Bildirimi</string>
@@ -279,7 +275,6 @@
 <string name="app_suggestions_tabs_dialog_message">Ana ekranda hangi uygulama önerisi sekmelerinin görüneceğini seçin.</string>
 <string name="app_suggestions_tabs_dialog_title">Uygulama Önerisi Sekmeleri</string>
 <string name="app_suggestions_enabled_tabs_picker_hint">Sekmeleri Seç</string>
-<string name="app_suggestions_tab_required_toast">En az bir uygulama önerisi sekmesini etkin tutmalısınız</string>
 <string name="app_suggestions_toggle_desc">Ana ekranda önerilen uygulamaları göster veya gizle</string>
 <string name="app_suggestions_toggle_title">Uygulama önerileri</string>
 <string name="show_all_apps_button_toggle_desc">Uygulama önerilerinin altında \"Tüm uygulamalar\" düğmesini göster</string>
@@ -325,7 +320,6 @@
 <string name="section_media">Medya Kontrolleri</string>
 <string name="section_settings">Cihaz ayarları</string>
 <string name="search_section_menu_title">Şurada ara</string>
-<string name="top_match_title">En iyi eşleşme</string>
 <string name="top_matches_count_label">Eşleşme sayısı</string>
 <string name="top_matches_priority_desc">En iyi eşleşmelerdeki öğelerin önceliğini değiştir ve devre dışı bırak</string>
 <string name="top_matches_priority_dialog_info">Önceliği değiştirmek için basılı tutup sürükle; belirli sonuç türlerini etkinleştirmek veya devre dışı bırakmak için anahtarı kullan.</string>
@@ -374,7 +368,6 @@
 <string name="settings_app_info_last_update">Son güncelleme</string>
 <string name="settings_app_info_minimum_sdk">Minimum SDK</string>
 <string name="settings_app_info_not_available">Kullanılamıyor</string>
-<string name="settings_app_info_package_name">Paket adı</string>
 <string name="settings_app_info_target_sdk">Hedef SDK</string>
 <string name="settings_app_info_version">Sürüm</string>
 <string name="settings_app_info_version_code">Sürüm kodu</string>
@@ -483,10 +476,7 @@
 <string name="contacts_action_hint_message">İpucu: Buradaki herhangi bir işleme basılı tutarak kişiye özel hale getirebilirsin.</string>
 <string name="contacts_action_next_number">Sonraki telefon numarası</string>
 <string name="contacts_action_previous_number">Önceki telefon numarası</string>
-<string name="contacts_action_signal">Signal ile ulaş</string>
 <string name="contacts_action_sms">Mesaj gönder</string>
-<string name="contacts_action_telegram">Telegram ile ulaş</string>
-<string name="contacts_action_whatsapp">WhatsApp ile ulaş</string>
 <string name="contacts_no_methods_available">Kullanılabilir iletişim yöntemi yok</string>
 <string name="contacts_refreshed_successfully">Kişiler başarıyla yenilendi</string>
 <string name="contacts_section_permission_subtitle">Kişi araması yapabilmek için kişiler izni gereklidir</string>
@@ -570,13 +560,8 @@
 <!-- ============================================================================
      Calendar
      ============================================================================ -->
-<string name="app_settings_create_calendar_event_desc">Yeni bir etkinlik oluştur ve ekle</string>
-<string name="app_settings_create_calendar_event_title">Yeni takvim etkinliği</string>
 <string name="calendar_create_event_name_hint">Etkinlik adı</string>
 <string name="calendar_create_event_select_date">Tarih seç</string>
-<string name="calendar_create_event_sync_notice">Bu etkinlik cihaz takviminle senkronize edilmez</string>
-<string name="calendar_create_event_title">Yeni etkinlik</string>
-<string name="calendar_edit_event_title">Etkinliği düzenle</string>
 <string name="calendar_relative_ago_format">%1$s önce</string>
 <plurals name="calendar_relative_days">
     <item quantity="one">%d gün</item>
@@ -587,7 +572,6 @@
     <item quantity="other">%d saat</item>
 </plurals>
 <string name="calendar_relative_in_format">%1$s içinde</string>
-<string name="calendar_relative_in_minutes">%1$d dakika içinde</string>
 <plurals name="calendar_relative_minutes">
     <item quantity="one">%d dakika</item>
     <item quantity="other">%d dakika</item>
@@ -656,7 +640,6 @@
 <string name="notes_editor_notification_note_title">Bildirim notu</string>
 <string name="notes_empty_note_subtext">Boş not</string>
 <string name="notes_quick_note_title">Hızlı not</string>
-<string name="notes_quick_note_toggle_desc">Kaydırma navigasyonundan Hızlı Not\'u aç</string>
 <string name="notes_title_hint">Başlık</string>
 <string name="notes_untitled">Başlıksız</string>
 <string name="settings_notes_view_all_desc">Tüm notları görüntüle</string>
@@ -726,8 +709,6 @@
 <string name="settings_features_export_failed">Özellik dokümantasyonu kaydedilemedi.</string>
 <string name="settings_features_saved_to_downloads">İndirilenler\'e kaydedildi</string>
 <string name="settings_features_sections_title">İçindekiler</string>
-<string name="settings_search_description_change_app_theme">Uygulama temasını değiştir</string>
-<string name="settings_search_description_change_font_size">Uygulama yazı tipi boyutunu değiştir</string>
 <string name="settings_search_description_change_icon_pack">Simge paketini değiştir</string>
 <string name="settings_search_description_change_layout">Uygulama düzeni seçeneklerini değiştir</string>
 <string name="settings_search_description_change_wallpaper">Duvar kağıdı görünümünü değiştir</string>
@@ -756,9 +737,6 @@
 <string name="settings_appearance_title">Görünüm</string>
 <string name="settings_assistant_voice_mode_desc">Dijital asistan olarak başlatıldığında sesli yazmayı aç</string>
 <string name="settings_assistant_voice_mode_title">Asistan ses modu</string>
-<string name="settings_beta_features_disabled">Beta özellikleri devre dışı</string>
-<string name="settings_beta_features_enabled">Yeni beta özellikleri etkin</string>
-<string name="settings_beta_features_unavailable">Yeni özellik bulunmuyor</string>
 <string name="settings_beta_tag">Beta</string>
 <string name="settings_bottom_searchbar_desc">Arama çubuğunu ekranın altına yerleştir</string>
 <string name="settings_bottom_searchbar_title">Alt arama çubuğu</string>
@@ -869,8 +847,6 @@
 <string name="settings_refresh_contacts_title">Kişileri yenile</string>
 <string name="settings_refresh_data_note">Veriler otomatik olarak yenilenir. Manuel olarak yenilemeye zorlamak için bu butonları kullan.</string>
 <string name="settings_refresh_data_title">Verileri yenile</string>
-<string name="settings_refresh_icon_packs">Simge paketlerini yenile</string>
-<string name="settings_refreshing_icon_packs">Simge paketleri listesi yenileniyor</string>
 <string name="settings_scroll_to_top">En üste kaydır</string>
 <string name="settings_search_hints_desc">Dönüşümlü arama ipuçlarını etkinleştir/devre dışı bırak</string>
 <string name="settings_search_hints_title">Arama ipuçları</string>
@@ -882,8 +858,6 @@
 <string name="settings_themed_icons_desc">Uygulama simgelerini temana uyacak şekilde renklendir ve uyarla</string>
 <string name="settings_themed_icons_title">Temalı uygulama simgeleri</string>
 <string name="settings_tools_desc">Hesap makinesi, birim dönüştürücü, sözlük ve daha fazlası</string>
-<string name="settings_tools_gemini_api_desc">Bir API anahtarı eklemek daha fazla aracı etkinleştirir.</string>
-<string name="settings_tools_gemini_api_title">AI sağlayıcısını yapılandır</string>
 <string name="settings_tools_info_examples_header">Arama çubuğunda sorabileceğin şeylere dair some örnekler</string>
 <string name="settings_tools_title">Araçlar</string>
 <string name="settings_at_a_glance_title">Bir Bakışta</string>
@@ -891,7 +865,6 @@
 <string name="custom_info_edit_title">Ayrıntıları Düzenle</string>
 <string name="custom_info_prompt">İstem</string>
 <string name="custom_info_set_date_time">Tarih ve saat ayarla</string>
-<string name="custom_info_desc">İstemlerinize yapay zekâ yanıtları, seçtiğiniz saatlerde ana ekranda</string>
 <string name="settings_ai_api_key_required_message">Bu özellik bir AI sağlayıcı API anahtarı gerektirir.</string>
 <string name="settings_ai_api_key_required_title">API Anahtarı Gerekli</string>
 <string name="settings_ai_api_key_setup_action">Anahtarı ayarla</string>
@@ -997,7 +970,6 @@
 <string name="settings_alias_label">Kısaltma:</string>
 <string name="settings_amazon_domain_default">amazon.com</string>
 <string name="settings_amazon_domain_label">Alan adı:</string>
-<string name="settings_api_key_saved_last4">Kaydedilen anahtar sonu: ****%1$s</string>
 <string name="settings_api_key_setup_desc">İlgili AI sağlayıcısındaki modellere erişmek için API anahtarlarını yapılandır.</string>
 <string name="settings_api_key_setup_nav_desc">Sağlayıcı API anahtarlarını ekle veya kaldır</string>
 <string name="settings_configure_api_key_title">API anahtarını yapılandır</string>
@@ -1068,7 +1040,6 @@
 <string name="settings_backup_export_option_pinned_items_title">Sabitlenen öğeler</string>
 <string name="settings_backup_export_option_api_keys">API anahtarları</string>
 <string name="settings_backup_export_selection_title">Verileri dışa aktar</string>
-<string name="settings_backup_export_success">Ayarlar başarıyla dışa aktarıldı.</string>
 <string name="settings_backup_import_button">İçe aktar</string>
 <string name="settings_backup_import_failed">Ayarlar içe aktarılamadı.</string>
 <string name="settings_backup_import_success">Ayarlar başarıyla içe aktarıldı.</string>
@@ -1123,7 +1094,6 @@
 <string name="date_calculator_category_time_ranges">Zaman aralıkları</string>
 <string name="date_calculator_info_title">Tarih &amp; Saat hesaplayıcı</string>
 <string name="date_calculator_invalid_date">Geçersiz veya tanınmayan tarih ya da saat</string>
-<string name="date_calculator_toggle_action_desc">Tarih &amp; saat hesaplayıcıyı aç veya kapat</string>
 <string name="date_calculator_toggle_desc">Kullanım örnekleri</string>
 <string name="dictionary_example_label">Örnek: %1$s</string>
 <string name="dictionary_definition_not_found">“%1$s” için tanım bulunamadı</string>
@@ -1160,7 +1130,6 @@
 <string name="unit_converter_enter_conversion_hint">Bir dönüşüm gir (örn. 5lbs in kgs)</string>
 <string name="unit_converter_info_title">Birim dönüştürücü</string>
 <string name="unit_converter_invalid_or_unsupported_query">Geçersiz veya desteklenmeyen dönüşüm</string>
-<string name="unit_converter_toggle_action_desc">Birim dönüştürücüyü aç veya kapat</string>
 <string name="world_clock_error_not_recognized">Bu saat isteği çözümlenemedi. Bir şehir, ülke, saat dilimi veya net bir saat girmeyi dene.</string>
 <string name="world_clock_toggle_desc">Örnek: Time in Tokyo</string>
 <string name="world_clock_toggle_title">Dünya saati</string>
@@ -1325,7 +1294,6 @@
 <string name="search_engine_google_photos">Google Photos</string>
 <string name="search_engine_google_play">Google Play</string>
 <string name="search_engine_grok">Grok</string>
-<string name="search_engine_onboarding_description">Arama sorgunu yazıp bu arama motorlarından herhangi birine dokunduğunda, ilgili uygulama içinde arama tetiklenir. Üzerlerine uzun basarak bunları düzenleyebilirsin.</string>
 <string name="search_engine_perplexity">Perplexity</string>
 <string name="search_engine_reddit">Reddit</string>
 <string name="search_engine_spotify">Spotify</string>
@@ -1518,7 +1486,6 @@
     <string name="bookmarks_link_label">Bağlantı</string>
     <string name="bookmarks_invalid_link">Geçerli bir web adresi girin</string>
     <string name="reminders_permission_hint">Hatırlatıcı bildirimlerini göstermek için izin gerekiyor. İzin vermek için dokunun.</string>
-    <string name="reminders_home_card_dismiss">Ana ekrandan kaldır</string>
     <string name="settings_include_past_reminders_title">Geçmiş hatırlatıcılar</string>
     <string name="settings_include_past_reminders_desc">Geçmiş hatırlatıcıları arama sonuçlarında göster</string>
     <string name="app_setting_create_reminder">Hatırlatıcı oluştur</string>

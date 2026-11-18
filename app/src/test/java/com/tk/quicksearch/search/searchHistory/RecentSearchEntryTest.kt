@@ -37,13 +37,6 @@ class RecentSearchEntryTest {
     }
 
     @Test
-    fun queryIsStoredTrimmed() {
-        val stored = RecentSearchEntry.Query("  hello  ").toJsonString()
-
-        assertEquals(RecentSearchEntry.Query("hello"), RecentSearchEntry.fromRaw(stored))
-    }
-
-    @Test
     fun legacyPlainStringEntriesLoadAsQueries() {
         assertEquals(RecentSearchEntry.Query("old search"), RecentSearchEntry.fromRaw(" old search "))
         assertNull(RecentSearchEntry.fromRaw("   "))

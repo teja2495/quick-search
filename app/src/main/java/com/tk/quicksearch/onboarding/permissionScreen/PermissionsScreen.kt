@@ -81,8 +81,6 @@ fun PermissionsScreen(
     ) {
         OnboardingHeader(
             title = stringResource(R.string.settings_permissions_title),
-            currentStep = currentStep,
-            totalSteps = totalSteps,
             topPadding = DesignTokens.SpacingMedium,
         )
 

@@ -214,36 +214,13 @@ internal fun SettingsDetailLevel1Screen(
                             shortcutCodes = state.shortcutCodes,
                             setAliasCode = callbacks.setAliasCode,
                             shortcutEnabled = state.shortcutEnabled,
-                            setAliasEnabled = callbacks.setAliasEnabled,
-                            isSearchEngineCompactMode = state.isSearchEngineCompactMode,
                             amazonDomain = state.amazonDomain,
                             onSetAmazonDomain = callbacks.onSetAmazonDomain,
-                            onSetLlmApiKeyForDetectedProvider = callbacks.onSetLlmApiKeyForDetectedProvider,
-                            activeLlmApiKeyLast4 = state.activeLlmApiKeyLast4,
-                            isSavingLlmApiKey = state.isSavingLlmApiKey,
-                            personalContext = state.personalContext,
-                            onSetPersonalContext = callbacks.onSetPersonalContext,
-                            activeLlmModel = state.activeLlmModel,
-                            activeLlmGroundingEnabled = state.activeLlmGroundingEnabled,
-                            activeLlmAvailableModels = state.activeLlmAvailableModels,
-                            onSetActiveLlmModel = callbacks.onSetActiveLlmModel,
-                            onSetActiveLlmGroundingEnabled = callbacks.onSetActiveLlmGroundingEnabled,
-                            onRefreshAvailableLlmModels = callbacks.onRefreshAvailableLlmModels,
                             onOpenAiSearchConfigure = callbacks.onOpenAiSearchConfigure,
                             aiSearchAvailable = state.hasApiKey,
                             showTitle = false,
-                            aiSearchSetupExpanded = aiSearchSetupExpanded,
-                            onToggleAiSearchSetupExpanded = onToggleAiSearchSetupExpanded,
                             disabledSearchEnginesExpanded = disabledSearchEnginesExpanded,
                             onToggleDisabledSearchEnginesExpanded = onToggleDisabledSearchEnginesExpanded,
-                            onToggleSearchEngineCompactMode = { enabled ->
-                                callbacks.onApplySettingsCommand(
-                                    SettingsCommand.Toggle(
-                                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE,
-                                        enabled = enabled,
-                                    ),
-                                )
-                            },
                             isSearchEngineAliasSuffixEnabled = state.isSearchEngineAliasSuffixEnabled,
                             onToggleSearchEngineAliasSuffixEnabled = { enabled ->
                                 callbacks.onApplySettingsCommand(

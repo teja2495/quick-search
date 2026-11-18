@@ -683,9 +683,6 @@ internal class SearchPreferencesDelegate(
         }
     }
 
-    fun onSystemDarkModeChanged(isDarkMode: Boolean, currentAppThemeMode: AppThemeMode) {
-    }
-
     fun setThemedIconsEnabled(enabled: Boolean) {
         scope.launch(Dispatchers.IO) {
             if (stateAccess.themedIconsEnabled == enabled) return@launch

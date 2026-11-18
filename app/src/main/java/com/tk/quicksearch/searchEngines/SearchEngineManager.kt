@@ -292,8 +292,6 @@ class SearchEngineManager(
                 onStateUpdate { state ->
                     state.copy(
                         isSearchEngineCompactMode = isSearchEngineCompactMode,
-                        showSearchEngineOnboarding =
-                            enabled && !userPreferences.hasSeenSearchEngineOnboarding(),
                     )
                 }
             }

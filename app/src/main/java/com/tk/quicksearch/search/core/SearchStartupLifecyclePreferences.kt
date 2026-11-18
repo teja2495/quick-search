@@ -100,13 +100,6 @@ internal fun SearchStartupLifecycleDelegate.onSettingsImported(
                         availableLlmModelsByProvider = state.availableLlmModelsByProvider,
                     )
                 }
-                updateConfigState { state ->
-                    state.copy(
-                        showSearchEngineOnboarding =
-                            searchEngineManager.isSearchEngineCompactMode &&
-                                !userPreferences.hasSeenSearchEngineOnboarding(),
-                    )
-                }
                 handleOnResume()
                 updateUiState { applyVisibilityStates(it) }
                 onAfterSettingsImportMain()

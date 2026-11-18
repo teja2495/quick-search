@@ -25,14 +25,11 @@
     <string name="quick_search_help_intro">Quick Search ఫీచర్‌లు, సెట్టింగ్‌ల గురించి సమాధానాలు పొందడానికి @help తర్వాత మీ ప్రశ్నను టైప్ చేయండి.</string>
     <string name="gemini_web_search_quota_fallback_tip">Gemini వెబ్ శోధన కోటా పూర్తయింది, కాబట్టి ఈ సమాధానం వెబ్ శోధన లేకుండా రూపొందించబడింది.</string>
     <string name="direct_search_powered_by">ద్వారా అందించబడింది</string>
-    <string name="empty_state_subtitle">సూచనలను చూడటానికి యాప్‌ను ప్రారంభించండి లేదా మీ శోధనను సవరించండి.</string>
-    <string name="empty_state_title">చూపించడానికి ఏమీ లేదు (ఇంకా)</string>
     <string name="error_action_not_available">చర్య అందుబాటులో లేదు</string>
     <string name="error_gemini_empty_response">Gemini నుండి ఖాళీ ప్రతిస్పందన వచ్చింది</string>
     <string name="error_gemini_load_models_failed">Gemini మోడళ్లను లోడ్ చేయడం సాధ్యపడలేదు</string>
     <string name="error_gemini_request_failed">అభ్యర్థన విఫలమైంది (%1$d)</string>
     <string name="error_unknown">తెలియని లోపం</string>
-    <string name="gemini_model_flash_latest">Gemini Flash (తాజాది)</string>
     <string name="keyboard_switch_back">సాధారణ కీబోర్డ్</string>
     <string name="keyboard_switch_to_number">నంబర్ కీబోర్డ్</string>
     <string name="no_results_found">ఫలితాలు ఏవీ కనుగొనబడలేదు. వెబ్‌లో శోధించడానికి దిగువన ఉన్న శోధన ఇంజిన్‌ను నొక్కండి.</string>
@@ -151,7 +148,6 @@
     <string name="settings_gesture_view_all_apps">అన్ని యాప్‌లను చూడండి</string>
     <string name="settings_gesture_lock_screen">స్క్రీన్ లాక్ చేయండి</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">యాక్సెసిబిలిటీ అనుమతి అవసరం</string>
-    <string name="accessibility_lock_screen_service_label">Quick Search</string>
     <string name="accessibility_lock_screen_service_description">హోమ్ స్క్రీన్‌పై డబుల్-ట్యాప్ సంజ్ఞతో స్క్రీన్‌ను లాక్ చేయడానికి, నాచ్ నొక్కడాలకు స్పందించడానికి, ఏ యాప్‌లోనైనా అంచు నుండి స్వైప్ లేదా ఫ్లోటింగ్ బటన్‌తో తెరవడానికి మరియు Quick Search బయట తెరిచిన యాప్‌లకు SpeedBump చూపడానికి Quick Searchను అనుమతిస్తుంది. ఇది ఏ యాప్ తెరిచి ఉందో మాత్రమే చూస్తుంది, స్క్రీన్ కంటెంట్‌ను చదవదు.</string>
     <string name="accessibility_service_stopped_hint">Android, Quick Search యాక్సెసిబిలిటీ సేవను ఆపివేసింది. యాక్సెసిబిలిటీ సెట్టింగ్‌లలో దాన్ని ఆఫ్ చేసి మళ్లీ ఆన్ చేయండి.</string>
 <string name="accessibility_permission_disclaimer_title">యాక్సెసిబిలిటీ అనుమతి నిరాకరణ</string>
@@ -280,7 +276,6 @@
     <string name="app_suggestions_tabs_dialog_message">హోమ్ స్క్రీన్‌పై ఏ యాప్ సూచన ట్యాబ్‌లు కనిపించాలో ఎంచుకోండి.</string>
     <string name="app_suggestions_tabs_dialog_title">యాప్ సూచన ట్యాబ్‌లు</string>
     <string name="app_suggestions_enabled_tabs_picker_hint">ట్యాబ్‌లను ఎంచుకోండి</string>
-    <string name="app_suggestions_tab_required_toast">కనీసం ఒక యాప్ సూచన ట్యాబ్‌నైనా ప్రారంభించి ఉంచండి</string>
     <string name="app_suggestions_toggle_desc">హోమ్ స్క్రీన్‌పై సూచించిన యాప్‌లను చూపించు లేదా దాచు</string>
     <string name="app_suggestions_toggle_title">యాప్ సూచనలు</string>
     <string name="show_all_apps_button_toggle_desc">యాప్ సూచనల క్రింద \"అన్ని యాప్‌లు\" బటన్‌ను చూపించు</string>
@@ -326,7 +321,6 @@
     <string name="section_media">మీడియా నియంత్రణలు</string>
     <string name="section_settings">పరికర సెట్టింగ్‌లు</string>
     <string name="search_section_menu_title">ఇందులో వెతకండి</string>
-    <string name="top_match_title">టాప్ మ్యాచ్</string>
     <string name="top_matches_count_label">మ్యాచ్‌ల సంఖ్య</string>
     <string name="top_matches_priority_desc">టాప్ మ్యాచ్‌లలో ప్రాధాన్యతను మార్చండి మరియు అంశాలను నిలిపివేయండి</string>
     <string name="top_matches_priority_dialog_info">ప్రాధాన్యతను మార్చడానికి నొక్కి పట్టి లాగండి మరియు నిర్దిష్ట ఫలిత రకాలను ప్రారంభించడానికి లేదా నిలిపివేయడానికి టోగుల్‌ను ఉపయోగించండి.</string>
@@ -375,7 +369,6 @@
     <string name="settings_app_info_last_update">చివరిగా నవీకరించబడింది</string>
     <string name="settings_app_info_minimum_sdk">కనిష్ట SDK</string>
     <string name="settings_app_info_not_available">అందుబాటులో లేదు</string>
-    <string name="settings_app_info_package_name">ప్యాకేజీ పేరు</string>
     <string name="settings_app_info_target_sdk">లక్ష్య SDK</string>
     <string name="settings_app_info_version">వెర్షన్</string>
     <string name="settings_app_info_version_code">వెర్షన్ కోడ్</string>
@@ -484,10 +477,7 @@
     <string name="contacts_action_hint_message">చిట్కా: వ్యక్తిగత పరిచయాల కోసం అనుకూలీకరించడానికి ఇక్కడ ఏదైనా చర్యను నొక్కి పట్టుకోండి.</string>
     <string name="contacts_action_next_number">తదుపరి ఫోన్ నంబర్</string>
     <string name="contacts_action_previous_number">మునుపటి ఫోన్ నంబర్</string>
-    <string name="contacts_action_signal">Signal పరిచయం</string>
     <string name="contacts_action_sms">పరిచయానికి సందేశం పంపు</string>
-    <string name="contacts_action_telegram">Telegram పరిచయం</string>
-    <string name="contacts_action_whatsapp">WhatsApp పరిచయం</string>
     <string name="contacts_no_methods_available">పరిచయ పద్ధతులు ఏవీ అందుబాటులో లేవు</string>
     <string name="contacts_refreshed_successfully">పరిచయాలు విజయవంతంగా రీఫ్రెష్ చేయబడ్డాయి</string>
     <string name="contacts_section_permission_subtitle">పరిచయాల శోధనను నిర్వహించడానికి పరిచయాల అనుమతి అవసరం</string>
@@ -571,13 +561,8 @@
     <!-- ============================================================================
          Calendar
          ============================================================================ -->
-    <string name="app_settings_create_calendar_event_desc">కొత్త ఈవెంట్‌ను సృష్టించి మరియు జోడించండి</string>
-    <string name="app_settings_create_calendar_event_title">కొత్త క్యాలెండర్ ఈవెంట్</string>
     <string name="calendar_create_event_name_hint">ఈవెంట్ పేరు</string>
     <string name="calendar_create_event_select_date">తేదీని ఎంచుకోండి</string>
-    <string name="calendar_create_event_sync_notice">ఈ ఈవెంట్ మీ పరికర క్యాలెండర్‌కు సమకాలీకరించబడదు</string>
-    <string name="calendar_create_event_title">కొత్త ఈవెంట్</string>
-    <string name="calendar_edit_event_title">ఈవెంట్‌ను సవరించు</string>
     <string name="calendar_relative_ago_format">%1$s క్రితం</string>
     <plurals name="calendar_relative_days">
         <item quantity="one">%d రోజు</item>
@@ -588,7 +573,6 @@
         <item quantity="other">%d గంటలు</item>
     </plurals>
     <string name="calendar_relative_in_format">%1$s లో</string>
-    <string name="calendar_relative_in_minutes">%1$d నిమిషాల్లో</string>
     <plurals name="calendar_relative_minutes">
         <item quantity="one">%d నిమిషం</item>
         <item quantity="other">%d నిమిషాలు</item>
@@ -657,7 +641,6 @@
     <string name="notes_editor_notification_note_title">నోటిఫికేషన్ గమనిక</string>
     <string name="notes_empty_note_subtext">ఖాళీ గమనిక</string>
     <string name="notes_quick_note_title">త్వరిత గమనిక</string>
-    <string name="notes_quick_note_toggle_desc">స్వైప్ నావిగేషన్ నుండి త్వరిత గమనికను తెరువు</string>
     <string name="notes_title_hint">శీర్షిక</string>
     <string name="notes_untitled">శీర్షిక లేనిది</string>
     <string name="settings_notes_view_all_desc">అన్ని గమనికలను చూడండి</string>
@@ -727,8 +710,6 @@
     <string name="settings_features_export_failed">ఫీచర్ డాక్యుమెంటేషన్‌ను సేవ్ చేయడం సాధ్యపడలేదు.</string>
     <string name="settings_features_saved_to_downloads">డౌన్‌లోడ్‌లలో సేవ్ చేయబడింది</string>
     <string name="settings_features_sections_title">విషయాలు</string>
-    <string name="settings_search_description_change_app_theme">యాప్ థీమ్‌ను మార్చండి</string>
-    <string name="settings_search_description_change_font_size">యాప్ ఫాంట్ పరిమాణాన్ని మార్చండి</string>
     <string name="settings_search_description_change_icon_pack">ఐకాన్ ప్యాక్‌ను మార్చండి</string>
     <string name="settings_search_description_change_layout">యాప్ లేఅవుట్ ఎంపికలను మార్చండి</string>
     <string name="settings_search_description_change_wallpaper">వాల్‌పేపర్ రూపాన్ని మార్చండి</string>
@@ -757,9 +738,6 @@
     <string name="settings_appearance_title">రూపకల్పన</string>
     <string name="settings_assistant_voice_mode_desc">డిజిటల్ అసిస్టెంట్‌గా ప్రారంభించినప్పుడు వాయిస్ టైపింగ్‌ను ప్రారంభించండి</string>
     <string name="settings_assistant_voice_mode_title">అసిస్టెంట్ వాయిస్ మోడ్</string>
-    <string name="settings_beta_features_disabled">బీటా ఫీచర్లు నిలిపివేయబడ్డాయి</string>
-    <string name="settings_beta_features_enabled">కొత్త బీటా ఫీచర్లు ప్రారంభించబడ్డాయి</string>
-    <string name="settings_beta_features_unavailable">కొత్త ఫీచర్లు ఏవీ అందుబాటులో లేవు</string>
     <string name="settings_beta_tag">బీటా</string>
     <string name="settings_bottom_searchbar_desc">శోధన పట్టీని స్క్రీన్ దిగువన ఉంచండి</string>
     <string name="settings_bottom_searchbar_title">దిగువ శోధన పట్టీ</string>
@@ -870,8 +848,6 @@
     <string name="settings_refresh_contacts_title">పరిచయాలను రీఫ్రెష్ చేయి</string>
     <string name="settings_refresh_data_note">డేటా స్వయంచాలకంగా రీఫ్రెష్ చేయబడుతుంది. మాన్యువల్‌గా రీఫ్రెష్ చేయడానికి ఈ బటన్‌లను ఉపయోగించండి.</string>
     <string name="settings_refresh_data_title">డేటాను రీఫ్రెష్ చేయి</string>
-    <string name="settings_refresh_icon_packs">ఐకాన్ ప్యాక్‌లను రీఫ్రెష్ చేయి</string>
-    <string name="settings_refreshing_icon_packs">ఐకాన్ ప్యాక్‌ల జాబితాను రీఫ్రెష్ చేస్తోంది</string>
     <string name="settings_scroll_to_top">పైకి స్క్రోల్ చేయి</string>
     <string name="settings_search_hints_desc">శోధన సూచనలను ప్రారంభించండి/నిలిపివేయండి</string>
     <string name="settings_search_hints_title">శోధన సూచనలు</string>
@@ -883,8 +859,6 @@
     <string name="settings_themed_icons_desc">మీ థీమ్‌కు సరిపోయేలా యాప్ ఐకాన్‌లను రంగుతో నింపండి (Tint)</string>
     <string name="settings_themed_icons_title">థీమ్ యాప్ ఐకాన్‌లు</string>
     <string name="settings_tools_desc">క్యాలిక్యులేటర్, యూనిట్ కన్వర్టర్, డిక్షనరీ మరియు మరిన్ని</string>
-    <string name="settings_tools_gemini_api_desc">API కీని జోడించడం ద్వారా మరిన్ని సాధనాలు (Tools) అందుబాటులోకి వస్తాయి.</string>
-    <string name="settings_tools_gemini_api_title">AI ప్రొవైడర్‌ను కాన్ఫిగర్ చేయండి</string>
     <string name="settings_tools_info_examples_header">శోధన పట్టీలో మీరు అడగగలిగే వాటికి కొన్ని ఉదాహరణలు ఇక్కడ ఉన్నాయి</string>
     <string name="settings_tools_title">సాధనాలు</string>
     <string name="settings_at_a_glance_title">ఒక్క చూపులో</string>
@@ -892,7 +866,6 @@
     <string name="custom_info_edit_title">వివరాలను సవరించండి</string>
     <string name="custom_info_prompt">ప్రాంప్ట్</string>
     <string name="custom_info_set_date_time">తేదీ మరియు సమయం సెట్ చేయండి</string>
-    <string name="custom_info_desc">మీరు ఎంచుకున్న సమయాల్లో హోమ్‌లో మీ ప్రాంప్ట్‌లకు AI సమాధానాలు</string>
     <string name="settings_ai_api_key_required_message">ఈ ఫీచర్‌కు AI ప్రొవైడర్ API కీ అవసరం.</string>
     <string name="settings_ai_api_key_required_title">API కీ అవసరం</string>
     <string name="settings_ai_api_key_setup_action">కీని సెటప్ చేయండి</string>
@@ -998,7 +971,6 @@
     <string name="settings_alias_label">అలియాస్ (Alias):</string>
     <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_amazon_domain_label">డొమైన్:</string>
-    <string name="settings_api_key_saved_last4">****%1$sతో ముగిసే సేవ్ చేయబడిన కీ</string>
     <string name="settings_api_key_setup_desc">సంబంధిత AI ప్రొవైడర్ నుండి మోడల్‌లను యాక్సెస్ చేయడానికి API కీలను కాన్ఫిగర్ చేయండి.</string>
     <string name="settings_api_key_setup_nav_desc">ప్రొవైడర్ API కీలను జోడించండి లేదా తీసివేయండి</string>
     <string name="settings_configure_api_key_title">API కీని కాన్ఫిగర్ చేయండి</string>
@@ -1069,7 +1041,6 @@
     <string name="settings_backup_export_option_pinned_items_title">పిన్ చేసిన అంశాలు</string>
     <string name="settings_backup_export_option_api_keys">API కీలు</string>
     <string name="settings_backup_export_selection_title">డేటాను ఎగుమతి చేయి</string>
-    <string name="settings_backup_export_success">సెట్టింగ్‌లు విజయవంతంగా ఎగుమతి చేయబడ్డాయి.</string>
     <string name="settings_backup_import_button">దిగుమతి చేయి</string>
     <string name="settings_backup_import_failed">సెట్టింగ్‌లను దిగుమతి చేయడం సాధ్యపడలేదు.</string>
     <string name="settings_backup_import_success">సెట్టింగ్‌లు విజయవంతంగా దిగుమతి చేయబడ్డాయి.</string>
@@ -1124,7 +1095,6 @@
     <string name="date_calculator_category_time_ranges">సమయ పరిధులు</string>
     <string name="date_calculator_info_title">తేదీ &amp; సమయ క్యాలిక్యులేటర్</string>
     <string name="date_calculator_invalid_date">చెల్లని లేదా గుర్తించబడని తేదీ లేదా సమయం</string>
-    <string name="date_calculator_toggle_action_desc">తేదీ &amp; సమయ క్యాలిక్యులేటర్‌ను ఆన్ లేదా ఆఫ్ చేయండి</string>
     <string name="date_calculator_toggle_desc">ఉపయోగించే ఉదాహరణలు</string>
     <string name="dictionary_example_label">ఉదాహరణ: %1$s</string>
     <string name="dictionary_definition_not_found">“%1$s” కు నిర్వచనం కనుగొనబడలేదు</string>
@@ -1161,7 +1131,6 @@
     <string name="unit_converter_enter_conversion_hint">మార్పిడిని నమోదు చేయండి (ఉదా., 5lbs in kgs)</string>
     <string name="unit_converter_info_title">యూనిట్ కన్వర్టర్</string>
     <string name="unit_converter_invalid_or_unsupported_query">చెల్లని లేదా మద్దతు లేని మార్పిడి</string>
-    <string name="unit_converter_toggle_action_desc">యూనిట్ కన్వర్టర్‌ను ఆన్ లేదా ఆఫ్ చేయండి</string>
     <string name="world_clock_error_not_recognized">ఆ సమయ అభ్యర్థనను కనుగొనలేకపోయాము. నగరం, దేశం, సమయ మండలి లేదా నిర్దిష్ట సమయాన్ని ప్రయత్నించండి.</string>
     <string name="world_clock_toggle_desc">ఉదాహరణ: Time in Tokyo</string>
     <string name="world_clock_toggle_title">వరల్డ్ క్లాక్</string>
@@ -1326,7 +1295,6 @@
     <string name="search_engine_google_photos">Google Photos</string>
     <string name="search_engine_google_play">Google Play</string>
     <string name="search_engine_grok">Grok</string>
-    <string name="search_engine_onboarding_description">మీరు మీ శోధన ప్రశ్నను టైప్ చేసి, ఈ శోధన ఇంజిన్‌లలో దేనినైనా నొక్కినప్పుడు, అది ఆయా యాప్‌లలో శోధనను ప్రారంభిస్తుంది. వాటిని ఎక్కువసేపు నొక్కి పట్టుకోవడం ద్వారా మీరు సవరించవచ్చు.</string>
     <string name="search_engine_perplexity">Perplexity</string>
     <string name="search_engine_reddit">Reddit</string>
     <string name="search_engine_spotify">Spotify</string>
@@ -1519,7 +1487,6 @@
     <string name="bookmarks_link_label">లింక్</string>
     <string name="bookmarks_invalid_link">చెల్లుబాటు అయ్యే వెబ్ చిరునామాను నమోదు చేయండి</string>
     <string name="reminders_permission_hint">రిమైండర్ నోటిఫికేషన్‌లను చూపడానికి అనుమతి అవసరం. అనుమతించడానికి నొక్కండి.</string>
-    <string name="reminders_home_card_dismiss">హోమ్ నుండి తీసివేయండి</string>
     <string name="settings_include_past_reminders_title">గత రిమైండర్‌లు</string>
     <string name="settings_include_past_reminders_desc">గత రిమైండర్‌లను శోధన ఫలితాల్లో చూపండి</string>
     <string name="app_setting_create_reminder">రిమైండర్‌ను సృష్టించండి</string>

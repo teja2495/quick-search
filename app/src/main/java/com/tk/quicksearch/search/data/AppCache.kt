@@ -9,12 +9,10 @@ import java.io.BufferedOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.File
-import org.json.JSONArray
 
 /**
  * Manages persistent caching of app list to enable instant loading on app startup.
- * Uses a compact app-private file for startup reads, with the legacy SharedPreferences JSON
- * cache retained as a migration fallback.
+ * Uses a compact app-private file for startup reads.
  */
 class AppCache(
     context: Context,
@@ -28,23 +26,7 @@ class AppCache(
      */
     fun loadCachedApps(): List<AppInfo>? {
         val removedAppKeys = getRemovedAppKeys()
-        loadCachedAppsFromFile()?.let { return filterRemovedApps(it, removedAppKeys) }
-        if (!prefs.contains(KEY_APP_LIST)) return null
-
-        val migratedApps = runCatching {
-            val json = prefs.getString(KEY_APP_LIST, null) ?: return null
-            // Fast paths: empty or minimal content check without full parse
-            if (json.length < 10 || json == "[]") return null
-            JSONArray(json).toAppInfoList()
-        }.onFailure { exception ->
-            Log.e(TAG, "Failed to load legacy cached apps", exception)
-        }.getOrNull()
-
-        val filteredApps = migratedApps?.let { filterRemovedApps(it, removedAppKeys) }
-        if (!filteredApps.isNullOrEmpty()) {
-            saveAppsToFile(filteredApps)
-        }
-        return filteredApps
+        return loadCachedAppsFromFile()?.let { filterRemovedApps(it, removedAppKeys) }
     }
 
     /**
@@ -209,58 +191,11 @@ class AppCache(
         @Volatile
         private var lastPersistedApps: List<AppInfo>? = null
         private const val PREFS_NAME = "app_cache"
-        private const val KEY_APP_LIST = "app_list"
         private const val KEY_LAST_UPDATE = "last_update"
         private const val KEY_CATALOG_INVALIDATED = "catalog_invalidated"
         private const val KEY_REMOVED_APP_KEYS = "removed_app_keys"
         private const val CACHE_FILE_NAME = "app_cache_v1.bin"
         private const val CACHE_FILE_VERSION = 7
-
-        // JSON field names
-        private const val FIELD_APP_NAME = "appName"
-        private const val FIELD_SEARCH_ALIASES = "searchAliases"
-        private const val FIELD_PACKAGE_NAME = "packageName"
-        private const val FIELD_LAST_USED_TIME = "lastUsedTime"
-        private const val FIELD_TOTAL_TIME_IN_FOREGROUND = "totalTimeInForeground"
-        private const val FIELD_LAUNCH_COUNT = "launchCount"
-        private const val FIELD_FIRST_INSTALL_TIME = "firstInstallTime"
-        private const val FIELD_LAST_UPDATE_TIME = "lastUpdateTime"
-        private const val FIELD_IS_SYSTEM_APP = "isSystemApp"
-        private const val FIELD_HAS_LAUNCH_INTENT = "hasLaunchIntent"
-        private const val FIELD_USER_HANDLE_ID = "userHandleId"
-        private const val FIELD_COMPONENT_NAME = "componentName"
-
-        private fun JSONArray.toAppInfoList(): List<AppInfo> =
-            List(length()) { index ->
-                val jsonObject = getJSONObject(index)
-                val userHandleId =
-                    jsonObject.optInt(FIELD_USER_HANDLE_ID, -1).takeIf { it >= 0 }
-                AppInfo(
-                    appName = jsonObject.getString(FIELD_APP_NAME),
-                    searchAliases =
-                        jsonObject
-                            .optJSONArray(FIELD_SEARCH_ALIASES)
-                            ?.let { aliases ->
-                                List(aliases.length()) { index -> aliases.optString(index) }
-                                    .filter { it.isNotBlank() }
-                            }
-                            .orEmpty(),
-                    packageName = jsonObject.getString(FIELD_PACKAGE_NAME),
-                    lastUsedTime = jsonObject.getLong(FIELD_LAST_USED_TIME),
-                    totalTimeInForeground = jsonObject.optLong(FIELD_TOTAL_TIME_IN_FOREGROUND, 0L),
-                    launchCount = jsonObject.optInt(FIELD_LAUNCH_COUNT, 0),
-                    firstInstallTime = jsonObject.optLong(FIELD_FIRST_INSTALL_TIME, 0L),
-                    isSystemApp = jsonObject.getBoolean(FIELD_IS_SYSTEM_APP),
-                    hasLaunchIntent = jsonObject.optBoolean(FIELD_HAS_LAUNCH_INTENT, true),
-                    userHandleId = userHandleId,
-                    componentName = jsonObject.optString(FIELD_COMPONENT_NAME).takeIf { it.isNotBlank() },
-                    lastUpdateTime =
-                        jsonObject.optLong(
-                            FIELD_LAST_UPDATE_TIME,
-                            jsonObject.optLong(FIELD_FIRST_INSTALL_TIME, 0L),
-                        ),
-                )
-            }
 
         private fun DataInputStream.readAppInfo(version: Int): AppInfo {
             val appName = readUTF()

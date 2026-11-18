@@ -25,14 +25,11 @@
 <string name="quick_search_help_intro">Введите вопрос после @help, чтобы получить ответы о функциях и настройках Quick Search.</string>
 <string name="gemini_web_search_quota_fallback_tip">Квота Gemini на веб-поиск исчерпана, поэтому этот ответ был создан без веб-поиска.</string>
 <string name="direct_search_powered_by">Работает на базе</string>
-<string name="empty_state_subtitle">Запустите приложение или уточните запрос, чтобы увидеть подсказки.</string>
-<string name="empty_state_title">Пока ничего нет</string>
 <string name="error_action_not_available">Действие недоступно</string>
 <string name="error_gemini_empty_response">Пустой ответ от Gemini</string>
 <string name="error_gemini_load_models_failed">Не удалось загрузить модели Gemini</string>
 <string name="error_gemini_request_failed">Ошибка запроса (%1$d)</string>
 <string name="error_unknown">Неизвестная ошибка</string>
-<string name="gemini_model_flash_latest">Gemini Flash (последняя версия)</string>
 <string name="keyboard_switch_back">Обычная клавиатура</string>
 <string name="keyboard_switch_to_number">Цифровая клавиатура</string>
     <string name="no_results_found">Результатов не найдено. Нажмите на одну из поисковых систем ниже, чтобы выполнить поиск в сети.</string>
@@ -151,7 +148,6 @@
 <string name="settings_gesture_view_all_apps">Показать все приложения</string>
 <string name="settings_gesture_lock_screen">Заблокировать экран</string>
 <string name="settings_gesture_lock_screen_requires_accessibility">Требуется разрешение специальных возможностей</string>
-<string name="accessibility_lock_screen_service_label">Quick Search</string>
 <string name="accessibility_lock_screen_service_description">Позволяет Quick Search блокировать экран двойным касанием на главном экране, реагировать на нажатия на вырез, открываться смахиванием от края или с помощью плавающей кнопки в любом приложении и показывать SpeedBump для приложений, открытых вне Quick Search. Проверяет только, какое приложение открыто, и не считывает содержимое экрана.</string>
 <string name="accessibility_service_stopped_hint">Android остановил службу специальных возможностей Quick Search. Выключите и снова включите её в настройках специальных возможностей.</string>
 <string name="accessibility_permission_disclaimer_title">Уведомление о разрешении специальных возможностей</string>
@@ -280,7 +276,6 @@
 <string name="app_suggestions_tabs_dialog_message">Выберите, какие вкладки с подсказками приложений отображать на главном экране.</string>
 <string name="app_suggestions_tabs_dialog_title">Вкладки с подсказками приложений</string>
 <string name="app_suggestions_enabled_tabs_picker_hint">Выбрать вкладки</string>
-<string name="app_suggestions_tab_required_toast">Должна быть включена хотя бы одна вкладка с подсказками приложений</string>
 <string name="app_suggestions_toggle_desc">Показывать или скрывать рекомендуемые приложения на главном экране</string>
 <string name="app_suggestions_toggle_title">Подсказки приложений</string>
 <string name="show_all_apps_button_toggle_desc">Показывать кнопку \"Все приложения\" под подсказками приложений</string>
@@ -326,7 +321,6 @@
 <string name="section_media">Управление медиа</string>
 <string name="section_settings">Настройки устройства</string>
 <string name="search_section_menu_title">Искать в</string>
-<string name="top_match_title">Лучшее совпадение</string>
 <string name="top_matches_count_label">Количество совпадений</string>
 <string name="top_matches_priority_desc">Изменить приоритет и отключить элементы в лучших совпадениях</string>
 <string name="top_matches_priority_dialog_info">Удерживайте и перетаскивайте элементы, чтобы изменить приоритет. Используйте переключатели для включения или отключения определенных типов результатов.</string>
@@ -375,7 +369,6 @@
 <string name="settings_app_info_last_update">Последнее обновление</string>
 <string name="settings_app_info_minimum_sdk">Минимальная версия SDK</string>
 <string name="settings_app_info_not_available">Нет данных</string>
-<string name="settings_app_info_package_name">Имя пакета</string>
 <string name="settings_app_info_target_sdk">Целевая версия SDK</string>
 <string name="settings_app_info_version">Версия</string>
 <string name="settings_app_info_version_code">Код версии</string>
@@ -486,10 +479,7 @@
     <string name="contacts_action_hint_message">Подсказка: нажмите и удерживайте любое действие здесь, чтобы настроить его для конкретного контакта.</string>
 <string name="contacts_action_next_number">Следующий номер телефона</string>
 <string name="contacts_action_previous_number">Предыдущий номер телефона</string>
-<string name="contacts_action_signal">Связаться через Signal</string>
 <string name="contacts_action_sms">Написать контакту</string>
-<string name="contacts_action_telegram">Связаться через Telegram</string>
-<string name="contacts_action_whatsapp">Связаться через WhatsApp</string>
 <string name="contacts_no_methods_available">Нет доступных способов связи</string>
 <string name="contacts_refreshed_successfully">Список контактов успешно обновлен</string>
 <string name="contacts_section_permission_subtitle">Для поиска по контактам требуется соответствующее разрешение</string>
@@ -575,13 +565,8 @@
 <!-- ============================================================================
      Calendar
      ============================================================================ -->
-<string name="app_settings_create_calendar_event_desc">Создать и добавить новое событие</string>
-<string name="app_settings_create_calendar_event_title">Новое событие календаря</string>
 <string name="calendar_create_event_name_hint">Название события</string>
 <string name="calendar_create_event_select_date">Выберите дату</string>
-<string name="calendar_create_event_sync_notice">Это событие не будет синхронизировано с системным календарем вашего устройства</string>
-<string name="calendar_create_event_title">Новое событие</string>
-<string name="calendar_edit_event_title">Изменить событие</string>
 <string name="calendar_relative_ago_format">%1$s назад</string>
 <plurals name="calendar_relative_days">
     <item quantity="one">%d день</item>
@@ -596,7 +581,6 @@
     <item quantity="other">%d часа</item>
 </plurals>
 <string name="calendar_relative_in_format">через %1$s</string>
-<string name="calendar_relative_in_minutes">через %1$d минут</string>
 <plurals name="calendar_relative_minutes">
     <item quantity="one">%d минута</item>
     <item quantity="few">%d минуты</item>
@@ -679,7 +663,6 @@
 <string name="notes_editor_notification_note_title">Заметка в уведомлениях</string>
 <string name="notes_empty_note_subtext">Пустая заметка</string>
 <string name="notes_quick_note_title">Быстрая заметка</string>
-<string name="notes_quick_note_toggle_desc">Открывать быструю заметку жестом бокового свайпа</string>
 <string name="notes_title_hint">Заголовок</string>
 <string name="notes_untitled">Без названия</string>
     <string name="settings_notes_view_all_desc">Просмотреть все заметки</string>
@@ -749,8 +732,6 @@
 <string name="settings_features_export_failed">Не удалось сохранить документацию функций.</string>
 <string name="settings_features_saved_to_downloads">Сохранено в папку «Загрузки»</string>
 <string name="settings_features_sections_title">Содержание</string>
-<string name="settings_search_description_change_app_theme">Изменить тему приложения</string>
-<string name="settings_search_description_change_font_size">Изменить размер шрифта приложения</string>
 <string name="settings_search_description_change_icon_pack">Изменить пакет значков</string>
 <string name="settings_search_description_change_layout">Изменить параметры макета приложения</string>
 <string name="settings_search_description_change_wallpaper">Изменить внешний вид обоев</string>
@@ -779,9 +760,6 @@
 <string name="settings_appearance_title">Внешний вид</string>
 <string name="settings_assistant_voice_mode_desc">Запускать голосовой ввод при вызове в качестве цифрового помощника</string>
 <string name="settings_assistant_voice_mode_title">Голосовой режим помощника</string>
-<string name="settings_beta_features_disabled">Бета-функции отключены</string>
-<string name="settings_beta_features_enabled">Новые бета-функции включены</string>
-<string name="settings_beta_features_unavailable">Нет доступных новых функций</string>
 <string name="settings_beta_tag">Бета</string>
 <string name="settings_bottom_searchbar_desc">Расположить поисковую строку внизу экрана</string>
 <string name="settings_bottom_searchbar_title">Нижняя поисковая строка</string>
@@ -892,8 +870,6 @@
     <string name="settings_refresh_contacts_title">Обновить контакты</string>
 <string name="settings_refresh_data_note">Данные обновляются автоматически. Используйте эти кнопки для принудительного обновления вручную.</string>
 <string name="settings_refresh_data_title">Обновление данных</string>
-<string name="settings_refresh_icon_packs">Обновить пакеты значков</string>
-<string name="settings_refreshing_icon_packs">Обновление списка пакетов значков</string>
 <string name="settings_scroll_to_top">Прокрутить наверх</string>
 <string name="settings_search_hints_desc">Включить/отключить чередующиеся подсказки в поисковой строке</string>
 <string name="settings_search_hints_title">Подсказки при поиске</string>
@@ -905,8 +881,6 @@
 <string name="settings_themed_icons_desc">Тонировать значки приложений под цвет темы</string>
 <string name="settings_themed_icons_title">Тематические значки</string>
 <string name="settings_tools_desc">Калькулятор, конвертер величин, словарь и многое другое</string>
-<string name="settings_tools_gemini_api_desc">Добавление API-ключа активирует больше инструментов.</string>
-<string name="settings_tools_gemini_api_title">Настройка AI-провайдера</string>
 <string name="settings_tools_info_examples_header">Вот несколько примеров того, что можно ввести в поисковой строке</string>
 <string name="settings_tools_title">Инструменты</string>
 <string name="settings_at_a_glance_title">Кратко</string>
@@ -914,7 +888,6 @@
 <string name="custom_info_edit_title">Изменить данные</string>
 <string name="custom_info_prompt">Запрос</string>
 <string name="custom_info_set_date_time">Установить дату и время</string>
-<string name="custom_info_desc">Ответы ИИ на ваши запросы на главном экране в выбранное время</string>
 <string name="settings_ai_api_key_required_message">Для этой функции требуется API-ключ AI-провайдера.</string>
 <string name="settings_ai_api_key_required_title">Требуется API-ключ</string>
 <string name="settings_ai_api_key_setup_action">Настроить ключ</string>
@@ -1024,7 +997,6 @@
 <string name="settings_alias_label">Алиас:</string>
 <string name="settings_amazon_domain_default">amazon.com</string>
 <string name="settings_amazon_domain_label">Домен:</string>
-<string name="settings_api_key_saved_last4">Сохранен ключ, оканчивающийся на ****%1$s</string>
 <string name="settings_api_key_setup_desc">Настройте API-ключи для доступа к моделям соответствующего AI-провайдера.</string>
 <string name="settings_api_key_setup_nav_desc">Добавление или удаление API-ключей провайдеров</string>
 <string name="settings_configure_api_key_title">Настроить API-ключ</string>
@@ -1095,7 +1067,6 @@
 <string name="settings_backup_export_option_pinned_items_title">Закрепленные элементы</string>
 <string name="settings_backup_export_option_api_keys">API-ключи</string>
 <string name="settings_backup_export_selection_title">Экспорт данных</string>
-<string name="settings_backup_export_success">Настройки успешно экспортированы.</string>
 <string name="settings_backup_import_button">Импорт</string>
 <string name="settings_backup_import_failed">Не удалось импортировать настройки.</string>
 <string name="settings_backup_import_success">Настройки успешно импортированы.</string>
@@ -1150,7 +1121,6 @@
 <string name="date_calculator_category_time_ranges">Временные диапазоны</string>
 <string name="date_calculator_info_title">Калькулятор даты и времени</string>
 <string name="date_calculator_invalid_date">Неверная или нераспознанная дата/время</string>
-<string name="date_calculator_toggle_action_desc">Включить или отключить калькулятор даты и времени</string>
 <string name="date_calculator_toggle_desc">Примеры использования</string>
 <string name="dictionary_example_label">Пример: %1$s</string>
 <string name="dictionary_definition_not_found">Определение для «%1$s» не найдено</string>
@@ -1187,7 +1157,6 @@
     <string name="unit_converter_enter_conversion_hint">Введите запрос для конвертации (например, 5lbs в kgs)</string>
 <string name="unit_converter_info_title">Конвертер величин</string>
 <string name="unit_converter_invalid_or_unsupported_query">Неверное или неподдерживаемое преобразование</string>
-<string name="unit_converter_toggle_action_desc">Включить или отключить конвертер величин</string>
 <string name="world_clock_error_not_recognized">Не удалось обработать запрос времени. Попробуйте указать город, страну, часовой пояс или точное время.</string>
 <string name="world_clock_toggle_desc">Пример: Time in Tokyo</string>
 <string name="world_clock_toggle_title">Мировое время</string>
@@ -1352,7 +1321,6 @@
 <string name="search_engine_google_photos">Google Фото</string>
 <string name="search_engine_google_play">Google Play</string>
 <string name="search_engine_grok">Grok</string>
-<string name="search_engine_onboarding_description">Когда вы вводите поисковый запрос и нажимаете на любую из этих поисковых систем, запустится поиск внутри этих приложений. Вы можете изменить их по долгому нажатию.</string>
 <string name="search_engine_perplexity">Perplexity</string>
 <string name="search_engine_reddit">Reddit</string>
 <string name="search_engine_spotify">Spotify</string>
@@ -1545,7 +1513,6 @@
     <string name="bookmarks_link_label">Ссылка</string>
     <string name="bookmarks_invalid_link">Введите корректный веб-адрес</string>
     <string name="reminders_permission_hint">Требуется разрешение на показ уведомлений о напоминаниях. Нажмите, чтобы разрешить.</string>
-    <string name="reminders_home_card_dismiss">Убрать с главного экрана</string>
     <string name="settings_include_past_reminders_title">Прошедшие напоминания</string>
     <string name="settings_include_past_reminders_desc">Показывать прошлые напоминания в результатах поиска</string>
     <string name="app_setting_create_reminder">Создать напоминание</string>

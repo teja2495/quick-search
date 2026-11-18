@@ -115,7 +115,6 @@ internal fun SearchPreferencesDelegate.setAiBackedToolSettings(
                 AiBackedToolConfigId.WEATHER -> {
                     userPreferences.setWeatherProviderId(providerId)
                     userPreferences.setWeatherModel(normalizedModelId)
-                    userPreferences.setWeatherGroundingEnabled(true)
                     if (userPreferences.getWeatherThinkingOverride() != null ||
                         thinkingEnabled != userPreferences.isLlmThinkingEnabled(providerId)
                     ) {

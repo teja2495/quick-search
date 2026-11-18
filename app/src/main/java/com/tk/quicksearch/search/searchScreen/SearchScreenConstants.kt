@@ -6,7 +6,6 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchUiState
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.shared.util.getAppGridColumns
@@ -29,7 +28,6 @@ enum class ExpandedSection {
 internal object SearchScreenConstants {
     const val INITIAL_RESULT_COUNT = 1
     const val ROW_COUNT = 2
-    const val COLUMNS = 5
     val EXPANDED_CARD_MAX_HEIGHT = 600.dp
 }
 
@@ -86,8 +84,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
     val hasPinnedFiles = state.pinnedFiles.isNotEmpty() && state.hasFilePermission
     val hasPinnedSettings = state.pinnedSettings.isNotEmpty()
     val hasPinnedCalendarEvents = state.pinnedCalendarEvents.isNotEmpty() && state.hasCalendarPermission
-    val notesEnabled = FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES)
-    val hasPinnedNotes = notesEnabled && state.pinnedNotes.isNotEmpty()
+    val hasPinnedNotes = state.pinnedNotes.isNotEmpty()
     val hasPinnedReminders = state.pinnedReminders.isNotEmpty()
     // Pinned shortcuts shown in the app grid do not also render as a pinned section.
     val hasPinnedAppShortcuts =
@@ -145,7 +142,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
     val hasAppShortcutResults = state.appShortcutResults.isNotEmpty()
     val hasCalendarResults = state.calendarEvents.isNotEmpty() ||
         (!isSearching && state.todayCalendarEvents.isNotEmpty())
-    val hasNoteResults = notesEnabled && state.noteResults.isNotEmpty()
+    val hasNoteResults = state.noteResults.isNotEmpty()
     val hasReminderResults = state.reminderResults.isNotEmpty()
     val hasBookmarkResults = state.bookmarkResults.isNotEmpty()
     val hasNotedResults = state.notedResults.isNotEmpty()
@@ -179,14 +176,13 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
             state.disabledSections,
             state.detectedAliasSearchSection,
             hasAppSettingResults,
-            notesEnabled,
         ) {
             ItemPriorityConfig.getSearchResultsPriority().filter { section ->
                 !isSearching ||
                     section !in state.disabledSections ||
                     state.detectedAliasSearchSection == section ||
                     (section == SearchSection.SETTINGS && hasAppSettingResults) ||
-                    (section == SearchSection.NOTES && notesEnabled)
+                    section == SearchSection.NOTES
             }
         }
 
@@ -234,7 +230,6 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
         ) &&
             (!state.hasCalendarPermission || hasCalendarResults || hasPinnedCalendarEvents)
     val shouldShowNotes =
-        notesEnabled &&
             (
             !isSearching ||
                 SearchSection.NOTES !in state.disabledSections ||

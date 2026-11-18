@@ -589,9 +589,6 @@ internal class SearchStartupLifecycleDelegate(
             )
             updateConfigState { state ->
                 state.copy(
-                    showSearchEngineOnboarding =
-                        searchEngineManager.isSearchEngineCompactMode &&
-                            !userPreferences.hasSeenSearchEngineOnboarding(),
                     showSearchBarWelcomeAnimation = shouldShowSearchBarWelcome(),
                     appSuggestionsEnabled = userPreferences.areAppSuggestionsEnabled(),
                     showAllAppsButton = userPreferences.shouldShowAllAppsButton(),

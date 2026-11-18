@@ -722,12 +722,4 @@ class AiSearchHandler(
     private fun ensureModelExists(models: List<LlmTextModel>): List<LlmTextModel> =
         models.distinctBy { it.id }
 
-    /**
-     * When the catalog entry is missing (e.g. stale cache), match [GeminiClient] Gemma
-     * heuristics so we do not send `systemInstruction` JSON for models that reject it.
-     */
-    private fun modelSupportsSystemInstructions(modelId: String): Boolean {
-        val model = availableModels.find { it.id == modelId }
-        return model?.supportsSystemInstructions ?: !modelId.lowercase().startsWith("gemma-")
-    }
 }

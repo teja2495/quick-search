@@ -400,8 +400,4 @@ object ThemeColorRegistry {
         isDarkMode: Boolean,
     ): List<Color> = if (isDarkMode) bundle(theme).darkGradient else bundle(theme).lightGradient
 
-    fun themedIconColors(
-        theme: AppTheme,
-        isDarkMode: Boolean,
-    ): ThemedIconColors = if (isDarkMode) bundle(theme).darkThemedIconColors else bundle(theme).lightThemedIconColors
 }

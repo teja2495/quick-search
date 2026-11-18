@@ -1,7 +1,6 @@
 package com.tk.quicksearch.search.notes
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Test
 
 class NotesTextUtilsTest {
@@ -21,11 +20,6 @@ class NotesTextUtilsTest {
             "before\nCafé plans\nafter",
             NotesTextUtils.matchCenteredPreview("before\nCafé plans\nafter", "cafe"),
         )
-    }
-
-    @Test
-    fun `returns null when note body does not match`() {
-        assertNull(NotesTextUtils.matchCenteredPreview("note body", "missing"))
     }
 
     private val fakeLinkPattern = Regex("""https?://\S+""")

@@ -7,17 +7,6 @@ import org.junit.Test
 class FuzzyMatcherTest {
 
     @Test
-    fun maxEditDistanceForQueryUsesMediumDistanceForShortAndMediumQueries() {
-        assertEquals(1, FuzzyMatcher.maxEditDistanceForQuery("yt"))
-        assertEquals(1, FuzzyMatcher.maxEditDistanceForQuery("sett"))
-    }
-
-    @Test
-    fun maxEditDistanceForQueryAllowsLongDistanceForLongQueries() {
-        assertEquals(2, FuzzyMatcher.maxEditDistanceForQuery("setting"))
-    }
-
-    @Test
     fun scoreRejectsTooDistantTypoWhenEditDistanceIsCapped() {
         val score =
             FuzzyMatcher.score(

@@ -22,11 +22,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.data.notes.NotesRoomStore
 import com.tk.quicksearch.search.data.preferences.BasePreferences
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.core.content.FileProvider
 import java.io.File
@@ -56,13 +54,7 @@ internal fun loadExportSelectionState(context: Context): ExportSelectionState {
             userPrefs.getStringSet(key, emptySet()).orEmpty().isNotEmpty()
         }
     val hasNotes =
-        FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES) &&
             NotesRoomStore(context).hasAny()
-    val hasCustomCalendarEvents =
-        run {
-            val eventsJson = userPrefs.getString(BasePreferences.KEY_CUSTOM_CALENDAR_EVENTS_DATA, null).orEmpty()
-            eventsJson.isNotBlank() && eventsJson != "[]"
-        }
     val hasReminders =
         run {
             val remindersJson = userPrefs.getString(BasePreferences.KEY_REMINDERS_DATA, null).orEmpty()
@@ -74,14 +66,12 @@ internal fun loadExportSelectionState(context: Context): ExportSelectionState {
     return ExportSelectionState(
         includePinnedItems = hasPinnedItems,
         includeNotes = hasNotes,
-        includeCalendarEvents = hasCustomCalendarEvents,
         includeReminders = hasReminders,
         includeBookmarks = hasBookmarks,
         includeSearchHistory = searchHistoryEnabled,
         includeApiKeys = false,
         showPinnedItemsOption = hasPinnedItems,
         showNotesOption = hasNotes,
-        showCalendarEventsOption = hasCustomCalendarEvents,
         showRemindersOption = hasReminders,
         showBookmarksOption = hasBookmarks,
         showSearchHistoryOption = searchHistoryEnabled,

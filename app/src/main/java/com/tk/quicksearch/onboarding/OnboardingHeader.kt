@@ -15,8 +15,6 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 @Composable
 fun OnboardingHeader(
     title: String,
-    currentStep: Int,
-    totalSteps: Int,
     modifier: Modifier = Modifier,
     topPadding: Dp = DesignTokens.Spacing40,
 ) {

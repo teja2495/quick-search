@@ -24,14 +24,4 @@ class AppSearchManagerNoMatchPrefixTest {
             ),
         )
     }
-
-    @Test
-    fun singleCharacterQueriesAreNeverSkipped() {
-        assertFalse(
-            AppSearchManager.shouldSkipDueToNoMatchPrefix(
-                normalizedQuery = "t",
-                noMatchPrefix = "ti",
-            ),
-        )
-    }
 }

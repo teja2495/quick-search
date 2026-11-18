@@ -38,7 +38,6 @@ import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.searchEngines.*
 import com.tk.quicksearch.settings.settingsDetailScreen.PriorityReorderDialog
 import com.tk.quicksearch.settings.appearanceSettings.withHiddenPinnedSectionsRestored
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.homeTextColor
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
@@ -313,7 +312,6 @@ internal fun HomePinnedSectionOrderDialog(
     if (showPinnedSectionOrderDialog) {
         val pinnedSectionOrderItems =
             state.homePinnedSectionOrder.filter { section ->
-                FeatureFlags.isSearchSectionEnabled(section) &&
                     !(state.pinnedAppShortcutsInAppGrid && section == SearchSection.APP_SHORTCUTS)
             }
         PriorityReorderDialog(

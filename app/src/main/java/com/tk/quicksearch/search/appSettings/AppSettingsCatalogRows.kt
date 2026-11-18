@@ -34,9 +34,6 @@ internal val AppSettingsDestination.isNotchGestureDestination: Boolean
             this == AppSettingsDestination.GESTURE_NOTCH_DOUBLE_TAP ||
             this == AppSettingsDestination.GESTURE_NOTCH_LONG_PRESS
 
-internal val AppSettingsDestination.isGestureDestination: Boolean
-    get() = GESTURE_APP_SETTINGS.any { it.third == this }
-
 /** Null for sections without a settings toggle (Noted). */
 internal fun searchSectionToggleId(section: SearchSection): String? =
     when (section) {

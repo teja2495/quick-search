@@ -1,7 +1,6 @@
 package com.tk.quicksearch.search.core
 
 import com.tk.quicksearch.search.appSettings.AppSettingsToggleKey
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 
 /**
  * Canonical definition table for every search section.
@@ -132,7 +131,7 @@ object SearchSectionRegistry {
     private val bySection = allDefinitions.associateBy { it.section }
 
     private val enabledDefinitions: List<SearchSectionDefinition>
-        get() = allDefinitions.filter { definition -> FeatureFlags.isSearchSectionEnabled(definition.section) }
+        get() = allDefinitions
 
     private val byAliasTargetId: Map<String, SearchSectionDefinition>
         get() = enabledDefinitions.associateBy { it.aliasTargetId }

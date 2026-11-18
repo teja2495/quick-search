@@ -4,7 +4,6 @@ import com.tk.quicksearch.search.core.AccentColorMode
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
-import com.tk.quicksearch.search.core.LauncherAppIcon
 import com.tk.quicksearch.search.core.SearchUiState
 
 /**
@@ -17,7 +16,6 @@ internal data class MainRootState(
     val showStatusBar: Boolean,
     val appTheme: AppTheme,
     val appThemeMode: AppThemeMode,
-    val launcherAppIcon: LauncherAppIcon,
     val fontScaleMultiplier: Float,
     val useSystemFont: Boolean,
     val backgroundSource: BackgroundSource,
@@ -37,7 +35,6 @@ internal data class MainRootState(
                 showStatusBar = state.showStatusBar,
                 appTheme = state.appTheme,
                 appThemeMode = state.appThemeMode,
-                launcherAppIcon = state.launcherAppIcon,
                 fontScaleMultiplier = state.fontScaleMultiplier,
                 useSystemFont = state.useSystemFont,
                 backgroundSource = state.backgroundSource,

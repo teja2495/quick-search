@@ -16,14 +16,11 @@
     <string name="quick_search_help_intro">Type a question after @help to get answers about Quick Search features and settings.</string>
     <string name="gemini_web_search_quota_fallback_tip">Gemini\u2019s web search quota was reached, so this answer was generated without web search.</string>
     <string name="direct_search_powered_by">Powered by</string>
-    <string name="empty_state_subtitle">Launch an app or refine your search to see suggestions.</string>
-    <string name="empty_state_title">Nothing to show (yet)</string>
     <string name="error_action_not_available">Action not available</string>
     <string name="error_gemini_empty_response">Empty response from Gemini</string>
     <string name="error_gemini_load_models_failed">Unable to load Gemini models</string>
     <string name="error_gemini_request_failed">Request failed (%1$d)</string>
     <string name="error_unknown">Unknown error</string>
-    <string name="gemini_model_flash_latest">Gemini Flash (Latest)</string>
     <string name="keyboard_switch_back">Regular Keyboard</string>
     <string name="keyboard_switch_to_number">Number Keyboard</string>
     <string name="no_results_found">No results found. Try tapping a search engine below to search the web.</string>
@@ -151,7 +148,6 @@
     <string name="settings_gesture_view_all_apps">View All Apps</string>
     <string name="settings_gesture_lock_screen">Lock Screen</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">Requires Accessibility Permission</string>
-    <string name="accessibility_lock_screen_service_label">Quick Search</string>
     <string name="accessibility_lock_screen_service_description">Allows Quick Search to lock the screen from the Home double-tap gesture, respond to notch taps, open from an edge swipe or a floating button in any app, and show SpeedBump for apps opened outside Quick Search. It only checks which app is open and does not read screen content.</string>
     <string name="accessibility_service_stopped_hint">Android stopped Quick Search\'s accessibility service. Turn it off and on again in Accessibility settings.</string>
     <string name="accessibility_permission_disclaimer_title">Accessibility Permission Disclaimer</string>
@@ -280,7 +276,6 @@
     <string name="app_suggestions_tabs_dialog_message">Choose which app suggestion tabs appear on the home screen.</string>
     <string name="app_suggestions_tabs_dialog_title">App Suggestion Tabs</string>
     <string name="app_suggestions_enabled_tabs_picker_hint">Choose Tabs</string>
-    <string name="app_suggestions_tab_required_toast">Keep at least one app suggestion tab enabled</string>
     <string name="app_suggestions_toggle_desc">Show or hide suggested apps on the home screen</string>
     <string name="app_suggestions_toggle_title">App Suggestions</string>
     <string name="show_all_apps_button_toggle_desc">Show All Apps button below app suggestions</string>
@@ -331,7 +326,6 @@
     <string name="section_media">Media Controls</string>
     <string name="section_settings">Device Settings</string>
     <string name="search_section_menu_title">Search in</string>
-    <string name="top_match_title">Top Match</string>
     <string name="top_matches_count_label">No. of matches</string>
     <string name="top_matches_priority_desc">Change priority and disable items in top matches</string>
     <string name="top_matches_priority_dialog_info">Hold and drag to change priority, and use the toggle to enable or disable certain result types.</string>
@@ -380,7 +374,6 @@
     <string name="settings_app_info_last_update">Last Update</string>
     <string name="settings_app_info_minimum_sdk">Minimum SDK</string>
     <string name="settings_app_info_not_available">Not available</string>
-    <string name="settings_app_info_package_name">Package Name</string>
     <string name="settings_app_info_target_sdk">Target SDK</string>
     <string name="settings_app_info_version">Version</string>
     <string name="settings_app_info_version_code">Version Code</string>
@@ -489,10 +482,7 @@
     <string name="contacts_action_hint_message">Tip: Press and hold any action here to customize it for individual contacts.</string>
     <string name="contacts_action_next_number">Next phone number</string>
     <string name="contacts_action_previous_number">Previous phone number</string>
-    <string name="contacts_action_signal">Signal contact</string>
     <string name="contacts_action_sms">Message contact</string>
-    <string name="contacts_action_telegram">Telegram contact</string>
-    <string name="contacts_action_whatsapp">WhatsApp contact</string>
     <string name="contacts_no_methods_available">No contact methods available</string>
     <string name="contacts_refreshed_successfully">Contacts refreshed successfully</string>
     <string name="contacts_section_permission_subtitle">Contacts permission is required to perform contact search</string>
@@ -580,13 +570,8 @@
     <!-- ============================================================================
          Calendar
          ============================================================================ -->
-    <string name="app_settings_create_calendar_event_desc">Create and add a new event</string>
-    <string name="app_settings_create_calendar_event_title">New Calendar Event</string>
     <string name="calendar_create_event_name_hint">Event name</string>
     <string name="calendar_create_event_select_date">Select date</string>
-    <string name="calendar_create_event_sync_notice">This event won\'t sync to your device calendar</string>
-    <string name="calendar_create_event_title">New Event</string>
-    <string name="calendar_edit_event_title">Edit Event</string>
     <string name="calendar_relative_ago_format">%1$s ago</string>
     <plurals name="calendar_relative_days">
         <item quantity="one">%d day</item>
@@ -597,7 +582,6 @@
         <item quantity="other">%d hours</item>
     </plurals>
     <string name="calendar_relative_in_format">in %1$s</string>
-    <string name="calendar_relative_in_minutes">in %1$d minutes</string>
     <plurals name="calendar_relative_minutes">
         <item quantity="one">%d minute</item>
         <item quantity="other">%d minutes</item>
@@ -666,7 +650,6 @@
     <string name="notes_editor_notification_note_title">Notification Note</string>
     <string name="notes_empty_note_subtext">Empty note</string>
     <string name="notes_quick_note_title">Quick Note</string>
-    <string name="notes_quick_note_toggle_desc">Open Quick Note from swipe navigation</string>
     <string name="notes_title_hint">Title</string>
     <string name="notes_untitled">Untitled</string>
     <string name="settings_notes_view_all_desc">View all notes</string>
@@ -738,8 +721,6 @@
     <string name="settings_features_export_failed">Unable to save feature documentation.</string>
     <string name="settings_features_saved_to_downloads">Saved to downloads</string>
     <string name="settings_features_sections_title">Contents</string>
-    <string name="settings_search_description_change_app_theme">Change app theme</string>
-    <string name="settings_search_description_change_font_size">Change app font size</string>
     <string name="settings_search_description_change_icon_pack">Change icon pack</string>
     <string name="settings_search_description_change_layout">Change app layout options</string>
     <string name="settings_search_description_change_wallpaper">Change wallpaper appearance</string>
@@ -768,9 +749,6 @@
     <string name="settings_appearance_title">Appearance</string>
     <string name="settings_assistant_voice_mode_desc">Launch voice typing when launched as digital assistant</string>
     <string name="settings_assistant_voice_mode_title">Assistant Voice Mode</string>
-    <string name="settings_beta_features_disabled">Beta features are disabled</string>
-    <string name="settings_beta_features_enabled">New beta features are enabled</string>
-    <string name="settings_beta_features_unavailable">No new features are available</string>
     <string name="settings_beta_tag">Beta</string>
     <string name="settings_bottom_searchbar_desc">Place the search bar at the bottom of the screen</string>
     <string name="settings_bottom_searchbar_title">Bottom Searchbar</string>
@@ -881,8 +859,6 @@
     <string name="settings_refresh_contacts_title">Refresh Contacts</string>
     <string name="settings_refresh_data_note">Data is refreshed automatically. Use these buttons to force refresh manually.</string>
     <string name="settings_refresh_data_title">Refresh Data</string>
-    <string name="settings_refresh_icon_packs">Refresh icon packs</string>
-    <string name="settings_refreshing_icon_packs">Refreshing icon packs list</string>
     <string name="settings_scroll_to_top">Scroll to top</string>
     <string name="settings_search_hints_desc">Enable/Disable rotating search hints</string>
     <string name="settings_search_hints_title">Search Hints</string>
@@ -894,8 +870,6 @@
     <string name="settings_themed_icons_desc">Tint app icons to match your theme</string>
     <string name="settings_themed_icons_title">Themed App Icons</string>
     <string name="settings_tools_desc">Calculator, Unit converter, Dictionary and more</string>
-    <string name="settings_tools_gemini_api_desc">Adding an API key enables more tools.</string>
-    <string name="settings_tools_gemini_api_title">Configure AI Provider</string>
     <string name="settings_tools_info_examples_header">Here are some examples of things you can ask in the search bar</string>
     <string name="settings_tools_title">Tools</string>
     <string name="settings_at_a_glance_title">At a Glance</string>
@@ -903,7 +877,6 @@
     <string name="custom_info_edit_title">Edit Details</string>
     <string name="custom_info_prompt">Prompt</string>
     <string name="custom_info_set_date_time">Set Date and Time</string>
-    <string name="custom_info_desc">AI answers to your prompts on Home, at the times you choose</string>
     <string name="settings_ai_api_key_required_message">This feature requires an AI provider API key.</string>
     <string name="settings_ai_api_key_required_title">API Key Required</string>
     <string name="settings_ai_api_key_setup_action">Setup Key</string>
@@ -1009,7 +982,6 @@
     <string name="settings_alias_label">Alias:</string>
     <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_amazon_domain_label">Domain:</string>
-    <string name="settings_api_key_saved_last4">Saved key ending in ****%1$s</string>
     <string name="settings_api_key_setup_desc">Configure API keys to access models from the respective AI provider.</string>
     <string name="settings_api_key_setup_nav_desc">Add or remove provider API keys</string>
     <string name="settings_configure_api_key_title">Configure API key</string>
@@ -1088,7 +1060,6 @@
     <string name="settings_backup_export_option_pinned_items_title">Pinned items</string>
     <string name="settings_backup_export_option_api_keys">API Keys</string>
     <string name="settings_backup_export_selection_title">Export Data</string>
-    <string name="settings_backup_export_success">Settings exported successfully.</string>
     <string name="settings_backup_import_button">Import</string>
     <string name="settings_backup_import_failed">Unable to import settings.</string>
     <string name="settings_backup_import_success">Settings imported successfully.</string>
@@ -1143,7 +1114,6 @@
     <string name="date_calculator_category_time_ranges">Time Ranges</string>
     <string name="date_calculator_info_title">Date &amp; Time Calculator</string>
     <string name="date_calculator_invalid_date">Invalid or unrecognized date or time</string>
-    <string name="date_calculator_toggle_action_desc">Toggle date &amp; time calculator on or off</string>
     <string name="date_calculator_toggle_desc">Usage examples</string>
     <string name="dictionary_example_label">Example: %1$s</string>
     <string name="dictionary_definition_not_found">No definition found for “%1$s”</string>
@@ -1180,7 +1150,6 @@
     <string name="unit_converter_enter_conversion_hint">Enter a conversion (e.g., 5lbs in kgs)</string>
     <string name="unit_converter_info_title">Unit Converter</string>
     <string name="unit_converter_invalid_or_unsupported_query">Invalid or unsupported conversion</string>
-    <string name="unit_converter_toggle_action_desc">Toggle unit converter on or off</string>
     <string name="world_clock_error_not_recognized">Couldn’t resolve that time request. Try a city, country, timezone, or explicit time.</string>
     <string name="world_clock_toggle_desc">Example: Time in Tokyo</string>
     <string name="world_clock_toggle_title">World Clock</string>
@@ -1351,7 +1320,6 @@
     <string name="search_engine_kagi">Kagi</string>
     <string name="search_engine_kagi_assistant">Kagi Assistant</string>
     <string name="search_engine_muse">Muse</string>
-    <string name="search_engine_onboarding_description">When you type your search query and tap on any of these search engines, it will trigger search within these apps. You can modify them by long pressing.</string>
     <string name="search_engine_perplexity">Perplexity</string>
     <string name="search_engine_reddit">Reddit</string>
     <string name="search_engine_spotify">Spotify</string>
@@ -1519,7 +1487,6 @@
     <string name="bookmarks_link_label">Link</string>
     <string name="bookmarks_invalid_link">Enter a valid web address</string>
     <string name="reminders_permission_hint">Need permission to show reminder notifications. Tap to allow.</string>
-    <string name="reminders_home_card_dismiss">Remove from Home</string>
     <string name="settings_include_past_reminders_title">Past reminders</string>
     <string name="settings_include_past_reminders_desc">Show past reminders in search results</string>
     <string name="app_setting_create_reminder">Create Reminder</string>

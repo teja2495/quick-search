@@ -391,8 +391,6 @@ data class SearchUiState(
         val detectedTaskerIntentId: String? = null,
         val webSuggestionWasSelected: Boolean = false,
         // Onboarding / hints
-        val showSearchEngineOnboarding: Boolean = false,
-        val showStartSearchingOnOnboarding: Boolean = false,
         val showSearchBarWelcomeAnimation: Boolean = false,
         val showContactActionHint: Boolean = false,
         val hasSeenOverlayAssistantTip: Boolean = true,
@@ -421,7 +419,6 @@ data class SearchUiState(
         // Calendar
         val showTodayEvents: Boolean = true,
         // Usage permission banner
-        val shouldShowUsagePermissionBanner: Boolean = false,
         // Home screen prompt card
         val showUpdateCard: Boolean = false,
         val isUpdateReadyToInstall: Boolean = false,
@@ -604,7 +601,6 @@ fun SearchUiState(
                 directDialEnabled = features.directDialEnabled,
                 numberSearchEnabled = features.numberSearchEnabled,
                 assistantLaunchVoiceModeEnabled = features.assistantLaunchVoiceModeEnabled,
-                shouldShowUsagePermissionBanner = features.shouldShowUsagePermissionBanner,
                 showUpdateCard = features.showUpdateCard,
                 isUpdateReadyToInstall = features.isUpdateReadyToInstall,
                 // ── SearchUiConfigState ───────────────────────────────────────────
@@ -669,8 +665,6 @@ fun SearchUiState(
                 folderWhitelistPatterns = config.folderWhitelistPatterns,
                 folderBlacklistPatterns = config.folderBlacklistPatterns,
                 excludedFileExtensions = config.excludedFileExtensions,
-                showSearchEngineOnboarding = config.showSearchEngineOnboarding,
-                showStartSearchingOnOnboarding = config.showStartSearchingOnOnboarding,
                 showSearchBarWelcomeAnimation = config.showSearchBarWelcomeAnimation,
                 showContactActionHint = config.showContactActionHint,
                 hasSeenOverlayAssistantTip = config.hasSeenOverlayAssistantTip,

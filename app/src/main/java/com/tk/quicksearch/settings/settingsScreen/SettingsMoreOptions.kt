@@ -3,7 +3,6 @@ package com.tk.quicksearch.settings.settingsScreen
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,8 +46,6 @@ import androidx.compose.ui.text.style.TextAlign
 import com.tk.quicksearch.BuildConfig
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.shared.featureFlags.FeatureFlag
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -365,7 +361,6 @@ fun SettingsHeader(onBack: () -> Unit) {
 @Composable
 fun SettingsVersionDisplay(
     modifier: Modifier = Modifier,
-    onFeatureFlagsChanged: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val versionName = getAppVersionName() ?: BuildConfig.VERSION_NAME
@@ -381,51 +376,12 @@ fun SettingsVersionDisplay(
             }.getOrNull()
         }
 
-    var versionTapCount by remember { mutableIntStateOf(0) }
     val versionTapInteractionSource = remember { MutableInteractionSource() }
-    val hasNewFeaturesAvailable = FeatureFlag.entries.isNotEmpty()
     val identityModifier =
         Modifier.combinedClickable(
             interactionSource = versionTapInteractionSource,
             indication = null,
-            onClick = {
-                versionTapCount += 1
-                if (versionTapCount < 5) {
-                    return@combinedClickable
-                }
-                versionTapCount = 0
-
-                if (FeatureFlags.isAnyEnabled()) {
-                    FeatureFlags.setAll(context, enabled = false)
-                    Toast
-                        .makeText(
-                            context,
-                            context.getString(R.string.settings_beta_features_disabled),
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                    onFeatureFlagsChanged()
-                    return@combinedClickable
-                }
-
-                if (!hasNewFeaturesAvailable) {
-                    Toast
-                        .makeText(
-                            context,
-                            context.getString(R.string.settings_beta_features_unavailable),
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                    return@combinedClickable
-                }
-
-                FeatureFlags.setAll(context, enabled = true)
-                Toast
-                    .makeText(
-                        context,
-                        context.getString(R.string.settings_beta_features_enabled),
-                        Toast.LENGTH_SHORT,
-                    ).show()
-                onFeatureFlagsChanged()
-            },
+            onClick = {},
             onLongClick = {
                 FeedbackUtils.launchFeedbackEmailWithCrashLog(context)
             },
@@ -449,7 +405,7 @@ fun SettingsVersionDisplay(
         modifier = modifier.fillMaxWidth().height(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.spacedBy(gap),
     ) {
-        // Icon and name tiles keep the hidden tap / long-press gestures.
+        // The icon and name tiles both allow long-press feedback.
         Box(
             contentAlignment = Alignment.Center,
             modifier =

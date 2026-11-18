@@ -251,7 +251,6 @@ private fun AppShortcutsCardContent(
                                 AppShortcutRow(
                                         shortcut = shortcut,
                                         isPinned = pinnedShortcutIds.contains(shortcutId),
-                                        isExcluded = excludedShortcutIds.contains(shortcutId),
                                         hasNickname = !getShortcutNickname(shortcutId).isNullOrBlank(),
                                         hasTrigger = getShortcutTrigger(shortcutId)?.word?.isNotBlank() == true,
                                         onShortcutClick = onShortcutClick,
@@ -293,7 +292,6 @@ private fun AppShortcutsCardContent(
 internal fun AppShortcutRow(
         shortcut: StaticShortcut,
         isPinned: Boolean,
-        isExcluded: Boolean,
         hasNickname: Boolean,
         hasTrigger: Boolean = false,
         onShortcutClick: (StaticShortcut) -> Unit,

@@ -8,7 +8,6 @@ import com.tk.quicksearch.search.data.preferences.BasePreferences
 import com.tk.quicksearch.settings.settingsScreen.SettingsBackupManager
 import com.tk.quicksearch.settings.settingsScreen.SettingsBackupManager.ExportItem
 import com.tk.quicksearch.settings.settingsScreen.SettingsBackupManager.ExportOptions
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import java.io.File
 import org.json.JSONObject
 import org.junit.After
@@ -113,7 +112,7 @@ class SettingsBackupManagerTest {
         preferences.edit()
             .putBoolean(BasePreferences.KEY_ONE_HANDED_MODE, true)
             .putBoolean(BasePreferences.KEY_FIRST_LAUNCH, false)
-            .putBoolean(FeatureFlags.PREFERENCE_KEY_PREFIX + "test", true)
+            .putBoolean("feature_flag_test", true)
             .commit()
         context.getSharedPreferences("app_cache", Context.MODE_PRIVATE).edit()
             .putBoolean("catalog_invalidated", true)
@@ -129,7 +128,7 @@ class SettingsBackupManagerTest {
         val userPayload = preferencePayload.getJSONObject(BasePreferences.PREFS_NAME)
         assertTrue(userPayload.has(BasePreferences.KEY_ONE_HANDED_MODE))
         assertFalse(userPayload.has(BasePreferences.KEY_FIRST_LAUNCH))
-        assertFalse(userPayload.has(FeatureFlags.PREFERENCE_KEY_PREFIX + "test"))
+        assertFalse(userPayload.has("feature_flag_test"))
         assertFalse(preferencePayload.has("app_cache"))
     }
 
@@ -144,7 +143,7 @@ class SettingsBackupManagerTest {
             .remove(BasePreferences.KEY_ONE_HANDED_MODE)
             .remove(BasePreferences.KEY_DISABLED_SEARCH_ENGINES)
             .remove(BasePreferences.KEY_FIRST_LAUNCH)
-            .remove(FeatureFlags.PREFERENCE_KEY_PREFIX + "test")
+            .remove("feature_flag_test")
             .commit()
         context.getSharedPreferences("app_cache", Context.MODE_PRIVATE).edit().clear().commit()
     }

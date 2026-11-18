@@ -25,14 +25,11 @@
     <string name="quick_search_help_intro">Gib nach @help eine Frage ein, um Antworten zu Funktionen und Einstellungen von Quick Search zu erhalten.</string>
     <string name="gemini_web_search_quota_fallback_tip">Das Kontingent für die Websuche von Gemini wurde erreicht. Daher wurde diese Antwort ohne Websuche erstellt.</string>
     <string name="direct_search_powered_by">Bereitgestellt von</string>
-    <string name="empty_state_subtitle">Starte eine App oder verfeinere die Suche, um Vorschläge zu sehen.</string>
-    <string name="empty_state_title">Noch nichts zu sehen</string>
     <string name="error_action_not_available">Aktion nicht verfügbar</string>
     <string name="error_gemini_empty_response">Leere Antwort von Gemini</string>
     <string name="error_gemini_load_models_failed">Gemini-Modelle konnten nicht geladen werden</string>
     <string name="error_gemini_request_failed">Anfrage fehlgeschlagen (%1$d)</string>
     <string name="error_unknown">Unbekannter Fehler</string>
-    <string name="gemini_model_flash_latest">Gemini Flash (Aktuell)</string>
     <string name="keyboard_switch_back">Normale Tastatur</string>
     <string name="keyboard_switch_to_number">Zahlentastatur</string>
     <string name="no_results_found">Keine Ergebnisse gefunden. Tippe unten auf eine Suchmaschine, um im Web zu suchen.</string>
@@ -151,7 +148,6 @@
     <string name="settings_gesture_view_all_apps">Alle Apps anzeigen</string>
     <string name="settings_gesture_lock_screen">Bildschirm sperren</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">Erfordert Bedienungshilfen-Berechtigung</string>
-    <string name="accessibility_lock_screen_service_label">Quick Search</string>
     <string name="accessibility_lock_screen_service_description">Ermöglicht Quick Search, den Bildschirm mit der Doppeltipp-Geste auf dem Startbildschirm zu sperren, auf Tippen auf die Notch zu reagieren, sich in jeder App per Wischen vom Rand oder über eine schwebende Schaltfläche zu öffnen und SpeedBump für Apps anzuzeigen, die außerhalb von Quick Search geöffnet werden. Es prüft nur, welche App geöffnet ist, und liest keine Bildschirminhalte.</string>
     <string name="accessibility_service_stopped_hint">Android hat den Bedienungshilfen-Dienst von Quick Search beendet. Schalte ihn in den Bedienungshilfen-Einstellungen aus und wieder ein.</string>
     <string name="accessibility_permission_disclaimer_title">Hinweis zur Berechtigung für Bedienungshilfen</string>
@@ -280,7 +276,6 @@
     <string name="app_suggestions_tabs_dialog_message">Wählen Sie aus, welche App-Vorschlagstabs auf dem Startbildschirm angezeigt werden.</string>
     <string name="app_suggestions_tabs_dialog_title">App-Vorschlagstabs</string>
     <string name="app_suggestions_enabled_tabs_picker_hint">Tabs auswählen</string>
-    <string name="app_suggestions_tab_required_toast">Mindestens ein App-Vorschlagstab muss aktiviert bleiben</string>
     <string name="app_suggestions_toggle_desc">Vorgeschlagene Apps auf dem Startbildschirm ein- oder ausblenden</string>
     <string name="app_suggestions_toggle_title">App-Vorschläge</string>
     <string name="show_all_apps_button_toggle_desc">Schaltfläche \"Alle Apps\" unter App-Vorschlägen anzeigen</string>
@@ -326,7 +321,6 @@
     <string name="section_media">Mediensteuerung</string>
     <string name="section_settings">Geräteeinstellungen</string>
     <string name="search_section_menu_title">Suchen in</string>
-    <string name="top_match_title">Bestes Ergebnis</string>
     <string name="top_matches_count_label">Anzahl der Treffer</string>
     <string name="top_matches_priority_desc">Priorität ändern und Elemente in den Top-Ergebnissen deaktivieren</string>
     <string name="top_matches_priority_dialog_info">Halten und ziehen, um die Priorität zu ändern. Schalter verwenden, um bestimmte Ergebnistypen zu aktivieren oder zu deaktivieren.</string>
@@ -375,7 +369,6 @@
     <string name="settings_app_info_last_update">Letztes Update</string>
     <string name="settings_app_info_minimum_sdk">Mindest-SDK</string>
     <string name="settings_app_info_not_available">Nicht verfügbar</string>
-    <string name="settings_app_info_package_name">Paketname</string>
     <string name="settings_app_info_target_sdk">Ziel-SDK</string>
     <string name="settings_app_info_version">Version</string>
     <string name="settings_app_info_version_code">Versionscode</string>
@@ -484,10 +477,7 @@
     <string name="contacts_action_hint_message">Tipp: Halte eine Aktion gedrückt, um sie für einzelne Kontakte anzupassen.</string>
     <string name="contacts_action_next_number">Nächste Telefonnummer</string>
     <string name="contacts_action_previous_number">Vorherige Telefonnummer</string>
-    <string name="contacts_action_signal">Signal-Kontakt</string>
     <string name="contacts_action_sms">Nachricht an Kontakt senden</string>
-    <string name="contacts_action_telegram">Telegram-Kontakt</string>
-    <string name="contacts_action_whatsapp">WhatsApp-Kontakt</string>
     <string name="contacts_no_methods_available">Keine Kontaktmethoden verfügbar</string>
     <string name="contacts_refreshed_successfully">Kontakte erfolgreich aktualisiert</string>
     <string name="contacts_section_permission_subtitle">Kontaktberechtigung ist erforderlich, um Kontakte zu durchsuchen</string>
@@ -571,13 +561,8 @@
     <!-- ============================================================================
          Calendar
          ============================================================================ -->
-    <string name="app_settings_create_calendar_event_desc">Neues Ereignis erstellen und hinzufügen</string>
-    <string name="app_settings_create_calendar_event_title">Neuer Kalendertermin</string>
     <string name="calendar_create_event_name_hint">Ereignisname</string>
     <string name="calendar_create_event_select_date">Datum auswählen</string>
-    <string name="calendar_create_event_sync_notice">Dieses Ereignis wird nicht mit deinem Gerätekalender synchronisiert</string>
-    <string name="calendar_create_event_title">Neues Ereignis</string>
-    <string name="calendar_edit_event_title">Ereignis bearbeiten</string>
     <string name="calendar_relative_ago_format">vor %1$s</string>
     <plurals name="calendar_relative_days">
         <item quantity="one">%d Tag</item>
@@ -588,7 +573,6 @@
         <item quantity="other">%d Stunden</item>
     </plurals>
     <string name="calendar_relative_in_format">in %1$s</string>
-    <string name="calendar_relative_in_minutes">in %1$d Minuten</string>
     <plurals name="calendar_relative_minutes">
         <item quantity="one">%d Minute</item>
         <item quantity="other">%d Minuten</item>
@@ -657,7 +641,6 @@
     <string name="notes_editor_notification_note_title">Benachrichtigungsnotiz</string>
     <string name="notes_empty_note_subtext">Leere Notiz</string>
     <string name="notes_quick_note_title">Schnellnotiz</string>
-    <string name="notes_quick_note_toggle_desc">Schnellnotiz per Wischgeste öffnen</string>
     <string name="notes_title_hint">Titel</string>
     <string name="notes_untitled">Ohne Titel</string>
     <string name="settings_notes_view_all_desc">Alle Notizen anzeigen</string>
@@ -727,8 +710,6 @@
     <string name="settings_features_export_failed">Funktionsdokumentation konnte nicht gespeichert werden.</string>
     <string name="settings_features_saved_to_downloads">In Downloads gespeichert</string>
     <string name="settings_features_sections_title">Inhalt</string>
-    <string name="settings_search_description_change_app_theme">App-Design ändern</string>
-    <string name="settings_search_description_change_font_size">App-Schriftgröße ändern</string>
     <string name="settings_search_description_change_icon_pack">Icon-Pack ändern</string>
     <string name="settings_search_description_change_layout">App-Layout-Optionen ändern</string>
     <string name="settings_search_description_change_wallpaper">Hintergrundbild-Darstellung ändern</string>
@@ -757,9 +738,6 @@
     <string name="settings_appearance_title">Darstellung</string>
     <string name="settings_assistant_voice_mode_desc">Spracheingabe beim Start als digitaler Assistent öffnen</string>
     <string name="settings_assistant_voice_mode_title">Assistent-Sprachmodus</string>
-    <string name="settings_beta_features_disabled">Beta-Funktionen sind deaktiviert</string>
-    <string name="settings_beta_features_enabled">Neue Beta-Funktionen sind aktiviert</string>
-    <string name="settings_beta_features_unavailable">Keine neuen Funktionen verfügbar</string>
     <string name="settings_beta_tag">Beta</string>
     <string name="settings_bottom_searchbar_desc">Suchleiste am unteren Bildschirmrand platzieren</string>
     <string name="settings_bottom_searchbar_title">Untere Suchleiste</string>
@@ -870,8 +848,6 @@
     <string name="settings_refresh_contacts_title">Kontakte aktualisieren</string>
     <string name="settings_refresh_data_note">Daten werden automatisch aktualisiert. Mit diesen Schaltflächen kannst du die Aktualisierung manuell erzwingen.</string>
     <string name="settings_refresh_data_title">Daten aktualisieren</string>
-    <string name="settings_refresh_icon_packs">Icon-Packs aktualisieren</string>
-    <string name="settings_refreshing_icon_packs">Icon-Pack-Liste wird aktualisiert</string>
     <string name="settings_scroll_to_top">Nach oben scrollen</string>
     <string name="settings_search_hints_desc">Rotierende Suchhinweise aktivieren/deaktivieren</string>
     <string name="settings_search_hints_title">Suchhinweise</string>
@@ -883,8 +859,6 @@
     <string name="settings_themed_icons_desc">App-Symbole an das Design anpassen</string>
     <string name="settings_themed_icons_title">Design-App-Symbole</string>
     <string name="settings_tools_desc">Rechner, Einheitenumrechner, Wörterbuch und mehr</string>
-    <string name="settings_tools_gemini_api_desc">Das Hinzufügen eines API-Schlüssels aktiviert weitere Tools.</string>
-    <string name="settings_tools_gemini_api_title">AI-Anbieter konfigurieren</string>
     <string name="settings_tools_info_examples_header">Hier sind einige Beispiele, was du in der Suchleiste eingeben kannst</string>
     <string name="settings_tools_title">Tools</string>
     <string name="settings_at_a_glance_title">Auf einen Blick</string>
@@ -892,7 +866,6 @@
     <string name="custom_info_edit_title">Details bearbeiten</string>
     <string name="custom_info_prompt">Prompt</string>
     <string name="custom_info_set_date_time">Datum und Uhrzeit festlegen</string>
-    <string name="custom_info_desc">KI-Antworten auf deine Prompts auf dem Startbildschirm, zu den von dir gewählten Zeiten</string>
     <string name="settings_ai_api_key_required_message">Diese Funktion erfordert einen AI-Anbieter-API-Schlüssel.</string>
     <string name="settings_ai_api_key_required_title">API-Schlüssel erforderlich</string>
     <string name="settings_ai_api_key_setup_action">Schlüssel einrichten</string>
@@ -998,7 +971,6 @@
     <string name="settings_alias_label">Alias:</string>
     <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_amazon_domain_label">Domain:</string>
-    <string name="settings_api_key_saved_last4">Gespeicherter Schlüssel endet auf ****%1$s</string>
     <string name="settings_api_key_setup_desc">API-Schlüssel konfigurieren, um auf Modelle des jeweiligen AI-Anbieters zuzugreifen.</string>
     <string name="settings_api_key_setup_nav_desc">Anbieter-API-Schlüssel hinzufügen oder entfernen</string>
     <string name="settings_configure_api_key_title">API-Schlüssel konfigurieren</string>
@@ -1069,7 +1041,6 @@
     <string name="settings_backup_export_option_pinned_items_title">Angeheftete Elemente</string>
     <string name="settings_backup_export_option_api_keys">API-Schlüssel</string>
     <string name="settings_backup_export_selection_title">Daten exportieren</string>
-    <string name="settings_backup_export_success">Einstellungen erfolgreich exportiert.</string>
     <string name="settings_backup_import_button">Importieren</string>
     <string name="settings_backup_import_failed">Einstellungen konnten nicht importiert werden.</string>
     <string name="settings_backup_import_success">Einstellungen erfolgreich importiert.</string>
@@ -1124,7 +1095,6 @@
     <string name="date_calculator_category_time_ranges">Zeitbereiche</string>
     <string name="date_calculator_info_title">Datums- &amp; Zeitrechner</string>
     <string name="date_calculator_invalid_date">Ungültiges oder nicht erkanntes Datum oder Uhrzeit</string>
-    <string name="date_calculator_toggle_action_desc">Datums- &amp; Zeitrechner ein- oder ausschalten</string>
     <string name="date_calculator_toggle_desc">Verwendungsbeispiele</string>
     <string name="dictionary_example_label">Beispiel: %1$s</string>
     <string name="dictionary_definition_not_found">Keine Definition für „%1$s“ gefunden</string>
@@ -1161,7 +1131,6 @@
     <string name="unit_converter_enter_conversion_hint">Gib eine Umrechnung ein (z. B. 5 lbs in kgs)</string>
     <string name="unit_converter_info_title">Einheitenrechner</string>
     <string name="unit_converter_invalid_or_unsupported_query">Ungültige oder nicht unterstützte Umrechnung</string>
-    <string name="unit_converter_toggle_action_desc">Einheitenrechner ein- oder ausschalten</string>
     <string name="world_clock_error_not_recognized">Diese Zeitanfrage konnte nicht aufgelöst werden. Versuche eine Stadt, ein Land, eine Zeitzone oder eine explizite Zeit.</string>
     <string name="world_clock_toggle_desc">Beispiel: Time in Tokyo</string>
     <string name="world_clock_toggle_title">Weltuhr</string>
@@ -1326,7 +1295,6 @@
     <string name="search_engine_google_photos">Google Photos</string>
     <string name="search_engine_google_play">Google Play</string>
     <string name="search_engine_grok">Grok</string>
-    <string name="search_engine_onboarding_description">Wenn du deine Suchanfrage eingibst und auf eine dieser Suchmaschinen tippst, wird die Suche in diesen Apps ausgelöst. Du kannst sie durch langes Drücken anpassen.</string>
     <string name="search_engine_perplexity">Perplexity</string>
     <string name="search_engine_reddit">Reddit</string>
     <string name="search_engine_spotify">Spotify</string>
@@ -1519,7 +1487,6 @@
     <string name="bookmarks_link_label">Link</string>
     <string name="bookmarks_invalid_link">Gib eine gültige Webadresse ein</string>
     <string name="reminders_permission_hint">Berechtigung zum Anzeigen von Erinnerungbenachrichtigungen erforderlich. Tippe zum Erlauben.</string>
-    <string name="reminders_home_card_dismiss">Vom Startbildschirm entfernen</string>
     <string name="settings_include_past_reminders_title">Vergangene Erinnerungen</string>
     <string name="settings_include_past_reminders_desc">Vergangene Erinnerungen in den Suchergebnissen anzeigen</string>
     <string name="app_setting_create_reminder">Erinnerung erstellen</string>

@@ -15,8 +15,6 @@ object SearchTargetConstants {
     val CARD_VERTICAL_PADDING = 16.dp
     val CLEAR_ICON_SIZE = 20.dp
 
-    // Layout
-    val ITEMS_PER_ROW = 6
     val HORIZONTAL_PADDING = 16.dp
     val VERTICAL_PADDING = 16.dp
     val SEARCH_ICON_SIZE = 20.dp

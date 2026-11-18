@@ -39,28 +39,4 @@ interface FuzzySearchStrategy<T> {
 abstract class BaseFuzzySearchStrategy<T> : FuzzySearchStrategy<T> {
     protected val engine = FuzzySearchEngine()
 
-    /**
-     * Filters candidates based on fuzzy search configuration.
-     */
-    protected fun List<T>.filterByFuzzySearch(
-        query: String,
-        scoreSelector: (T) -> Int,
-    ): List<FuzzySearchStrategy.Match<T>> {
-        if (query.isBlank()) return emptyList()
-
-        return this
-            .mapNotNull { candidate ->
-                val score = scoreSelector(candidate)
-                if (score >= config.matchThreshold) {
-                    FuzzySearchStrategy.Match(
-                        item = candidate,
-                        score = score,
-                        priority = config.priority,
-                        isFuzzyMatch = true,
-                    )
-                } else {
-                    null
-                }
-            }.sortedByDescending { it.score }
-    }
 }

@@ -46,7 +46,6 @@ import com.tk.quicksearch.search.core.ItemPriorityConfig
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -149,7 +148,6 @@ private fun TopMatchesCard(
     val priorityItems =
         remember(topMatchesSectionOrder) {
             topMatchesSectionOrder.filter { section ->
-                FeatureFlags.isSearchSectionEnabled(section) &&
                     section in com.tk.quicksearch.search.core.SearchSectionRegistry.settingsSections
             }
         }
@@ -399,7 +397,6 @@ fun SearchResultsSettingsSection(
         ItemPriorityConfig
             .getSearchResultsPriority()
             .filter { section ->
-                FeatureFlags.isSearchSectionEnabled(section) &&
                     section in com.tk.quicksearch.search.core.SearchSectionRegistry.settingsSections
             }
     val allSectionsDisabled = sectionOrder.isNotEmpty() && sectionOrder.all { it in state.disabledSections }

@@ -37,8 +37,6 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.FrostedResultCardScrimFactor
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 
-private const val RESULT_CARD_FADE_DURATION_MS = 140
-
 /**
  * False when the user turned on Compact Layout: result and home cards drop their container
  * background and border so content sits directly on the screen background.
@@ -136,7 +134,7 @@ object SearchResultCardDefaults {
 }
 
 /**
- * Search-screen card wrapper (counterpart to [com.tk.quicksearch.settings.shared.SettingsCard]).
+ * Search-screen card wrapper.
  * Used only on the search result surface: sections, suggestions, engine cards, AI search, etc.
  * Styling is centralized via [SearchResultCardDefaults].
  */

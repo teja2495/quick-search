@@ -286,17 +286,6 @@ class AppSearchManager(
         }
     }
 
-    fun searchSourceApps(): List<AppInfo> {
-        if (cachedApps.isEmpty()) return emptyList()
-        val resultHidden = userPreferences.getResultHiddenPackages()
-        val pinned = userPreferences.getPinnedPackages()
-        return cachedApps.filterNot { app ->
-            resultHidden.contains(app.launchCountKey()) ||
-                resultHidden.contains(app.packageName) ||
-                pinned.contains(app.launchCountKey())
-        }
-    }
-
     /** Quick Search itself and the default launcher are never shown as pinned home apps. */
     fun isEligibleForPinnedSuggestions(app: AppInfo): Boolean =
         app.packageName != currentPackageName && app.packageName != defaultLauncherPackageName

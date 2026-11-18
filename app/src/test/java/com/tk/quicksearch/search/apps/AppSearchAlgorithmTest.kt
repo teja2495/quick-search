@@ -274,31 +274,6 @@ class AppSearchAlgorithmTest {
     }
 
     @Test
-    fun fuzzyPreferenceIsReadOncePerPreparedQueryAndToken() {
-        var preferenceReads = 0
-        val strategy =
-            FuzzyAppSearchStrategy(
-                config = FuzzySearchConfig.DEFAULT_APP_CONFIG,
-                isFuzzySearchEnabled = {
-                    preferenceReads += 1
-                    true
-                },
-            )
-        val apps = (1..100).map { app("Settings Search $it", "settings$it") }
-
-        AppSearchAlgorithm.findMatches(
-            query = "settings search",
-            source = apps,
-            limit = 10,
-            fuzzySearchStrategy = strategy,
-            appNicknames = emptyMap(),
-            secondaryRankingSignal = SecondaryRankingSignal.NONE,
-        )
-
-        assertEquals(3, preferenceReads)
-    }
-
-    @Test
     fun firstAndLastCharactersMatchAppNameAndNickname() {
         val obsidian = app("Obsidian", "obsidian")
         val notes = app("Keep", "keep")

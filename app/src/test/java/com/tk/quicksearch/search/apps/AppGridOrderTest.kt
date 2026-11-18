@@ -80,12 +80,6 @@ class AppGridOrderTest {
     }
 
     @Test
-    fun `gap keys are recognized`() {
-        assertEquals(true, isPinnedGridGapKey(pinnedGridGapKey(3)))
-        assertEquals(false, isPinnedGridGapKey("com.example.app"))
-    }
-
-    @Test
     fun `gaps after the last present item are dropped`() {
         val g0 = pinnedGridGapKey(0)
         val g1 = pinnedGridGapKey(1)

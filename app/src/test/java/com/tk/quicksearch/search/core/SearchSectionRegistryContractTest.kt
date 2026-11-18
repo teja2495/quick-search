@@ -20,24 +20,6 @@ class SearchSectionRegistryContractTest {
     }
 
     @Test
-    fun everyEnabledSectionCanBeResolvedThroughEachRegistrationKey() {
-        SearchSectionRegistry.orderedDefinitions.forEach { definition ->
-            assertEquals(definition, SearchSectionRegistry.definitionFor(definition.section))
-            assertEquals(
-                definition,
-                SearchSectionRegistry.definitionForAliasTargetId(definition.aliasTargetId),
-            )
-            definition.appSettingsToggleKey?.let { toggleKey ->
-                assertEquals(definition.section, SearchSectionRegistry.sectionForToggle(toggleKey))
-            }
-            assertEquals(
-                definition.section,
-                SearchSectionRegistry.sectionForItemType(definition.itemType),
-            )
-        }
-    }
-
-    @Test
     fun everyEnabledSectionExceptNotedHasAnAppSettingsToggle() {
         // Noted shows only when the Noted app grants access, so it deliberately has no setting.
         SearchSectionRegistry.orderedSections.forEach { section ->

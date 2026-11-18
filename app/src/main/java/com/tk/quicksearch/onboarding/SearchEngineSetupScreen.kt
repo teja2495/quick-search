@@ -61,8 +61,6 @@ fun SearchEngineSetupScreen(
     ) {
         OnboardingHeader(
             title = stringResource(R.string.settings_app_shortcuts_filter_search_engines),
-            currentStep = currentStep,
-            totalSteps = totalSteps,
             topPadding = DesignTokens.SpacingMedium,
             modifier = Modifier.welcomeExitItem(),
         )
@@ -132,9 +130,6 @@ fun SearchEngineSetupScreen(
                 },
                 showTitle = false, // We have our own title
                 showAddSearchEngineButton = false,
-                activeLlmModel = uiState.activeLlmModel,
-                activeLlmGroundingEnabled = uiState.activeLlmGroundingEnabled,
-                activeLlmAvailableModels = uiState.activeLlmAvailableModels,
                 modifier = Modifier.fillMaxWidth(),
             )
 

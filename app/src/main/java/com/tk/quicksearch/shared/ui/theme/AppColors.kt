@@ -2,7 +2,6 @@ package com.tk.quicksearch.shared.ui.theme
 
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -87,9 +86,6 @@ object AppColors {
     /** Disabled content (Material state layer). */
     const val DisabledContentAlpha = 0.38f
 
-    /** Disabled container (Material state layer). */
-    const val DisabledContainerAlpha = 0.12f
-
     /** Faint content: hints, inactive decorations. */
     const val ContentFaintAlpha = 0.4f
 
@@ -167,14 +163,6 @@ object AppColors {
     // Icon tints ---------------------------------------------------------------------------
 
     /**
-     * Tint for primary / active / action icons (toggles, selection indicators, FABs).
-     * Maps to the accent color.
-     */
-    val IconTintPrimary: Color
-        @Composable
-        get() = MaterialTheme.colorScheme.primary
-
-    /**
      * Tint for secondary / decorative / neutral icons (placeholders, trailing arrows, hints).
      * Maps to `onSurfaceVariant`.
      */
@@ -209,10 +197,6 @@ object AppColors {
     fun getSearchBarBackground(showWallpaperBackground: Boolean): Color =
         getSearchEngineSectionBackground(showWallpaperBackground)
 
-    val SearchBarBorder: Color
-        @Composable
-        get() = current.searchBarBorder
-
     val SearchBarTextAndIcon: Color
         @Composable
         get() = current.searchBarTextAndIcon
@@ -223,35 +207,12 @@ object AppColors {
     @Composable
     fun getSearchBarSecondaryIconTint(@Suppress("UNUSED_PARAMETER") showWallpaperBackground: Boolean): Color = SecondaryIconTint
 
-    val SettingsBackground: Color = Color.Transparent
-
     /** Solid charcoal for elevated cards on AMOLED true-black backgrounds. */
     val AmoledCardBackground: Color = Color(0xFF161616)
-
-    val SettingsCardBackground: Color
-        @Composable
-        get() = current.settingsCardBackground
-
-    val SettingsText: Color
-        @Composable
-        get() = current.settingsText
-
-    /** Tint for icons inside settings rows and cards (e.g. toggle icons, section icons). */
-    val SettingsIconTint: Color
-        @Composable
-        get() = MaterialTheme.colorScheme.primary
-
-    val OverlayLow: Color
-        @Composable
-        get() = current.overlayLow
 
     val OverlayMedium: Color
         @Composable
         get() = current.overlayMedium
-
-    val OverlayHigh: Color
-        @Composable
-        get() = current.overlayHigh
 
     val OverlayVeryHigh: Color
         @Composable
@@ -265,26 +226,6 @@ object AppColors {
         @Composable
         get() = current.dialogText
 
-    val OnboardingScrimTop: Color
-        @Composable
-        get() = current.onboardingScrimTop
-
-    val OnboardingScrimMiddle: Color
-        @Composable
-        get() = current.onboardingScrimMiddle
-
-    val OnboardingScrimBottom: Color
-        @Composable
-        get() = current.onboardingScrimBottom
-
-    val OnboardingBubbleBorder: Color
-        @Composable
-        get() = current.onboardingBubbleBorder
-
-    val OnboardingBubbleBodyText: Color
-        @Composable
-        get() = current.onboardingBubbleBodyText
-
     val ActionPhone: Color
         @Composable
         get() = current.actionPhone
@@ -293,25 +234,9 @@ object AppColors {
         @Composable
         get() = current.actionSms
 
-    val ActionWhatsApp: Color
-        @Composable
-        get() = current.actionWhatsApp
-
-    val ActionTelegram: Color
-        @Composable
-        get() = current.actionTelegram
-
     val ActionSignal: Color
         @Composable
         get() = current.actionSignal
-
-    val ActionEmail: Color
-        @Composable
-        get() = current.actionEmail
-
-    val ActionVideoCall: Color
-        @Composable
-        get() = current.actionVideoCall
 
     val ActionCustom: Color
         @Composable
@@ -337,23 +262,7 @@ object AppColors {
 
     // Compact section (search engine strip) ------------------------------------------------
 
-    /** Compact search engine strip when wallpaper scrim is on; light theme matches result card frost. */
-    val CompactSectionBackground: Color
-        @Composable
-        get() = current.compactSectionBackground
-
     // Keyboard action buttons (open / switch) -----------------------------------------------
-
-    /**
-     * Background for keyboard open/switch pill buttons.
-     * When inside a search screen with an active [LocalSearchColorTheme], uses the theme-derived
-     * color so that selecting a theme in settings changes these buttons automatically.
-     * Falls back to [compactSectionBackground] outside a themed context.
-     */
-    val KeyboardButtonBackground: Color
-        @Composable
-        get() = LocalSearchColorTheme.current?.keyboardButtonBackground
-            ?: current.compactSectionBackground
 
     // Wallpaper-mode text & icon colors ----------------------------------------------------
 
@@ -441,7 +350,6 @@ object AppColors {
     // Shared/static tokens -----------------------------------------------------------------
 
     val AppBackgroundTransparent: Color = Color.Transparent
-    val AppBackgroundDark: Color = Color.Black
 
     val ThemeDeepPurple: Color = Color(0xFF651FFF)
     val ThemeNeonPurple: Color = Color(0xFFD500F9)
@@ -465,37 +373,6 @@ object AppColors {
     // ============================================================================
     // SEARCH FIELD WELCOME PALETTES
     // ============================================================================
-
-    val SearchFieldAuroraPalette =
-        listOf(
-            Color(0xFF00E5FF),
-            Color(0xFF2979FF),
-            ThemeDeepPurple,
-            ThemeNeonPurple,
-            Color(0xFF2979FF),
-            Color(0xFF00E5FF),
-        )
-
-    val SearchFieldElectricPalette =
-        listOf(
-            ThemeNeonPurple,
-            Color(0xFFFF00CC),
-            Color(0xFFFF3D00),
-            Color(0xFFFF00CC),
-            ThemeNeonPurple,
-            Color(0xFF2979FF),
-            ThemeNeonPurple,
-        )
-
-    val SearchFieldGoldenPalette =
-        listOf(
-            Color(0xFFFFD700),
-            Color(0xFFFF9100),
-            Color(0xFFFFEA00),
-            Color(0xFFFFD700),
-            Color(0xFFFFA000),
-            Color(0xFFFFD700),
-        )
 
     val SearchFieldGooglePalette =
         listOf(
@@ -578,47 +455,13 @@ object AppColors {
         }
 
     /**
-     * Resolved container colors for search result cards (history, suggestions, section lists,
-     * engine cards, AI search). When [overlayContainerColor] is non-null (overlay theme),
-     * it wins; otherwise uses [getCardColors] for wallpaper vs standard surfaces.
-     */
-    @Composable
-    fun getSearchResultCardColors(
-        showWallpaperBackground: Boolean,
-        overlayContainerColor: Color?,
-    ): CardColors =
-        if (overlayContainerColor != null) {
-            CardDefaults.cardColors(containerColor = overlayContainerColor)
-        } else {
-            getCardColors(showWallpaperBackground)
-        }
-
-    /**
-     * Resolved container [Color] for search result cards — same rules as [getSearchResultCardColors].
+     * Resolved container [Color] for search result cards.
      */
     @Composable
     fun getSearchResultCardContainerColor(
         showWallpaperBackground: Boolean,
         overlayContainerColor: Color?,
     ): Color = overlayContainerColor ?: getResultCardContainerColor(showWallpaperBackground)
-
-    /**
-     * Returns flat card elevation for all app cards.
-     * Result, suggestions, history, and settings cards are intentionally elevation-free.
-     */
-    /**
-     * Returns the background color for the compact search engine section strip.
-     * With wallpaper: palette scrim (matches [ResultCardWallpaperBackground]); solid white (light) or
-     * black (dark) otherwise.
-     */
-    @Composable
-    fun getCompactSectionBackground(showWallpaperBackground: Boolean): Color {
-        if (showWallpaperBackground && LocalDeviceDynamicColorsActive.current) {
-            return MaterialTheme.colorScheme.surfaceContainerHigh
-        }
-        val base = if (!LocalAppIsDarkTheme.current) Color.White else Color.Black
-        return base.copy(alpha = CompactSectionAlpha)
-    }
 
     /**
      * Background color for the custom search engine section strip.
@@ -681,9 +524,5 @@ object AppColors {
         } else {
             Color.White.copy(alpha = 0.7f)
         }
-
-    @Composable
-    fun getCardElevation(showWallpaperBackground: Boolean): CardElevation =
-        CardDefaults.cardElevation(defaultElevation = 0.dp)
 
 }

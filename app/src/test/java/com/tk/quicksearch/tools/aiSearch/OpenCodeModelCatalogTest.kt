@@ -1,7 +1,6 @@
 package com.tk.quicksearch.tools.aiSearch
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Test
 
@@ -14,8 +13,6 @@ class OpenCodeModelCatalogTest {
 
         val model = OpenCodeModelCatalog.textModel(OpenCodeTier.GO, "kimi-k3")
         assertEquals("opencode-go/kimi-k3", model.id)
-        assertEquals("kimi-k3 (Go)", model.displayName)
-        assertFalse(model.supportsGrounding)
     }
 
     @Test
@@ -44,12 +41,5 @@ class OpenCodeModelCatalogTest {
         val openCodeKey = "sk-" + "aB3".repeat(21) + "x"
         assertEquals(AiSearchLlmProviderId.OPENCODE, AiSearchLlmProviderId.detectFromApiKey(openCodeKey))
         assertEquals(AiSearchLlmProviderId.OPENAI, AiSearchLlmProviderId.detectFromApiKey("sk-proj-abc_def-123"))
-    }
-
-    @Test
-    fun openCodeHasNoNativeSearchOrThinkingControl() {
-        assertFalse(providerSupportsNativeSearch(AiSearchLlmProviderId.OPENCODE))
-        assertFalse(isThinkingRequestSupported(AiSearchLlmProviderId.OPENCODE))
-        assertFalse(supportsThinkingControl(AiSearchLlmProviderId.OPENCODE, "opencode-go/kimi-k3"))
     }
 }

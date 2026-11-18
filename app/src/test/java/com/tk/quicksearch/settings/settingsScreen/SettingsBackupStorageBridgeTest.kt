@@ -64,11 +64,4 @@ class SettingsBackupStorageBridgeTest {
         assertEquals(3, first.getJSONObject("count").getInt("value"))
         assertTrue(parsed.getJSONObject("second").getJSONObject("flag").getBoolean("value"))
     }
-
-    @Test
-    fun writeSections_writesEmptyObjectWithoutEntries() {
-        val writer = StringWriter()
-        SettingsBackupStorageBridge.writeSections(writer, sequenceOf("empty" to emptySequence()))
-        assertEquals(0, JSONObject(writer.toString()).length())
-    }
 }

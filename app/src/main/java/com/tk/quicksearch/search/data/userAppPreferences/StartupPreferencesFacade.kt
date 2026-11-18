@@ -41,7 +41,6 @@ class StartupPreferencesFacade(
             val overlayModeEnabled: Boolean,
             val directDialEnabled: Boolean,
             val hasSeenDirectDialChoice: Boolean,
-            val hasSeenSearchEngineOnboarding: Boolean,
             val wallpaperBackgroundAlpha: Float,
             val wallpaperBlurRadius: Float,
             val appTheme: AppTheme,
@@ -247,13 +246,6 @@ class StartupPreferencesFacade(
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.BasePreferences
                                         .KEY_DIRECT_DIAL_CHOICE_SHOWN,
-                        ] as?
-                                Boolean
-                                ?: false,
-                hasSeenSearchEngineOnboarding =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.BasePreferences
-                                        .KEY_SEARCH_ENGINE_ONBOARDING_SEEN,
                         ] as?
                                 Boolean
                                 ?: false,

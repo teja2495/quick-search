@@ -12,24 +12,6 @@ class AppShortcutPreferences(
 ) : BasePreferences(context) {
     private val assetStore = ManagedAssetStore(context)
 
-    init {
-        // TODO: Remove this migration once most users have updated past version 4.4.
-        migrateExcludedAppShortcutsToDisabled()
-    }
-
-    /**
-     * App shortcuts can no longer be hidden, only disabled. Moves any previously hidden shortcuts
-     * into the disabled set. Nothing writes hidden shortcuts anymore, so this is a no-op once the
-     * hidden set has been cleared.
-     */
-    private fun migrateExcludedAppShortcutsToDisabled() {
-        val excludedIds = getExcludedAppShortcutIds()
-        if (excludedIds.isEmpty()) return
-        updateStringSet(BasePreferences.KEY_DISABLED_APP_SHORTCUTS) { disabledIds ->
-            disabledIds.addAll(excludedIds)
-        }
-        clearAllExcludedAppShortcuts()
-    }
     fun getPinnedAppShortcutIds(): Set<String> = getPinnedStringItems(BasePreferences.KEY_PINNED_APP_SHORTCUTS)
 
     fun getPinnedAppShortcutOrder(): List<String> = getStringListPref(BasePreferences.KEY_PINNED_APP_SHORTCUT_ORDER)

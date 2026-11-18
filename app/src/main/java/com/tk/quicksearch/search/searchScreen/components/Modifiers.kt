@@ -1,6 +1,5 @@
 package com.tk.quicksearch.search.searchScreen.components
 
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloat
@@ -95,68 +94,6 @@ internal fun Modifier.predictedSubmitHighlight(
                     drawInsideBorder(
                         path = outlinePath,
                         color = highlightColor.copy(alpha = borderAlpha * alpha),
-                        width = borderWidthPx,
-                    )
-                }
-            }
-        }
-    }
-
-internal fun Modifier.predictedSubmitCardBorder(
-    isPredicted: Boolean,
-    shape: Shape = AppShapes.card,
-): Modifier =
-    composed {
-        val indicatorTransition = updateTransition(targetState = isPredicted, label = "predictedSubmitCardBorder")
-        val indicatorAlpha =
-            indicatorTransition.animateFloat(
-                transitionSpec = {
-                    tween(
-                        durationMillis =
-                            if (targetState) {
-                                PredictedSubmitIndicatorFadeInDurationMs
-                            } else {
-                                PredictedSubmitIndicatorFadeOutDurationMs
-                            },
-                        delayMillis = if (targetState) PredictedSubmitIndicatorEnterDelayMs else 0,
-                        easing = FastOutSlowInEasing,
-                    )
-                },
-                label = "predictedSubmitBorderAlpha",
-            ) { predicted ->
-                if (predicted) 1f else 0f
-            }
-        val imageBackgroundIsDark = homeBackgroundIsDark()
-        val primary = MaterialTheme.colorScheme.primary
-        val borderColor =
-            when (imageBackgroundIsDark) {
-                true ->
-                    lerp(Color.White, primary, DesignTokens.PredictedSubmitHighlightAccentBlend)
-                        .copy(alpha = AppColors.TintStrongAlpha)
-                false ->
-                    lerp(Color.Black, primary, DesignTokens.PredictedSubmitHighlightAccentBlend)
-                        .copy(alpha = AppColors.TintStrongAlpha)
-                null -> primary
-            }
-
-        this.drawWithCache {
-            val outline = shape.createOutline(size, layoutDirection, this)
-            val outlinePath = outline.toPath()
-            val borderWidthPx = DesignTokens.BorderWidth.toPx()
-            onDrawWithContent {
-                drawContent()
-                // Keep the animated alpha read in the draw phase for draw-only invalidation.
-                val alpha = indicatorAlpha.value
-                if (alpha > 0f) {
-                    val effectiveAlpha =
-                        if (imageBackgroundIsDark == null) {
-                            0.24f * alpha * alpha
-                        } else {
-                            borderColor.alpha * alpha
-                        }
-                    drawInsideBorder(
-                        path = outlinePath,
-                        color = borderColor.copy(alpha = effectiveAlpha),
                         width = borderWidthPx,
                     )
                 }

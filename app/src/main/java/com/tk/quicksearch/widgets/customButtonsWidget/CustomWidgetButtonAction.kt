@@ -10,7 +10,6 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
-import com.tk.quicksearch.search.models.NoteInfo
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import org.json.JSONArray
@@ -292,15 +291,6 @@ sealed class CustomWidgetButtonAction : Parcelable {
 
         override fun displayLabel(): String = title.ifBlank { noteId.toString() }
 
-        fun toNoteInfo(): NoteInfo =
-            NoteInfo(
-                noteId = noteId,
-                title = title,
-                markdownContent = markdownContent,
-                createdAtMillis = 0L,
-                updatedAtMillis = 0L,
-            )
-
         override fun toJson(): String =
             JSONObject()
                 .put(KEY_TYPE, type.value)
@@ -481,7 +471,6 @@ sealed class CustomWidgetButtonAction : Parcelable {
 private const val KEY_TYPE = "type"
 private const val KEY_CUSTOM_ICON_BASE64 = "customIconBase64"
 private const val KEY_FOLDER_ICON_COLOR_ARGB = "folderIconColorArgb"
-private const val LEGACY_FOLDER_ICON_COLOR_ARGB = 0xFF4F8F74.toInt()
 private const val KEY_PACKAGE_NAME = "packageName"
 private const val KEY_APP_NAME = "appName"
 private const val KEY_USER_HANDLE_ID = "userHandleId"
@@ -723,11 +712,6 @@ internal fun CustomWidgetButtonAction.File.withFolderIconColor(
     colorArgb: Int,
 ): CustomWidgetButtonAction.File = copy(folderIconColorArgb = colorArgb)
 
-/**
- * Returns a displayable folder tint, preserving a visible fallback for the initial release's
- * zero-alpha colour values.
- */
+/** Returns a visible custom tint when the folder has one. */
 internal fun CustomWidgetButtonAction.File.resolvedFolderIconColorArgb(): Int? =
-    folderIconColorArgb?.let { colorArgb ->
-        if ((colorArgb ushr 24) == 0) LEGACY_FOLDER_ICON_COLOR_ARGB else colorArgb
-    }
+    folderIconColorArgb?.takeIf { (it ushr 24) != 0 }

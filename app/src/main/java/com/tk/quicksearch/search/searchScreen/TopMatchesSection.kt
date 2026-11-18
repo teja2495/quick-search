@@ -77,7 +77,6 @@ import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.search.utils.SearchRankingUtils
 import com.tk.quicksearch.search.utils.SearchQueryContext
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
 
@@ -485,7 +484,6 @@ private fun buildTopMatches(
         }
     }
     if (
-        FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES) &&
             isTopMatchesSectionEnabled(SearchSection.NOTES)
     ) {
         inputs.notes.forEachIndexed { index, note ->

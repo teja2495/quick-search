@@ -194,7 +194,6 @@ internal fun RecentSearchItemRow(
                     AppShortcutRow(
                         shortcut = item.shortcut,
                         isPinned = false,
-                        isExcluded = false,
                         hasNickname = false,
                         onShortcutClick = onAppShortcutClick,
                         onTogglePin = {},

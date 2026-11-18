@@ -278,11 +278,6 @@ class BookmarkRepository(context: Context) {
         fetchFaviconsInBackground(restored)
     }
 
-    /** Fetches favicons for bookmarks that have none, such as after an import or restore. */
-    fun refreshMissingFavicons() {
-        fetchFaviconsInBackground(ensureLoaded())
-    }
-
     private fun fetchFaviconsInBackground(bookmarks: List<BookmarkInfo>) {
         val toFetch = bookmarks.filter { !it.hasFavicon && faviconFetchesInFlight.add(it.bookmarkId) }
         if (toFetch.isEmpty()) return

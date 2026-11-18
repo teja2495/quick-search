@@ -164,7 +164,6 @@ internal object SearchStateExtractor {
             directDialEnabled = s.directDialEnabled,
             numberSearchEnabled = s.numberSearchEnabled,
             assistantLaunchVoiceModeEnabled = s.assistantLaunchVoiceModeEnabled,
-            shouldShowUsagePermissionBanner = s.shouldShowUsagePermissionBanner,
             showUpdateCard = s.showUpdateCard,
             isUpdateReadyToInstall = s.isUpdateReadyToInstall,
         )
@@ -232,8 +231,6 @@ internal object SearchStateExtractor {
             folderWhitelistPatterns = s.folderWhitelistPatterns,
             folderBlacklistPatterns = s.folderBlacklistPatterns,
             excludedFileExtensions = s.excludedFileExtensions,
-            showSearchEngineOnboarding = s.showSearchEngineOnboarding,
-            showStartSearchingOnOnboarding = s.showStartSearchingOnOnboarding,
             showSearchBarWelcomeAnimation = s.showSearchBarWelcomeAnimation,
             showContactActionHint = s.showContactActionHint,
             hasSeenOverlayAssistantTip = s.hasSeenOverlayAssistantTip,

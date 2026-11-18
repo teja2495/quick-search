@@ -388,8 +388,6 @@ class UiPreferences(context: Context) : UiPreferencesFeatures(context) {
         const val KEY_CLEAR_QUERY_ON_LAUNCH = "clear_query_on_launch"
         const val KEY_AUTO_CLOSE_OVERLAY = "auto_close_overlay"
         const val KEY_OVERLAY_MODE_ENABLED = "overlay_mode_enabled"
-        const val KEY_MESSAGING_APP = "messaging_app"
-        const val KEY_CALLING_APP = "calling_app"
         const val KEY_PRIMARY_CONTACT_BUTTON = "primary_contact_button"
         const val KEY_SECONDARY_CONTACT_BUTTON = "secondary_contact_button"
         const val KEY_FIRST_LAUNCH = "first_launch"
@@ -495,10 +493,6 @@ class UiPreferences(context: Context) : UiPreferencesFeatures(context) {
         const val KEY_AMAZON_DOMAIN = "amazon_domain"
 
         // Usage permission banner preferences keys
-        const val KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT =
-                "usage_permission_banner_dismiss_count"
-        const val KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED =
-                "usage_permission_banner_session_dismissed"
 
         // Web search suggestions preferences keys
         const val KEY_WEB_SUGGESTIONS_ENABLED = "web_suggestions_enabled"

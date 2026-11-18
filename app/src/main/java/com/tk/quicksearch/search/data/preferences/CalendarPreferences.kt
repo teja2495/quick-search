@@ -87,9 +87,4 @@ class CalendarPreferences(
     }
 
     /** Calendar events created inside Quick Search before reminders replaced them; read only to migrate them. */
-    fun getCustomEventsJson(): String = prefs.getString(BasePreferences.KEY_CUSTOM_CALENDAR_EVENTS_DATA, null).orEmpty()
-
-    fun setCustomEventsJson(json: String) {
-        prefs.edit().putString(BasePreferences.KEY_CUSTOM_CALENDAR_EVENTS_DATA, json).apply()
-    }
 }

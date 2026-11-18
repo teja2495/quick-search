@@ -1,7 +1,5 @@
 package com.tk.quicksearch.search.core
 
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
-
 internal class SearchVisibilityStateResolver {
     fun apply(state: SearchUiState): SearchUiState =
         state.copy(
@@ -186,9 +184,6 @@ internal class SearchVisibilityStateResolver {
         }
 
     private fun computeNotesSectionVisibility(state: SearchUiState): NotesSectionVisibility {
-        if (!FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES)) {
-            return NotesSectionVisibility.Hidden
-        }
         val sectionEnabled = isSectionEnabledForCurrentQuery(state, SearchSection.NOTES)
         return when {
             !sectionEnabled -> NotesSectionVisibility.Hidden

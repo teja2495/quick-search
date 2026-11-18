@@ -11,8 +11,6 @@ object WidgetConfigConstants {
 
     val SECTION_SPACING = 24.dp
     val PREVIEW_SECTION_SPACING = SECTION_SPACING
-    val SLIDER_ROW_SPACING = 16.dp
-    val COLOR_SECTION_SPACING = 8.dp
 
     val HORIZONTAL_PADDING = 24.dp
     val PREVIEW_INNER_PADDING = 16.dp

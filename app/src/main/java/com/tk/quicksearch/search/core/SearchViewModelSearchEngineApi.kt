@@ -2,8 +2,6 @@ package com.tk.quicksearch.search.core
 
 import com.tk.quicksearch.search.contacts.models.ContactButtonAction
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 internal interface SearchViewModelSearchEngineApi {
     val searchEngineApiDelegate: SearchViewModelSearchEngineApiDelegate
@@ -12,15 +10,10 @@ internal interface SearchViewModelSearchEngineApi {
 
     fun setAlias(targetId: String, code: String) = searchEngineApiDelegate.setAlias(targetId, code)
 
-    fun setAliasEnabled(target: SearchTarget, enabled: Boolean) =
-        searchEngineApiDelegate.setAliasEnabled(target, enabled)
-
     fun getAlias(target: SearchTarget): String = searchEngineApiDelegate.getAlias(target)
 
     fun getAlias(targetId: String, defaultCode: String = ""): String =
         searchEngineApiDelegate.getAlias(targetId, defaultCode)
-
-    fun isAliasEnabled(target: SearchTarget): Boolean = searchEngineApiDelegate.isAliasEnabled(target)
 
     fun setSectionEnabled(section: SearchSection, enabled: Boolean) =
         searchEngineApiDelegate.setSectionEnabled(section, enabled)
@@ -43,11 +36,6 @@ internal interface SearchViewModelSearchEngineApi {
     fun showReleaseNotes() = searchEngineApiDelegate.showReleaseNotes()
 
     fun requestAiSearch(query: String) = searchEngineApiDelegate.requestAiSearch(query)
-
-    fun setShowStartSearchingOnOnboarding(show: Boolean) =
-        searchEngineApiDelegate.setShowStartSearchingOnOnboarding(show)
-
-    fun onSearchEngineOnboardingDismissed() = searchEngineApiDelegate.onSearchEngineOnboardingDismissed()
 
     fun getEnabledSearchTargets(): List<SearchTarget> = searchEngineApiDelegate.getEnabledSearchTargets()
 
@@ -107,15 +95,10 @@ class SearchViewModelSearchEngineApiDelegate internal constructor(
 
     fun setAlias(targetId: String, code: String) = aliasHandler().setAlias(targetId, code)
 
-    fun setAliasEnabled(target: SearchTarget, enabled: Boolean) =
-        aliasHandler().setAliasEnabled(target, enabled)
-
     fun getAlias(target: SearchTarget): String = aliasHandler().getAlias(target)
 
     fun getAlias(targetId: String, defaultCode: String): String =
         aliasHandler().getAlias(targetId, defaultCode)
-
-    fun isAliasEnabled(target: SearchTarget): Boolean = aliasHandler().isAliasEnabled(target)
 
     fun setSectionEnabled(section: SearchSection, enabled: Boolean) =
         sectionManager().setSectionEnabled(section, enabled)
@@ -143,22 +126,6 @@ class SearchViewModelSearchEngineApiDelegate internal constructor(
     }
 
     fun requestAiSearch(query: String) = aiSearchHandler().requestAiSearch(query)
-
-    fun setShowStartSearchingOnOnboarding(show: Boolean) {
-        updateConfigState { it.copy(showStartSearchingOnOnboarding = show) }
-    }
-
-    fun onSearchEngineOnboardingDismissed() {
-        updateConfigState {
-            it.copy(
-                showSearchEngineOnboarding = false,
-                showStartSearchingOnOnboarding = false,
-            )
-        }
-        scope.launch(Dispatchers.IO) {
-            userPreferences.setHasSeenSearchEngineOnboarding(true)
-        }
-    }
 
     fun getEnabledSearchTargets(): List<SearchTarget> = searchEngineManager().getEnabledSearchTargets()
 

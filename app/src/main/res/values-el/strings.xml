@@ -25,14 +25,11 @@
     <string name="quick_search_help_intro">Πληκτρολογήστε μια ερώτηση μετά το @help για να λάβετε απαντήσεις σχετικά με τις λειτουργίες και τις ρυθμίσεις του Quick Search.</string>
     <string name="gemini_web_search_quota_fallback_tip">Συμπληρώθηκε το όριο αναζήτησης στον ιστό του Gemini, επομένως αυτή η απάντηση δημιουργήθηκε χωρίς αναζήτηση στον ιστό.</string>
     <string name="direct_search_powered_by">Με την υποστήριξη του</string>
-    <string name="empty_state_subtitle">Ανοίξτε μια εφαρμογή ή βελτιώστε την αναζήτησή σας για να δείτε προτάσεις.</string>
-    <string name="empty_state_title">Δεν υπάρχει κάτι για εμφάνιση (ακόμα)</string>
     <string name="error_action_not_available">Η ενέργεια δεν είναι διαθέσιμη</string>
     <string name="error_gemini_empty_response">Κενή απόκριση από το Gemini</string>
     <string name="error_gemini_load_models_failed">Αδυναμία φόρτωσης των μοντέλων Gemini</string>
     <string name="error_gemini_request_failed">Το αίτημα απέτυχε (%1$d)</string>
     <string name="error_unknown">Άγνωστο σφάλμα</string>
-    <string name="gemini_model_flash_latest">Gemini Flash (Latest)</string>
     <string name="keyboard_switch_back">Κανονικό πληκτρολόγιο</string>
     <string name="keyboard_switch_to_number">Αριθμητικό πληκτρολόγιο</string>
     <string name="no_results_found">Δεν βρέθηκαν αποτελέσματα. Δοκιμάστε να πατήσετε μια μηχανή αναζήτησης παρακάτω για αναζήτηση στον ιστό.</string>
@@ -151,7 +148,6 @@
     <string name="settings_gesture_view_all_apps">Προβολή όλων των εφαρμογών</string>
     <string name="settings_gesture_lock_screen">Κλείδωμα οθόνης</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">Απαιτείται άδεια προσβασιμότητας</string>
-    <string name="accessibility_lock_screen_service_label">Quick Search</string>
     <string name="accessibility_lock_screen_service_description">Επιτρέπει στο Quick Search να κλειδώνει την οθόνη με τη χειρονομία διπλού πατήματος στην αρχική οθόνη, να ανταποκρίνεται σε πατήματα στην εγκοπή, να ανοίγει με σάρωση από την άκρη ή με ένα αιωρούμενο κουμπί σε οποιαδήποτε εφαρμογή και να εμφανίζει το SpeedBump για εφαρμογές που ανοίγουν εκτός Quick Search. Ελέγχει μόνο ποια εφαρμογή είναι ανοιχτή και δεν διαβάζει το περιεχόμενο της οθόνης.</string>
     <string name="accessibility_service_stopped_hint">Το Android σταμάτησε την υπηρεσία προσβασιμότητας του Quick Search. Απενεργοποιήστε την και ενεργοποιήστε την ξανά στις ρυθμίσεις προσβασιμότητας.</string>
 <string name="accessibility_permission_disclaimer_title">Αποποίηση ευθύνης άδειας προσβασιμότητας</string>
@@ -280,7 +276,6 @@
     <string name="app_suggestions_tabs_dialog_message">Επιλέξτε ποιες καρτέλες προτάσεων εφαρμογών θα εμφανίζονται στην αρχική οθόνη.</string>
     <string name="app_suggestions_tabs_dialog_title">Καρτέλες προτάσεων εφαρμογών</string>
     <string name="app_suggestions_enabled_tabs_picker_hint">Επιλογή καρτελών</string>
-    <string name="app_suggestions_tab_required_toast">Διατηρήστε τουλάχιστον μία καρτέλα προτάσεων εφαρμογών ενεργοποιημένη</string>
     <string name="app_suggestions_toggle_desc">Εμφάνιση ή απόκρυψη προτεινόμενων εφαρμογών στην αρχική οθόνη</string>
     <string name="app_suggestions_toggle_title">Προτάσεις εφαρμογών</string>
     <string name="show_all_apps_button_toggle_desc">Εμφάνιση του κουμπιού \"Όλες οι εφαρμογές\" κάτω από τις προτάσεις εφαρμογών</string>
@@ -326,7 +321,6 @@
     <string name="section_media">Χειριστήρια πολυμέσων</string>
     <string name="section_settings">Ρυθμίσεις συσκευής</string>
     <string name="search_section_menu_title">Αναζήτηση σε</string>
-    <string name="top_match_title">Καλύτερο αποτέλεσμα</string>
     <string name="top_matches_count_label">Αριθμός αποτελεσμάτων</string>
     <string name="top_matches_priority_desc">Αλλαγή προτεραιότητας και απενεργοποίηση στοιχείων στα κορυφαία αποτελέσματα</string>
     <string name="top_matches_priority_dialog_info">Κρατήστε πατημένο και σύρετε για να αλλάξετε προτεραιότητα, και χρησιμοποιήστε τον διακόπτη για να ενεργοποιήσετε ή να απενεργοποιήσετε συγκεκριμένους τύπους αποτελεσμάτων.</string>
@@ -375,7 +369,6 @@
     <string name="settings_app_info_last_update">Τελευταία ενημέρωση</string>
     <string name="settings_app_info_minimum_sdk">Ελάχιστο SDK</string>
     <string name="settings_app_info_not_available">Μη διαθέσιμο</string>
-    <string name="settings_app_info_package_name">Όνομα πακέτου</string>
     <string name="settings_app_info_target_sdk">Στοχευμένο SDK</string>
     <string name="settings_app_info_version">Έκδοση</string>
     <string name="settings_app_info_version_code">Κωδικός έκδοσης</string>
@@ -484,10 +477,7 @@
     <string name="contacts_action_hint_message">Συμβουλή: Κρατήστε πατημένη οποιαδήποτε ενέργεια εδώ για να την προσαρμόσετε για μεμονωμένες επαφές.</string>
     <string name="contacts_action_next_number">Επόμενος αριθμός τηλεφώνου</string>
     <string name="contacts_action_previous_number">Προηγούμενος αριθμός τηλεφώνου</string>
-    <string name="contacts_action_signal">Επαφή Signal</string>
     <string name="contacts_action_sms">Αποστολή μηνύματος στην επαφή</string>
-    <string name="contacts_action_telegram">Επαφή Telegram</string>
-    <string name="contacts_action_whatsapp">Επαφή WhatsApp</string>
     <string name="contacts_no_methods_available">Δεν υπάρχουν διαθέσιμοι τρόποι επικοινωνίας</string>
     <string name="contacts_refreshed_successfully">Επιτυχής ανανέωση επαφών</string>
     <string name="contacts_section_permission_subtitle">Απαιτείται η άδεια επαφών για την εκτέλεση αναζήτησης επαφών</string>
@@ -571,13 +561,8 @@
     <!-- ============================================================================
          Calendar
          ============================================================================ -->
-    <string name="app_settings_create_calendar_event_desc">Δημιουργία και προσθήκη νέου συμβάντος</string>
-    <string name="app_settings_create_calendar_event_title">Νέο συμβάν ημερολογίου</string>
     <string name="calendar_create_event_name_hint">Όνομα συμβάντος</string>
     <string name="calendar_create_event_select_date">Επιλογή ημερομηνίας</string>
-    <string name="calendar_create_event_sync_notice">Αυτό το συμβάν δεν θα συγχρονιστεί με το ημερολόγιο της συσκευής σας</string>
-    <string name="calendar_create_event_title">Νέο συμβάν</string>
-    <string name="calendar_edit_event_title">Επεξεργασία συμβάντος</string>
     <string name="calendar_relative_ago_format">πριν από %1$s</string>
     <plurals name="calendar_relative_days">
         <item quantity="one">%d ημέρα</item>
@@ -588,7 +573,6 @@
         <item quantity="other">%d ώρες</item>
     </plurals>
     <string name="calendar_relative_in_format">σε %1$s</string>
-    <string name="calendar_relative_in_minutes">σε %1$d λεπτά</string>
     <plurals name="calendar_relative_minutes">
         <item quantity="one">%d λεπτό</item>
         <item quantity="other">%d λεπτά</item>
@@ -657,7 +641,6 @@
     <string name="notes_editor_notification_note_title">Σημείωση ειδοποίησης</string>
     <string name="notes_empty_note_subtext">Κενή σημείωση</string>
     <string name="notes_quick_note_title">Γρήγορη σημείωση</string>
-    <string name="notes_quick_note_toggle_desc">Άνοιγμα της Γρήγορης Σημείωσης μέσω πλοήγησης με σάρωση</string>
     <string name="notes_title_hint">Τίτλος</string>
     <string name="notes_untitled">Χωρίς τίτλο</string>
     <string name="settings_notes_view_all_desc">Προβολή όλων των σημειώσεων</string>
@@ -727,8 +710,6 @@
     <string name="settings_features_export_failed">Δεν ήταν δυνατή η αποθήκευση της τεκμηρίωσης δυνατοτήτων.</string>
     <string name="settings_features_saved_to_downloads">Αποθηκεύτηκε στις Λήψεις</string>
     <string name="settings_features_sections_title">Περιεχόμενα</string>
-    <string name="settings_search_description_change_app_theme">Αλλαγή θέματος εφαρμογής</string>
-    <string name="settings_search_description_change_font_size">Αλλαγή μεγέθους γραμματοσειράς εφαρμογής</string>
     <string name="settings_search_description_change_icon_pack">Αλλαγή πακέτου εικονιδίων</string>
     <string name="settings_search_description_change_layout">Αλλαγή επιλογών διάταξης εφαρμογής</string>
     <string name="settings_search_description_change_wallpaper">Αλλαγή εμφάνισης ταπετσαρίας</string>
@@ -757,9 +738,6 @@
     <string name="settings_appearance_title">Εμφάνιση</string>
     <string name="settings_assistant_voice_mode_desc">Έναρξη φωνητικής πληκτρολόγησης κατά την εκκίνηση ως ψηφιακός βοηθός</string>
     <string name="settings_assistant_voice_mode_title">Φωνητική λειτουργία βοηθού</string>
-    <string name="settings_beta_features_disabled">Οι δοκιμαστικές δυνατότητες (Beta) είναι απενεργοποιημένες</string>
-    <string name="settings_beta_features_enabled">Οι νέες δοκιμαστικές δυνατότητες (Beta) είναι ενεργοποιημένες</string>
-    <string name="settings_beta_features_unavailable">Δεν υπάρχουν νέες διαθέσιμες δυνατότητες</string>
     <string name="settings_beta_tag">Beta</string>
     <string name="settings_bottom_searchbar_desc">Τοποθέτηση της γραμμής αναζήτησης στο κάτω μέρος της οθόνης</string>
     <string name="settings_bottom_searchbar_title">Κάτω γραμμή αναζήτησης</string>
@@ -870,8 +848,6 @@
     <string name="settings_refresh_contacts_title">Ανανέωση επαφών</string>
     <string name="settings_refresh_data_note">Τα δεδομένα ανανεώνονται αυτόματα. Χρησιμοποιήστε αυτά τα κουμπιά για αναγκαστική χειροκίνητη ανανέωση.</string>
     <string name="settings_refresh_data_title">Ανανέωση δεδομένων</string>
-    <string name="settings_refresh_icon_packs">Ανανέωση πακέτων εικονιδίων</string>
-    <string name="settings_refreshing_icon_packs">Ανανέωση της λίστας πακέτων εικονιδίων</string>
     <string name="settings_scroll_to_top">Κύλιση στην κορυφή</string>
     <string name="settings_search_hints_desc">Ενεργοποίηση/Απενεργοποίηση εναλλασσόμενων υποδείξεων αναζήτησης</string>
     <string name="settings_search_hints_title">Υποδείξεις αναζήτησης</string>
@@ -883,8 +859,6 @@
     <string name="settings_themed_icons_desc">Αλλαγή απόχρωσης εικονιδίων για εναρμόνιση με το θέμα σας</string>
     <string name="settings_themed_icons_title">Θεματικά εικονίδια εφαρμογών</string>
     <string name="settings_tools_desc">Αριθμομηχανή, Μετατροπέας μονάδων, Λεξικό και άλλα</string>
-    <string name="settings_tools_gemini_api_desc">Η προσθήκη ενός κλειδιού API ενεργοποιεί περισσότερα εργαλεία.</string>
-    <string name="settings_tools_gemini_api_title">Διαμόρφωση παρόχου AI</string>
     <string name="settings_tools_info_examples_header">Ακολουθούν μερικά παραδείγματα για το τι μπορείτε να ζητήσετε στη γραμμή αναζήτησης</string>
     <string name="settings_tools_title">Εργαλεία</string>
     <string name="settings_at_a_glance_title">Με μια ματιά</string>
@@ -892,7 +866,6 @@
     <string name="custom_info_edit_title">Επεξεργασία λεπτομερειών</string>
     <string name="custom_info_prompt">Προτροπή</string>
     <string name="custom_info_set_date_time">Ορισμός ημερομηνίας και ώρας</string>
-    <string name="custom_info_desc">Απαντήσεις AI στις προτροπές σας στην αρχική οθόνη, τις ώρες που επιλέγετε</string>
     <string name="settings_ai_api_key_required_message">Αυτή η λειτουργία απαιτεί κλειδί API παρόχου AI.</string>
     <string name="settings_ai_api_key_required_title">Απαιτείται κλειδί API</string>
     <string name="settings_ai_api_key_setup_action">Ρύθμιση κλειδιού</string>
@@ -998,7 +971,6 @@
     <string name="settings_alias_label">Συντομογραφία:</string>
     <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_amazon_domain_label">Domain:</string>
-    <string name="settings_api_key_saved_last4">Αποθηκευμένο κλειδί που τελειώνει σε ****%1$s</string>
     <string name="settings_api_key_setup_desc">Διαμορφώστε τα κλειδιά API για πρόσβαση στα μοντέλα από τον αντίστοιχο πάροχο AI.</string>
     <string name="settings_api_key_setup_nav_desc">Προσθήκη ή κατάργηση κλειδιών API παρόχου</string>
     <string name="settings_configure_api_key_title">Διαμόρφωση κλειδιού API</string>
@@ -1069,7 +1041,6 @@
     <string name="settings_backup_export_option_pinned_items_title">Καρφιτσωμένα στοιχεία</string>
     <string name="settings_backup_export_option_api_keys">Κλειδιά API</string>
     <string name="settings_backup_export_selection_title">Εξαγωγή δεδομένων</string>
-    <string name="settings_backup_export_success">Οι ρυθμίσεις εξήχθησαν επιτυχώς.</string>
     <string name="settings_backup_import_button">Εισαγωγή</string>
     <string name="settings_backup_import_failed">Αδυναμία εισαγωγής ρυθμίσεων.</string>
     <string name="settings_backup_import_success">Οι ρυθμίσεις εισήχθησαν επιτυχώς.</string>
@@ -1124,7 +1095,6 @@
     <string name="date_calculator_category_time_ranges">Χρονικά εύρη</string>
     <string name="date_calculator_info_title">Αριθμομηχανή ημερομηνίας &amp; ώρας</string>
     <string name="date_calculator_invalid_date">Μη έγκυρη ή μη αναγνωρίσιμη ημερομηνία ή ώρα</string>
-    <string name="date_calculator_toggle_action_desc">Ενεργοποίηση ή απενεργοποίηση αριθμομηχανής ημερομηνίας &amp; ώρας</string>
     <string name="date_calculator_toggle_desc">Παραδείγματα χρήσης</string>
     <string name="dictionary_example_label">Παράδειγμα: %1$s</string>
     <string name="dictionary_definition_not_found">Δεν βρέθηκε ορισμός για «%1$s»</string>
@@ -1161,7 +1131,6 @@
     <string name="unit_converter_enter_conversion_hint">Εισαγάγετε μια μετατροπή (π.χ., 5lbs in kgs)</string>
     <string name="unit_converter_info_title">Μετατροπέας μονάδων</string>
     <string name="unit_converter_invalid_or_unsupported_query">Μη έγκυρη ή μη υποστηριζόμενη μετατροπή</string>
-    <string name="unit_converter_toggle_action_desc">Ενεργοποίηση ή απενεργοποίηση μετατροπέα μονάδων</string>
     <string name="world_clock_error_not_recognized">Δεν ήταν δυνατή η επίλυση αυτού του αιτήματος ώρας. Δοκιμάστε μια πόλη, χώρα, ζώνη ώρας ή συγκεκριμένη ώρα.</string>
     <string name="world_clock_toggle_desc">Παράδειγμα: Time in Tokyo</string>
     <string name="world_clock_toggle_title">Παγκόσμιο ρολόι</string>
@@ -1326,7 +1295,6 @@
     <string name="search_engine_google_photos">Google Photos</string>
     <string name="search_engine_google_play">Google Play</string>
     <string name="search_engine_grok">Grok</string>
-    <string name="search_engine_onboarding_description">Όταν πληκτρολογείτε το ερώτημα αναζήτησης και πατάτε σε οποιαδήποτε από αυτές τις μηχανές αναζήτησης, θα ξεκινά η αναζήτηση μέσα σε αυτές τις εφαρμογές. Μπορείτε να τις τροποποιήσετε με παρατεταμένο πάτημα.</string>
     <string name="search_engine_perplexity">Perplexity</string>
     <string name="search_engine_reddit">Reddit</string>
     <string name="search_engine_spotify">Spotify</string>
@@ -1519,7 +1487,6 @@
     <string name="bookmarks_link_label">Σύνδεσμος</string>
     <string name="bookmarks_invalid_link">Εισαγάγετε μια έγκυρη διεύθυνση ιστού</string>
     <string name="reminders_permission_hint">Απαιτείται άδεια για την εμφάνιση ειδοποιήσεων υπενθυμίσεων. Πατήστε για να επιτρέψετε.</string>
-    <string name="reminders_home_card_dismiss">Κατάργηση από την Αρχική</string>
     <string name="settings_include_past_reminders_title">Προηγούμενες υπενθυμίσεις</string>
     <string name="settings_include_past_reminders_desc">Εμφάνιση προηγούμενων υπενθυμίσεων στα αποτελέσματα αναζήτησης</string>
     <string name="app_setting_create_reminder">Δημιουργία υπενθύμισης</string>

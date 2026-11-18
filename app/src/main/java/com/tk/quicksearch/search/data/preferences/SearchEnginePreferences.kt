@@ -78,12 +78,6 @@ class SearchEnginePreferences(
         setBooleanPref(BasePreferences.KEY_ALIAS_TRIGGER_AFTER_SPACE, enabled)
     }
 
-    fun hasSeenSearchEngineOnboarding(): Boolean = getBooleanPref(BasePreferences.KEY_SEARCH_ENGINE_ONBOARDING_SEEN, false)
-
-    fun setHasSeenSearchEngineOnboarding(seen: Boolean) {
-        setBooleanPref(BasePreferences.KEY_SEARCH_ENGINE_ONBOARDING_SEEN, seen)
-    }
-
     /**
      * Favicons live in [ManagedAssetStore]. One still inline in the stored JSON comes from an
      * older build or a restored backup, so it wins and is moved to the asset store.

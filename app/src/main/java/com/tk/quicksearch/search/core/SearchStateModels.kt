@@ -232,7 +232,6 @@ data class SearchFeatureState(
         // Assistant launch voice mode
         val assistantLaunchVoiceModeEnabled: Boolean = false,
         // Usage permission banner
-        val shouldShowUsagePermissionBanner: Boolean = false,
         // Home screen prompt card
         val showUpdateCard: Boolean = false,
         val isUpdateReadyToInstall: Boolean = false,
@@ -310,8 +309,6 @@ data class SearchUiConfigState(
         val folderBlacklistPatterns: Set<String> = emptySet(),
         val excludedFileExtensions: Set<String> = emptySet(),
         // Onboarding, hints, and dialog visibility
-        val showSearchEngineOnboarding: Boolean = false,
-        val showStartSearchingOnOnboarding: Boolean = false,
         val showSearchBarWelcomeAnimation: Boolean = false,
         val showContactActionHint: Boolean = false,
         val hasSeenOverlayAssistantTip: Boolean = true,

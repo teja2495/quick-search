@@ -25,14 +25,11 @@
     <string name="quick_search_help_intro">在 @help 后输入问题，即可获取有关 Quick Search 功能和设置的回答。</string>
     <string name="gemini_web_search_quota_fallback_tip">Gemini 的网页搜索配额已用尽，因此此回答未使用网页搜索生成。</string>
     <string name="direct_search_powered_by">技术支持由</string>
-    <string name="empty_state_subtitle">启动应用或优化您的搜索以查看建议。</string>
-    <string name="empty_state_title">暂无内容显示</string>
     <string name="error_action_not_available">操作不可用</string>
     <string name="error_gemini_empty_response">Gemini 返回响应为空</string>
     <string name="error_gemini_load_models_failed">无法加载 Gemini 模型</string>
     <string name="error_gemini_request_failed">请求失败 (%1$d)</string>
     <string name="error_unknown">未知错误</string>
-    <string name="gemini_model_flash_latest">Gemini Flash (最新版)</string>
     <string name="keyboard_switch_back">普通键盘</string>
     <string name="keyboard_switch_to_number">数字键盘</string>
     <string name="no_results_found">未找到结果。请尝试点击下方的搜索引擎来搜索网页。</string>
@@ -151,7 +148,6 @@
     <string name="settings_gesture_view_all_apps">查看所有应用</string>
     <string name="settings_gesture_lock_screen">锁定屏幕</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">需要无障碍权限</string>
-    <string name="accessibility_lock_screen_service_label">Quick Search</string>
     <string name="accessibility_lock_screen_service_description">允许 Quick Search 通过主屏幕上的双击手势锁定屏幕、响应刘海点按、在任何应用中通过边缘滑动或悬浮按钮打开，并为在 Quick Search 之外打开的应用显示 SpeedBump。它只检查当前打开的是哪个应用，不会读取屏幕内容。</string>
     <string name="accessibility_service_stopped_hint">Android 已停止 Quick Search 的无障碍服务。请在无障碍设置中将其关闭后重新开启。</string>
 <string name="accessibility_permission_disclaimer_title">无障碍权限免责声明</string>
@@ -280,7 +276,6 @@
     <string name="app_suggestions_tabs_dialog_message">选择要在主屏幕上显示哪些应用建议标签页。</string>
     <string name="app_suggestions_tabs_dialog_title">应用建议标签页</string>
     <string name="app_suggestions_enabled_tabs_picker_hint">选择标签页</string>
-    <string name="app_suggestions_tab_required_toast">请至少保留一个启用的应用建议标签页</string>
     <string name="app_suggestions_toggle_desc">在主屏幕上显示或隐藏建议的应用</string>
     <string name="app_suggestions_toggle_title">应用建议</string>
     <string name="show_all_apps_button_toggle_desc">在应用建议下方显示\"所有应用\"按钮</string>
@@ -326,7 +321,6 @@
     <string name="section_media">媒体控制</string>
     <string name="section_settings">设备设置</string>
     <string name="search_section_menu_title">搜索范围</string>
-    <string name="top_match_title">最佳匹配</string>
     <string name="top_matches_count_label">匹配项数量</string>
     <string name="top_matches_priority_desc">更改最佳匹配中的项目优先级或将其停用</string>
     <string name="top_matches_priority_dialog_info">长按并拖动以更改优先级，利用开关可以启用或停用某些特定的结果类型。</string>
@@ -375,7 +369,6 @@
     <string name="settings_app_info_last_update">最近更新</string>
     <string name="settings_app_info_minimum_sdk">最低 SDK</string>
     <string name="settings_app_info_not_available">不可用</string>
-    <string name="settings_app_info_package_name">包名</string>
     <string name="settings_app_info_target_sdk">目标 SDK</string>
     <string name="settings_app_info_version">版本</string>
     <string name="settings_app_info_version_code">版本代码</string>
@@ -483,10 +476,7 @@
     <string name="contacts_action_hint_message">提示：长按此处的任意操作可以为单独的联系人进行个性化定制。</string>
     <string name="contacts_action_next_number">下一个电话号码</string>
     <string name="contacts_action_previous_number">上一个电话号码</string>
-    <string name="contacts_action_signal">使用 Signal 联系</string>
     <string name="contacts_action_sms">给联系人发短信</string>
-    <string name="contacts_action_telegram">使用 Telegram 联系</string>
-    <string name="contacts_action_whatsapp">使用 WhatsApp 联系</string>
     <string name="contacts_no_methods_available">没有可用的联系方式</string>
     <string name="contacts_refreshed_successfully">联系人数据刷新成功</string>
     <string name="contacts_section_permission_subtitle">需要通讯录权限才能执行联系人搜索</string>
@@ -569,13 +559,8 @@
     <!-- ============================================================================
          Calendar
          ============================================================================ -->
-    <string name="app_settings_create_calendar_event_desc">创建并添加新日程</string>
-    <string name="app_settings_create_calendar_event_title">新日历日程</string>
     <string name="calendar_create_event_name_hint">日程名称</string>
     <string name="calendar_create_event_select_date">选择日期</string>
-    <string name="calendar_create_event_sync_notice">此日程不会同步到您的设备系统日历</string>
-    <string name="calendar_create_event_title">新日程</string>
-    <string name="calendar_edit_event_title">编辑日程</string>
     <string name="calendar_relative_ago_format">%1$s前</string>
     <plurals name="calendar_relative_days">
         <item quantity="other">%d 天</item>
@@ -584,7 +569,6 @@
         <item quantity="other">%d 小时</item>
     </plurals>
     <string name="calendar_relative_in_format">%1$s后</string>
-    <string name="calendar_relative_in_minutes">%1$d 分钟后</string>
     <plurals name="calendar_relative_minutes">
         <item quantity="other">%d 分钟</item>
     </plurals>
@@ -646,7 +630,6 @@
     <string name="notes_editor_notification_note_title">通知笔记</string>
     <string name="notes_empty_note_subtext">空白笔记</string>
     <string name="notes_quick_note_title">快捷笔记</string>
-    <string name="notes_quick_note_toggle_desc">支持通过滑动导航打开快捷笔记</string>
     <string name="notes_title_hint">标题</string>
     <string name="notes_untitled">无标题</string>
     <string name="settings_notes_view_all_desc">查看所有笔记</string>
@@ -716,8 +699,6 @@
     <string name="settings_features_export_failed">无法保存功能说明文档。</string>
     <string name="settings_features_saved_to_downloads">已保存到“下载”</string>
     <string name="settings_features_sections_title">目录内容</string>
-    <string name="settings_search_description_change_app_theme">更改应用主题颜色</string>
-    <string name="settings_search_description_change_font_size">更改应用字体大小</string>
     <string name="settings_search_description_change_icon_pack">更改应用图标包</string>
     <string name="settings_search_description_change_layout">更改应用布局选项</string>
     <string name="settings_search_description_change_wallpaper">更改壁纸的外观效果</string>
@@ -746,9 +727,6 @@
     <string name="settings_appearance_title">外观效果</string>
     <string name="settings_assistant_voice_mode_desc">作为数字助理唤醒时自动启动语音输入</string>
     <string name="settings_assistant_voice_mode_title">助理语音模式</string>
-    <string name="settings_beta_features_disabled">测试版 (Beta) 功能已停用</string>
-    <string name="settings_beta_features_enabled">全新测试版 (Beta) 功能已启用</string>
-    <string name="settings_beta_features_unavailable">暂无可用新功能</string>
     <string name="settings_beta_tag">测试版</string>
     <string name="settings_bottom_searchbar_desc">将搜索栏放置在屏幕底部</string>
     <string name="settings_bottom_searchbar_title">底部搜索栏</string>
@@ -859,8 +837,6 @@
     <string name="settings_refresh_contacts_title">刷新联系人</string>
     <string name="settings_refresh_data_note">数据会自动刷新。您可以使用这些按钮执行手动强制刷新。</string>
     <string name="settings_refresh_data_title">刷新数据</string>
-    <string name="settings_refresh_icon_packs">刷新图标包</string>
-    <string name="settings_refreshing_icon_packs">正在刷新图标包列表</string>
     <string name="settings_scroll_to_top">滚动到顶部</string>
     <string name="settings_search_hints_desc">开启或关闭轮播搜索提示</string>
     <string name="settings_search_hints_title">搜索提示语</string>
@@ -872,8 +848,6 @@
     <string name="settings_themed_icons_desc">让应用图标带上色调以匹配您自身的主题风格</string>
     <string name="settings_themed_icons_title">主题应用图标</string>
     <string name="settings_tools_desc">计算器、单位转换、字典及更多工具</string>
-    <string name="settings_tools_gemini_api_desc">添加 API 密钥可解锁启用更多工具。</string>
-    <string name="settings_tools_gemini_api_title">配置 AI 提供商</string>
     <string name="settings_tools_info_examples_header">以下是您可以在搜索栏中尝试输入的一些示例</string>
     <string name="settings_tools_title">实用工具</string>
     <string name="settings_at_a_glance_title">一览</string>
@@ -881,7 +855,6 @@
     <string name="custom_info_edit_title">编辑详情</string>
     <string name="custom_info_prompt">提示词</string>
     <string name="custom_info_set_date_time">设置日期和时间</string>
-    <string name="custom_info_desc">在你选择的时间，于主屏幕显示 AI 对提示词的回答</string>
     <string name="settings_ai_api_key_required_message">此功能需要 AI 提供商的 API 密钥。</string>
     <string name="settings_ai_api_key_required_title">需要 API 密钥</string>
     <string name="settings_ai_api_key_setup_action">设置密钥</string>
@@ -985,7 +958,6 @@
     <string name="settings_alias_label">别名：</string>
     <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_amazon_domain_label">域名：</string>
-    <string name="settings_api_key_saved_last4">已保存以 ****%1$s 结尾的密钥</string>
     <string name="settings_api_key_setup_desc">配置 API 密钥以访问对应 AI 提供商的模型。</string>
     <string name="settings_api_key_setup_nav_desc">添加或移除提供商的 API 密钥</string>
     <string name="settings_configure_api_key_title">配置 API 密钥</string>
@@ -1056,7 +1028,6 @@
     <string name="settings_backup_export_option_pinned_items_title">固定的项目</string>
     <string name="settings_backup_export_option_api_keys">API 密钥</string>
     <string name="settings_backup_export_selection_title">导出数据</string>
-    <string name="settings_backup_export_success">配置设置导出成功。</string>
     <string name="settings_backup_import_button">导入</string>
     <string name="settings_backup_import_failed">无法导入设置。</string>
     <string name="settings_backup_import_success">配置设置导入成功。</string>
@@ -1111,7 +1082,6 @@
     <string name="date_calculator_category_time_ranges">时间段范围</string>
     <string name="date_calculator_info_title">日期与时间计算器</string>
     <string name="date_calculator_invalid_date">日期或时间无效或无法识别</string>
-    <string name="date_calculator_toggle_action_desc">开启或关闭日期时间计算器</string>
     <string name="date_calculator_toggle_desc">使用实例指南</string>
     <string name="dictionary_example_label">示例：%1$s</string>
     <string name="dictionary_definition_not_found">未找到“%1$s”的释义</string>
@@ -1148,7 +1118,6 @@
     <string name="unit_converter_enter_conversion_hint">输入要转换的单位 (例如, 5lbs in kgs)</string>
     <string name="unit_converter_info_title">单位转换器</string>
     <string name="unit_converter_invalid_or_unsupported_query">单位转换请求无效或暂不支持</string>
-    <string name="unit_converter_toggle_action_desc">开启或关闭单位转换器</string>
     <string name="world_clock_error_not_recognized">无法解析该时间请求。请尝试输入城市、国家、时区或明确的时间表达方式。</string>
     <string name="world_clock_toggle_desc">例如：Time in Tokyo</string>
     <string name="world_clock_toggle_title">世界时钟</string>
@@ -1313,7 +1282,6 @@
     <string name="search_engine_google_photos">Google Photos</string>
     <string name="search_engine_google_play">Google Play</string>
     <string name="search_engine_grok">Grok</string>
-    <string name="search_engine_onboarding_description">当您输入搜索内容并点击这些搜索引擎图标时，系统将直接前往对应的应用进行定向检索。您可以通过长按来对它们进行修改编辑。</string>
     <string name="search_engine_perplexity">Perplexity</string>
     <string name="search_engine_reddit">Reddit</string>
     <string name="search_engine_spotify">Spotify</string>
@@ -1506,7 +1474,6 @@
     <string name="bookmarks_link_label">链接</string>
     <string name="bookmarks_invalid_link">请输入有效的网址</string>
     <string name="reminders_permission_hint">需要权限才能显示提醒通知。点按以允许。</string>
-    <string name="reminders_home_card_dismiss">从主屏幕移除</string>
     <string name="settings_include_past_reminders_title">过去的提醒</string>
     <string name="settings_include_past_reminders_desc">在搜索结果中显示过去的提醒</string>
     <string name="app_setting_create_reminder">创建提醒</string>

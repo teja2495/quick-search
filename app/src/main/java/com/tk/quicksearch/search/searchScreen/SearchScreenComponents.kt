@@ -20,7 +20,6 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 // Import the modifier functions
 import com.tk.quicksearch.search.searchScreen.components.predictedSubmitHighlight as componentsPredictedSubmitHighlight
-import com.tk.quicksearch.search.searchScreen.components.predictedSubmitCardBorder as componentsPredictedSubmitCardBorder
 
 // Modifiers
 internal fun Modifier.predictedSubmitHighlight(
@@ -28,11 +27,6 @@ internal fun Modifier.predictedSubmitHighlight(
     shape: Shape = AppShapes.card,
     opaqueCardTopResultBorder: Boolean = false,
 ): Modifier = componentsPredictedSubmitHighlight(isPredicted, shape, opaqueCardTopResultBorder)
-
-internal fun Modifier.predictedSubmitCardBorder(
-    isPredicted: Boolean,
-    shape: Shape = AppShapes.card,
-): Modifier = componentsPredictedSubmitCardBorder(isPredicted, shape)
 
 // Cards
 @Composable
@@ -323,8 +317,3 @@ internal fun NumberKeyboardOperatorPills(
     transparentBackground = transparentBackground,
     modifier = modifier,
 )
-
-// Empty State
-@Composable
-internal fun EmptyState() =
-    com.tk.quicksearch.search.searchScreen.components.EmptyState()

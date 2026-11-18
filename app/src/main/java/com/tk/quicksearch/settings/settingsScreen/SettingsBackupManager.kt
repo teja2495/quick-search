@@ -7,9 +7,8 @@ import com.tk.quicksearch.customInfo.CustomInfoScheduler
 import com.tk.quicksearch.reminders.ReminderScheduler
 import com.tk.quicksearch.search.apps.IconPackManager
 import com.tk.quicksearch.search.data.preferences.BasePreferences
+import com.tk.quicksearch.search.data.preferences.BootstrapPreferences
 import com.tk.quicksearch.search.data.preferences.CustomLlmProviderPreferences
-import com.tk.quicksearch.search.data.preferences.GeminiPreferences
-import com.tk.quicksearch.search.data.preferences.NotesPreferences
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.data.ReminderRepository
@@ -19,7 +18,6 @@ import com.tk.quicksearch.search.data.bookmarks.BookmarkRepository
 import com.tk.quicksearch.widgets.utils.requestNoteWidgetsRefresh
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.models.NoteInfo
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.CustomLlmProviderConfig
 import java.io.File
@@ -39,14 +37,10 @@ object SettingsBackupManager {
         NOTES,
         SEARCH_ENGINES,
         API_KEYS,
-        CALENDAR_EVENTS,
         REMINDERS,
         BOOKMARKS,
         SEARCH_HISTORY,
     }
-
-    /** Export item names written by older app versions, mapped to their current item. */
-    private val legacyExportItemNames = mapOf("GEMINI_API" to ExportItem.API_KEYS)
 
     data class ExportOptions(
         val selectedItems: Set<ExportItem> =
@@ -69,8 +63,6 @@ object SettingsBackupManager {
     private const val FIELD_FORMAT_VERSION = "formatVersion"
     private const val FIELD_EXPORTED_AT_EPOCH_MS = "exportedAtEpochMs"
     private const val FIELD_PREFERENCES = "preferences"
-    // Legacy field: backups before multi-provider keys only carried the Gemini key.
-    private const val FIELD_GEMINI_API_KEY = "geminiApiKey"
     private const val FIELD_LLM_API_KEYS = "llmApiKeys"
     // Stored inside FIELD_LLM_API_KEYS alongside the LLM provider keys.
     private const val TAVILY_API_KEY_FIELD = "tavily"
@@ -117,6 +109,9 @@ object SettingsBackupManager {
             BasePreferences.KEY_INSTALL_TIME,
             // Permission prompts are per device, so a restore should still ask on the first reminder.
             BasePreferences.KEY_REMINDER_PERMISSIONS_REQUESTED,
+            BasePreferences.KEY_NOTES_DATA,
+            "custom_calendar_events_data",
+            "custom_calendar_event_id_counter",
             "excluded_contact_ids",
             "excluded_file_uris",
             "excluded_file_extensions",
@@ -302,6 +297,8 @@ object SettingsBackupManager {
         )
 
         if (selectedExportItems == null || ExportItem.SETTINGS in selectedExportItems) {
+            val importedLanguage = UserAppPreferences(context).getAppLanguageTag()
+            BootstrapPreferences.setAppLanguageTag(context, importedLanguage)
             importSelectedIconPack(context, root)
         }
 
@@ -314,25 +311,15 @@ object SettingsBackupManager {
 
         if (selectedExportItems == null || ExportItem.NOTES in selectedExportItems) {
             val notesStore = NotesRoomStore(context)
-            // Older backups carry notes only as the legacy JSON in the preferences section. Read it
-            // from the backup itself: the app no longer keeps that copy in its preferences.
-            val legacyNotesJson =
-                preferencesJson
-                    .optJSONObject(BasePreferences.PREFS_NAME)
-                    ?.optJSONObject(BasePreferences.KEY_NOTES_DATA)
-                    ?.takeIf { it.optString(FIELD_TYPE) == TYPE_STRING }
-                    ?.optString(FIELD_VALUE)
             val notes =
                 root.optJSONArray(FIELD_NOTES)?.let(::parseNotes)
-                    ?: legacyNotesJson?.let(notesStore::parseLegacySnapshot)
                     // A full restore replaces everything, notes included; a partial one without
                     // notes in it leaves the current notes alone.
                     ?: if (selectedExportItems == null) emptyList() else null
             if (notes != null) {
-                notesStore.replaceFromBackup(notes)
+                notesStore.replaceAll(notes)
                 requestNoteWidgetsRefresh(context)
             }
-            NotesPreferences(context).clearNotesJson()
         }
 
         // Only backups that carry bookmarks replace them; older backups leave the current ones alone.
@@ -343,10 +330,7 @@ object SettingsBackupManager {
             BookmarkRepository(context).replaceFromBackup(BookmarkBackupCodec.parse(backedUpBookmarks))
         }
 
-        val importsCalendarEvents =
-            selectedExportItems == null || ExportItem.CALENDAR_EVENTS in selectedExportItems
-        // Older backups can hold calendar events created in Quick Search; rescheduling moves them into reminders.
-        if (importsReminders || importsCalendarEvents) {
+        if (importsReminders) {
             ReminderScheduler.rescheduleAll(context)
         }
         if (importsCustomInfo) {
@@ -374,7 +358,7 @@ object SettingsBackupManager {
         return buildSet {
             for (index in 0 until itemsArray.length()) {
                 val itemName = itemsArray.optString(index)
-                (legacyExportItemNames[itemName] ?: runCatching { ExportItem.valueOf(itemName) }.getOrNull())
+                runCatching { ExportItem.valueOf(itemName) }.getOrNull()
                     ?.let { add(it) }
             }
         }
@@ -422,7 +406,6 @@ object SettingsBackupManager {
                 .filter { shouldIncludeKeyForExport(prefName, it, options) }
                 .sorted()
                 .forEach { key ->
-                    if (legacyNotes != null && key == BasePreferences.KEY_NOTES_DATA) return@forEach
                     serializePreferenceValue(entries[key])?.let { yield(key to it) }
                 }
             legacyNotes?.let { yield(BasePreferences.KEY_NOTES_DATA to it) }
@@ -457,8 +440,7 @@ object SettingsBackupManager {
     ): Boolean {
         if (prefName != BasePreferences.PREFS_NAME) return false
         return key in excludedUserPreferenceKeys ||
-            key.startsWith(FeatureFlags.PREFERENCE_KEY_PREFIX) ||
-            FeatureFlags.shouldExcludePreferenceFromExport(key)
+            key.startsWith("feature_flag_")
     }
 
     private fun shouldIncludeKeyForExport(
@@ -480,9 +462,6 @@ object SettingsBackupManager {
         }
         if (isSearchEngineKey(prefName, key)) {
             return options.includes(ExportItem.SEARCH_ENGINES)
-        }
-        if (isCalendarEventsKey(prefName, key)) {
-            return options.includes(ExportItem.CALENDAR_EVENTS)
         }
         if (isRemindersKey(prefName, key)) {
             return options.includes(ExportItem.REMINDERS)
@@ -559,21 +538,12 @@ object SettingsBackupManager {
         key: String,
     ): Boolean {
         if (prefName != BasePreferences.PREFS_NAME) return false
-        return key == BasePreferences.KEY_NOTES_DATA ||
-            key == BasePreferences.KEY_NOTE_ID_COUNTER ||
+        return key == BasePreferences.KEY_NOTE_ID_COUNTER ||
             key == BasePreferences.KEY_PINNED_NOTE_IDS ||
             key == BasePreferences.KEY_PINNED_NOTE_ORDER ||
             key == BasePreferences.KEY_QUICK_NOTE_ID ||
             key == BasePreferences.KEY_QUICK_NOTE_ENABLED ||
             key.startsWith(BasePreferences.KEY_TRIGGER_NOTE_PREFIX)
-    }
-
-    private fun isCalendarEventsKey(
-        prefName: String,
-        key: String,
-    ): Boolean {
-        if (prefName != BasePreferences.PREFS_NAME) return false
-        return key == BasePreferences.KEY_CUSTOM_CALENDAR_EVENTS_DATA
     }
 
     private fun isRemindersKey(
@@ -632,9 +602,6 @@ object SettingsBackupManager {
     ) {
         val userPreferences = UserAppPreferences(context)
 
-        root.optString(FIELD_GEMINI_API_KEY, "").takeIf { it.isNotBlank() }?.let {
-            GeminiPreferences(context).setGeminiApiKey(it)
-        }
         root.optJSONObject(FIELD_LLM_API_KEYS)?.let { keys ->
             AiSearchLlmProviderId.entries.forEach { providerId ->
                 keys.optString(providerId.storageValue, "").takeIf { it.isNotBlank() }?.let {

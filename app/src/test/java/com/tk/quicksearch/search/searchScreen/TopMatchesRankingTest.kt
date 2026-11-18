@@ -1,7 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
 import com.tk.quicksearch.search.models.AppInfo
-import com.tk.quicksearch.search.models.SecondaryRankingSignal
 import com.tk.quicksearch.search.other.OtherSearchItemId
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import com.tk.quicksearch.search.utils.SearchRankingUtils
@@ -18,13 +17,6 @@ class TopMatchesRankingTest {
             otherSearchItemMatchPriority(OtherSearchItemId.SCREEN_TIME, "time")
 
         org.junit.Assert.assertTrue(exactPriority < partialPriority)
-    }
-
-    @Test
-    fun selectedSignalControlsTopMatchSecondaryScore() {
-        assertEquals(300L, topMatchSecondaryScore(SecondaryRankingSignal.RECENCY, 300L, 2L))
-        assertEquals(2L, topMatchSecondaryScore(SecondaryRankingSignal.MOST_OPENED, 300L, 2L))
-        assertEquals(0L, topMatchSecondaryScore(SecondaryRankingSignal.NONE, 300L, 2L))
     }
 
     @Test

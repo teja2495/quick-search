@@ -139,22 +139,6 @@ class FuzzyAppSearchStrategy(
             policy = appPolicyFor(token),
         )
 
-    internal fun isTypoEligibleCandidate(
-        preparedQuery: PreparedAppFuzzyQuery,
-        appName: String,
-        searchAliases: List<String> = emptyList(),
-        nickname: String?,
-        initials: List<String> = emptyList(),
-    ): Boolean {
-        if (!preparedQuery.policy.enabled) return false
-        val alternateNames = buildAlternateNames(searchAliases, nickname, initials)
-        return isWithinTypoTolerance(
-            preparedQuery,
-            appName,
-            alternateNames,
-        ) || computeSubsequenceScore(preparedQuery, appName, searchAliases, nickname) > 0
-    }
-
     /**
      * Same result as [isTypoEligibleCandidate] followed by [scoreEligibleCandidate], but builds the
      * alternate names and the subsequence score once. [canScore] runs only for eligible candidates.

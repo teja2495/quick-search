@@ -41,17 +41,4 @@ class SearchTokenCoveragePolicyTest {
             ),
         )
     }
-
-    @Test
-    fun singleTokenQueriesRemainCoveredByContract() {
-        assertTrue(
-            SearchTokenCoveragePolicy.areAllTokensCovered(
-                query = SearchQueryContext.fromRawQuery("missing"),
-                primaryText = "unrelated",
-                supportingText = null,
-                fuzzyMinScore = 100,
-                fuzzyMaxEditDistance = 0,
-            ),
-        )
-    }
 }

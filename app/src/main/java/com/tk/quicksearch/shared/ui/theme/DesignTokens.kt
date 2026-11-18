@@ -63,12 +63,6 @@ object DesignTokens {
     /** Bottom padding for section descriptions */
     val SectionDescriptionBottomPadding = SpacingLarge // 16.dp
 
-    /** Bottom padding for version display */
-    val VersionBottomPadding = 100.dp
-
-    /** Top padding for version display */
-    val VersionTopPadding = 45.dp
-
     // ============================================================================
     // CARD SPACING
     // ============================================================================
@@ -85,9 +79,6 @@ object DesignTokens {
     /** Bottom padding for the last item in a card */
     val CardBottomPadding = SpacingXLarge // 20.dp
 
-    /** Spacing between toggle switch and text */
-    val ToggleSpacing = SpacingMedium // 12.dp
-
     /** Spacing between items in a row */
     val ItemRowSpacing = SpacingMedium // 12.dp
 
@@ -96,9 +87,6 @@ object DesignTokens {
 
     /** Spacing between text button icon and text */
     val TextButtonIconSpacing = SpacingXSmall // 4.dp
-
-    /** Spacing between messaging option chips */
-    val ChipSpacing = SpacingMedium // 12.dp
 
     /** Vertical padding for chips */
     val ChipVerticalPadding = SpacingMedium // 12.dp
@@ -136,9 +124,6 @@ object DesignTokens {
 
     /** Divider thickness */
     val DividerThickness = 0.5.dp
-
-    /** Approximate height of draggable items */
-    val DraggableItemHeight = 60.dp
 
     // ============================================================================
     // CORNERS (Material 3 corner scale)
@@ -258,7 +243,6 @@ object DesignTokens {
     // ============================================================================
 
     val ElevationLevel0 = 0.dp
-    val ElevationLevel1 = 1.dp
     val ElevationLevel2 = 3.dp // Standard Card (Elevated)
     val ElevationLevel3 = 6.dp
     val ElevationLevel4 = 8.dp
@@ -319,14 +303,8 @@ object DesignTokens {
     /** Border width for the animated search field border */
     val SearchFieldBorderWidth = 2.dp
 
-    /** Resting outline around the search field when not using light-wallpaper styling */
-    val SearchFieldRestingOutlineWidth = 1.dp
-
     /** Peak opacity for the accent resting search field outline (multiplied by welcome fade 0–1) */
     const val SearchFieldAccentOutlineAlpha = 0.4f
-
-    /** Default resting alpha of the search field border */
-    const val SearchFieldBorderAlphaDefault = 0.3f
 
     /** Border stroke for keyboard operator pills */
     val KeyboardPillBorderStrokeWidth = 0.75.dp
@@ -343,22 +321,6 @@ object DesignTokens {
     // ============================================================================
     // UTILITY FUNCTIONS
     // ============================================================================
-
-    /** Creates padding values for single card content */
-    fun singleCardPadding() =
-        androidx.compose.foundation.layout.PaddingValues(
-            start = CardHorizontalPadding,
-            top = CardTopPadding,
-            end = CardHorizontalPadding,
-            bottom = CardBottomPadding,
-        )
-
-    /** Creates header padding values */
-    fun headerPadding() =
-        androidx.compose.foundation.layout.PaddingValues(
-            horizontal = ContentHorizontalPadding,
-            vertical = HeaderVerticalPadding,
-        )
 
     /** Calculates top padding for card items */
     fun cardItemTopPadding(isFirstItem: Boolean) = if (isFirstItem) CardTopPadding else CardVerticalPadding

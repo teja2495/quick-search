@@ -24,14 +24,11 @@
     <string name="quick_search_help_intro">Ketik pertanyaan setelah @help untuk mendapatkan jawaban tentang fitur dan pengaturan Quick Search.</string>
     <string name="gemini_web_search_quota_fallback_tip">Kuota pencarian web Gemini telah tercapai, jadi jawaban ini dibuat tanpa pencarian web.</string>
     <string name="direct_search_powered_by">Didukung oleh</string>
-    <string name="empty_state_subtitle">Buka aplikasi atau sesuaikan pencarian Anda untuk melihat saran.</string>
-    <string name="empty_state_title">Belum ada yang ditampilkan</string>
     <string name="error_action_not_available">Tindakan tidak tersedia</string>
     <string name="error_gemini_empty_response">Respons kosong dari Gemini</string>
     <string name="error_gemini_load_models_failed">Tidak dapat memuat model Gemini</string>
     <string name="error_gemini_request_failed">Permintaan gagal (%1$d)</string>
     <string name="error_unknown">Kesalahan tidak diketahui</string>
-    <string name="gemini_model_flash_latest">Gemini Flash (Terbaru)</string>
     <string name="keyboard_switch_back">Keyboard Biasa</string>
     <string name="keyboard_switch_to_number">Keyboard Angka</string>
     <string name="no_results_found">Hasil tidak ditemukan. Coba ketuk mesin pencari di bawah untuk mencari di web.</string>
@@ -152,7 +149,6 @@
     <string name="settings_gesture_view_all_apps">Lihat Semua Aplikasi</string>
     <string name="settings_gesture_lock_screen">Kunci Layar</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">Memerlukan Izin Aksesibilitas</string>
-    <string name="accessibility_lock_screen_service_label">Quick Search</string>
     <string name="accessibility_lock_screen_service_description">Mengizinkan Quick Search mengunci layar dari gestur ketuk dua kali di Layar Utama, merespons ketukan pada notch, terbuka dengan geser dari tepi atau tombol mengambang di aplikasi apa pun, dan menampilkan SpeedBump untuk aplikasi yang dibuka di luar Quick Search. Fitur ini hanya memeriksa aplikasi mana yang terbuka dan tidak membaca konten layar.</string>
     <string name="accessibility_service_stopped_hint">Android menghentikan layanan aksesibilitas Quick Search. Matikan lalu nyalakan lagi di setelan Aksesibilitas.</string>
     <string name="accessibility_permission_disclaimer_title">Pernyataan Izin Aksesibilitas</string>
@@ -281,7 +277,6 @@
     <string name="app_suggestions_tabs_dialog_message">Pilih tab saran aplikasi yang ditampilkan di layar utama.</string>
     <string name="app_suggestions_tabs_dialog_title">Tab Saran Aplikasi</string>
     <string name="app_suggestions_enabled_tabs_picker_hint">Pilih Tab</string>
-    <string name="app_suggestions_tab_required_toast">Minimal satu tab saran aplikasi harus tetap aktif</string>
     <string name="app_suggestions_toggle_desc">Tampilkan atau sembunyikan aplikasi yang disarankan di layar utama</string>
     <string name="app_suggestions_toggle_title">Saran Aplikasi</string>
     <string name="show_all_apps_button_toggle_desc">Tampilkan tombol Semua Aplikasi di bawah saran aplikasi</string>
@@ -327,7 +322,6 @@
     <string name="section_media">Kontrol Media</string>
     <string name="section_settings">Pengaturan Perangkat</string>
     <string name="search_section_menu_title">Cari di</string>
-    <string name="top_match_title">Kecocokan Teratas</string>
     <string name="top_matches_count_label">Jumlah kecocokan</string>
     <string name="top_matches_priority_desc">Ubah prioritas dan nonaktifkan item dalam kecocokan teratas</string>
     <string name="top_matches_priority_dialog_info">Tahan dan seret untuk mengubah prioritas, dan gunakan tombol untuk mengaktifkan atau menonaktifkan jenis hasil tertentu.</string>
@@ -376,7 +370,6 @@
     <string name="settings_app_info_last_update">Pembaruan Terakhir</string>
     <string name="settings_app_info_minimum_sdk">SDK Minimum</string>
     <string name="settings_app_info_not_available">Tidak tersedia</string>
-    <string name="settings_app_info_package_name">Nama Paket</string>
     <string name="settings_app_info_target_sdk">SDK Target</string>
     <string name="settings_app_info_version">Versi</string>
     <string name="settings_app_info_version_code">Kode Versi</string>
@@ -485,10 +478,7 @@
     <string name="contacts_action_hint_message">Tips: Tekan dan tahan tindakan apa pun di sini untuk menyesuaikannya bagi masing-masing kontak.</string>
     <string name="contacts_action_next_number">Nomor telepon berikutnya</string>
     <string name="contacts_action_previous_number">Nomor telepon sebelumnya</string>
-    <string name="contacts_action_signal">Kontak Signal</string>
     <string name="contacts_action_sms">Kirim pesan ke kontak</string>
-    <string name="contacts_action_telegram">Kontak Telegram</string>
-    <string name="contacts_action_whatsapp">Kontak WhatsApp</string>
     <string name="contacts_no_methods_available">Tidak ada metode kontak yang tersedia</string>
     <string name="contacts_refreshed_successfully">Kontak berhasil diperbarui</string>
     <string name="contacts_section_permission_subtitle">Izin kontak diperlukan untuk melakukan pencarian kontak</string>
@@ -574,13 +564,8 @@
     <!-- ============================================================================
          Calendar
          ============================================================================ -->
-    <string name="app_settings_create_calendar_event_desc">Buat dan tambahkan acara baru</string>
-    <string name="app_settings_create_calendar_event_title">Acara Kalender Baru</string>
     <string name="calendar_create_event_name_hint">Nama acara</string>
     <string name="calendar_create_event_select_date">Pilih tanggal</string>
-    <string name="calendar_create_event_sync_notice">Acara ini tidak akan disinkronkan ke kalender perangkat Anda</string>
-    <string name="calendar_create_event_title">Acara Baru</string>
-    <string name="calendar_edit_event_title">Edit Acara</string>
     <string name="calendar_relative_ago_format">%1$s yang lalu</string>
     <plurals name="calendar_relative_days">
         <item quantity="one">%d hari</item>
@@ -591,7 +576,6 @@
         <item quantity="other">%d jam</item>
     </plurals>
     <string name="calendar_relative_in_format">dalam %1$s</string>
-    <string name="calendar_relative_in_minutes">dalam %1$d menit</string>
     <plurals name="calendar_relative_minutes">
         <item quantity="one">%d menit</item>
         <item quantity="other">%d menit</item>
@@ -660,7 +644,6 @@
     <string name="notes_editor_notification_note_title">Catatan Notifikasi</string>
     <string name="notes_empty_note_subtext">Catatan kosong</string>
     <string name="notes_quick_note_title">Catatan Cepat</string>
-    <string name="notes_quick_note_toggle_desc">Buka Catatan Cepat dari navigasi geser</string>
     <string name="notes_title_hint">Judul</string>
     <string name="notes_untitled">Tanpa judul</string>
     <string name="settings_notes_view_all_desc">Lihat semua catatan</string>
@@ -732,8 +715,6 @@
     <string name="settings_features_export_failed">Tidak dapat menyimpan dokumentasi fitur.</string>
     <string name="settings_features_saved_to_downloads">Disimpan ke Unduhan</string>
     <string name="settings_features_sections_title">Daftar Isi</string>
-    <string name="settings_search_description_change_app_theme">Ubah tema aplikasi</string>
-    <string name="settings_search_description_change_font_size">Ubah ukuran font aplikasi</string>
     <string name="settings_search_description_change_icon_pack">Ubah paket ikon</string>
     <string name="settings_search_description_change_layout">Ubah opsi tata letak aplikasi</string>
     <string name="settings_search_description_change_wallpaper">Ubah tampilan wallpaper</string>
@@ -762,9 +743,6 @@
     <string name="settings_appearance_title">Tampilan</string>
     <string name="settings_assistant_voice_mode_desc">Mulai pengetikan suara saat dibuka sebagai asisten digital</string>
     <string name="settings_assistant_voice_mode_title">Mode Suara Asisten</string>
-    <string name="settings_beta_features_disabled">Fitur beta dinonaktifkan</string>
-    <string name="settings_beta_features_enabled">Fitur beta baru diaktifkan</string>
-    <string name="settings_beta_features_unavailable">Tidak ada fitur baru yang tersedia</string>
     <string name="settings_beta_tag">Beta</string>
     <string name="settings_bottom_searchbar_desc">Tempatkan bilah pencarian di bagian bawah layar</string>
     <string name="settings_bottom_searchbar_title">Bilah Pencarian Bawah</string>
@@ -875,8 +853,6 @@
     <string name="settings_refresh_contacts_title">Segarkan Kontak</string>
     <string name="settings_refresh_data_note">Data diperbarui secara otomatis. Gunakan tombol ini untuk memuat ulang secara manual.</string>
     <string name="settings_refresh_data_title">Muat Ulang Data</string>
-    <string name="settings_refresh_icon_packs">Muat ulang paket ikon</string>
-    <string name="settings_refreshing_icon_packs">Memuat ulang daftar paket ikon</string>
     <string name="settings_scroll_to_top">Gulir ke atas</string>
     <string name="settings_search_hints_desc">Aktifkan/Nonaktifkan petunjuk pencarian bergilir</string>
     <string name="settings_search_hints_title">Petunjuk Pencarian</string>
@@ -888,8 +864,6 @@
     <string name="settings_themed_icons_desc">Sesuaikan warna ikon aplikasi dengan tema Anda</string>
     <string name="settings_themed_icons_title">Ikon Aplikasi Bertema</string>
     <string name="settings_tools_desc">Kalkulator, Konverter satuan, Kamus, dan lainnya</string>
-    <string name="settings_tools_gemini_api_desc">Menambahkan kunci API akan mengaktifkan lebih banyak fitur.</string>
-    <string name="settings_tools_gemini_api_title">Konfigurasi Penyedia AI</string>
     <string name="settings_tools_info_examples_header">Berikut beberapa contoh yang dapat Anda tanyakan di bilah pencarian</string>
     <string name="settings_tools_title">Alat</string>
     <string name="settings_at_a_glance_title">Sekilas</string>
@@ -897,7 +871,6 @@
     <string name="custom_info_edit_title">Edit Detail</string>
     <string name="custom_info_prompt">Prompt</string>
     <string name="custom_info_set_date_time">Atur tanggal dan waktu</string>
-    <string name="custom_info_desc">Jawaban AI untuk prompt Anda di Beranda, pada waktu yang Anda pilih</string>
     <string name="settings_ai_api_key_required_message">Fitur ini memerlukan kunci API penyedia AI.</string>
     <string name="settings_ai_api_key_required_title">Kunci API Diperlukan</string>
     <string name="settings_ai_api_key_setup_action">Atur Kunci</string>
@@ -1001,7 +974,6 @@
     <string name="settings_alias_label">Alias:</string>
     <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_amazon_domain_label">Domain:</string>
-    <string name="settings_api_key_saved_last4">Kunci tersimpan berakhiran ****%1$s</string>
     <string name="settings_api_key_setup_desc">Konfigurasikan kunci API untuk mengakses model dari penyedia AI masing-masing.</string>
     <string name="settings_api_key_setup_nav_desc">Tambah atau hapus kunci API penyedia</string>
     <string name="settings_configure_api_key_title">Konfigurasi Kunci API</string>
@@ -1072,7 +1044,6 @@
     <string name="settings_backup_export_option_pinned_items_title">Item yang disematkan</string>
     <string name="settings_backup_export_option_api_keys">Kunci API</string>
     <string name="settings_backup_export_selection_title">Ekspor Data</string>
-    <string name="settings_backup_export_success">Pengaturan berhasil diekspor.</string>
     <string name="settings_backup_import_button">Impor</string>
     <string name="settings_backup_import_failed">Tidak dapat mengimpor pengaturan.</string>
     <string name="settings_backup_import_success">Pengaturan berhasil diimpor.</string>
@@ -1127,7 +1098,6 @@
     <string name="date_calculator_category_time_ranges">Rentang Waktu</string>
     <string name="date_calculator_info_title">Kalkulator Tanggal &amp; Waktu</string>
     <string name="date_calculator_invalid_date">Tanggal atau waktu tidak valid atau tidak dikenali</string>
-    <string name="date_calculator_toggle_action_desc">Aktifkan atau nonaktifkan kalkulator tanggal &amp; waktu</string>
     <string name="date_calculator_toggle_desc">Contoh penggunaan</string>
     <string name="dictionary_example_label">Contoh: %1$s</string>
     <string name="dictionary_definition_not_found">Definisi untuk “%1$s” tidak ditemukan</string>
@@ -1164,7 +1134,6 @@
     <string name="unit_converter_enter_conversion_hint">Masukkan konversi (mis., 5lbs in kgs)</string>
     <string name="unit_converter_info_title">Konverter Satuan</string>
     <string name="unit_converter_invalid_or_unsupported_query">Konversi tidak valid atau tidak didukung</string>
-    <string name="unit_converter_toggle_action_desc">Aktifkan atau nonaktifkan konverter satuan</string>
     <string name="world_clock_error_not_recognized">Tidak dapat mengenali permintaan waktu tersebut. Coba kota, negara, zona waktu, atau waktu eksplisit.</string>
     <string name="world_clock_toggle_desc">Contoh: Time in Tokyo</string>
     <string name="world_clock_toggle_title">Jam Dunia</string>
@@ -1335,7 +1304,6 @@
     <string name="search_engine_kagi">Kagi</string>
     <string name="search_engine_kagi_assistant">Asisten Kagi</string>
     <string name="search_engine_muse">Muse</string>
-    <string name="search_engine_onboarding_description">Saat Anda mengetik kueri pencarian dan mengetuk salah satu mesin pencari ini, pencarian akan dijalankan di dalam aplikasi tersebut. Anda dapat mengubahnya dengan menekan lama.</string>
     <string name="search_engine_perplexity">Perplexity</string>
     <string name="search_engine_reddit">Reddit</string>
     <string name="search_engine_spotify">Spotify</string>
@@ -1515,7 +1483,6 @@
     <string name="bookmarks_link_label">Tautan</string>
     <string name="bookmarks_invalid_link">Masukkan alamat web yang valid</string>
     <string name="reminders_permission_hint">Izin diperlukan untuk menampilkan notifikasi pengingat. Ketuk untuk mengizinkan.</string>
-    <string name="reminders_home_card_dismiss">Hapus dari Beranda</string>
     <string name="settings_include_past_reminders_title">Pengingat sebelumnya</string>
     <string name="settings_include_past_reminders_desc">Tampilkan pengingat sebelumnya di hasil pencarian</string>
     <string name="app_setting_create_reminder">Buat Pengingat</string>

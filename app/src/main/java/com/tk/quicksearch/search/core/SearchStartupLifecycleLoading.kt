@@ -370,7 +370,6 @@ internal fun SearchStartupLifecycleDelegate.applyStartupPreferences(prefs: Start
                 showStatusBar = userPreferences.isStatusBarVisible(),
                 pinnedAppGridOrder = userPreferences.getPinnedAppGridOrder(),
                 appFolders = userPreferences.getAppFolders(),
-                shouldShowUsagePermissionBanner = userPreferences.shouldShowUsagePermissionBanner(),
             )
         }
 

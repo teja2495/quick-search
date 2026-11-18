@@ -7,7 +7,6 @@ HSPLcom/tk/quicksearch/app/MainActivity;-><init>()V
 HSPLcom/tk/quicksearch/app/MainActivity;->onCreate(Landroid/os/Bundle;)V
 HSPLcom/tk/quicksearch/app/MainActivity;->initializePreferences()V
 HSPLcom/tk/quicksearch/app/MainActivity;->setupContent()V
-HSPLcom/tk/quicksearch/app/MainActivity;->installFirstFrameTrace()V
 
 Lcom/tk/quicksearch/overlay/OverlayActivity;
 HSPLcom/tk/quicksearch/overlay/OverlayActivity;-><init>()V
@@ -134,12 +133,8 @@ Lcom/tk/quicksearch/search/core/SearchDerivedStateDelegate;
 HSPLcom/tk/quicksearch/search/core/SearchDerivedStateDelegate;->**(**)**
 Lcom/tk/quicksearch/search/core/UnifiedSearchHandler;
 HSPLcom/tk/quicksearch/search/core/UnifiedSearchHandler;->**(**)**
-Lcom/tk/quicksearch/search/core/SearchViewModelSearchOperationsKt;
-HSPLcom/tk/quicksearch/search/core/SearchViewModelSearchOperationsKt;->**(**)**
 Lcom/tk/quicksearch/search/apps/AppSearchManager;
 HSPLcom/tk/quicksearch/search/apps/AppSearchManager;->**(**)**
-Lcom/tk/quicksearch/search/common/SearchRankingUtils;
-HSPLcom/tk/quicksearch/search/common/SearchRankingUtils;->**(**)**
 Lcom/tk/quicksearch/search/fuzzy/FuzzySearchEngine;
 HSPLcom/tk/quicksearch/search/fuzzy/FuzzySearchEngine;->**(**)**
 

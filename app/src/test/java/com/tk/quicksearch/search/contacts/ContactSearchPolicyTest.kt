@@ -34,18 +34,4 @@ class ContactSearchPolicyTest {
 
         assertFalse(DefaultSearchMatcher.isMatch(priority))
     }
-
-    @Test
-    fun multiWordQueryCanBeCoveredByNickname() {
-        val covered =
-            ContactSearchPolicy.areAllQueryTokensCovered(
-                query = SearchQueryContext.fromRawQuery("Teja passport"),
-                displayName = "Teja Teppala",
-                nickname = "Passport Office",
-                fuzzyMinScore = 72,
-                fuzzyMaxEditDistance = 2,
-            )
-
-        assertTrue(covered)
-    }
 }

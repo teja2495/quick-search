@@ -26,14 +26,11 @@
     <string name="quick_search_help_intro">Typ een vraag na @help om antwoorden te krijgen over functies en instellingen van Quick Search.</string>
     <string name="gemini_web_search_quota_fallback_tip">Het webzoekquotum van Gemini is bereikt, daarom is dit antwoord gegenereerd zonder webzoekopdracht.</string>
     <string name="direct_search_powered_by">Mogelijk gemaakt door</string>
-    <string name="empty_state_subtitle">Open een app of verfijn je zoekopdracht om suggesties te zien.</string>
-    <string name="empty_state_title">Nog niets te zien</string>
     <string name="error_action_not_available">Actie niet beschikbaar</string>
     <string name="error_gemini_empty_response">Leeg antwoord van Gemini</string>
     <string name="error_gemini_load_models_failed">Kan Gemini-modellen niet laden</string>
     <string name="error_gemini_request_failed">Verzoek mislukt (%1$d)</string>
     <string name="error_unknown">Onbekende fout</string>
-    <string name="gemini_model_flash_latest">Gemini Flash (Nieuwste)</string>
     <string name="keyboard_switch_back">Normaal toetsenbord</string>
     <string name="keyboard_switch_to_number">Cijfertoetsenbord</string>
     <string name="no_results_found">Geen resultaten gevonden. Tik hieronder op een zoekmachine om op het web te zoeken.</string>
@@ -155,7 +152,6 @@
     <string name="settings_gesture_view_all_apps">Alle apps bekijken</string>
     <string name="settings_gesture_lock_screen">Scherm vergrendelen</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">Vereist toegankelijkheidsmachtiging</string>
-    <string name="accessibility_lock_screen_service_label">Quick Search</string>
     <string name="accessibility_lock_screen_service_description">Hiermee kan Quick Search het scherm vergrendelen via het dubbeltik-gebaar op het startscherm, reageren op tikken op de notch, openen met een veeg vanaf de rand of een zwevende knop in elke app, en SpeedBump tonen voor apps die buiten Quick Search worden geopend. Het controleert alleen welke app open is en leest geen scherminhoud.</string>
     <string name="accessibility_service_stopped_hint">Android heeft de toegankelijkheidsservice van Quick Search gestopt. Zet deze uit en weer aan in de toegankelijkheidsinstellingen.</string>
     <string name="accessibility_permission_disclaimer_title">Disclaimer toegankelijkheidsmachtiging</string>
@@ -288,7 +284,6 @@
     <string name="app_suggestions_tabs_dialog_message">Kies welke appsuggestie-tabbladen op het startscherm worden weergegeven.</string>
     <string name="app_suggestions_tabs_dialog_title">Suggestietabbladen</string>
     <string name="app_suggestions_enabled_tabs_picker_hint">Tabbladen kiezen</string>
-    <string name="app_suggestions_tab_required_toast">Er moet ten minste één tabblad ingeschakeld zijn</string>
     <string name="app_suggestions_toggle_desc">Aanbevolen apps op het startscherm tonen of verbergen</string>
     <string name="app_suggestions_toggle_title">Appsuggesties</string>
     <string name="show_all_apps_button_toggle_desc">Toon een knop om alle apps te openen</string>
@@ -334,7 +329,6 @@
     <string name="section_media">Mediabediening</string>
     <string name="section_settings">Apparaatinstellingen</string>
     <string name="search_section_menu_title">Zoeken in</string>
-    <string name="top_match_title">Beste overeenkomst</string>
     <string name="top_matches_count_label">Aantal resultaten</string>
     <string name="top_matches_priority_desc">Prioriteit wijzigen en items in topresultaten in- of uitschakelen</string>
     <string name="top_matches_priority_dialog_info">Houd ingedrukt en sleep om de prioriteit te wijzigen, en gebruik de schakelaar om bepaalde resultaattypen in of uit te schakelen.</string>
@@ -385,7 +379,6 @@
     <string name="settings_app_info_last_update">Laatste update</string>
     <string name="settings_app_info_minimum_sdk">Minimale SDK</string>
     <string name="settings_app_info_not_available">Niet beschikbaar</string>
-    <string name="settings_app_info_package_name">Pakketnaam</string>
     <string name="settings_app_info_target_sdk">Doel-SDK</string>
     <string name="settings_app_info_version">Versie</string>
     <string name="settings_app_info_version_code">Versiecode</string>
@@ -502,10 +495,7 @@
     <string name="contacts_action_hint_message">Tip: Houd een actie ingedrukt om deze voor individuele contacten aan te passen.</string>
     <string name="contacts_action_next_number">Volgend telefoonnummer</string>
     <string name="contacts_action_previous_number">Vorig telefoonnummer</string>
-    <string name="contacts_action_signal">Signal-contact</string>
     <string name="contacts_action_sms">Bericht sturen naar contact</string>
-    <string name="contacts_action_telegram">Telegram-contact</string>
-    <string name="contacts_action_whatsapp">WhatsApp-contact</string>
     <string name="contacts_no_methods_available">Geen contactmethoden beschikbaar</string>
     <string name="contacts_refreshed_successfully">Contacten succesvol vernieuwd</string>
     <string name="contacts_section_permission_subtitle">Contactmachtiging is vereist om contacten te doorzoeken</string>
@@ -595,13 +585,8 @@
          Calendar
          ============================================================================ -->
 
-    <string name="app_settings_create_calendar_event_desc">Een nieuwe afspraak maken en toevoegen</string>
-    <string name="app_settings_create_calendar_event_title">Nieuwe agenda-afspraak</string>
     <string name="calendar_create_event_name_hint">Afspraaknaam</string>
     <string name="calendar_create_event_select_date">Datum selecteren</string>
-    <string name="calendar_create_event_sync_notice">Deze afspraak wordt niet gesynchroniseerd met je apparaatagenda</string>
-    <string name="calendar_create_event_title">Nieuwe afspraak</string>
-    <string name="calendar_edit_event_title">Afspraak bewerken</string>
     <string name="calendar_relative_ago_format">%1$s geleden</string>
     <plurals name="calendar_relative_days">
         <item quantity="one">%d dag</item>
@@ -612,7 +597,6 @@
         <item quantity="other">%d uur</item>
     </plurals>
     <string name="calendar_relative_in_format">over %1$s</string>
-    <string name="calendar_relative_in_minutes">over %1$d minuten</string>
     <plurals name="calendar_relative_minutes">
         <item quantity="one">%d minuut</item>
         <item quantity="other">%d minuten</item>
@@ -683,7 +667,6 @@
     <string name="notes_editor_notification_note_title">Meldingsnotitie</string>
     <string name="notes_empty_note_subtext">Lege notitie</string>
     <string name="notes_quick_note_title">Snelle notitie</string>
-    <string name="notes_quick_note_toggle_desc">Snelle notitie openen via veegnavigatie</string>
     <string name="notes_title_hint">Titel</string>
     <string name="notes_untitled">Naamloos</string>
     <string name="settings_notes_view_all_desc">Alle notities bekijken</string>
@@ -759,8 +742,6 @@
     <string name="settings_features_export_failed">Kan functiedocumentatie niet opslaan.</string>
     <string name="settings_features_saved_to_downloads">Opgeslagen in Downloads</string>
     <string name="settings_features_sections_title">Inhoud</string>
-    <string name="settings_search_description_change_app_theme">App-thema wijzigen</string>
-    <string name="settings_search_description_change_font_size">App-lettergrootte wijzigen</string>
     <string name="settings_search_description_change_icon_pack">Icoonpakket wijzigen</string>
     <string name="settings_search_description_change_layout">App-lay-outopties wijzigen</string>
     <string name="settings_search_description_change_wallpaper">Achtergrondweergave wijzigen</string>
@@ -791,9 +772,6 @@
     <string name="settings_appearance_title">Weergave</string>
     <string name="settings_assistant_voice_mode_desc">Spraakinvoer starten wanneer geopend als digitale assistent</string>
     <string name="settings_assistant_voice_mode_title">Spraakmodus van assistent</string>
-    <string name="settings_beta_features_disabled">Bètafuncties zijn uitgeschakeld</string>
-    <string name="settings_beta_features_enabled">Nieuwe bètafuncties zijn ingeschakeld</string>
-    <string name="settings_beta_features_unavailable">Er zijn geen nieuwe functies beschikbaar</string>
     <string name="settings_beta_tag">Bèta</string>
     <string name="settings_bottom_searchbar_desc">Plaats de zoekbalk onderaan het scherm</string>
     <string name="settings_bottom_searchbar_title">Zoekbalk onderaan</string>
@@ -904,8 +882,6 @@
     <string name="settings_refresh_contacts_title">Contacten vernieuwen</string>
     <string name="settings_refresh_data_note">Gegevens worden automatisch vernieuwd. Gebruik deze knoppen om handmatig opnieuw te laden.</string>
     <string name="settings_refresh_data_title">Gegevens vernieuwen</string>
-    <string name="settings_refresh_icon_packs">Icoonpakketten vernieuwen</string>
-    <string name="settings_refreshing_icon_packs">Lijst met icoonpakketten vernieuwen</string>
     <string name="settings_scroll_to_top">Naar boven scrollen</string>
     <string name="settings_search_hints_desc">Wisselende zoekhints in- of uitschakelen</string>
     <string name="settings_search_hints_title">Zoekhints</string>
@@ -917,8 +893,6 @@
     <string name="settings_themed_icons_desc">Kleur app-iconen in volgens je thema</string>
     <string name="settings_themed_icons_title">Thema-app-iconen</string>
     <string name="settings_tools_desc">Rekenmachine, eenheden omrekenen, woordenboek en meer</string>
-    <string name="settings_tools_gemini_api_desc">Het toevoegen van een API-sleutel activeert meer hulpmiddelen.</string>
-    <string name="settings_tools_gemini_api_title">AI-provider configureren</string>
     <string name="settings_tools_info_examples_header">Hier zijn enkele voorbeelden van wat je in de zoekbalk kunt vragen</string>
     <string name="settings_tools_title">Hulpmiddelen</string>
     <string name="settings_at_a_glance_title">In één oogopslag</string>
@@ -926,7 +900,6 @@
     <string name="custom_info_edit_title">Details bewerken</string>
     <string name="custom_info_prompt">Prompt</string>
     <string name="custom_info_set_date_time">Datum en tijd instellen</string>
-    <string name="custom_info_desc">AI-antwoorden op je prompts op het startscherm, op tijden die jij kiest</string>
     <string name="settings_ai_api_key_required_message">Deze functie vereist een API-sleutel van een AI-provider.</string>
     <string name="settings_ai_api_key_required_title">API-sleutel vereist</string>
     <string name="settings_ai_api_key_setup_action">Sleutel instellen</string>
@@ -1037,7 +1010,6 @@ www.google.com/search?q={{query}}</string>
     <string name="settings_alias_label">Alias:</string>
     <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_amazon_domain_label">Domein:</string>
-    <string name="settings_api_key_saved_last4">Opgeslagen sleutel eindigend op ****%1$s</string>
     <string name="settings_api_key_setup_desc">Configureer API-sleutels om toegang te krijgen tot modellen van de respectieve AI-provider.</string>
     <string name="settings_api_key_setup_nav_desc">Provider-API-sleutels toevoegen of verwijderen</string>
     <string name="settings_configure_api_key_title">API-sleutel configureren</string>
@@ -1110,7 +1082,6 @@ www.google.com/search?q={{query}}</string>
     <string name="settings_backup_export_option_pinned_items_title">Vastgemaakte items</string>
     <string name="settings_backup_export_option_api_keys">API-sleutels</string>
     <string name="settings_backup_export_selection_title">Gegevens exporteren</string>
-    <string name="settings_backup_export_success">Instellingen succesvol geëxporteerd.</string>
     <string name="settings_backup_import_button">Importeren</string>
     <string name="settings_backup_import_failed">Kan instellingen niet importeren.</string>
     <string name="settings_backup_import_success">Instellingen succesvol geïmporteerd.</string>
@@ -1167,7 +1138,6 @@ www.google.com/search?q={{query}}</string>
     <string name="date_calculator_category_time_ranges">Tijdsbereiken</string>
     <string name="date_calculator_info_title">Datum- &amp; tijdcalculator</string>
     <string name="date_calculator_invalid_date">Ongeldige of niet-herkende datum of tijd</string>
-    <string name="date_calculator_toggle_action_desc">Datum- &amp; tijdcalculator in- of uitschakelen</string>
     <string name="date_calculator_toggle_desc">Gebruiksvoorbeelden</string>
     <string name="dictionary_example_label">Voorbeeld: %1$s</string>
     <string name="dictionary_definition_not_found">Geen definitie gevonden voor ‘%1$s’</string>
@@ -1204,7 +1174,6 @@ www.google.com/search?q={{query}}</string>
     <string name="unit_converter_enter_conversion_hint">Voer een omrekening in (bijv. 5lbs in kgs)</string>
     <string name="unit_converter_info_title">Eenhedenconverter</string>
     <string name="unit_converter_invalid_or_unsupported_query">Ongeldige of niet-ondersteunde omrekening</string>
-    <string name="unit_converter_toggle_action_desc">Eenhedenconverter in- of uitschakelen</string>
     <string name="world_clock_error_not_recognized">Kan dit tijdverzoek niet verwerken. Probeer een stad, land, tijdzone of exacte tijd.</string>
     <string name="world_clock_toggle_desc">Voorbeeld: Time in Tokyo</string>
     <string name="world_clock_toggle_title">Wereldklok</string>
@@ -1381,7 +1350,6 @@ www.google.com/search?q={{query}}</string>
     <string name="search_engine_kagi">Kagi</string>
     <string name="search_engine_kagi_assistant">Kagi Assistant</string>
     <string name="search_engine_muse">Muse</string>
-    <string name="search_engine_onboarding_description">Wanneer je een zoekopdracht typt en op een van deze zoekmachines tikt, wordt het zoeken in die apps geactiveerd. Je kunt ze aanpassen door ze lang ingedrukt te houden.</string>
     <string name="search_engine_perplexity">Perplexity</string>
     <string name="search_engine_reddit">Reddit</string>
     <string name="search_engine_spotify">Spotify</string>
@@ -1574,7 +1542,6 @@ Gebruik {time} om de huidige datum en tijd in de prompt op te nemen.</string>
     <string name="bookmarks_link_label">Link</string>
     <string name="bookmarks_invalid_link">Voer een geldig webadres in</string>
     <string name="reminders_permission_hint">Toestemming nodig om herinneringsmeldingen te tonen. Tik om toe te staan.</string>
-    <string name="reminders_home_card_dismiss">Verwijderen van startscherm</string>
     <string name="settings_include_past_reminders_title">Eerdere herinneringen</string>
     <string name="settings_include_past_reminders_desc">Eerdere herinneringen tonen in zoekresultaten</string>
     <string name="app_setting_create_reminder">Herinnering maken</string>

@@ -25,14 +25,11 @@
     <string name="quick_search_help_intro">\@help の後に質問を入力すると、Quick Search の機能や設定について回答が得られます。</string>
     <string name="gemini_web_search_quota_fallback_tip">Geminiのウェブ検索クォータ上限に達したため、ウェブ検索を使用せずにこの回答を生成しました。</string>
     <string name="direct_search_powered_by">提供元:</string>
-    <string name="empty_state_subtitle">アプリを起動するか、検索キーワードを入力すると候補が表示されます。</string>
-    <string name="empty_state_title">表示する項目がまだありません</string>
     <string name="error_action_not_available">操作を利用できません</string>
     <string name="error_gemini_empty_response">Geminiからの応答が空です</string>
     <string name="error_gemini_load_models_failed">Geminiモデルを読み込めません</string>
     <string name="error_gemini_request_failed">リクエストに失敗しました (%1$d)</string>
     <string name="error_unknown">不明なエラー</string>
-    <string name="gemini_model_flash_latest">Gemini Flash（最新）</string>
     <string name="keyboard_switch_back">標準キーボード</string>
     <string name="keyboard_switch_to_number">テンキー</string>
     <string name="no_results_found">結果が見つかりませんでした。下の検索エンジンをタップしてウェブを検索してみてください。</string>
@@ -152,7 +149,6 @@
     <string name="settings_gesture_view_all_apps">すべてのアプリを表示</string>
     <string name="settings_gesture_lock_screen">画面をロック</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">ユーザー補助の権限が必要です</string>
-    <string name="accessibility_lock_screen_service_label">Quick Search</string>
     <string name="accessibility_lock_screen_service_description">ホーム画面のダブルタップジェスチャーで画面をロックし、ノッチのタップに反応し、どのアプリからでも端からのスワイプやフローティングボタンで Quick Search を開き、Quick Search 以外から開いたアプリに SpeedBump を表示できるようにします。どのアプリが開いているかだけを確認し、画面の内容は読み取りません。</string>
     <string name="accessibility_service_stopped_hint">Android が Quick Search のユーザー補助サービスを停止しました。ユーザー補助の設定でオフにしてから再度オンにしてください。</string>
     <string name="accessibility_permission_disclaimer_title">ユーザー補助の権限に関する免責事項</string>
@@ -281,7 +277,6 @@
     <string name="app_suggestions_tabs_dialog_message">ホーム画面に表示するアプリ候補タブを選択してください。</string>
     <string name="app_suggestions_tabs_dialog_title">アプリ候補タブ</string>
     <string name="app_suggestions_enabled_tabs_picker_hint">タブを選択</string>
-    <string name="app_suggestions_tab_required_toast">少なくとも1つのアプリ候補タブを有効にしてください</string>
     <string name="app_suggestions_toggle_desc">ホーム画面に候補アプリを表示または非表示にします</string>
     <string name="app_suggestions_toggle_title">アプリ候補</string>
     <string name="show_all_apps_button_toggle_desc">アプリ候補の下に「すべてのアプリ」ボタンを表示</string>
@@ -327,7 +322,6 @@
     <string name="section_media">メディア操作</string>
     <string name="section_settings">端末の設定</string>
     <string name="search_section_menu_title">検索対象</string>
-    <string name="top_match_title">ベストマッチ</string>
     <string name="top_matches_count_label">表示件数</string>
     <string name="top_matches_priority_desc">ベストマッチの優先順位を変更し、項目を無効化</string>
     <string name="top_matches_priority_dialog_info">長押ししてドラッグすると優先順位を変更できます。スイッチを使って特定の結果タイプを有効または無効にできます。</string>
@@ -376,7 +370,6 @@
     <string name="settings_app_info_last_update">最終更新日</string>
     <string name="settings_app_info_minimum_sdk">最小SDK</string>
     <string name="settings_app_info_not_available">利用不可</string>
-    <string name="settings_app_info_package_name">パッケージ名</string>
     <string name="settings_app_info_target_sdk">ターゲットSDK</string>
     <string name="settings_app_info_version">バージョン</string>
     <string name="settings_app_info_version_code">バージョンコード</string>
@@ -489,10 +482,7 @@
     <string name="contacts_action_hint_message">ヒント: アクションを長押しすると、連絡先ごとにカスタマイズできます。</string>
     <string name="contacts_action_next_number">次の電話番号</string>
     <string name="contacts_action_previous_number">前の電話番号</string>
-    <string name="contacts_action_signal">Signal 連絡先</string>
     <string name="contacts_action_sms">メッセージ連絡先</string>
-    <string name="contacts_action_telegram">Telegram 連絡先</string>
-    <string name="contacts_action_whatsapp">WhatsApp 連絡先</string>
     <string name="contacts_no_methods_available">利用可能な連絡方法がありません</string>
     <string name="contacts_refreshed_successfully">連絡先を正常に更新しました</string>
     <string name="contacts_section_permission_subtitle">連絡先検索を行うには連絡先へのアクセス権限が必要です</string>
@@ -577,13 +567,8 @@
     <!-- ============================================================================
          Calendar
          ============================================================================ -->
-    <string name="app_settings_create_calendar_event_desc">新しい予定を作成して追加</string>
-    <string name="app_settings_create_calendar_event_title">新しいカレンダーの予定</string>
     <string name="calendar_create_event_name_hint">予定名</string>
     <string name="calendar_create_event_select_date">日付を選択</string>
-    <string name="calendar_create_event_sync_notice">この予定は端末のカレンダーには同期されません</string>
-    <string name="calendar_create_event_title">新しい予定</string>
-    <string name="calendar_edit_event_title">予定を編集</string>
     <string name="calendar_relative_ago_format">%1$s前</string>
     <plurals name="calendar_relative_days">
         <item quantity="one">%d日</item>
@@ -594,7 +579,6 @@
         <item quantity="other">%d時間</item>
     </plurals>
     <string name="calendar_relative_in_format">%1$s後</string>
-    <string name="calendar_relative_in_minutes">%1$d分後</string>
     <plurals name="calendar_relative_minutes">
         <item quantity="one">%d分</item>
         <item quantity="other">%d分</item>
@@ -663,7 +647,6 @@
     <string name="notes_editor_notification_note_title">通知メモ</string>
     <string name="notes_empty_note_subtext">空のメモ</string>
     <string name="notes_quick_note_title">クイックメモ</string>
-    <string name="notes_quick_note_toggle_desc">スワイプナビゲーションからクイックメモを開く</string>
     <string name="notes_title_hint">タイトル</string>
     <string name="notes_untitled">無題</string>
     <string name="settings_notes_view_all_desc">すべてのメモを表示</string>
@@ -735,8 +718,6 @@
     <string name="settings_features_export_failed">機能ドキュメントを保存できませんでした。</string>
     <string name="settings_features_saved_to_downloads">ダウンロードに保存しました</string>
     <string name="settings_features_sections_title">目次</string>
-    <string name="settings_search_description_change_app_theme">アプリのテーマを変更</string>
-    <string name="settings_search_description_change_font_size">アプリのフォントサイズを変更</string>
     <string name="settings_search_description_change_icon_pack">アイコンパックを変更</string>
     <string name="settings_search_description_change_layout">アプリのレイアウトオプションを変更</string>
     <string name="settings_search_description_change_wallpaper">壁紙の表示を変更</string>
@@ -765,9 +746,6 @@
     <string name="settings_appearance_title">外観</string>
     <string name="settings_assistant_voice_mode_desc">デジタルアシスタントとして起動したときに音声入力を開始</string>
     <string name="settings_assistant_voice_mode_title">アシスタント音声モード</string>
-    <string name="settings_beta_features_disabled">ベータ機能は無効です</string>
-    <string name="settings_beta_features_enabled">新しいベータ機能が有効です</string>
-    <string name="settings_beta_features_unavailable">利用可能な新機能はありません</string>
     <string name="settings_beta_tag">ベータ</string>
     <string name="settings_bottom_searchbar_desc">検索バーを画面下部に配置</string>
     <string name="settings_bottom_searchbar_title">画面下部の検索バー</string>
@@ -878,8 +856,6 @@
     <string name="settings_refresh_contacts_title">連絡先を更新</string>
     <string name="settings_refresh_data_note">データは自動的に更新されます。手動で強制更新するにはこれらのボタンを使用してください。</string>
     <string name="settings_refresh_data_title">データを更新</string>
-    <string name="settings_refresh_icon_packs">アイコンパックを更新</string>
-    <string name="settings_refreshing_icon_packs">アイコンパック一覧を更新中</string>
     <string name="settings_scroll_to_top">一番上までスクロール</string>
     <string name="settings_search_hints_desc">検索ヒントのローテーションを有効/無効にする</string>
     <string name="settings_search_hints_title">検索ヒント</string>
@@ -891,8 +867,6 @@
     <string name="settings_themed_icons_desc">テーマに合わせてアプリアイコンに色合いを付ける</string>
     <string name="settings_themed_icons_title">テーマアプリアイコン</string>
     <string name="settings_tools_desc">電卓、単位換算、辞書など</string>
-    <string name="settings_tools_gemini_api_desc">APIキーを追加すると、さらに多くのツールが有効になります。</string>
-    <string name="settings_tools_gemini_api_title">AIプロバイダーを設定</string>
     <string name="settings_tools_info_examples_header">検索バーに入力できる質問の例です</string>
     <string name="settings_tools_title">ツール</string>
     <string name="settings_at_a_glance_title">ひと目で確認</string>
@@ -900,7 +874,6 @@
     <string name="custom_info_edit_title">詳細を編集</string>
     <string name="custom_info_prompt">プロンプト</string>
     <string name="custom_info_set_date_time">日時を設定</string>
-    <string name="custom_info_desc">選んだ時刻に、プロンプトへのAIの回答をホームに表示</string>
     <string name="settings_ai_api_key_required_message">この機能にはAIプロバイダーのAPIキーが必要です。</string>
     <string name="settings_ai_api_key_required_title">APIキーが必要です</string>
     <string name="settings_ai_api_key_setup_action">キーを設定</string>
@@ -1007,7 +980,6 @@ www.google.com/search?q={{query}}</string>
     <string name="settings_alias_label">エイリアス:</string>
     <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_amazon_domain_label">ドメイン:</string>
-    <string name="settings_api_key_saved_last4">末尾が ****%1$s の保存済みキー</string>
     <string name="settings_api_key_setup_desc">各AIプロバイダーのモデルにアクセスするためのAPIキーを設定します。</string>
     <string name="settings_api_key_setup_nav_desc">プロバイダーのAPIキーの追加または削除</string>
     <string name="settings_configure_api_key_title">APIキーを設定</string>
@@ -1078,7 +1050,6 @@ www.google.com/search?q={{query}}</string>
     <string name="settings_backup_export_option_pinned_items_title">固定アイテム</string>
     <string name="settings_backup_export_option_api_keys">APIキー</string>
     <string name="settings_backup_export_selection_title">データをエクスポート</string>
-    <string name="settings_backup_export_success">設定を正常にエクスポートしました。</string>
     <string name="settings_backup_import_button">インポート</string>
     <string name="settings_backup_import_failed">設定をインポートできません。</string>
     <string name="settings_backup_import_success">設定を正常にインポートしました。</string>
@@ -1133,7 +1104,6 @@ www.google.com/search?q={{query}}</string>
     <string name="date_calculator_category_time_ranges">時間範囲</string>
     <string name="date_calculator_info_title">日時計算</string>
     <string name="date_calculator_invalid_date">無効または認識できない日時です</string>
-    <string name="date_calculator_toggle_action_desc">日時計算のオン/オフを切り替え</string>
     <string name="date_calculator_toggle_desc">使用例</string>
     <string name="dictionary_example_label">例文: %1$s</string>
     <string name="dictionary_definition_not_found">「%1$s」の定義が見つかりませんでした</string>
@@ -1170,7 +1140,6 @@ www.google.com/search?q={{query}}</string>
     <string name="unit_converter_enter_conversion_hint">換算を入力（例: 5lbs in kgs）</string>
     <string name="unit_converter_info_title">単位換算</string>
     <string name="unit_converter_invalid_or_unsupported_query">無効またはサポートされていない単位換算です</string>
-    <string name="unit_converter_toggle_action_desc">単位換算のオン/オフを切り替え</string>
     <string name="world_clock_error_not_recognized">時刻を特定できませんでした。都市名、国名、タイムゾーン、または明確な日時を入力してください。</string>
     <string name="world_clock_toggle_desc">例: 東京の時間</string>
     <string name="world_clock_toggle_title">世界時計</string>
@@ -1341,7 +1310,6 @@ www.google.com/search?q={{query}}</string>
     <string name="search_engine_kagi">Kagi</string>
     <string name="search_engine_kagi_assistant">Kagi Assistant</string>
     <string name="search_engine_muse">Muse</string>
-    <string name="search_engine_onboarding_description">検索クエリを入力してこれらの検索エンジンのいずれかをタップすると、該当アプリ内で検索が実行されます。長押しで変更できます。</string>
     <string name="search_engine_perplexity">Perplexity</string>
     <string name="search_engine_reddit">Reddit</string>
     <string name="search_engine_spotify">Spotify</string>
@@ -1523,7 +1491,6 @@ www.google.com/search?q={{query}}</string>
     <string name="bookmarks_link_label">リンク</string>
     <string name="bookmarks_invalid_link">有効なウェブアドレスを入力してください</string>
     <string name="reminders_permission_hint">リマインダー通知を表示するには権限が必要です。タップして許可してください。</string>
-    <string name="reminders_home_card_dismiss">ホームから削除</string>
     <string name="settings_include_past_reminders_title">過去のリマインダー</string>
     <string name="settings_include_past_reminders_desc">過去のリマインダーを検索結果に表示します</string>
     <string name="app_setting_create_reminder">リマインダーを作成</string>

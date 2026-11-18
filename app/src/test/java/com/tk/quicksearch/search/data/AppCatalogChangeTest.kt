@@ -9,14 +9,6 @@ import org.junit.Test
 
 class AppCatalogChangeTest {
     @Test
-    fun primaryUserRemovalUsesTheExistingPackageKey() {
-        val change = AppCatalogChange("com.example.removed", userHandleId = 0, isRemoval = true)
-
-        assertEquals("com.example.removed", change.appKey(currentUserHandleId = 0))
-        assertTrue(change.matches(app("com.example.removed"), currentUserHandleId = 0))
-    }
-
-    @Test
     fun workProfileRemovalOnlyMatchesThatProfile() {
         val change = AppCatalogChange("com.example.shared", userHandleId = 10, isRemoval = true)
 

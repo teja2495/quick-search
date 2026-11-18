@@ -35,7 +35,6 @@ import com.tk.quicksearch.app.navigation.PageBackHandler
 import com.tk.quicksearch.search.searchScreen.dialogs.ReleaseNotesDrawer
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.permissions.LockScreenAccessibilityDisclosureDialog
 import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -68,17 +67,6 @@ fun SettingsScreen(
     state: SharedSettingsScreenState,
     callbacks: SharedSettingsScreenCallbacks,
     isOverlayModeBlockedByLauncher: Boolean,
-    hasUsagePermission: Boolean,
-    hasContactPermission: Boolean,
-    hasFilePermission: Boolean,
-    hasCallPermission: Boolean,
-    shouldShowBanner: Boolean,
-    onRequestUsagePermission: () -> Unit,
-    onRequestContactPermission: () -> Unit,
-    onRequestFilePermission: () -> Unit,
-    onRequestCalendarPermission: () -> Unit,
-    onRequestCallPermission: () -> Unit,
-    onDismissBanner: () -> Unit,
     shouldShowSettingsSearchTip: Boolean,
     onDismissSettingsSearchTip: () -> Unit,
     onNavigateToDetail: (SettingsDetailType) -> Unit,
@@ -97,7 +85,6 @@ fun SettingsScreen(
     PageBackHandler(onBack = callbacks.onBack)
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    FeatureFlags.initialize(context)
     val availableLanguages = remember(context) { AppLanguageManager.getAvailableLanguages(context) }
     val selectedLanguageLabel = AppLanguageManager.getSelectedLanguageLabel(context)
     val selectedLanguageTag = AppLanguageManager.getSelectedLanguageTag(context)
@@ -365,7 +352,6 @@ fun SettingsScreen(
 
             SettingsVersionDisplay(
                 modifier = Modifier.padding(top = DesignTokens.SectionTopPadding, bottom = 60.dp),
-                onFeatureFlagsChanged = onSettingsImported,
             )
         }
     }

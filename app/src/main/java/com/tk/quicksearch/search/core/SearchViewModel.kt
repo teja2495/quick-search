@@ -61,7 +61,6 @@ import com.tk.quicksearch.searchEngines.SearchEngineManager
 import com.tk.quicksearch.searchEngines.SecondarySearchOrchestrator
 import com.tk.quicksearch.searchEngines.AliasHandler
 import com.tk.quicksearch.searchEngines.getId
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.util.cachedDefaultHomeAppStatus
 import com.tk.quicksearch.shared.util.isLowRamDevice
 import com.tk.quicksearch.tools.aiTools.CurrencyConverterHandler
@@ -510,7 +509,6 @@ class SearchViewModel(
         )
     }
     init {
-        FeatureFlags.initialize(appContext)
         // Initialize services after all handlers are available
         initializeServices()
         setupAiSearchStateListener()
@@ -767,15 +765,6 @@ class SearchViewModel(
             userPreferences.recordUpdateCardDismissed()
         }
         updateFeatureState { it.copy(showUpdateCard = false) }
-    }
-    fun resetUsagePermissionBannerSessionDismissed() {
-        specialFlowsDelegate.resetUsagePermissionBannerSessionDismissed()
-    }
-    fun incrementUsagePermissionBannerDismissCount() {
-        specialFlowsDelegate.incrementUsagePermissionBannerDismissCount()
-    }
-    fun setUsagePermissionBannerSessionDismissed(dismissed: Boolean) {
-        specialFlowsDelegate.setUsagePermissionBannerSessionDismissed(dismissed)
     }
     companion object {
         @Volatile private var inMemoryRetainedQuery: String = ""

@@ -59,12 +59,6 @@ open class UserAppPreferencesFeatures(context: Context) : UserAppPreferencesCore
     fun setAliasTriggerAfterSpaceEnabled(enabled: Boolean) =
             searchEnginePreferences.setAliasTriggerAfterSpaceEnabled(enabled)
 
-    fun hasSeenSearchEngineOnboarding(): Boolean =
-            searchEnginePreferences.hasSeenSearchEngineOnboarding()
-
-    fun setHasSeenSearchEngineOnboarding(seen: Boolean) =
-            searchEnginePreferences.setHasSeenSearchEngineOnboarding(seen)
-
     fun getCustomSearchEngines(): List<CustomSearchEngine> =
             searchEnginePreferences.getCustomSearchEngines()
 
@@ -111,24 +105,6 @@ open class UserAppPreferencesFeatures(context: Context) : UserAppPreferencesCore
             targetId: String,
             code: String,
     ) = aliasPreferences.setAliasCodeAllowSingleChar(targetId, code)
-
-    fun isAliasEnabled(engine: SearchEngine): Boolean =
-            aliasPreferences.isAliasEnabled(engine)
-
-    fun setAliasEnabled(
-            engine: SearchEngine,
-            enabled: Boolean,
-    ) = aliasPreferences.setAliasEnabled(engine, enabled)
-
-    fun isAliasEnabled(
-            targetId: String,
-            defaultValue: Boolean,
-    ): Boolean = aliasPreferences.isAliasEnabled(targetId, defaultValue)
-
-    fun setAliasEnabled(
-            targetId: String,
-            enabled: Boolean,
-    ) = aliasPreferences.setAliasEnabled(targetId, enabled)
 
     fun getAllAliasCodes(): Map<SearchEngine, String> = aliasPreferences.getAllAliasCodes()
 
@@ -723,23 +699,6 @@ open class UserAppPreferencesFeatures(context: Context) : UserAppPreferencesCore
 
     fun setHasSeenAccessibilityPermissionDisclaimer(seen: Boolean) =
             uiPreferences.setHasSeenAccessibilityPermissionDisclaimer(seen)
-
-    fun getUsagePermissionBannerDismissCount(): Int =
-            uiPreferences.getUsagePermissionBannerDismissCount()
-
-    fun incrementUsagePermissionBannerDismissCount() =
-            uiPreferences.incrementUsagePermissionBannerDismissCount()
-
-    fun isUsagePermissionBannerSessionDismissed(): Boolean =
-            uiPreferences.isUsagePermissionBannerSessionDismissed()
-
-    fun setUsagePermissionBannerSessionDismissed(dismissed: Boolean) =
-            uiPreferences.setUsagePermissionBannerSessionDismissed(dismissed)
-
-    fun resetUsagePermissionBannerSessionDismissed() =
-            uiPreferences.resetUsagePermissionBannerSessionDismissed()
-
-    fun shouldShowUsagePermissionBanner(): Boolean = uiPreferences.shouldShowUsagePermissionBanner()
 
     // ============================================================================
 }

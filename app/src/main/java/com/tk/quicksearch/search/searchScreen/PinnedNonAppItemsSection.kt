@@ -90,7 +90,6 @@ internal fun PinnedNonAppItemsSection(
                             AppShortcutRow(
                                 shortcut = shortcut,
                                 isPinned = appShortcutsParams.pinnedShortcutIds.contains(shortcutId),
-                                isExcluded = appShortcutsParams.excludedShortcutIds.contains(shortcutId),
                                 hasNickname = !appShortcutsParams.getShortcutNickname(shortcutId).isNullOrBlank(),
                                 hasTrigger = appShortcutsParams.getShortcutTrigger(shortcutId)?.word?.isNotBlank() == true,
                                 onShortcutClick = appShortcutsParams.onShortcutClick,

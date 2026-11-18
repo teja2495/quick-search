@@ -74,8 +74,6 @@ fun FinalSetupScreen(
     ) {
         OnboardingHeader(
             title = stringResource(R.string.setup_final_title),
-            currentStep = currentStep,
-            totalSteps = totalSteps,
             topPadding = DesignTokens.SpacingMedium,
             modifier = Modifier.welcomeExitItem(),
         )

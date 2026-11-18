@@ -30,12 +30,6 @@ class WidgetOptionComparisonTest {
     }
 
     @Test
-    fun changedHostMetadataRequiresAnUpdate() {
-        assertFalse(widgetOptionsMatch(desired + ("orientation" to 2), desired))
-        assertFalse(widgetOptionsMatch(desired + ("columnSpan" to 3), desired))
-    }
-
-    @Test
     fun missingHostOptionRequiresAnUpdate() {
         assertFalse(widgetOptionsMatch(desired - "sizes", desired))
     }

@@ -247,9 +247,6 @@ class UserAppPreferences(context: Context) : UserAppPreferencesFeatures(context)
             }
     fun setWeatherProviderId(providerId: AiSearchLlmProviderId) =
         weatherPreferences.setProviderId(providerId)
-    fun isWeatherGroundingEnabled(): Boolean = true
-    fun setWeatherGroundingEnabled(enabled: Boolean) =
-        weatherPreferences.setGroundingEnabled(true)
     fun isWeatherThinkingEnabled(): Boolean =
         weatherPreferences.getThinkingOverride() ?: isLlmThinkingEnabled(getWeatherProviderId())
     fun getWeatherThinkingOverride(): Boolean? = weatherPreferences.getThinkingOverride()

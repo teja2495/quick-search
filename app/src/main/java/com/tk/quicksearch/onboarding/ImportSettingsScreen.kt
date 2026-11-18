@@ -112,8 +112,6 @@ fun ImportSettingsScreen(
         ) {
             OnboardingHeader(
                 title = stringResource(R.string.setup_import_title),
-                currentStep = currentStep,
-                totalSteps = totalSteps,
                 topPadding = DesignTokens.SpacingMedium,
             )
 

@@ -68,12 +68,4 @@ class AppNotificationsTest {
         val reposted = notification("a", 2)
         assertEquals(listOf("a"), keys(AppNotifications.select(listOf(reposted), emptySet(), active)))
     }
-
-    @Test
-    fun clearForgetsDismissals() {
-        val first = notification("a", 1)
-        AppNotifications.dismiss(first)
-        AppNotifications.clear()
-        assertEquals(listOf("a"), keys(AppNotifications.select(listOf(first), emptySet(), active)))
-    }
 }

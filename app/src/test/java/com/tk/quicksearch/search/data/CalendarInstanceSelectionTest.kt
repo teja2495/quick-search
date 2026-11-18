@@ -48,15 +48,6 @@ class CalendarInstanceSelectionTest {
         assertEquals(now + 100, resolved.getValue(1).startMillis)
     }
 
-    @Test
-    fun resolvedInstanceMatchesTheNearestSelectionForTheSameEvent() {
-        val instances = mapOf(1L to listOf(instance(1, now + 400), instance(1, now + 20), instance(1, now - 10)))
-
-        val resolved = resolvedUpcomingInstances(instances, anchorMillis = now, resolvedBeforeMillis = Long.MAX_VALUE)
-
-        assertEquals(selectNearestInstancePerEvent(instances, now), resolved)
-    }
-
     private fun instance(
         eventId: Long,
         startMillis: Long,

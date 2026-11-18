@@ -82,10 +82,7 @@ fun PermissionsCardSection(
     showNotificationAccessPermission: Boolean = true,
     showBackgroundUsage: Boolean = false,
     onRequestUsagePermission: () -> Unit = {},
-    onRequestContactPermission: () -> Unit = {},
     onRequestFilePermission: () -> Unit = {},
-    onRequestCalendarPermission: () -> Unit = {},
-    onRequestCallPermission: () -> Unit = {},
     onRequestNotificationsPermission: () -> Unit = {},
     onStatesChanged: (PermissionCardStates) -> Unit = {},
 ) {

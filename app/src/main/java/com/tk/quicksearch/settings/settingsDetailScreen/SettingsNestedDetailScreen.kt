@@ -36,7 +36,6 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.app.navigation.SettingsPageBackHandler
 import com.tk.quicksearch.shared.ui.components.predictiveBackPreview
 import com.tk.quicksearch.shared.ui.components.rememberPredictiveBackPreviewState
-import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.deviceSettings.NOTIFICATION_HISTORY_SETTING_ID
@@ -53,7 +52,6 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.settings.NoteDeleteConfirmationDialog
 import com.tk.quicksearch.settings.NotesBulkDeleteConfirmationDialog
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.settings.bookmarksSettings.BookmarksHeaderMenu
 import com.tk.quicksearch.settings.bookmarksSettings.BookmarksSettingsSection
 import kotlinx.coroutines.Dispatchers
@@ -120,17 +118,6 @@ internal fun SettingsNestedDetailScreen(
                 false
             }
         }
-    val notesEnabled = FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES)
-
-    if (!notesEnabled &&
-        (detailType == SettingsDetailType.NOTES || detailType == SettingsDetailType.NOTE_EDITOR)
-    ) {
-        LaunchedEffect(detailType) {
-            callbacks.onBack()
-        }
-        return
-    }
-
     val hasExcludedItems =
         state.suggestionExcludedApps.isNotEmpty() ||
             state.resultExcludedApps.isNotEmpty() ||

@@ -360,29 +360,11 @@ abstract class BasePreferences(
             null
         }
 
-    protected fun getFirstLaunchFlag(): Boolean {
-        // Prefer the dedicated non-backed-up prefs. If missing, infer a safe value.
-        if (!firstLaunchPrefs.contains(KEY_FIRST_LAUNCH)) {
-            val currentInstallTime = getCurrentInstallTime()
-            val isFreshInstall =
-                currentInstallTime != null &&
-                    System.currentTimeMillis() - currentInstallTime <
-                    FRESH_INSTALL_THRESHOLD_MS
-
-            // A fresh install defaults to true even if legacy prefs say otherwise.
-            val legacyValue = prefs.getBoolean(KEY_FIRST_LAUNCH, true)
-            val initialValue = if (isFreshInstall) true else legacyValue
-            setFirstLaunchFlag(initialValue)
-            return initialValue
-        }
-
-        return firstLaunchPrefs.getBoolean(KEY_FIRST_LAUNCH, true)
-    }
+    protected fun getFirstLaunchFlag(): Boolean =
+        firstLaunchPrefs.getBoolean(KEY_FIRST_LAUNCH, true)
 
     protected fun setFirstLaunchFlag(value: Boolean) {
         firstLaunchPrefs.edit().putBoolean(KEY_FIRST_LAUNCH, value).apply()
-        // Keep legacy location in sync for backward compatibility
-        prefs.edit().putBoolean(KEY_FIRST_LAUNCH, value).apply()
     }
 
     protected fun syncInstallTimeWithBackup() {
@@ -465,8 +447,6 @@ abstract class BasePreferences(
         const val KEY_CALENDAR_INCLUDE_PAST_EVENTS = "calendar_include_past_events"
         const val KEY_CALENDAR_SHOW_TODAY_EVENTS = "calendar_show_today_events"
         const val KEY_DEFAULT_CALENDAR_PACKAGE = "default_calendar_package"
-        const val KEY_CUSTOM_CALENDAR_EVENTS_DATA = "custom_calendar_events_data"
-        const val KEY_CUSTOM_CALENDAR_EVENT_ID_COUNTER = "custom_calendar_event_id_counter"
         const val KEY_GLANCE_HIDDEN_CALENDAR_EVENTS = "glance_hidden_calendar_events"
 
         // Notes preferences keys
@@ -501,8 +481,6 @@ abstract class BasePreferences(
         const val KEY_SWIPE_UP_ALIAS_TARGET = "swipe_up_alias_target"
         const val KEY_SWIPE_DOWN_CUSTOM_ACTION = "swipe_down_custom_action"
         const val KEY_SWIPE_DOWN_ALIAS_TARGET = "swipe_down_alias_target"
-        const val KEY_HOME_SWIPE_UP_NOTIFICATION_ENABLED = "home_swipe_up_notification_enabled"
-        const val KEY_HOME_SWIPE_DOWN_NOTIFICATION_ENABLED = "home_swipe_down_notification_enabled"
         const val KEY_HOME_SWIPE_UP_ACTION = "home_swipe_up_action"
         const val KEY_HOME_SWIPE_DOWN_ACTION = "home_swipe_down_action"
         const val KEY_HOME_SWIPE_UP_CUSTOM_ACTION = "home_swipe_up_custom_action"
@@ -533,7 +511,6 @@ abstract class BasePreferences(
         const val KEY_SEARCH_ENGINE_COMPACT_ROW_COUNT = "search_engine_compact_row_count"
         const val KEY_SEARCH_ENGINE_ALIAS_SUFFIX_ENABLED = "search_engine_alias_suffix_enabled"
         const val KEY_ALIAS_TRIGGER_AFTER_SPACE = "alias_trigger_after_space"
-        const val KEY_SEARCH_ENGINE_ONBOARDING_SEEN = "search_engine_onboarding_seen"
         const val KEY_CUSTOM_SEARCH_ENGINES = "custom_search_engines"
         const val KEY_CUSTOM_TOOLS = "custom_tools"
         const val KEY_DISABLED_CUSTOM_TOOLS = "disabled_custom_tools"
@@ -546,8 +523,6 @@ abstract class BasePreferences(
 
         // UI preferences keys
         const val KEY_ONE_HANDED_MODE = "one_handed_mode"
-        const val KEY_MESSAGING_APP = "messaging_app"
-        const val KEY_CALLING_APP = "calling_app"
         const val KEY_FIRST_LAUNCH = "first_launch"
         const val KEY_INSTALL_TIME = "install_time"
         const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
@@ -561,7 +536,6 @@ abstract class BasePreferences(
         const val KEY_HAS_SEEN_OVERLAY_ASSISTANT_TIP = "has_seen_overlay_assistant_tip"
 
         // Fresh install detection window (10 minutes)
-        const val FRESH_INSTALL_THRESHOLD_MS = 10 * 60 * 1000L
 
         // Section preferences keys
         const val KEY_DISABLED_SECTIONS = "disabled_sections"
@@ -614,10 +588,6 @@ abstract class BasePreferences(
         const val KEY_TAVILY_WEB_SEARCH_MODE = "tavily_web_search_mode"
 
         // Usage permission banner preferences keys
-        const val KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT =
-            "usage_permission_banner_dismiss_count"
-        const val KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED =
-            "usage_permission_banner_session_dismissed"
 
         // Web search suggestions preferences keys
         const val KEY_WEB_SUGGESTIONS_ENABLED = "web_suggestions_enabled"

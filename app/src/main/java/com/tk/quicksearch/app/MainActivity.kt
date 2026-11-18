@@ -385,9 +385,6 @@ open class MainActivity : FragmentActivity() {
                 updateStatusBarVisibility(showStatusBar = uiState.showStatusBar)
             }
             val isSystemDarkTheme = isSystemInDarkTheme()
-            LaunchedEffect(isSystemDarkTheme, uiState.appThemeMode, uiState.launcherAppIcon) {
-                searchViewModel.onSystemDarkModeChanged(isDarkMode = isSystemDarkTheme)
-            }
             val useDarkSystemBars =
                 when (uiState.appThemeMode) {
                     AppThemeMode.LIGHT -> false

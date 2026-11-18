@@ -102,7 +102,6 @@ fun SettingsRoute(
 
     val state = uiState.toSettingsScreenState()
 
-    val shouldShowBanner = remember { mutableStateOf(uiState.shouldShowUsagePermissionBanner) }
     val hasSeenSettingsSearchTip = remember {
         mutableStateOf(userPreferences.hasSeenSettingsSearchTip())
     }
@@ -382,7 +381,7 @@ fun SettingsRoute(
                 ),
         )
 
-    // Refresh permission state and reset banner session dismissed flag when activity starts/resumes
+    // Refresh permissions and launcher role when the activity resumes.
     var hasSettled by remember { mutableStateOf(pageSettled) }
     LaunchedEffect(pageSettled) {
         if (pageSettled) hasSettled = true
@@ -393,11 +392,6 @@ fun SettingsRoute(
         val observer =
             LifecycleEventObserver { _, event ->
                 when (event) {
-                    Lifecycle.Event.ON_START -> {
-                        viewModel.resetUsagePermissionBannerSessionDismissed()
-                        shouldShowBanner.value = viewModel.uiState.value.shouldShowUsagePermissionBanner
-                    }
-
                     Lifecycle.Event.ON_RESUME -> {
                         viewModel.handleOnResume()
                         launcherRoleJob?.cancel()
@@ -405,7 +399,6 @@ fun SettingsRoute(
                             isDefaultLauncher = withContext(Dispatchers.Default) { context.isDefaultHomeApp() }
                         }
                         wallpaperPermissionController.onRefreshPermissionState()
-                        shouldShowBanner.value = viewModel.uiState.value.shouldShowUsagePermissionBanner
                     }
 
                     else -> {}
@@ -418,11 +411,6 @@ fun SettingsRoute(
         }
     }
 
-    val onDismissBanner = {
-        viewModel.incrementUsagePermissionBannerDismissCount()
-        viewModel.setUsagePermissionBannerSessionDismissed(true)
-        shouldShowBanner.value = viewModel.uiState.value.shouldShowUsagePermissionBanner
-    }
     val onDismissSettingsSearchTip = {
         userPreferences.setHasSeenSettingsSearchTip(true)
         hasSeenSettingsSearchTip.value = true
@@ -448,17 +436,6 @@ fun SettingsRoute(
         state = resolvedState,
         callbacks = callbacks,
         isOverlayModeBlockedByLauncher = isDefaultLauncher,
-        hasUsagePermission = uiState.hasUsagePermission,
-        hasContactPermission = uiState.hasContactPermission,
-        hasFilePermission = uiState.hasFilePermission,
-        hasCallPermission = uiState.hasCallPermission,
-        shouldShowBanner = shouldShowBanner.value,
-        onRequestUsagePermission = onRequestUsagePermission,
-        onRequestContactPermission = onRequestContactPermission,
-        onRequestFilePermission = onRequestFilePermission,
-        onRequestCalendarPermission = onRequestCalendarPermission,
-        onRequestCallPermission = onRequestCallPermission,
-        onDismissBanner = onDismissBanner,
         shouldShowSettingsSearchTip = !hasSeenSettingsSearchTip.value,
         onDismissSettingsSearchTip = onDismissSettingsSearchTip,
         onNavigateToDetail = onNavigateToDetail,

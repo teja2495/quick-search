@@ -37,7 +37,6 @@ data class NotificationHistoryEntry(
  */
 object NotificationHistoryStore {
     private const val PREFS_NAME = "notification_history"
-    private const val KEY_LEGACY_ENTRIES = "entries"
     private const val KEY_HIDDEN_PACKAGES = "hidden_packages"
     private const val MAX_ENTRIES = 500
 
@@ -93,8 +92,6 @@ object NotificationHistoryStore {
             // Persist the defaults once so re-enabling a default app sticks.
             loaded.edit().putStringSet(KEY_HIDDEN_PACKAGES, DEFAULT_HIDDEN_PACKAGES).apply()
         }
-        // History used to be one JSON blob in preferences; it now lives in Room.
-        if (loaded.contains(KEY_LEGACY_ENTRIES)) loaded.edit().remove(KEY_LEGACY_ENTRIES).apply()
         prefs = loaded
     }
 

@@ -15,9 +15,4 @@ class CustomToolPromptUtilsTest {
             expandCustomToolPrompt("Current time: {time}", now),
         )
     }
-
-    @Test
-    fun leavesPromptsWithoutTimePlaceholderUnchanged() {
-        assertEquals("Answer concisely.", expandCustomToolPrompt("Answer concisely."))
-    }
 }

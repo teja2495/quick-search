@@ -300,43 +300,6 @@ open class UiPreferencesFeatures(context: Context) : UiPreferencesCore(context) 
             .apply()
     }
 
-    fun getUsagePermissionBannerDismissCount(): Int =
-            firstLaunchPrefs.getInt(UiPreferences.KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, 0)
-
-    fun incrementUsagePermissionBannerDismissCount() {
-        val currentCount = getUsagePermissionBannerDismissCount()
-        firstLaunchPrefs
-                .edit()
-                .putInt(UiPreferences.KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, currentCount + 1)
-                .apply()
-    }
-
-    fun isUsagePermissionBannerSessionDismissed(): Boolean =
-            firstLaunchPrefs.getBoolean(
-                    UiPreferences.KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED,
-                    false,
-            )
-
-    fun setUsagePermissionBannerSessionDismissed(dismissed: Boolean) {
-        firstLaunchPrefs
-                .edit()
-                .putBoolean(UiPreferences.KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, dismissed)
-                .apply()
-    }
-
-    fun resetUsagePermissionBannerSessionDismissed() {
-        firstLaunchPrefs
-                .edit()
-                .putBoolean(UiPreferences.KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, false)
-                .apply()
-    }
-
-    fun shouldShowUsagePermissionBanner(): Boolean {
-        // Show banner if: total dismiss count < 2 AND session not dismissed
-        return getUsagePermissionBannerDismissCount() < 2 &&
-                !isUsagePermissionBannerSessionDismissed()
-    }
-
     // ============================================================================
     // App Suggestions Preferences
     // ============================================================================

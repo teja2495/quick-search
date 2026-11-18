@@ -295,7 +295,6 @@ fun MainContent(
                         totalSteps = importTotalSteps,
                         onImportSuccess = {
                             searchViewModel.requestSearchBarWelcomeAnimationFromOnboarding()
-                            searchViewModel.setShowStartSearchingOnOnboarding(true)
                             userPreferences.setFirstLaunchCompleted()
                             if (userPreferences.isOverlayModeEnabled()) {
                                 onFinishActivity()
@@ -349,7 +348,6 @@ fun MainContent(
                     onContinue = {
                         if (skipFinalSetup) {
                             searchViewModel.requestSearchBarWelcomeAnimationFromOnboarding()
-                            searchViewModel.setShowStartSearchingOnOnboarding(true)
                             userPreferences.setFirstLaunchCompleted()
                             if (userPreferences.isOverlayModeEnabled()) {
                                 onFinishActivity()

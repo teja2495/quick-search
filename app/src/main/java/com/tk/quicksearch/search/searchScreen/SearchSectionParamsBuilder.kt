@@ -24,7 +24,6 @@ import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.search.searchScreen.dialogs.NicknameDialogState
 import com.tk.quicksearch.search.searchScreen.dialogs.TriggerDialogState
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import java.util.Locale
 
 /** Helper function to build all the section parameters needed by SearchScreenContent */

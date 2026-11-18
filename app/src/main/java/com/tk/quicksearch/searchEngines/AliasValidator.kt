@@ -14,15 +14,6 @@ object AliasValidator {
     fun normalizeShortcutCodeInput(input: String): String =
         input.trim().lowercase(Locale.getDefault()).filterNot { char -> char.isWhitespace() }
 
-    /**
-     * Validates search-engine shortcut input. Must be non-empty and at least 2 characters after
-     * normalization.
-     */
-    fun isValidShortcutCode(input: String): Boolean {
-        val normalized = normalizeShortcutCodeInput(input)
-        return normalized.length >= 2
-    }
-
     /** Validates non-search-engine aliases. Any non-empty normalized code is allowed. */
     fun isValidGeneralAliasCode(input: String): Boolean =
         normalizeShortcutCodeInput(input).isNotEmpty()
