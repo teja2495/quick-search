@@ -290,7 +290,7 @@ fun SettingsDetailRoute(
                     handlers =
                             SettingsRouteHandlers(
                                     onBack = onBackAction,
-                                    onToggleOverlayMode = viewModel::setOverlayModeEnabled,
+                                    onToggleOverlayMode = { viewModel.setOverlayModeEnabled(it) },
                                     onPickCustomImage = {
                                         overlayCustomImagePickerLauncher.launch(
                                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)

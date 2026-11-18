@@ -293,25 +293,28 @@ internal fun SearchPreferencesDelegate.setAutoCloseOverlayEnabled(enabled: Boole
         )
     }
 
-internal fun SearchPreferencesDelegate.setOverlayModeEnabled(enabled: Boolean) {
-        updateBooleanPreference(
-            value = enabled,
-            preferenceSetter = userPreferences::setOverlayModeEnabled,
-            stateUpdater = {
-                stateAccess.overlayModeEnabled = it
-                updateUiState { state ->
-                    state.copy(
-                        overlayModeEnabled = it,
-                        wallpaperBackgroundAlpha = stateAccess.wallpaperBackgroundAlpha,
-                        wallpaperBlurRadius = stateAccess.wallpaperBlurRadius,
-                    )
-                }
-                if (!it) {
-                    OverlayModeController.stopOverlay(applicationProvider())
-                }
-            },
-        )
+internal fun SearchPreferencesDelegate.setOverlayModeEnabled(
+    enabled: Boolean,
+    onDisabled: (() -> Unit)? = null,
+) {
+    scope.launch(Dispatchers.IO) {
+        userPreferences.setOverlayModeEnabled(enabled)
+        stateAccess.overlayModeEnabled = enabled
+        updateUiState { state ->
+            state.copy(
+                overlayModeEnabled = enabled,
+                wallpaperBackgroundAlpha = stateAccess.wallpaperBackgroundAlpha,
+                wallpaperBlurRadius = stateAccess.wallpaperBlurRadius,
+            )
+        }
+        if (!enabled) {
+            withContext(Dispatchers.Main) {
+                OverlayModeController.stopOverlay(applicationProvider())
+                onDisabled?.invoke()
+            }
+        }
     }
+}
 
 internal fun SearchPreferencesDelegate.setAmazonDomain(domain: String?) {
         stateAccess.amazonDomain = domain

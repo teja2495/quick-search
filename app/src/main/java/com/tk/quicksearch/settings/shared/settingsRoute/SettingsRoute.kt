@@ -62,6 +62,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.util.hapticGestureThreshold
 import com.tk.quicksearch.app.navigation.openDefaultAssistantSettings
 import com.tk.quicksearch.app.navigation.openDefaultLauncherSettings
+import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.shared.permissions.PermissionHelper
@@ -214,10 +215,14 @@ fun SettingsRoute(
     val onToggleOverlayMode: (Boolean) -> Unit = { enabled ->
         val isDefaultHomeApp = context.isDefaultHomeApp()
         val shouldEnableOverlay = enabled && !isDefaultHomeApp
-        viewModel.setOverlayModeEnabled(shouldEnableOverlay)
         if (shouldEnableOverlay) {
-            com.tk.quicksearch.overlay.OverlayModeController.startOverlay(context)
+            viewModel.setOverlayModeEnabled(true)
+            OverlayModeController.startOverlay(context)
             (context as? android.app.Activity)?.finish()
+        } else if (!enabled) {
+            viewModel.setOverlayModeEnabled(false) {
+                OverlayModeController.openMainActivity(context, returnToOverlay = false)
+            }
         }
     }
     val appShortcutSourceFlow =

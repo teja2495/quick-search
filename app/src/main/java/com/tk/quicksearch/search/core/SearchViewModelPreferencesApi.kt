@@ -234,7 +234,8 @@ internal interface SearchViewModelPreferencesApi {
     fun setAutoCloseOverlayEnabled(enabled: Boolean) =
         preferencesApiDelegate.setAutoCloseOverlayEnabled(enabled)
 
-    fun setOverlayModeEnabled(enabled: Boolean) = preferencesApiDelegate.setOverlayModeEnabled(enabled)
+    fun setOverlayModeEnabled(enabled: Boolean, onDisabled: (() -> Unit)? = null) =
+        preferencesApiDelegate.setOverlayModeEnabled(enabled, onDisabled)
 
     fun setAmazonDomain(domain: String?) = preferencesApiDelegate.setAmazonDomain(domain)
 
@@ -535,7 +536,8 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
     fun setAutoCloseOverlayEnabled(enabled: Boolean) =
         preferencesDelegate.setAutoCloseOverlayEnabled(enabled)
 
-    fun setOverlayModeEnabled(enabled: Boolean) = preferencesDelegate.setOverlayModeEnabled(enabled)
+    fun setOverlayModeEnabled(enabled: Boolean, onDisabled: (() -> Unit)? = null) =
+        preferencesDelegate.setOverlayModeEnabled(enabled, onDisabled)
 
     fun setAmazonDomain(domain: String?) = preferencesDelegate.setAmazonDomain(domain)
 

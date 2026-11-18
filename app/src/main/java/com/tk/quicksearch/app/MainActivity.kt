@@ -583,6 +583,10 @@ open class MainActivity : FragmentActivity() {
     }
 
     private fun handleIntentAfterImportClassification(intent: Intent?) {
+        if (intent?.action == ACTION_OPEN_FULL_SCREEN) {
+            searchViewModel.clearQuery()
+            navigationRequest.value = NavigationRequest(destination = RootDestination.Search)
+        }
 
         if (isHomeOrLauncherLaunch(intent)) {
             val activeSettingsDetail = SettingsNavigationMemory.getLastOpenedSettingsDetail()

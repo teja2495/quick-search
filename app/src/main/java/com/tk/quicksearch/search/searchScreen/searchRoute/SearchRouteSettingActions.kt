@@ -121,20 +121,19 @@ internal fun rememberRouteSettingActions(
             AppSettingsToggleKey.OVERLAY_MODE -> {
                 val isDefaultHomeApp = context.isDefaultHomeApp()
                 val shouldEnableOverlay = enabled && !isDefaultHomeApp
-                viewModel.setOverlayModeEnabled(shouldEnableOverlay)
                 if (shouldEnableOverlay) {
+                    viewModel.setOverlayModeEnabled(true)
                     OverlayModeController.startOverlay(
                         context = context,
                         initialQuery = uiState.query.takeIf { it.isNotBlank() },
                     )
                     (context as? android.app.Activity)?.finish()
-                } else if (isOverlayPresentation) {
-                    OverlayModeController.openMainActivity(
-                        context = context,
-                        initialQuery = uiState.query.takeIf { it.isNotBlank() },
-                        returnToOverlay = false,
-                    )
-                    (context as? android.app.Activity)?.finish()
+                } else if (!enabled) {
+                    viewModel.setOverlayModeEnabled(false) {
+                        if (isOverlayPresentation) {
+                            OverlayModeController.openMainActivity(context, returnToOverlay = false)
+                        }
+                    }
                 }
             }
             AppSettingsToggleKey.DIRECT_DIAL -> {

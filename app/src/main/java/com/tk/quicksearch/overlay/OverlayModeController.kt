@@ -69,7 +69,12 @@ object OverlayModeController {
     ) {
         val intent =
             Intent(context, MainActivity::class.java).apply {
-                action = Intent.ACTION_MAIN
+                action =
+                    if (openSettings || openWidgetsPanel) {
+                        Intent.ACTION_MAIN
+                    } else {
+                        MainActivity.ACTION_OPEN_FULL_SCREEN
+                    }
                 putExtra(EXTRA_FORCE_NORMAL_LAUNCH, true)
                 putExtra(EXTRA_OPEN_SETTINGS, openSettings)
                 putExtra(EXTRA_OPEN_WIDGETS_PANEL, openWidgetsPanel)
