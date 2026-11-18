@@ -3,8 +3,6 @@ package com.tk.quicksearch.searchEngines.shared
 import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +33,7 @@ import com.tk.quicksearch.searchEngines.getIconColorPolicy
 import com.tk.quicksearch.searchEngines.isInstallOnlyEngine
 import com.tk.quicksearch.searchEngines.SearchEngineIconColorPolicy
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 /**
  * Configuration for rendering search target icons with different styles.
@@ -87,7 +86,7 @@ fun SearchTargetIcon(
                     modifier =
                         modifier.size(iconSize).then(
                             if (appIconShape == AppIconShape.CIRCLE) {
-                                Modifier.clip(CircleShape)
+                                Modifier.clip(AppShapes.full)
                             } else {
                                 Modifier
                             },
@@ -219,7 +218,7 @@ fun SearchTargetIcon(
                     modifier =
                         modifier.size(iconSize).then(
                             if (appIconShape == AppIconShape.CIRCLE) {
-                                Modifier.clip(CircleShape)
+                                Modifier.clip(AppShapes.full)
                             } else {
                                 Modifier
                             },
@@ -258,7 +257,7 @@ fun SearchTargetIcon(
                     modifier =
                         modifier
                             .size(iconSize)
-                            .clip(RoundedCornerShape(iconSize * 0.2f)),
+                            .clip(AppShapes.faviconScaled),
                     contentScale = ContentScale.Fit,
                 )
             } else {

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.expandVertically
@@ -127,8 +128,8 @@ internal fun HomeLoadingAnimatedContent(
     }
 }
 
-private const val HomeSectionFadeDurationMillis = 180
-private const val HomeSectionExpandDurationMillis = 280
+private const val HomeSectionFadeDurationMillis = AppMotion.DurationShort
+private const val HomeSectionExpandDurationMillis = AppMotion.DurationMedium
 internal const val HOME_TODAY_CALENDAR_ANIMATION_KEY = "home-today-calendar"
 /** Gap between home content items; flat dividers sit half the stack spacing into it. */
 internal val HomeSectionContentSpacing = 14.dp

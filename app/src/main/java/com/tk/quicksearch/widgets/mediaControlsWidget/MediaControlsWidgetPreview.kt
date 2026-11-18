@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -327,7 +326,7 @@ private fun PreviewTransportRow(
                     modifier =
                         Modifier
                             .size(MediaControlsWidgetDimens.PROMINENT_CIRCLE_SIZE)
-                            .background(colors.playPauseCircle, CircleShape),
+                            .background(colors.playPauseCircle, AppShapes.full),
                     contentAlignment = Alignment.Center,
                 ) {
                     PreviewIcon(playPauseIcon, R.string.media_command_play_pause, MediaControlsWidgetDimens.CONTROL_ICON_SIZE, colors.playPauseIcon)
@@ -363,7 +362,7 @@ private fun ProminentControl(
             modifier =
                 Modifier
                     .size(MediaControlsWidgetDimens.PROMINENT_CIRCLE_SIZE)
-                    .border(MediaControlsWidgetDimens.PROMINENT_CIRCLE_STROKE, colors.prominentCircleBorder, CircleShape),
+                    .border(MediaControlsWidgetDimens.PROMINENT_CIRCLE_STROKE, colors.prominentCircleBorder, AppShapes.full),
             contentAlignment = Alignment.Center,
         ) {
             PreviewIcon(control, MediaControlsWidgetDimens.CONTROL_ICON_SIZE, colors.content)

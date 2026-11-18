@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.floatingActionShape
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import com.tk.quicksearch.reminders.ReminderEditorRequests
 import androidx.compose.runtime.collectAsState
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryAccess
@@ -452,19 +454,23 @@ internal fun SettingsNestedDetailScreen(
         }
 
         if (detailType == SettingsDetailType.EXCLUDED_ITEMS) {
+            val clearAllInteraction = remember { MutableInteractionSource() }
             FloatingActionButton(
                 onClick = { showClearAllConfirmation = true },
                 modifier =
                     Modifier
                         .align(androidx.compose.ui.Alignment.BottomEnd)
-                        .padding(DesignTokens.SpacingLarge),
+                        .padding(DesignTokens.SpacingLarge)
+                        .size(DesignTokens.FloatingActionHeight),
+                shape = floatingActionShape(clearAllInteraction),
                 containerColor = MaterialTheme.colorScheme.error,
                 contentColor = MaterialTheme.colorScheme.onError,
+                interactionSource = clearAllInteraction,
             ) {
                 Icon(
                     imageVector = MaterialSymbols.Delete,
                     contentDescription = stringResource(R.string.settings_action_clear_all),
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(DesignTokens.IconSize),
                 )
             }
         }

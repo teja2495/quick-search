@@ -1,5 +1,8 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import androidx.compose.foundation.layout.height
+import com.tk.quicksearch.shared.ui.theme.floatingActionShape
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -169,21 +172,27 @@ internal fun ToolsSettingsSection(
         )
 
         // Matches the new-item button in Calendar Events settings.
+        val createToolInteraction = remember { MutableInteractionSource() }
         ExtendedFloatingActionButton(
                 onClick = {
                     if (hasApiKey) onCreateNewTool() else showApiKeyRequiredDialog = true
                 },
                 expanded = true,
-                modifier = Modifier.fillMaxWidth().padding(top = DesignTokens.SpacingSmall),
-                shape = CalendarSettingsBarCornerShape,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = DesignTokens.SpacingSmall)
+                        .height(DesignTokens.FloatingActionHeight),
+                shape = floatingActionShape(createToolInteraction),
                 containerColor = AppColors.Accent,
                 contentColor = AppColors.OnAccent,
+                interactionSource = createToolInteraction,
                 text = { Text(text = stringResource(R.string.settings_create_new_tool_button)) },
                 icon = {
                     Icon(
                             imageVector = MaterialSymbols.Add,
                             contentDescription = null,
-                            modifier = Modifier.size(18.dp),
+                            modifier = Modifier.size(DesignTokens.ButtonIconSizeSmall),
                     )
                 },
         )

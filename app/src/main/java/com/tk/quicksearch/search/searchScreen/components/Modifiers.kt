@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloat
@@ -24,8 +25,8 @@ import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.ui.theme.homeBackgroundIsDark
 
 private const val PredictedSubmitIndicatorEnterDelayMs = 500
-private const val PredictedSubmitIndicatorFadeInDurationMs = 300
-private const val PredictedSubmitIndicatorFadeOutDurationMs = 240
+private const val PredictedSubmitIndicatorFadeInDurationMs = AppMotion.DurationMedium
+private const val PredictedSubmitIndicatorFadeOutDurationMs = AppMotion.DurationStandard
 
 @Composable
 internal fun rememberPredictedSubmitIndicatorAlpha(isPredicted: Boolean): State<Float> {

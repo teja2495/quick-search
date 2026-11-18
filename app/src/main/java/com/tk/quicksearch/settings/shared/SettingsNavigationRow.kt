@@ -98,7 +98,7 @@ fun SettingsNavigationRow(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                 ) {
                     androidx.compose.material3.Text(
                         text = item.title,

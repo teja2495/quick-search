@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,6 +44,7 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.connectedButtonShape
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 /** One option of a [ConnectedChoiceGroup]: a label with an optional icon or color swatch. */
 data class ChoiceOption<T>(
@@ -252,9 +252,9 @@ private fun ChoiceSwatch(color: Color) {
         modifier =
             Modifier
                 .size(ChoiceSwatchSize)
-                .clip(CircleShape)
+                .clip(AppShapes.full)
                 .background(color)
-                .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape),
+                .border(1.dp, MaterialTheme.colorScheme.outline, AppShapes.full),
     )
 }
 

@@ -18,8 +18,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -74,6 +72,8 @@ import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.searchHistory.RecentSearchItem
 import com.tk.quicksearch.search.searchHistory.SearchHistoryTab
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlin.math.min
@@ -591,43 +591,28 @@ internal fun SearchContentArea(
                     onDismissRequest = { showBackgroundMenu = false },
                     offset = backgroundMenuDpOffset,
                 ) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.action_change_wallpaper)) },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = MaterialSymbols.Image,
-                                contentDescription = null,
-                            )
-                        },
+                    AppDropdownMenuItem(
+                        text = stringResource(R.string.action_change_wallpaper),
+                        icon = MaterialSymbols.Image,
                         onClick = {
                             showBackgroundMenu = false
                             onChangeWallpaperClick()
                         },
                     )
-                    HorizontalDivider()
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.settings_gestures_title)) },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = MaterialSymbols.Swipe,
-                                contentDescription = null,
-                            )
-                        },
+                    AppDropdownMenuDivider()
+                    AppDropdownMenuItem(
+                        text = stringResource(R.string.settings_gestures_title),
+                        icon = MaterialSymbols.Swipe,
                         onClick = {
                             showBackgroundMenu = false
                             onOpenGesturesSettingsClick()
                         },
                     )
                     if (showOpenSettingsOption) {
-                        HorizontalDivider()
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.action_open_settings)) },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = MaterialSymbols.Settings,
-                                    contentDescription = null,
-                                )
-                            },
+                        AppDropdownMenuDivider()
+                        AppDropdownMenuItem(
+                            text = stringResource(R.string.action_open_settings),
+                            icon = MaterialSymbols.Settings,
                             onClick = {
                                 showBackgroundMenu = false
                                 onOpenSettingsClick()
@@ -635,15 +620,10 @@ internal fun SearchContentArea(
                         )
                     }
                     if (!isOverlayPresentation) {
-                        HorizontalDivider()
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.widgets_panel_title)) },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = MaterialSymbols.Widgets,
-                                    contentDescription = null,
-                                )
-                            },
+                        AppDropdownMenuDivider()
+                        AppDropdownMenuItem(
+                            text = stringResource(R.string.widgets_panel_title),
+                            icon = MaterialSymbols.Widgets,
                             onClick = {
                                 showBackgroundMenu = false
                                 showHomeWidgetPicker = true

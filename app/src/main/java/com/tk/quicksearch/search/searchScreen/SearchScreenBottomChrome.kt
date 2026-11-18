@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
@@ -239,16 +240,16 @@ internal fun SearchScreenBottomChrome(
                 visible = visible,
                 modifier = Modifier.fillMaxWidth(),
                 enter =
-                        fadeIn(animationSpec = tween(durationMillis = 180)) +
+                        fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort)) +
                                 expandVertically(
                                         expandFrom = Alignment.Bottom,
-                                        animationSpec = tween(durationMillis = 220),
+                                        animationSpec = tween(durationMillis = AppMotion.DurationStandard),
                                 ),
                 exit =
-                        fadeOut(animationSpec = tween(durationMillis = 130)) +
+                        fadeOut(animationSpec = tween(durationMillis = AppMotion.DurationExit)) +
                                 shrinkVertically(
                                         shrinkTowards = Alignment.Bottom,
-                                        animationSpec = tween(durationMillis = 180),
+                                        animationSpec = tween(durationMillis = AppMotion.DurationShort),
                                 ),
         ) {
             NumberKeyboardOperatorPills(
@@ -280,16 +281,16 @@ internal fun SearchScreenBottomChrome(
                         visible = shouldRenderInlineNumberKeyboardOperators && !showBottomSearchBar,
                         modifier = Modifier.fillMaxWidth(),
                         enter =
-                                fadeIn(animationSpec = tween(durationMillis = 180)) +
+                                fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort)) +
                                         expandVertically(
                                                 expandFrom = Alignment.Bottom,
-                                                animationSpec = tween(durationMillis = 220),
+                                                animationSpec = tween(durationMillis = AppMotion.DurationStandard),
                                         ),
                         exit =
-                                fadeOut(animationSpec = tween(durationMillis = 130)) +
+                                fadeOut(animationSpec = tween(durationMillis = AppMotion.DurationExit)) +
                                         shrinkVertically(
                                                 shrinkTowards = Alignment.Bottom,
-                                                animationSpec = tween(durationMillis = 180),
+                                                animationSpec = tween(durationMillis = AppMotion.DurationShort),
                                         ),
                 ) {
                     NumberKeyboardOperatorPills(
@@ -372,19 +373,19 @@ internal fun SearchScreenBottomChrome(
                     visible = shouldShowOpenKeyboardAction && delayedOpenKeyboardActionVisible,
                     modifier = Modifier.fillMaxWidth(),
                     enter =
-                            fadeIn(animationSpec = tween(durationMillis = 180)) +
+                            fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort)) +
                                     expandVertically(
                                             expandFrom = Alignment.Bottom,
-                                            animationSpec = tween(durationMillis = 220),
+                                            animationSpec = tween(durationMillis = AppMotion.DurationStandard),
                                     ),
                     exit =
                             if (hideOpenKeyboardActionInstantly) {
                                 ExitTransition.None
                             } else {
-                                fadeOut(animationSpec = tween(durationMillis = 130)) +
+                                fadeOut(animationSpec = tween(durationMillis = AppMotion.DurationExit)) +
                                         shrinkVertically(
                                                 shrinkTowards = Alignment.Bottom,
-                                                animationSpec = tween(durationMillis = 180),
+                                                animationSpec = tween(durationMillis = AppMotion.DurationShort),
                                         )
                             },
             ) {

@@ -3,7 +3,6 @@ package com.tk.quicksearch.widgets.worldClockWidget
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
+import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,6 +42,7 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 import com.tk.quicksearch.shared.ui.components.AppTextButton
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 /** The widget's clocks in order, each of which can be renamed, moved left or removed, plus an Add row. */
 @Composable
@@ -170,7 +171,7 @@ private fun AddLocationRow(enabled: Boolean) {
             modifier =
                 Modifier
                     .size(40.dp)
-                    .clip(CircleShape)
+                    .clip(AppShapes.full)
                     .background(color.copy(alpha = AppColors.TintTonalAlpha)),
             contentAlignment = Alignment.Center,
         ) {
@@ -220,6 +221,7 @@ private fun RenameLocationDialog(
                 placeholder = { Text(currentName) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+                colors = dialogTextFieldColors(),
                 modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
             )
         },

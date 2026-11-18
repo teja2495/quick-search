@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,12 +38,15 @@ import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPaddin
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.util.hapticConfirm
 import java.text.SimpleDateFormat
 import java.time.ZoneId
 import java.util.Date
 import java.util.Locale
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 private const val ROW_MIN_HEIGHT_DP = 52
 private const val ICON_SIZE_DP = 32
@@ -89,8 +90,8 @@ internal fun NotedRow(
                     onLongClick = if (hasMenu) ({ showMenu = true }) else null,
                 )
                 .topPredictedRowContentPadding()
-                .padding(vertical = resultRowVerticalPadding(12.dp)),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         NotedAppIcon(iconPackPackage = iconPackPackage)
@@ -140,9 +141,9 @@ internal fun NotedRow(
                         }
                     }
                 actions.forEachIndexed { index, (textResId, icon, action) ->
-                    if (index > 0) HorizontalDivider()
-                    DropdownMenuItem(
-                        text = { Text(stringResource(textResId)) },
+                    if (index > 0) AppDropdownMenuDivider()
+                    AppDropdownMenuItem(
+                        text = stringResource(textResId),
                         leadingIcon = icon,
                         onClick = {
                             showMenu = false

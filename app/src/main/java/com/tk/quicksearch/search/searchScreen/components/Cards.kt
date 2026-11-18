@@ -88,7 +88,7 @@ internal fun UsagePermissionCard(
                 )
                 IconButton(
                     onClick = onDismiss,
-                    modifier = Modifier.size(DesignTokens.IconSize),
+                    modifier = Modifier.size(DesignTokens.ButtonHeightSmall),
                 ) {
                     Icon(
                         imageVector = MaterialSymbols.Close,

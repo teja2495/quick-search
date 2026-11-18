@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -57,6 +56,7 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 // ============================================================================
 // Contact Row
@@ -286,12 +286,12 @@ internal fun ContactAvatar(
                                 .then(
                                         if (onClick != null) {
                                                 // Keeps the press ripple inside the circle.
-                                                Modifier.clip(CircleShape).clickable(onClick = onClick)
+                                                Modifier.clip(AppShapes.full).clickable(onClick = onClick)
                                         } else {
                                                 Modifier
                                         },
                                 ),
-                shape = CircleShape,
+                shape = AppShapes.full,
                 color = MaterialTheme.colorScheme.primaryContainer,
         ) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -353,7 +353,7 @@ private fun ContactActionButtons(
                 Box(
                         modifier =
                                 Modifier.size(ContactUiConstants.ACTION_BUTTON_SIZE.dp)
-                                        .clip(CircleShape)
+                                        .clip(AppShapes.full)
                                         .then(
                                                 if (enabled) {
                                                         Modifier.combinedClickable(

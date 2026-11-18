@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,6 +40,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 internal val LazyGridScrollbarTouchWidth = DesignTokens.SpacingLarge
 private val ThumbWidth = DesignTokens.SpacingXSmall
@@ -195,7 +195,7 @@ internal fun LazyGridVerticalScrollbar(
                                 .alpha(thumbAlpha)
                                 .width(thumbWidth)
                                 .height(with(density) { thumbHeightPx.toDp() })
-                                .clip(RoundedCornerShape(percent = 50))
+                                .clip(AppShapes.full)
                                 .background(thumbColor),
         )
     }

@@ -115,6 +115,40 @@ fun AppDropdownMenuItem(
     /** Overrides the leading icon's color, such as an accent for an active option. */
     iconTint: Color? = null,
 ) {
+    AppDropdownMenuItem(
+        text = text,
+        onClick = onClick,
+        modifier = modifier,
+        leadingIcon =
+            icon?.let {
+                {
+                    if (iconTint != null) {
+                        Icon(imageVector = it, contentDescription = null, tint = iconTint)
+                    } else {
+                        Icon(imageVector = it, contentDescription = null)
+                    }
+                }
+            },
+        supportingText = supportingText,
+        destructive = destructive,
+        enabled = enabled,
+    )
+}
+
+/**
+ * [AppDropdownMenuItem] with a custom [leadingIcon] slot, for icons that aren't a plain
+ * [ImageVector] (drawable painters, icons chosen by the caller's menu model).
+ */
+@Composable
+fun AppDropdownMenuItem(
+    text: String,
+    onClick: () -> Unit,
+    leadingIcon: (@Composable () -> Unit)?,
+    modifier: Modifier = Modifier,
+    supportingText: String? = null,
+    destructive: Boolean = false,
+    enabled: Boolean = true,
+) {
     val colors =
         if (destructive) {
             MenuDefaults.itemColors(
@@ -148,16 +182,7 @@ fun AppDropdownMenuItem(
             .padding(horizontal = DesignTokens.SpacingXSmall)
             .heightIn(min = DesignTokens.ItemMenuRowHeight)
             .clip(AppShapes.large),
-        leadingIcon =
-            icon?.let {
-                {
-                    if (iconTint != null) {
-                        Icon(imageVector = it, contentDescription = null, tint = iconTint)
-                    } else {
-                        Icon(imageVector = it, contentDescription = null)
-                    }
-                }
-            },
+        leadingIcon = leadingIcon,
         enabled = enabled,
         colors = colors,
     )

@@ -602,7 +602,7 @@ private fun TopMatchAppRow(
                         onLongClick = if (app.isArchived) null else ({ showOptions = true }),
                     )
                     .topPredictedRowContentPadding()
-                    .padding(vertical = resultRowVerticalPadding(12.dp)),
+                    .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -620,7 +620,7 @@ private fun TopMatchAppRow(
                     imageVector = MaterialSymbols.Apps,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(DesignTokens.IconSize),
                 )
                 AppNotificationDot(visible = app.hasNotificationDot(notificationDotKeys))
             }

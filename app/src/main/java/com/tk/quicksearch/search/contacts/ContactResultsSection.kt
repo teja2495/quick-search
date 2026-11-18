@@ -591,17 +591,17 @@ private fun ContactActionHintBubble(
                 color = MaterialTheme.colorScheme.onSurface,
                 lineHeight = MaterialTheme.typography.bodySmall.lineHeight * 1.2f,
                 modifier =
-                    Modifier.align(Alignment.CenterStart).padding(end = DesignTokens.Spacing28),
+                    Modifier.align(Alignment.CenterStart).padding(end = DesignTokens.Spacing40),
             )
             IconButton(
                 onClick = onDismiss,
-                modifier = Modifier.align(Alignment.CenterEnd).size(28.dp),
+                modifier = Modifier.align(Alignment.CenterEnd).size(DesignTokens.ButtonHeightSmall),
             ) {
                 Icon(
                     imageVector = MaterialSymbols.Close,
                     contentDescription = stringResource(R.string.common_close),
                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier.size(18.dp),
+                    modifier = Modifier.size(DesignTokens.ButtonIconSizeSmall),
                 )
             }
         }

@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -53,6 +51,8 @@ import com.tk.quicksearch.search.searchScreen.components.LocalSearchResultQuery
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
@@ -230,7 +230,7 @@ internal fun NoteRow(
                         onLongClick = { showMenu = true },
                     )
                     .topPredictedRowContentPadding()
-                    .padding(vertical = resultRowVerticalPadding(12.dp)),
+                    .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             verticalAlignment = Alignment.Top,
         ) {
@@ -265,54 +265,40 @@ internal fun NoteRow(
                 onDismissRequest = { showMenu = false },
             ) {
                 if (showPinnedItemMenu && isPinned) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.action_unpin_app)) },
-                        onClick = {
-                            showMenu = false
-                            onTogglePin(note)
-                        },
+                    AppDropdownMenuItem(
+                        text = stringResource(R.string.action_unpin_app),
                         leadingIcon = {
                             Icon(
                                 painter = painterResource(R.drawable.ic_unpin),
                                 contentDescription = null,
                             )
                         },
+                        onClick = {
+                            showMenu = false
+                            onTogglePin(note)
+                        },
                     )
-                    HorizontalDivider()
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.action_move_up)) },
+                    AppDropdownMenuDivider()
+                    AppDropdownMenuItem(
+                        text = stringResource(R.string.action_move_up),
+                        icon = MaterialSymbols.ArrowUpward,
                         onClick = {
                             showMenu = false
                             onMovePinned(note, true)
                         },
-                        leadingIcon = { Icon(MaterialSymbols.ArrowUpward, contentDescription = null) },
                     )
-                    HorizontalDivider()
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.action_move_down)) },
+                    AppDropdownMenuDivider()
+                    AppDropdownMenuItem(
+                        text = stringResource(R.string.action_move_down),
+                        icon = MaterialSymbols.ArrowDownward,
                         onClick = {
                             showMenu = false
                             onMovePinned(note, false)
                         },
-                        leadingIcon = { Icon(MaterialSymbols.ArrowDownward, contentDescription = null) },
                     )
                 } else {
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            stringResource(
-                                if (isPinned) {
-                                    R.string.action_unpin_app
-                                } else {
-                                    R.string.action_pin_app
-                                },
-                            ),
-                        )
-                    },
-                    onClick = {
-                        showMenu = false
-                        onTogglePin(note)
-                    },
+                AppDropdownMenuItem(
+                    text = stringResource(if (isPinned) { R.string.action_unpin_app } else { R.string.action_pin_app }),
                     leadingIcon = {
                         Icon(
                             painter =
@@ -326,33 +312,23 @@ internal fun NoteRow(
                             contentDescription = null,
                         )
                     },
-                )
-                HorizontalDivider()
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            stringResource(
-                                if (hasTrigger) {
-                                    R.string.action_edit_trigger
-                                } else {
-                                    R.string.action_add_trigger
-                                },
-                            ),
-                        )
+                    onClick = {
+                        showMenu = false
+                        onTogglePin(note)
                     },
+                )
+                AppDropdownMenuDivider()
+                AppDropdownMenuItem(
+                    text = stringResource(if (hasTrigger) { R.string.action_edit_trigger } else { R.string.action_add_trigger }),
+                    icon = MaterialSymbols.Bolt,
                     onClick = {
                         showMenu = false
                         onTriggerClick(note)
                     },
-                    leadingIcon = { Icon(MaterialSymbols.Bolt, contentDescription = null) },
                 )
-                HorizontalDivider()
-                DropdownMenuItem(
-                    text = { Text(stringResource(if (isPinnedToNotifications) R.string.action_unpin_from_notifications else R.string.action_pin_to_notifications)) },
-                    onClick = {
-                        showMenu = false
-                        PinnedNotifications.toggle(context, notificationAction)
-                    },
+                AppDropdownMenuDivider()
+                AppDropdownMenuItem(
+                    text = stringResource(if (isPinnedToNotifications) R.string.action_unpin_from_notifications else R.string.action_pin_to_notifications),
                     leadingIcon = {
                         if (isPinnedToNotifications) {
                             Icon(
@@ -366,15 +342,19 @@ internal fun NoteRow(
                             )
                         }
                     },
+                    onClick = {
+                        showMenu = false
+                        PinnedNotifications.toggle(context, notificationAction)
+                    },
                 )
-                HorizontalDivider()
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.dialog_delete)) },
+                AppDropdownMenuDivider()
+                AppDropdownMenuItem(
+                    text = stringResource(R.string.dialog_delete),
+                    icon = MaterialSymbols.Delete,
                     onClick = {
                         showMenu = false
                         showDeleteConfirm = true
                     },
-                    leadingIcon = { Icon(MaterialSymbols.Delete, contentDescription = null) },
                 )
                 }
             }

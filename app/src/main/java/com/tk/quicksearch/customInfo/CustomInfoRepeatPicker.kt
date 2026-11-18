@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
@@ -29,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -98,20 +98,18 @@ internal fun CustomInfoRepeatRow(
             focusable = true,
         ) {
             presets.forEachIndexed { index, preset ->
-                if (index > 0) HorizontalDivider()
-                DropdownMenuItem(
-                    text = {
-                        Text(customInfoRepeatLabel(preset) ?: stringResource(R.string.custom_info_repeat_never))
-                    },
+                if (index > 0) AppDropdownMenuDivider()
+                AppDropdownMenuItem(
+                    text = customInfoRepeatLabel(preset) ?: stringResource(R.string.custom_info_repeat_never),
                     onClick = {
                         onRepeatChange(preset)
                         menuExpanded = false
                     },
                 )
             }
-            HorizontalDivider()
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.common_custom)) },
+            AppDropdownMenuDivider()
+            AppDropdownMenuItem(
+                text = stringResource(R.string.common_custom),
                 onClick = {
                     menuExpanded = false
                     showCustomDialog = true

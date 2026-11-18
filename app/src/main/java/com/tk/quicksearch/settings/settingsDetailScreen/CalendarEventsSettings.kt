@@ -493,7 +493,7 @@ fun CalendarEventsBottomBar(
                     Icon(
                         imageVector = MaterialSymbols.Add,
                         contentDescription = stringResource(newItemLabelResId),
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier.size(DesignTokens.IconSize),
                     )
                 }
             }

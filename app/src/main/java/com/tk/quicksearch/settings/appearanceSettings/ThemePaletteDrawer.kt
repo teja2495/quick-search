@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,6 +44,7 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.ThemeColorRegistry
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 private const val PALETTES_PER_ROW = 5
 private const val MAX_HEIGHT_FRACTION = 0.3f
@@ -146,7 +146,7 @@ private fun PaletteSwatch(
                 Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f)
-                    .clip(CircleShape)
+                    .clip(AppShapes.full)
                     .background(
                         Brush.linearGradient(
                             AppThemeColors(theme = palette, isDarkMode = isDarkMode, intensity = intensity),
@@ -154,13 +154,13 @@ private fun PaletteSwatch(
                     ).border(
                         width = if (isSelected) 2.dp else DesignTokens.BorderWidth,
                         color = if (isSelected) accentColor else AppColors.SettingsDivider,
-                        shape = CircleShape,
+                        shape = AppShapes.full,
                     ),
             contentAlignment = Alignment.Center,
         ) {
             // The accent color the palette applies to buttons, toggles and highlights.
             Box(
-                modifier = Modifier.size(18.dp).clip(CircleShape).background(accentColor),
+                modifier = Modifier.size(18.dp).clip(AppShapes.full).background(accentColor),
                 contentAlignment = Alignment.Center,
             ) {
                 if (isSelected) {

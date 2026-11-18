@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -327,7 +326,7 @@ private fun BookmarkIconPicker(
                 Modifier
                     .size(64.dp)
                     .align(Alignment.Center)
-                    .clip(CircleShape)
+                    .clip(AppShapes.full)
                     .clickable(enabled = !isLoading, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
@@ -356,7 +355,7 @@ private fun BookmarkIconPicker(
                     Modifier
                         .align(Alignment.BottomEnd)
                         .size(22.dp)
-                        .clip(CircleShape)
+                        .clip(AppShapes.full)
                         .background(AppColors.AccentTintEmphasis.compositeOver(AppColors.DialogBackground))
                         .clickable(onClick = onClick),
                 contentAlignment = Alignment.Center,

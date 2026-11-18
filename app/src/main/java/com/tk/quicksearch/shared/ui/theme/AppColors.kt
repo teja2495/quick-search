@@ -8,6 +8,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp 
 import com.tk.quicksearch.search.core.AppTheme
 
@@ -275,6 +276,29 @@ object AppColors {
     val WallpaperTextSecondary: Color
         @Composable
         get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+
+    /** Folder tile backdrop over a wallpaper/custom image (scrim that keeps the preview icons legible). */
+    val FolderWallpaperBackdrop: Color
+        @Composable
+        get() =
+            if (LocalAppIsDarkTheme.current) Color.Black.copy(alpha = 0.55f) else Color.White.copy(alpha = 0.65f)
+
+    /** Hairline border around folder tiles. */
+    val FolderTileBorder = Color.White.copy(alpha = 0.25f)
+
+    /**
+     * Neutral base that grid indicators blend the primary color into: white on dark surfaces,
+     * black on light ones.
+     */
+    fun indicatorBase(lightFill: Boolean): Color = if (lightFill) Color.White else Color.Black
+
+    /** Accent for open-source / privacy trust messaging; green tuned per surface luminance. */
+    val TrustAccent: Color
+        @Composable
+        get() = if (MaterialTheme.colorScheme.surface.luminance() < 0.5f) TrustAccentOnDark else TrustAccentOnLight
+
+    private val TrustAccentOnDark = Color(0xFF4ADE80)
+    private val TrustAccentOnLight = Color(0xFF15803D)
 
     /** Border on result cards over a wallpaper/custom image in dark mode. */
     val WallpaperDarkCardBorder = Color.White.copy(alpha = 0.12f)

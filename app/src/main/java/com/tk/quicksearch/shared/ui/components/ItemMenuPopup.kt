@@ -414,7 +414,7 @@ private fun ItemMenuListRow(row: ItemMenuRow, first: Boolean, last: Boolean) {
                     imageVector = MaterialSymbols.KeyboardArrowRight,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(DesignTokens.IconSizeSmall),
                 )
             }
         }

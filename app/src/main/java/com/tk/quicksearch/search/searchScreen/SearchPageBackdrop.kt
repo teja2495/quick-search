@@ -21,7 +21,7 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.ThemeModeFallbackBackgroundAlpha
 
-private const val STARTUP_BACKGROUND_TRANSITION_DURATION_MS = 90
+private const val STARTUP_BACKGROUND_TRANSITION_DURATION_MS = AppMotion.DurationQuick
 
 /** The host owns the wallpaper for both Home and the widgets panel. */
 internal val LocalSharedPageWallpaper = compositionLocalOf<SearchScreenWallpaperState?> { null }

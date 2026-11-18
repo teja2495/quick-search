@@ -35,7 +35,6 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.material3.ripple
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Alignment
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -143,7 +142,7 @@ internal fun AppIconSurface(
             } else {
                 colorScheme.primary
             }
-    val themedIconContainerShape = CircleShape
+    val themedIconContainerShape = AppShapes.full
     val pinnedIndicatorInset = (appIconSurfaceSize - appIconSize) / 2
 
     Surface(
@@ -271,13 +270,13 @@ internal fun AppIconSurface(
                                 // again would cut off the badge in the corner.
                                 iconHasProfileBadge -> Modifier
                                 appIconShape == AppIconShape.CIRCLE ->
-                                        Modifier.clip(CircleShape)
+                                        Modifier.clip(AppShapes.full)
                                 iconIsLegacy -> Modifier.clip(AppShapes.large)
                                 else -> Modifier
                             }
                     val bitmapShadowShape =
                             when {
-                                appIconShape == AppIconShape.CIRCLE -> CircleShape
+                                appIconShape == AppIconShape.CIRCLE -> AppShapes.full
                                 iconIsLegacy -> AppShapes.large
                                 else -> AppShapes.large
                             }
@@ -316,7 +315,7 @@ internal fun AppIconSurface(
             } else {
                 val placeholderShape =
                         if (appIconShape == AppIconShape.CIRCLE) {
-                            CircleShape
+                            AppShapes.full
                         } else {
                             AppShapes.large
                         }
@@ -349,7 +348,7 @@ internal fun AppIconSurface(
                     visible = showNotificationDot,
                     modifier =
                             if (showPinnedIndicator) {
-                                Modifier.padding(top = pinnedIndicatorInset + 12.dp, end = pinnedIndicatorInset)
+                                Modifier.padding(top = pinnedIndicatorInset + DesignTokens.SpacingMedium, end = pinnedIndicatorInset)
                             } else {
                                 Modifier.padding(top = pinnedIndicatorInset, end = pinnedIndicatorInset)
                             },

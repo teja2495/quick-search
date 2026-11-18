@@ -19,8 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -57,6 +55,8 @@ import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContaine
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
 import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -203,7 +203,7 @@ internal fun ReminderRow(
                     onLongClick = { showMenu = true },
                 )
                 .topPredictedRowContentPadding()
-                .padding(vertical = resultRowVerticalPadding(12.dp)),
+                .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -296,11 +296,11 @@ internal fun ReminderRow(
 
             menuItems.forEachIndexed { index, item ->
                 if (index > 0) {
-                    HorizontalDivider()
+                    AppDropdownMenuDivider()
                 }
-                DropdownMenuItem(
-                    text = { Text(text = stringResource(item.textResId)) },
-                    leadingIcon = { item.icon() },
+                AppDropdownMenuItem(
+                    text = stringResource(item.textResId),
+                    leadingIcon = item.icon,
                     onClick = item.onClick,
                 )
             }

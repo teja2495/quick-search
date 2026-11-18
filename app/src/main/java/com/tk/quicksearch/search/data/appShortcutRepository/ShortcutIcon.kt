@@ -31,6 +31,7 @@ import androidx.core.graphics.drawable.toBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Locale
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
 internal fun ShortcutIcon(
@@ -43,7 +44,7 @@ internal fun ShortcutIcon(
             Image(
                 bitmap = icon,
                 contentDescription = displayName,
-                modifier = Modifier.fillMaxSize().padding(4.dp),
+                modifier = Modifier.fillMaxSize().padding(DesignTokens.SpacingXSmall),
                 contentScale = ContentScale.Fit,
             )
         } else {

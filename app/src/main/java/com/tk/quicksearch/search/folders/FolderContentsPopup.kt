@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.folders
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -7,7 +8,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.contentDescription
@@ -58,6 +58,7 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.LocalHomeTextColorOverride
 import com.tk.quicksearch.shared.ui.theme.LocalImageBackgroundIsDark
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 private val GridBottomPadding = DesignTokens.SpacingSmall
 // Always reserved under the grid, so showing the remove zone never resizes the popup.
@@ -66,7 +67,7 @@ private val RemoveZoneSpace = 48.dp
 private val PopupBottomPadding = 24.dp
 // Covers the opened space and everything below it, down to the popup's bottom edge.
 private val RemoveZoneHeight = RemoveZoneSpace + GridBottomPadding + PopupBottomPadding
-private const val RemoveZoneFadeMillis = 150
+private const val RemoveZoneFadeMillis = AppMotion.DurationExit
 private const val RemoveZoneGlowAlpha = 0.16f
 private const val RemoveZoneHoveredGlowAlpha = 0.32f
 private const val NameHintAlpha = 0.28f
@@ -238,7 +239,7 @@ private fun FolderColorSwatch(
     Box(
             modifier =
                     Modifier.size(ColorSwatchTouchSize)
-                            .clip(CircleShape)
+                            .clip(AppShapes.full)
                             .clickable(onClick = onClick)
                             .semantics { contentDescription = description },
             contentAlignment = Alignment.Center,
@@ -246,7 +247,7 @@ private fun FolderColorSwatch(
         Box(
                 modifier =
                         Modifier.size(ColorSwatchSize)
-                                .clip(CircleShape)
+                                .clip(AppShapes.full)
                                 .background(
                                         if (color != null) {
                                             SolidColor(Color(color))
@@ -258,7 +259,7 @@ private fun FolderColorSwatch(
                                 .border(
                                         width = 1.dp,
                                         color = MaterialTheme.colorScheme.outline.copy(alpha = AppColors.ContentMutedAlpha),
-                                        shape = CircleShape,
+                                        shape = AppShapes.full,
                                 ),
         )
     }

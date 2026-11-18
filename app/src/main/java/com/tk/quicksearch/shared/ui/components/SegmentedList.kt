@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -330,7 +329,7 @@ fun TonalIconBadge(icon: ImageVector) {
 @Composable
 fun TonalIconBadgeContainer(
     size: Dp = TonalIconBadgeSize,
-    shape: Shape = CircleShape,
+    shape: Shape = AppShapes.full,
     content: @Composable () -> Unit,
 ) {
     Box(

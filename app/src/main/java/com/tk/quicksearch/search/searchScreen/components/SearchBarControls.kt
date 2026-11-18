@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.animation.SizeTransform
@@ -20,7 +21,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -99,6 +99,7 @@ import com.tk.quicksearch.shared.util.hapticStrong
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 @Composable
 internal fun SearchBarLeadingIcon(
@@ -377,7 +378,7 @@ internal fun SearchBarTrailingIcon(
                     modifier =
                         Modifier
                             .size(DesignTokens.Spacing48)
-                            .clip(CircleShape)
+                            .clip(AppShapes.full)
                             .combinedClickable(
                                 hapticFeedbackEnabled = false,
                                 onLongClick = {
@@ -400,8 +401,8 @@ internal fun SearchBarTrailingIcon(
     }
 }
 
-private const val TrailingIconShrinkMs = 140
-private const val TrailingIconGrowMs = 180
+private const val TrailingIconShrinkMs = AppMotion.DurationExit
+private const val TrailingIconGrowMs = AppMotion.DurationShort
 
 @Composable
 internal fun androidx.compose.foundation.layout.BoxScope.SearchBarAliasMorphText(

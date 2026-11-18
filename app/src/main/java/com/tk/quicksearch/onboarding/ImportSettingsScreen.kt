@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -53,6 +52,7 @@ import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 private enum class ImportScreenState { Idle, Importing, Success, Error }
 
@@ -141,7 +141,7 @@ fun ImportSettingsScreen(
                             label = "iconAlpha",
                         )
                         Surface(
-                            shape = CircleShape,
+                            shape = AppShapes.full,
                             color = when (screenState) {
                                 ImportScreenState.Success -> MaterialTheme.colorScheme.primaryContainer
                                 ImportScreenState.Error -> MaterialTheme.colorScheme.errorContainer

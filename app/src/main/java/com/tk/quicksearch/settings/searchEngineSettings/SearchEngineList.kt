@@ -18,8 +18,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -49,6 +47,8 @@ import com.tk.quicksearch.settings.searchEngineSettings.dialogs.AddSearchEngineC
 import com.tk.quicksearch.settings.searchEngineSettings.dialogs.EditAmazonDomainDialog
 import com.tk.quicksearch.settings.searchEngineSettings.dialogs.EditCustomSearchEngineDialog
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -291,13 +291,13 @@ fun SearchEngineListCard(
                         imageVector = MaterialSymbols.ExpandLess,
                         contentDescription = stringResource(R.string.desc_collapse),
                         tint = AppColors.Accent,
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier.size(DesignTokens.IconSize),
                     )
                 }
             } else {
                 Box(
                     modifier =
-                        Modifier.padding(top = if (enabledEngines.isNotEmpty()) 24.dp else 0.dp, bottom = DesignTokens.SpacingSmall),
+                        Modifier.padding(top = if (enabledEngines.isNotEmpty()) DesignTokens.SpacingXXLarge else 0.dp, bottom = DesignTokens.SpacingSmall),
                 ) {
                     SegmentedTile(
                         index = 0,
@@ -317,7 +317,7 @@ fun SearchEngineListCard(
                                     imageVector = MaterialSymbols.ExpandMore,
                                     contentDescription = stringResource(R.string.desc_expand),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(24.dp),
+                                    modifier = Modifier.size(DesignTokens.IconSize),
                                 )
                             },
                         )
@@ -507,14 +507,9 @@ private fun SearchEngineRowContent(
                     focusable = true,
                 ) {
                     if (onMoveToTop != null) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.settings_action_move_up)) },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = MaterialSymbols.ArrowUpward,
-                                    contentDescription = null,
-                                )
-                            },
+                        AppDropdownMenuItem(
+                            text = stringResource(R.string.settings_action_move_up),
+                            icon = MaterialSymbols.ArrowUpward,
                             onClick = {
                                 onMoveToTop.invoke()
                                 showMenu = false
@@ -523,18 +518,13 @@ private fun SearchEngineRowContent(
                     }
 
                     if (onMoveToTop != null && onMoveToBottom != null) {
-                        HorizontalDivider()
+                        AppDropdownMenuDivider()
                     }
 
                     if (onMoveToBottom != null) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.settings_action_move_down)) },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = MaterialSymbols.ArrowDownward,
-                                    contentDescription = null,
-                                )
-                            },
+                        AppDropdownMenuItem(
+                            text = stringResource(R.string.settings_action_move_down),
+                            icon = MaterialSymbols.ArrowDownward,
                             onClick = {
                                 onMoveToBottom.invoke()
                                 showMenu = false

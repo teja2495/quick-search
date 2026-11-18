@@ -26,6 +26,7 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.util.MarkdownText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 internal class CustomInfoGlance(
     val items: List<CustomInfoItem>,
@@ -99,7 +100,7 @@ internal fun CustomInfoRow(
                         Icon(
                             imageVector = MaterialSymbols.Refresh,
                             contentDescription = stringResource(R.string.action_retry),
-                            modifier = Modifier.size(20.dp),
+                            modifier = Modifier.size(DesignTokens.IconSizeSmall),
                         )
                     }
                 }

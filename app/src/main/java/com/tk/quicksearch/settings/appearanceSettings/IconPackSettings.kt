@@ -72,7 +72,7 @@ fun IconPackPickerDialog(
                                         ),
                         verticalArrangement =
                                 if (availableIconPacks.isEmpty()) {
-                                    Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
+                                    Arrangement.spacedBy(DesignTokens.SpacingLarge, Alignment.CenterVertically)
                                 } else {
                                     Arrangement.spacedBy(DesignTokens.SpacingMedium)
                                 },

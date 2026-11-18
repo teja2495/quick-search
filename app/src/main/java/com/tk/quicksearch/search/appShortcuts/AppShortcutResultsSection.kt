@@ -26,8 +26,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -53,6 +51,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.components.ItemMenuLongPressOption
 import com.tk.quicksearch.shared.ui.components.ItemMenuPopup
 import com.tk.quicksearch.shared.ui.components.ItemMenuRow
@@ -350,7 +350,7 @@ internal fun AppShortcutRow(
                                                         },
                                 )
                                 .topPredictedRowContentPadding()
-                                .padding(vertical = resultRowVerticalPadding(12.dp)),
+                                .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                 verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -701,12 +701,12 @@ private fun AppShortcutDropdownMenu(
                 ) {
                         menuItems.forEachIndexed { index, item ->
                                 if (index > 0) {
-                                        HorizontalDivider()
+                                        AppDropdownMenuDivider()
                                 }
-                                DropdownMenuItem(
-                                        text = { Text(text = stringResource(item.textResId)) },
-                                        leadingIcon = { item.icon() },
-                                        onClick = item.onClick,
+                                AppDropdownMenuItem(
+                                    text = stringResource(item.textResId),
+                                    leadingIcon = item.icon,
+                                    onClick = item.onClick,
                                 )
                         }
                 }

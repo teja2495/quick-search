@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -77,6 +75,8 @@ import com.tk.quicksearch.search.reminders.reminderOverdueColor
 import com.tk.quicksearch.search.reminders.reminderScheduleLabel
 import com.tk.quicksearch.shared.ui.components.LocalShowUndoSnackbar
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -386,7 +386,7 @@ internal fun UpcomingReminderRow(
                 painter = painterResource(R.drawable.ic_reminder),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(DesignTokens.IconSize),
             )
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
@@ -415,9 +415,9 @@ internal fun UpcomingReminderRow(
                 expanded = showMenu,
                 onDismissRequest = { showMenu = false },
             ) {
-                DropdownMenuItem(
-                    text = { Text(text = stringResource(R.string.action_mark_as_done)) },
-                    leadingIcon = { Icon(imageVector = MaterialSymbols.Check, contentDescription = null) },
+                AppDropdownMenuItem(
+                    text = stringResource(R.string.action_mark_as_done),
+                    icon = MaterialSymbols.Check,
                     onClick = {
                         showMenu = false
                         onDone()
@@ -431,18 +431,18 @@ internal fun UpcomingReminderRow(
                 if (isNotedTask) {
                     // Snooze and Delete act on Quick Search reminders; a Noted task is changed in Noted.
                     if (canDismiss || isOverdue) {
-                        HorizontalDivider()
+                        AppDropdownMenuDivider()
                         DismissForNowMenuItem {
                             showMenu = false
                             onDismiss()
                         }
                     }
                 } else {
-                    HorizontalDivider()
+                    AppDropdownMenuDivider()
                     if (!canDismiss) {
-                        DropdownMenuItem(
-                            text = { Text(text = stringResource(R.string.reminder_notification_action_snooze)) },
-                            leadingIcon = { Icon(imageVector = MaterialSymbols.Snooze, contentDescription = null) },
+                        AppDropdownMenuItem(
+                            text = stringResource(R.string.reminder_notification_action_snooze),
+                            icon = MaterialSymbols.Snooze,
                             onClick = {
                                 showMenu = false
                                 onSnooze()
@@ -455,10 +455,10 @@ internal fun UpcomingReminderRow(
                             onDismiss()
                         }
                     }
-                    HorizontalDivider()
-                    DropdownMenuItem(
-                        text = { Text(text = stringResource(R.string.dialog_delete)) },
-                        leadingIcon = { Icon(imageVector = MaterialSymbols.Delete, contentDescription = null) },
+                    AppDropdownMenuDivider()
+                    AppDropdownMenuItem(
+                        text = stringResource(R.string.dialog_delete),
+                        icon = MaterialSymbols.Delete,
                         onClick = {
                             showMenu = false
                             onDelete()
@@ -509,7 +509,7 @@ internal fun UpcomingReminderRow(
                     imageVector = MaterialSymbols.Check,
                     contentDescription = stringResource(R.string.action_mark_as_done),
                     tint = AppColors.Accent,
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(DesignTokens.IconSizeSmall),
                 )
             }
         }
@@ -518,9 +518,9 @@ internal fun UpcomingReminderRow(
 
 @Composable
 private fun DismissForNowMenuItem(onClick: () -> Unit) {
-    DropdownMenuItem(
-        text = { Text(text = stringResource(R.string.reminders_home_card_dismiss_for_now)) },
-        leadingIcon = { Icon(imageVector = MaterialSymbols.Close, contentDescription = null) },
+    AppDropdownMenuItem(
+        text = stringResource(R.string.reminders_home_card_dismiss_for_now),
+        icon = MaterialSymbols.Close,
         onClick = onClick,
     )
 }

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
@@ -184,7 +185,7 @@ private class SectionMenuPositionProvider(
 }
 
 private const val SectionMenuColumns = 3
-private const val SectionMenuAnimationMs = 150
+private const val SectionMenuAnimationMs = AppMotion.DurationExit
 private const val SectionMenuInitialScale = 0.9f
 
 // The anchor is the leading icon; this clears the rest of the search bar plus a small gap.

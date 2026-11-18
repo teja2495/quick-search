@@ -1,5 +1,6 @@
 package com.tk.quicksearch.shared.ui.components
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.activity.BackEventCompat
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -102,5 +103,5 @@ private const val MAX_SCALE_REDUCTION = 0.1f
 private const val EDGE_SHIFT_DIVISOR = 20f
 private val EDGE_MARGIN = 8.dp
 private val MAX_CORNER_RADIUS = 28.dp
-private const val RESET_DURATION_MS = 200
+private const val RESET_DURATION_MS = AppMotion.DurationShort
 private const val SETTLE_DELAY_MS = 400L

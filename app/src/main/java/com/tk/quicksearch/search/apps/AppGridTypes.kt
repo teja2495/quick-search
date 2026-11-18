@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.apps
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.layout.height
@@ -17,7 +18,7 @@ import com.tk.quicksearch.search.folders.ResolvedAppFolder
 import com.tk.quicksearch.search.folders.shortcutGridKey
 
 internal const val ROW_COUNT = 2
-internal const val SuggestionsEnterDurationMillis = 320
+internal const val SuggestionsEnterDurationMillis = AppMotion.DurationMedium
 internal val AppGridRowSpacing = DesignTokens.SpacingXSmall
 internal val AppGridWidthRoundingSlack = 1.dp
 internal val RegularAppIconSize = DesignTokens.IconSizeXLarge - DesignTokens.SpacingXSmall

@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -72,7 +71,6 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.homeTextColor
-import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.util.hapticConfirm
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.runtime.getValue
@@ -84,20 +82,16 @@ private const val FolderPreviewIconScale = 0.34f
 private const val FolderPreviewGapScale = 0.03f
 private const val FolderMergeTargetScale = 1.12f
 private val FolderBorderWidth = 1.dp
-private const val FolderBorderAlpha = 0.25f
-private const val FolderBackdropDarkWallpaperAlpha = 0.55f
-private const val FolderBackdropLightWallpaperAlpha = 0.65f
 
 /** Folders are always round, whatever the app icon shape. */
-internal val FolderBackdropShape: Shape = CircleShape
+internal val FolderBackdropShape: Shape = AppShapes.full
 
 @Composable
 internal fun folderBackdropColor(showWallpaperBackground: Boolean, color: Int? = null): Color =
         when {
             color != null -> folderColorBackdrop(color, showWallpaperBackground)
             !showWallpaperBackground -> MaterialTheme.colorScheme.surfaceContainerHighest
-            LocalAppIsDarkTheme.current -> Color.Black.copy(alpha = FolderBackdropDarkWallpaperAlpha)
-            else -> Color.White.copy(alpha = FolderBackdropLightWallpaperAlpha)
+            else -> AppColors.FolderWallpaperBackdrop
         }
 
 /**
@@ -341,7 +335,7 @@ internal fun FolderPreviewIcon(
                             .background(folderBackdropColor(showWallpaperBackground, color))
                             .border(
                                     width = FolderBorderWidth,
-                                    color = Color.White.copy(alpha = FolderBorderAlpha),
+                                    color = AppColors.FolderTileBorder,
                                     shape = FolderBackdropShape,
                             ),
             contentAlignment = Alignment.Center,

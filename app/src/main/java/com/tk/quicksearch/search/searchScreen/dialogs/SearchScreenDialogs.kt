@@ -255,7 +255,7 @@ private fun ReleaseNotesExpanderRow(
             imageVector = MaterialSymbols.ExpandMore,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(20.dp).rotate(chevronRotation),
+            modifier = Modifier.size(DesignTokens.IconSizeSmall).rotate(chevronRotation),
         )
     }
 }
@@ -288,7 +288,7 @@ private fun ReleaseNotesNavigationRow(
             imageVector = MaterialSymbols.ChevronRight,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(20.dp),
+            modifier = Modifier.size(DesignTokens.IconSizeSmall),
         )
     }
 }

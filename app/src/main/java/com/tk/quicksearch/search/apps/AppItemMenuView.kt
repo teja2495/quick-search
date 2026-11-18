@@ -4,7 +4,6 @@ import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.text.style.TextAlign
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -22,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -46,6 +44,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.pluralStringResource
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDefaults
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.ui.text.style.TextOverflow
@@ -541,7 +540,7 @@ private fun AppPackageCaption(packageName: String, versionName: String?) {
                 color = color,
                 maxLines = 1,
                 modifier = Modifier
-                    .clip(CircleShape)
+                    .clip(AppShapes.full)
                     .background(MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintFaintAlpha))
                     .padding(horizontal = DesignTokens.SpacingSmall, vertical = 2.dp),
             )
@@ -602,9 +601,9 @@ private fun AppSwipeActionDropdown(
                 modifier = Modifier.padding(vertical = DesignTokens.SpacingSmall),
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = AppColors.ContentFaintAlpha),
             )
-            DropdownMenuItem(
-                text = { Text(text = stringResource(R.string.action_remove)) },
-                leadingIcon = { Icon(imageVector = MaterialSymbols.Close, contentDescription = null) },
+            AppDropdownMenuItem(
+                text = stringResource(R.string.action_remove),
+                icon = MaterialSymbols.Close,
                 onClick = onClear,
             )
         }

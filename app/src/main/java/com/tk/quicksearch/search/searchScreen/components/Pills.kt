@@ -52,8 +52,6 @@ import com.tk.quicksearch.searchEngines.extendToScreenEdges
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
-import com.tk.quicksearch.shared.ui.theme.LocalDeviceDynamicColorsActive
 import com.tk.quicksearch.shared.ui.theme.pressMorphButtonShape
 import com.tk.quicksearch.shared.ui.components.ConnectedButtonRow
 
@@ -278,14 +276,7 @@ internal fun OpenKeyboardAction(
         insetCardBackground(true, AppColors.getSearchEngineSectionBackground(showWallpaperBackground))
     // Buttons are tinted from the strip's own foreground, so they sit in the same neutral family as
     // the strip and the cards above it in every theme instead of introducing a new hue.
-    val contentColor =
-        if (showWallpaperBackground && LocalDeviceDynamicColorsActive.current) {
-            MaterialTheme.colorScheme.onSurface
-        } else if (LocalAppIsDarkTheme.current) {
-            Color.White
-        } else {
-            Color.Black
-        }
+    val contentColor = MaterialTheme.colorScheme.onSurface
     // The strip ends at the navigation bar inset; carry its colour on down to the screen edge so it
     // reads as one surface behind the gesture bar instead of stopping short above it.
     val navigationBarBottom =

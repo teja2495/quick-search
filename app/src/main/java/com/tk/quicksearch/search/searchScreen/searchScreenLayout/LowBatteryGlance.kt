@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,6 +51,7 @@ import com.tk.quicksearch.search.data.preferences.BatteryPreferences.Companion.C
 import com.tk.quicksearch.search.data.preferences.BatteryPreferences.Companion.LOW_BATTERY_THRESHOLD_PERCENT
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.text.NumberFormat
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 /** The low battery warning shown in the home At a Glance card. */
 internal class LowBatteryGlance(
@@ -337,7 +337,7 @@ internal fun LowBatteryRow(glance: LowBatteryGlance) {
             Box(
                 modifier =
                     Modifier
-                        .clip(CircleShape)
+                        .clip(AppShapes.full)
                         .background(MaterialTheme.colorScheme.error)
                         .padding(horizontal = 10.dp, vertical = DesignTokens.SpacingXSmall),
             ) {

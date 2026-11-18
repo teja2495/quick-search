@@ -32,9 +32,9 @@ import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRow
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRowSpacing
-import androidx.compose.foundation.shape.CircleShape
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 /**
  * First/second contact card button settings: a contact card preview, a picker for each button,
@@ -149,7 +149,7 @@ private fun ActionIconSlot(action: ContactButtonAction) {
     Box(
         modifier = Modifier
             .size(DesignTokens.Spacing40)
-            .clip(CircleShape)
+            .clip(AppShapes.full)
             .background(AppColors.AccentTintTonal),
         contentAlignment = Alignment.Center,
     ) {

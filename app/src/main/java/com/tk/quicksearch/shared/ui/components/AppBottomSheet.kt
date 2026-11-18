@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /**
  * @param swipeToDismissEnabled When false, the sheet can't be dragged at all and the drag handle
@@ -135,7 +136,7 @@ fun AppBottomSheet(
 private fun DragHandle() {
     Box(
         modifier = Modifier
-            .padding(vertical = 12.dp)
+            .padding(vertical = DesignTokens.SpacingMedium)
             .size(width = 32.dp, height = 4.dp)
             .clip(AppShapes.full)
             .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentFaintAlpha))

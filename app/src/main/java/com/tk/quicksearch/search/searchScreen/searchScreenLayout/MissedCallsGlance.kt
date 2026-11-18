@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
@@ -39,6 +38,7 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.sendFromUserTap
 import java.text.NumberFormat
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 /**
  * One summary row for missed call notifications, [calls] newest first. It names the callers, with
@@ -171,7 +171,7 @@ private fun MissedCallAppChip(
 ) {
     Surface(
         onClick = onClick,
-        shape = CircleShape,
+        shape = AppShapes.full,
         color = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onSurface,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),

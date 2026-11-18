@@ -254,7 +254,7 @@ private fun UndoSnackbar(
                     imageVector = imageVector,
                     contentDescription = null,
                     tint = contentColor,
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(DesignTokens.IconSizeSmall),
                 )
             }
             Column(

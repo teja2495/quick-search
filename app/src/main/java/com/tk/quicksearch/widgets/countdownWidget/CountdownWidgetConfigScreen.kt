@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.countdownWidget
 
+import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DatePicker
@@ -109,6 +109,7 @@ fun CountdownWidgetConfigScreen(
                             label = { Text(stringResource(R.string.notes_title_hint)) },
                             singleLine = true,
                             shape = AppShapes.large,
+                            colors = dialogTextFieldColors(),
                             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                             modifier = Modifier.fillMaxWidth(),
                         )
@@ -253,7 +254,7 @@ private fun CountdownFormatSection(
                         } else {
                             null
                         },
-                    shape = CircleShape,
+                    shape = AppShapes.full,
                     colors =
                         FilterChipDefaults.filterChipColors(
                             selectedContainerColor = AppColors.Accent,

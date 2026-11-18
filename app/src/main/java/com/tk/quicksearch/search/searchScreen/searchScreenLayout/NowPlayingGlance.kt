@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -456,7 +455,7 @@ internal fun NowPlayingRow(
                             modifier =
                                 Modifier
                                     .size(NowPlayingPlayPauseCircleSize)
-                                    .clip(CircleShape)
+                                    .clip(AppShapes.full)
                                     .background(MaterialTheme.colorScheme.onSurface),
                             contentAlignment = Alignment.Center,
                         ) {
@@ -564,7 +563,7 @@ private fun NowPlayingSkipButton(
                         .border(
                             NowPlayingProminentCircleBorder,
                             MaterialTheme.colorScheme.onSurface.copy(alpha = NowPlayingProminentCircleBorderAlpha),
-                            CircleShape,
+                            AppShapes.full,
                         ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -606,7 +605,7 @@ private fun NowPlayingAlbumArt(glance: NowPlayingGlance) {
                 imageVector = MaterialSymbols.MusicNote,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(DesignTokens.IconSizeSmall),
             )
         }
     }

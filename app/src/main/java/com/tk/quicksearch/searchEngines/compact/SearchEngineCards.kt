@@ -197,7 +197,7 @@ fun SearchEngineCard(
             if (onClear != null) {
                 IconButton(
                     onClick = onClear,
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(DesignTokens.ButtonHeightSmall),
                 ) {
                     Icon(
                         imageVector = MaterialSymbols.Close,
@@ -316,7 +316,7 @@ private fun CustomizeSearchEnginesCard(
             Icon(
                 imageVector = MaterialSymbols.Settings,
                 contentDescription = null,
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(DesignTokens.IconSize),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 

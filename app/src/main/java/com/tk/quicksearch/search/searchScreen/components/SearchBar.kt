@@ -94,13 +94,13 @@ import com.tk.quicksearch.shared.util.hapticStrong
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
-private const val AliasIconMorphDurationMs = 260
-private const val LeadingIconEnterDurationMs = 180
-private const val LeadingIconExitDurationMs = 120
+private const val AliasIconMorphDurationMs = AppMotion.DurationStandard
+private const val LeadingIconEnterDurationMs = AppMotion.DurationShort
+private const val LeadingIconExitDurationMs = AppMotion.DurationQuick
 private const val LeadingIconEnterDelayMs = 40
 private const val LeadingIconEnterInitialScale = 0.88f
 private const val LeadingIconExitTargetScale = 0.88f
-private const val PlaceholderHintTransitionDurationMs = 700
+private const val PlaceholderHintTransitionDurationMs = AppMotion.DurationExtraLong
 private const val PlaceholderHintTransitionDelayMs = 120
 internal const val LightSearchBarShadowAmbientAlpha = 0.38f
 internal const val LightSearchBarShadowSpotAlpha = 0.62f

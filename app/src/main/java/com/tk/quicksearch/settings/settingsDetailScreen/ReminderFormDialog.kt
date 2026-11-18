@@ -41,6 +41,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -218,6 +219,7 @@ internal fun ReminderFormDialog(
                             maxLines = titleMaxLines,
                             keyboardOptions = KeyboardOptions(capitalization = titleKeyboardCapitalization),
                             visualTransformation = titleVisualTransformation,
+                            colors = dialogTextFieldColors(),
                             modifier = Modifier.fillMaxWidth().focusRequester(titleFocusRequester),
                         )
 

@@ -118,7 +118,7 @@ internal fun OtpCodeRow(
                     imageVector = if (copied) MaterialSymbols.Check else MaterialSymbols.ContentCopy,
                     contentDescription = stringResource(if (copied) R.string.home_copied else R.string.calculator_copy_result),
                     tint = if (copied) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(DesignTokens.IconSizeSmall),
                 )
             }
         },

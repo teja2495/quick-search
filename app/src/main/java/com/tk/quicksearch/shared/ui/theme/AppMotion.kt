@@ -47,16 +47,37 @@ object AppMotion {
     /** Scale and fade of a grid tile being dragged, merged into a folder, or dropped. */
     fun <T> dragFeedback(): SpringSpec<T> = spring(stiffness = Spring.StiffnessMediumLow)
 
-    // Durations (ms) for tweens and fades -------------------------------------------------
+    /** No-bounce glide of a grid tile into its new slot after a reorder or drop. */
+    fun <T> placement(visibilityThreshold: T? = null): SpringSpec<T> =
+        spring(stiffness = Spring.StiffnessMedium, visibilityThreshold = visibilityThreshold)
 
-    /** Micro-hold between animation phases. */
+    // Durations (ms) for tweens and fades -------------------------------------------------
+    // Steps of the Material 3 duration scale (short1 50 ... long1 450, extraLong1 700). Snap a
+    // fade or tween to the nearest step rather than adding a one-off value.
+
+    /** Micro-hold between animation phases (Material short1). */
     const val DurationMicro = 50
 
-    /** Short transitions such as height changes. */
+    /** Tiny fades, such as a thumbnail or overlay badge appearing (Material short2). */
+    const val DurationQuick = 100
+
+    /** Exits and small icon swaps, which run faster than the matching enter (Material short3). */
+    const val DurationExit = 150
+
+    /** Short transitions such as height changes and enter fades (Material short4). */
     const val DurationShort = 200
 
-    /** Medium transitions such as entry/exit fades and the wallpaper fade-in. */
+    /** Enters that also move or scale, such as chrome sliding in (Material medium1). */
+    const val DurationStandard = 250
+
+    /** Medium transitions such as entry/exit fades and the wallpaper fade-in (Material medium2). */
     const val DurationMedium = 300
+
+    /** Whole-surface enters, such as the overlay opening or the background crossfade (Material medium4). */
+    const val DurationLarge = 400
+
+    /** Slow ambient crossfades, such as the rotating search hint (Material extraLong1). */
+    const val DurationExtraLong = 700
 
     /** Glow and border cool-down fades. */
     const val DurationGlowFade = 500

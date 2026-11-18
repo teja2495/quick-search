@@ -56,11 +56,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -275,8 +272,8 @@ internal fun BoxScope.AnimatedWidgetEditOverlay(
 /** Slight lift applied to the widget being edited. */
 internal const val WIDGET_EDIT_LIFT_SCALE = 1.02f
 private const val WIDGET_EDIT_OVERLAY_INITIAL_SCALE = 0.94f
-private const val WIDGET_EDIT_OVERLAY_FADE_IN_MS = 150
-private const val WIDGET_EDIT_OVERLAY_FADE_OUT_MS = 100
+private const val WIDGET_EDIT_OVERLAY_FADE_IN_MS = AppMotion.DurationExit
+private const val WIDGET_EDIT_OVERLAY_FADE_OUT_MS = AppMotion.DurationQuick
 
 @Composable
 internal fun BoxScope.QuickNoteEditOverlay(
@@ -320,6 +317,7 @@ internal fun BoxScope.QuickNoteEditOverlay(
         }
         WidgetActionButton(
             icon = MaterialSymbols.Close,
+            contentDescription = stringResource(R.string.action_remove),
             tint = MaterialTheme.colorScheme.onError,
             background = MaterialTheme.colorScheme.error,
             onClick = onRemove,
@@ -519,6 +517,7 @@ internal fun BoxScope.WidgetEditActionButtons(
         onPinToHome?.let { onClick ->
             WidgetActionButton(
                 icon = MaterialSymbols.Home,
+                contentDescription = stringResource(R.string.action_add_to_home),
                 tint = MaterialTheme.colorScheme.onPrimary,
                 background = MaterialTheme.colorScheme.primary,
                 onClick = onClick,
@@ -527,6 +526,7 @@ internal fun BoxScope.WidgetEditActionButtons(
         onConfigure?.let { onClick ->
             WidgetActionButton(
                 icon = MaterialSymbols.Settings,
+                contentDescription = stringResource(R.string.settings_gesture_settings),
                 tint = MaterialTheme.colorScheme.onPrimary,
                 background = MaterialTheme.colorScheme.primary,
                 onClick = onClick,
@@ -534,6 +534,7 @@ internal fun BoxScope.WidgetEditActionButtons(
         }
         WidgetActionButton(
             icon = MaterialSymbols.Close,
+            contentDescription = stringResource(R.string.action_remove),
             tint = MaterialTheme.colorScheme.onError,
             background = MaterialTheme.colorScheme.error,
             onClick = onRemove,
@@ -559,30 +560,33 @@ internal fun BoxScope.WidgetEditBorder() {
     )
 }
 
+/**
+ * A 30dp edit badge. The click lives on the badge itself, before its clip, so Material's minimum
+ * interactive size gives it a 48dp touch target without changing how tightly the badges pack.
+ */
 @Composable
 internal fun WidgetActionButton(
     icon: ImageVector,
+    contentDescription: String,
     tint: Color,
     background: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
+        onClick = onClick,
         modifier = modifier.size(WidgetActionButtonSize),
-        shape = CircleShape,
+        shape = AppShapes.full,
         color = background,
+        contentColor = tint,
         // Ring in the panel background color separates the badge from widget content beneath it.
         border = BorderStroke(WidgetEditRingWidth, MaterialTheme.colorScheme.background),
         shadowElevation = DesignTokens.ElevationLevel2,
     ) {
-        IconButton(
-            onClick = onClick,
-            modifier = Modifier.fillMaxSize(),
-            colors = IconButtonDefaults.iconButtonColors(contentColor = tint),
-        ) {
+        Box(contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = contentDescription,
                 modifier = Modifier.size(DesignTokens.IconSizeSmall),
             )
         }
@@ -684,12 +688,12 @@ internal fun EdgeResizeHandle(
                     .border(
                         width = WidgetEditRingWidth,
                         color = MaterialTheme.colorScheme.background,
-                        shape = CircleShape,
+                        shape = AppShapes.full,
                     )
                     .padding(WidgetEditRingWidth)
                     .background(
                         color = MaterialTheme.colorScheme.primary,
-                        shape = CircleShape,
+                        shape = AppShapes.full,
                     ),
         )
     }

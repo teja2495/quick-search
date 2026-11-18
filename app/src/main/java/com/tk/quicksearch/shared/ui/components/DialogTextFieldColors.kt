@@ -1,5 +1,6 @@
 package com.tk.quicksearch.shared.ui.components
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -128,4 +129,4 @@ fun CardTextField(
 private val CardTextFieldLabelGap = 6.dp
 
 // Matches the Material 3 label float duration.
-private const val CARD_TEXT_FIELD_LABEL_ANIMATION_MS = 150
+private const val CARD_TEXT_FIELD_LABEL_ANIMATION_MS = AppMotion.DurationExit

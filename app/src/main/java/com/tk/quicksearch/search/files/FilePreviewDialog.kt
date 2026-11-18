@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
@@ -74,8 +73,8 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.tk.quicksearch.shared.ui.components.AppButton
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
-private val PREVIEW_CORNER_RADIUS = 16.dp
 private val DIALOG_MAX_WIDTH = 640.dp
 private const val DIALOG_HEIGHT_FRACTION = 0.85f
 private val ACTION_BUTTON_HEIGHT = 52.dp
@@ -152,7 +151,7 @@ fun FilePreviewDialog(
                         .weight(1f)
                         .fillMaxWidth()
                         .padding(horizontal = DesignTokens.SpacingMedium)
-                        .clip(RoundedCornerShape(PREVIEW_CORNER_RADIUS))
+                        .clip(AppShapes.large)
                         .background(MaterialTheme.colorScheme.surfaceContainerHighest),
                 ) {
                     if (FileTypeUtils.isImage(deviceFile)) ImagePreview(deviceFile)
@@ -296,7 +295,7 @@ private fun PdfPreview(
     Box(
         modifier = modifier
             .aspectRatio(aspectRatio)
-            .clip(RoundedCornerShape(PREVIEW_CORNER_RADIUS)),
+            .clip(AppShapes.large),
         contentAlignment = Alignment.Center,
     ) {
         when {
@@ -345,7 +344,7 @@ private fun PdfPreview(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
                             .padding(DesignTokens.SpacingMedium)
-                            .clip(RoundedCornerShape(PREVIEW_CORNER_RADIUS))
+                            .clip(AppShapes.large)
                             .background(MaterialTheme.colorScheme.inverseSurface.copy(alpha = AppColors.ContentStrongAlpha))
                             .padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingXSmall),
                     )

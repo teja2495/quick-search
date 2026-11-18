@@ -1,9 +1,8 @@
 package com.tk.quicksearch.search.apps
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -21,10 +20,7 @@ import androidx.compose.ui.zIndex
 import kotlinx.coroutines.launch
 
 private val PinnedGridPlacementSpring =
-        spring(
-                stiffness = Spring.StiffnessMedium,
-                visibilityThreshold = IntOffset(1, 1),
-        )
+        AppMotion.placement(visibilityThreshold = IntOffset(1, 1))
 
 /**
  * Slides a reorderable pinned grid tile to its new slot when the grid reorders, instead of jumping,

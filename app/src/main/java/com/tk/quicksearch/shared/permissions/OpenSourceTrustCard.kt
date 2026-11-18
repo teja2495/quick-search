@@ -19,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -31,12 +30,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 internal const val SOURCE_CODE_URL = "https://github.com/teja2495/quick-search"
-
-internal val TrustGreenDark = Color(0xFF4ADE80)
-internal val TrustGreenLight = Color(0xFF15803D)
 
 /**
  * Reassurance card shown under the permissions subtitle, linking to the public source code
@@ -46,7 +43,7 @@ internal val TrustGreenLight = Color(0xFF15803D)
 fun OpenSourceTrustCard(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
-    val accent = if (isDark) TrustGreenDark else TrustGreenLight
+    val accent = AppColors.TrustAccent
     val shape = AppShapes.largeIncreased
 
     val openSource = {
@@ -70,7 +67,7 @@ fun OpenSourceTrustCard(modifier: Modifier = Modifier) {
             imageVector = MaterialSymbols.VerifiedUser,
             contentDescription = null,
             tint = accent,
-            modifier = Modifier.size(24.dp),
+            modifier = Modifier.size(DesignTokens.IconSize),
         )
 
         Column(modifier = Modifier.weight(1f)) {
@@ -100,7 +97,7 @@ fun OpenSourceTrustCard(modifier: Modifier = Modifier) {
             imageVector = MaterialSymbols.OpenInNew,
             contentDescription = null,
             tint = accent,
-            modifier = Modifier.size(20.dp),
+            modifier = Modifier.size(DesignTokens.IconSizeSmall),
         )
     }
 }

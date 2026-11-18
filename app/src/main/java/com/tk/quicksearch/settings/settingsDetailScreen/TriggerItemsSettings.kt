@@ -5,7 +5,6 @@ import android.provider.ContactsContract
 import android.provider.OpenableColumns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -202,7 +201,7 @@ private fun TriggerItemRow(
         leading = {
             Box(
                 modifier = Modifier.size(DesignTokens.Spacing40)
-                    .clip(CircleShape)
+                    .clip(AppShapes.full)
                     .background(AppColors.AccentTintTonal),
                 contentAlignment = Alignment.Center,
             ) {

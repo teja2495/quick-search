@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -72,6 +71,7 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 import com.tk.quicksearch.shared.ui.components.AppButton
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 private val WidgetPickerStageHeight = 176.dp
 
@@ -274,7 +274,7 @@ private fun WidgetPickerAppGroup(
                     BitmapImage(
                         bitmap = app.icon,
                         contentDescription = null,
-                        modifier = Modifier.size(DesignTokens.Spacing40).clip(CircleShape),
+                        modifier = Modifier.size(DesignTokens.Spacing40).clip(AppShapes.full),
                     )
                 },
                 trailing = {

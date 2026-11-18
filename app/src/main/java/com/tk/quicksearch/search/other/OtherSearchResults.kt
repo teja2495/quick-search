@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,6 +35,8 @@ import com.tk.quicksearch.search.core.ScreenTimeState
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
@@ -160,15 +160,8 @@ internal fun ScreenTimeResultCard(
             expanded = showPinMenu,
             onDismissRequest = { showPinMenu = false },
         ) {
-            DropdownMenuItem(
-                text = {
-                    Text(
-                        text =
-                            stringResource(
-                                if (isPinned) R.string.action_unpin_app else R.string.action_pin_app,
-                            ),
-                    )
-                },
+            AppDropdownMenuItem(
+                text = stringResource(if (isPinned) R.string.action_unpin_app else R.string.action_pin_app),
                 leadingIcon = {
                     Icon(
                         painter =
@@ -183,15 +176,10 @@ internal fun ScreenTimeResultCard(
                     onTogglePin()
                 },
             )
-            HorizontalDivider()
-            DropdownMenuItem(
-                text = { Text(text = stringResource(R.string.action_exclude_generic)) },
-                leadingIcon = {
-                    Icon(
-                        imageVector = MaterialSymbols.VisibilityOff,
-                        contentDescription = null,
-                    )
-                },
+            AppDropdownMenuDivider()
+            AppDropdownMenuItem(
+                text = stringResource(R.string.action_exclude_generic),
+                icon = MaterialSymbols.VisibilityOff,
                 onClick = {
                     showPinMenu = false
                     onHide()

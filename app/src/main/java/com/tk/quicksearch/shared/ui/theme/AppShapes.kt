@@ -77,6 +77,9 @@ object AppShapes {
     /** Website favicons. */
     val favicon: RoundedCornerShape = RoundedCornerShape(DesignTokens.CornerFavicon)
 
+    /** Favicons drawn at varying sizes; the corner scales with the icon (20% of its size). */
+    val faviconScaled: RoundedCornerShape = RoundedCornerShape(percent = 20)
+
     /** Highlight behind the selected search engine icon. */
     val engineHighlight: RoundedCornerShape = RoundedCornerShape(DesignTokens.CornerEngineHighlight)
 

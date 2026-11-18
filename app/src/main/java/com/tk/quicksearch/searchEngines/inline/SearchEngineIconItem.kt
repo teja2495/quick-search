@@ -4,7 +4,6 @@ import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -55,7 +54,7 @@ fun SearchEngineIconItem(
     val iconShadowModifier = if (isLightMode) {
         Modifier.shadow(
             elevation = 8.dp,
-            shape = CircleShape,
+            shape = AppShapes.full,
             clip = false,
             ambientColor = Color.Black.copy(alpha = AppColors.TintEmphasisAlpha),
             spotColor = Color.Black.copy(alpha = AppColors.ContentMutedAlpha),

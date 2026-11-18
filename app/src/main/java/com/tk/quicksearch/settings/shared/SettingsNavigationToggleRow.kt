@@ -131,7 +131,7 @@ fun SettingsNavigationToggleRow(
                         text = subtitle,
                         style = if (segmented) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = if (segmented) DesignTokens.SpacingXSmall / 2 else 4.dp),
+                        modifier = Modifier.padding(top = if (segmented) DesignTokens.SpacingXSmall / 2 else DesignTokens.SpacingXSmall),
                     )
                 }
 

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.app.navigation
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import android.Manifest
 import android.app.Activity
 import android.content.Context
@@ -77,7 +78,7 @@ enum class RootDestination {
     Settings,
 }
 
-internal const val NAVIGATION_ANIMATION_DURATION_MS = 180
+internal const val NAVIGATION_ANIMATION_DURATION_MS = AppMotion.DurationShort
 
 data class NavigationRequest(
     val destination: RootDestination,

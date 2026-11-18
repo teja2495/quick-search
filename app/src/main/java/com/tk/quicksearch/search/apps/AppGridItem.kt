@@ -22,7 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -84,11 +84,11 @@ internal fun AppGridItem(
             }
     val primary = MaterialTheme.colorScheme.primary
     val indicatorFillBase =
-            if (indicatorUseLightFill) {
-                lerp(Color.White, primary, DesignTokens.PredictedSubmitHighlightAccentBlend)
-            } else {
-                lerp(Color.Black, primary, DesignTokens.PredictedSubmitHighlightAccentBlend)
-            }
+            lerp(
+                AppColors.indicatorBase(lightFill = indicatorUseLightFill),
+                primary,
+                DesignTokens.PredictedSubmitHighlightAccentBlend,
+            )
     val iconResult =
             rememberAppIcon(
                     packageName = appInfo.packageName,

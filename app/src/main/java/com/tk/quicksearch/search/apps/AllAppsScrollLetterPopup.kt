@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +37,7 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.util.Locale
 import kotlin.math.roundToInt
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 internal val AllAppsDialogSeekEdgeNudge = DesignTokens.SpacingMedium
 private val LetterPopupSize = 80.dp
@@ -101,8 +101,8 @@ internal fun AllAppsScrollLetterPopup(
                         modifier =
                                 Modifier
                                         .size(LetterPopupSize)
-                                        .shadow(DesignTokens.ElevationLevel3, CircleShape)
-                                        .clip(CircleShape)
+                                        .shadow(DesignTokens.ElevationLevel3, AppShapes.full)
+                                        .clip(AppShapes.full)
                                         .background(bubbleColor),
                         contentAlignment = Alignment.Center,
                 ) {

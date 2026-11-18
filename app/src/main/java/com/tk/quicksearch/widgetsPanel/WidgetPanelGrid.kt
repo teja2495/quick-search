@@ -223,7 +223,7 @@ private class WidgetMovePreview {
     }
 }
 
-private const val HEADER_ACTION_FADE_MS = 150
+private const val HEADER_ACTION_FADE_MS = AppMotion.DurationExit
 private const val HEADER_ACTION_INITIAL_SCALE = 0.85f
 
 @Composable

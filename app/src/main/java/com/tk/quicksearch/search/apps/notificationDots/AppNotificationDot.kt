@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -18,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 @Composable
 fun rememberNotificationDotKeys(enabled: Boolean): Set<String> {
@@ -39,7 +39,7 @@ fun BoxScope.AppNotificationDot(
             modifier
                 .align(Alignment.TopEnd)
                 .size(12.dp)
-                .clip(CircleShape)
+                .clip(AppShapes.full)
                 .background(AppColors.Accent)
                 .semantics { contentDescription = description },
     )

@@ -6,7 +6,6 @@ import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -20,6 +19,7 @@ import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import kotlin.math.abs
 import androidx.compose.foundation.clickable
@@ -40,7 +40,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
@@ -343,9 +342,9 @@ private fun NotificationHistoryRow(
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier =
                                 Modifier
-                                    .size(20.dp)
+                                    .size(DesignTokens.IconSizeSmall)
                                     .rotate(chevronRotation)
-                                    .clip(CircleShape)
+                                    .clip(AppShapes.full)
                                     .clickable { expanded = !expanded },
                         )
                     }
@@ -380,9 +379,9 @@ private fun NotificationHistoryRow(
             onDismissRequest = { showMenu = false },
             focusable = true,
         ) {
-            DropdownMenuItem(
-                text = { Text(text = stringResource(R.string.notification_history_hide_app, appLabel)) },
-                leadingIcon = { Icon(imageVector = MaterialSymbols.VisibilityOff, contentDescription = null) },
+            AppDropdownMenuItem(
+                text = stringResource(R.string.notification_history_hide_app, appLabel),
+                icon = MaterialSymbols.VisibilityOff,
                 onClick = {
                     showMenu = false
                     onHideApp()
@@ -555,7 +554,7 @@ private fun NotificationHistoryAppFilterDialog(
                 if (hasEntries) {
                     Surface(
                         onClick = { showClearAllConfirmation = true },
-                        shape = CircleShape,
+                        shape = AppShapes.full,
                         color = MaterialTheme.colorScheme.error.copy(alpha = AppColors.TintLightAlpha),
                         contentColor = MaterialTheme.colorScheme.error,
                     ) {
@@ -648,7 +647,7 @@ private fun NotificationHistoryAppFilterItem(
                     modifier =
                         Modifier.align(Alignment.TopEnd)
                             .size(20.dp)
-                            .clip(CircleShape)
+                            .clip(AppShapes.full)
                             .background(MaterialTheme.colorScheme.primary),
                     contentAlignment = Alignment.Center,
                 ) {

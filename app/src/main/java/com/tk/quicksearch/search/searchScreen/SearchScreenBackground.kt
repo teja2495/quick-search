@@ -35,7 +35,7 @@ internal fun SearchScreenBackground(
     wallpaperBitmap: ImageBitmap?,
     wallpaperBackgroundAlpha: Float,
     wallpaperBlurRadius: Float,
-    backgroundTransitionDurationMillis: Int = AppMotion.DurationMedium + 120,
+    backgroundTransitionDurationMillis: Int = AppMotion.DurationLarge,
     animateBlurRadius: Boolean = true,
     fallbackBackgroundAlpha: Float = 1f,
     useGradientFallback: Boolean = false,

@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -261,7 +260,7 @@ fun AppThemeCard(
                                         Box(
                                                 modifier =
                                                         Modifier.size(22.dp)
-                                                                .clip(CircleShape)
+                                                                .clip(AppShapes.full)
                                                                 .background(MaterialTheme.colorScheme.primary),
                                                 contentAlignment = Alignment.Center,
                                         ) {
@@ -431,7 +430,7 @@ internal fun OverlaySourceBox(
                                         Modifier.size(22.dp)
                                     }
                                 )
-                                        .clip(CircleShape)
+                                        .clip(AppShapes.full)
                                         .background(MaterialTheme.colorScheme.primary),
                         contentAlignment = Alignment.Center,
                 ) {

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.PendingIntent
@@ -301,8 +302,8 @@ internal fun TimerRow(
                                     targetState = action,
                                     contentKey = { it.title },
                                     transitionSpec = {
-                                        (fadeIn(tween(220)) + scaleIn(tween(220), initialScale = 0.8f)) togetherWith
-                                            (fadeOut(tween(150)) + scaleOut(tween(150), targetScale = 0.8f)) using
+                                        (fadeIn(tween(AppMotion.DurationStandard)) + scaleIn(tween(AppMotion.DurationStandard), initialScale = 0.8f)) togetherWith
+                                            (fadeOut(tween(AppMotion.DurationExit)) + scaleOut(tween(AppMotion.DurationExit), targetScale = 0.8f)) using
                                             SizeTransform(clip = false)
                                     },
                                     label = "timerAction",
@@ -336,7 +337,7 @@ private fun TimerActionButton(action: GlanceNotificationAction) {
     }
     FilledTonalIconButton(
         onClick = { action.intent.sendFromUserTap() },
-        modifier = Modifier.size(36.dp),
+        modifier = Modifier.size(DesignTokens.ButtonHeightSmall),
     ) {
         if (bitmap != null) {
             Icon(bitmap = bitmap, contentDescription = action.title, modifier = Modifier.size(TimerActionIconSize))
@@ -419,7 +420,7 @@ internal fun OngoingCallRow(
                 {
                     FilledIconButton(
                         onClick = hangUp,
-                        modifier = Modifier.size(32.dp),
+                        modifier = Modifier.size(DesignTokens.ButtonHeightSmall),
                         colors =
                             IconButtonDefaults.filledIconButtonColors(
                                 containerColor = MaterialTheme.colorScheme.error,
@@ -429,7 +430,7 @@ internal fun OngoingCallRow(
                         Icon(
                             imageVector = MaterialSymbols.CallEnd,
                             contentDescription = stringResource(R.string.home_ongoing_call_hang_up),
-                            modifier = Modifier.size(18.dp),
+                            modifier = Modifier.size(DesignTokens.ButtonIconSizeSmall),
                         )
                     }
                 }

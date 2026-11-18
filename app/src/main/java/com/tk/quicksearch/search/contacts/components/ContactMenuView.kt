@@ -3,8 +3,6 @@ package com.tk.quicksearch.search.contacts.components
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
@@ -22,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.appSettings.LocalOpenAppSettingDestination
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.components.ItemMenuLongPressOption
 import com.tk.quicksearch.shared.ui.components.ItemMenuPopup
 import com.tk.quicksearch.shared.ui.components.ItemMenuRow
@@ -232,12 +232,12 @@ fun ContactDropdownMenu(
             ) {
                 menuItems.forEachIndexed { index, item ->
                     if (index > 0) {
-                        HorizontalDivider()
+                        AppDropdownMenuDivider()
                     }
-                    DropdownMenuItem(
-                            text = { Text(text = stringResource(item.textResId)) },
-                            leadingIcon = { item.icon() },
-                            onClick = item.onClick,
+                    AppDropdownMenuItem(
+                        text = stringResource(item.textResId),
+                        leadingIcon = item.icon,
+                        onClick = item.onClick,
                     )
                 }
             }

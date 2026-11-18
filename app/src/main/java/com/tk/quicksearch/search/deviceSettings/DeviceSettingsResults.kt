@@ -190,7 +190,7 @@ fun DeviceSettingsResultsSection(
                                                                 Modifier.align(
                                                                                 Alignment.CenterHorizontally,
                                                                         )
-                                                                        .padding(top = if (LocalSearchCardLayoutEnabled.current) 4.dp else 0.dp),
+                                                                        .padding(top = if (LocalSearchCardLayoutEnabled.current) DesignTokens.SpacingXSmall else 0.dp),
                                                 )
                                         }
                                 }
@@ -244,7 +244,7 @@ internal fun SettingResultRow(
                                                         },
                                 )
                                 .topPredictedRowContentPadding()
-                                .padding(vertical = resultRowVerticalPadding(12.dp)),
+                                .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                 verticalAlignment = Alignment.CenterVertically,
         ) {

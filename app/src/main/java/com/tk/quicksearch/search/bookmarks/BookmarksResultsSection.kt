@@ -170,7 +170,7 @@ internal fun BookmarkRow(
                     onClick(bookmark)
                 }
                 .topPredictedRowContentPadding()
-                .padding(vertical = resultRowVerticalPadding(12.dp)),
+                .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
     ) {

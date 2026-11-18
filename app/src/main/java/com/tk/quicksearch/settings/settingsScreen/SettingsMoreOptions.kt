@@ -6,7 +6,6 @@ import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -426,7 +425,7 @@ fun SettingsVersionDisplay(
                 Image(
                     bitmap = appIcon,
                     contentDescription = null,
-                    modifier = Modifier.size(VersionFooterIconSize).clip(CircleShape),
+                    modifier = Modifier.size(VersionFooterIconSize).clip(AppShapes.full),
                 )
             }
         }
@@ -460,8 +459,8 @@ fun SettingsVersionDisplay(
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier =
                         Modifier
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape)
+                            .clip(AppShapes.full)
+                            .background(MaterialTheme.colorScheme.secondaryContainer, AppShapes.full)
                             .padding(horizontal = DesignTokens.SpacingSmall + 2.dp, vertical = 2.dp),
                 )
             }

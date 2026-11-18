@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.TextAutoSize
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -77,6 +76,7 @@ import com.tk.quicksearch.shared.util.hapticToggle
 import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 @Composable
 fun WallpaperCard(
@@ -264,7 +264,7 @@ fun WallpaperCard(
                                     modifier = Modifier.fillMaxSize().padding(horizontal = DesignTokens.SpacingSmall),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement =
-                                            Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+                                            Arrangement.spacedBy(DesignTokens.SpacingXSmall, Alignment.CenterHorizontally),
                             ) {
                                 Icon(
                                         imageVector = MaterialSymbols.Info,
@@ -389,7 +389,7 @@ fun WallpaperCard(
                             Box(
                                     modifier =
                                             Modifier.size(20.dp)
-                                                    .clip(CircleShape)
+                                                    .clip(AppShapes.full)
                                                     .background(AppColors.CustomImageEditButtonBackground)
                                                     .clickable {
                                                         hapticToggle(view)()
@@ -410,7 +410,7 @@ fun WallpaperCard(
                             Box(
                                     modifier =
                                             Modifier.size(20.dp)
-                                                    .clip(CircleShape)
+                                                    .clip(AppShapes.full)
                                                     .background(AppColors.CustomImageEditButtonBackground)
                                                     .clickable {
                                                         hapticToggle(view)()

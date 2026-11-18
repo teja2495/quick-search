@@ -31,8 +31,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.tk.quicksearch.shared.ui.components.AppBottomSheet
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -283,40 +283,27 @@ private fun CustomButtonsRow(
                                 expanded = showMenu,
                                 onDismissRequest = { showMenu = false },
                             ) {
-                                DropdownMenuItem(
-                                    text = { Text(text = stringResource(R.string.action_change_icon)) },
-                                    leadingIcon = {
-                                        Icon(imageVector = MaterialSymbols.Image, contentDescription = null)
-                                    },
+                                AppDropdownMenuItem(
+                                    text = stringResource(R.string.action_change_icon),
+                                    icon = MaterialSymbols.Image,
                                     onClick = {
                                         showMenu = false
                                         onChangeIcon(index)
                                     },
                                 )
                                 if (action is CustomWidgetButtonAction.File && action.isDirectory) {
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                text = stringResource(R.string.widget_custom_button_change_colour),
-                                            )
-                                        },
-                                        leadingIcon = {
-                                            Icon(
-                                                imageVector = MaterialSymbols.Palette,
-                                                contentDescription = null,
-                                            )
-                                        },
+                                    AppDropdownMenuItem(
+                                        text = stringResource(R.string.widget_custom_button_change_colour),
+                                        icon = MaterialSymbols.Palette,
                                         onClick = {
                                             showMenu = false
                                             onChangeColour(index)
                                         },
                                     )
                                 }
-                                DropdownMenuItem(
-                                    text = { Text(text = stringResource(R.string.action_remove)) },
-                                    leadingIcon = {
-                                        Icon(imageVector = MaterialSymbols.Close, contentDescription = null)
-                                    },
+                                AppDropdownMenuItem(
+                                    text = stringResource(R.string.action_remove),
+                                    icon = MaterialSymbols.Close,
                                     onClick = {
                                         showMenu = false
                                         onReset(index)
@@ -423,40 +410,27 @@ private fun CustomButtonsRow(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false },
                     ) {
-                        DropdownMenuItem(
-                            text = { Text(text = stringResource(R.string.action_change_icon)) },
-                            leadingIcon = {
-                                Icon(imageVector = MaterialSymbols.Image, contentDescription = null)
-                            },
+                        AppDropdownMenuItem(
+                            text = stringResource(R.string.action_change_icon),
+                            icon = MaterialSymbols.Image,
                             onClick = {
                                 showMenu = false
                                 onChangeIcon(index)
                             },
                         )
                         if (action is CustomWidgetButtonAction.File && action.isDirectory) {
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        text = stringResource(R.string.widget_custom_button_change_colour),
-                                    )
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = MaterialSymbols.Palette,
-                                        contentDescription = null,
-                                    )
-                                },
+                            AppDropdownMenuItem(
+                                text = stringResource(R.string.widget_custom_button_change_colour),
+                                icon = MaterialSymbols.Palette,
                                 onClick = {
                                     showMenu = false
                                     onChangeColour(index)
                                 },
                             )
                         }
-                        DropdownMenuItem(
-                            text = { Text(text = stringResource(R.string.action_remove)) },
-                            leadingIcon = {
-                                Icon(imageVector = MaterialSymbols.Close, contentDescription = null)
-                            },
+                        AppDropdownMenuItem(
+                            text = stringResource(R.string.action_remove),
+                            icon = MaterialSymbols.Close,
                             onClick = {
                                 showMenu = false
                                 onReset(index)
@@ -501,8 +475,8 @@ private fun CustomButtonSlotContent(
         shadowElevation = 0.dp,
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(if (compactMode) 4.dp else 10.dp),
-            verticalArrangement = Arrangement.spacedBy(if (compactMode) 6.dp else 4.dp, Alignment.CenterVertically),
+            modifier = Modifier.fillMaxSize().padding(if (compactMode) DesignTokens.SpacingXSmall else 10.dp),
+            verticalArrangement = Arrangement.spacedBy(if (compactMode) 6.dp else DesignTokens.SpacingXSmall, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             if (action == null) {

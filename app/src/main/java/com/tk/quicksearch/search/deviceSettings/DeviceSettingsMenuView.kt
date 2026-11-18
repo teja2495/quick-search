@@ -1,7 +1,5 @@
 package com.tk.quicksearch.search.deviceSettings
 
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +10,8 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.util.cachedDefaultHomeAppStatus
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
@@ -205,12 +205,12 @@ fun DeviceSettingsDropdownMenu(
         }
         orderedMenuItems.forEachIndexed { index, item ->
             if (index > 0) {
-                HorizontalDivider()
+                AppDropdownMenuDivider()
             }
-            DropdownMenuItem(
-                    text = { Text(text = stringResource(item.textResId)) },
-                    leadingIcon = { item.icon() },
-                    onClick = item.onClick,
+            AppDropdownMenuItem(
+                text = stringResource(item.textResId),
+                leadingIcon = item.icon,
+                onClick = item.onClick,
             )
         }
     }

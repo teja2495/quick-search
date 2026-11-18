@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -29,6 +27,8 @@ import com.tk.quicksearch.customInfo.CustomRepeatDialog
 import com.tk.quicksearch.shared.time.ScheduleRepeat
 import com.tk.quicksearch.shared.time.ScheduleRepeatUnit
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.components.PickerFieldButton
@@ -76,23 +76,18 @@ internal fun ReminderRepeatField(
             focusable = true,
         ) {
             repeatPresets.forEachIndexed { index, preset ->
-                if (index > 0) HorizontalDivider()
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            preset?.let { ReminderRepeat.label(resources, it) }
-                                ?: stringResource(R.string.custom_info_repeat_never),
-                        )
-                    },
+                if (index > 0) AppDropdownMenuDivider()
+                AppDropdownMenuItem(
+                    text = preset?.let { ReminderRepeat.label(resources, it) } ?: stringResource(R.string.custom_info_repeat_never),
                     onClick = {
                         onRepeatChange(preset)
                         menuExpanded = false
                     },
                 )
             }
-            HorizontalDivider()
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.common_custom)) },
+            AppDropdownMenuDivider()
+            AppDropdownMenuItem(
+                text = stringResource(R.string.common_custom),
                 onClick = {
                     menuExpanded = false
                     showCustomDialog = true

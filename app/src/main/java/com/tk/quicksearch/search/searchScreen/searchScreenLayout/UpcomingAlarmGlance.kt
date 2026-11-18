@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +46,7 @@ import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.calendar.calendarRelativeTimeLabel
 import com.tk.quicksearch.search.data.UpcomingAlarmRepository
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.util.Date
@@ -239,11 +239,9 @@ internal fun UpcomingAlarmRow(glance: UpcomingAlarmGlance) {
                 expanded = showMenu,
                 onDismissRequest = { showMenu = false },
             ) {
-                DropdownMenuItem(
-                    text = {
-                        Text(text = stringResource(R.string.home_upcoming_alarm_hide_app, glance.appLabel.orEmpty()))
-                    },
-                    leadingIcon = { Icon(imageVector = MaterialSymbols.VisibilityOff, contentDescription = null) },
+                AppDropdownMenuItem(
+                    text = stringResource(R.string.home_upcoming_alarm_hide_app, glance.appLabel.orEmpty()),
+                    icon = MaterialSymbols.VisibilityOff,
                     onClick = {
                         showMenu = false
                         glance.hideAlarmsFromApp()
@@ -281,7 +279,7 @@ private fun UpcomingAlarmAppIcon(packageName: String?) {
             imageVector = MaterialSymbols.Alarm,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(24.dp),
+            modifier = Modifier.size(DesignTokens.IconSize),
         )
     }
 }

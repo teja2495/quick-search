@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.Manifest
 import android.app.Activity
@@ -31,7 +32,6 @@ import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -75,6 +75,7 @@ import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
 import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.notes.NotesTextUtils
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
@@ -217,8 +218,8 @@ private fun LinkStyledNoteTextField(
                             R.string.notes_editor_action_send_email
                         else -> R.string.notes_editor_action_open_link
                     }
-                DropdownMenuItem(
-                    text = { Text(stringResource(labelRes)) },
+                AppDropdownMenuItem(
+                    text = stringResource(labelRes),
                     onClick = {
                         linkMenu = null
                         launchNoteLink(context, url)
@@ -618,7 +619,7 @@ private fun NoteEditorScrollIndicator(
     }
     val alpha by animateFloatAsState(
         targetValue = if (indicatorVisible && scrollState.maxValue > 0) 1f else 0f,
-        animationSpec = tween(durationMillis = 180),
+        animationSpec = tween(durationMillis = AppMotion.DurationShort),
         label = "noteScrollIndicator",
     )
     if (alpha <= 0.01f) return

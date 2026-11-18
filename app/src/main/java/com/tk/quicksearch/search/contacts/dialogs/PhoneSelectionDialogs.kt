@@ -1,37 +1,39 @@
 package com.tk.quicksearch.search.contacts.dialogs
 
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import androidx.compose.material3.Checkbox
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.DirectDialOption
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
-import com.tk.quicksearch.shared.ui.components.AppTextButton
+import com.tk.quicksearch.settings.shared.SettingsNestedCheckbox
+import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
+import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRow
+import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRowSpacing
+import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 
 // ============================================================================
-// Phone Number Selection Dialog
+// Phone Number Selection Drawer
 // ============================================================================
 
+/**
+ * Picks which of a contact's numbers to call or message. Tapping a number acts on it at once, so
+ * the drawer needs no confirm button; "Remember choice" applies to the number tapped.
+ */
 @Composable
 fun PhoneNumberSelectionDialog(
     contactInfo: ContactInfo,
@@ -40,101 +42,47 @@ fun PhoneNumberSelectionDialog(
     onDismiss: () -> Unit,
 ) {
     var rememberChoice by remember { mutableStateOf(false) }
-    var selectedNumber by remember { mutableStateOf<String?>(contactInfo.phoneNumbers.firstOrNull()) }
+    val actionIcon = if (isCall) MaterialSymbols.Call else MaterialSymbols.Sms
 
-    AppAlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(text = stringResource(R.string.dialog_select_phone_number_title))
+    AppPickerDrawer(
+        title = stringResource(R.string.dialog_select_phone_number_title),
+        onDismiss = onDismiss,
+        header = {
+            Text(
+                text = stringResource(R.string.dialog_select_phone_number_message, contactInfo.displayName),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         },
-        text = {
-            Column(
+        footer = {
+            SettingsNestedCheckbox(
+                label = stringResource(R.string.dialog_remember_choice),
+                checked = rememberChoice,
+                onCheckedChange = { rememberChoice = it },
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-            ) {
-                Text(
-                    text =
-                        stringResource(
-                            R.string.dialog_select_phone_number_message,
-                            contactInfo.displayName,
-                        ),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-
-                Spacer(modifier = Modifier.height(DesignTokens.SpacingXSmall))
-
-                // List of phone numbers
-                contactInfo.phoneNumbers.forEach { number ->
-                    Row(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .clickable { selectedNumber = number },
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-                    ) {
-                        RadioButton(
-                            selected = selectedNumber == number,
-                            onClick = { selectedNumber = number },
-                        )
-                        Text(
-                            text = PhoneNumberUtils.formatPhoneNumberForDisplay(number),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(DesignTokens.SpacingSmall))
-
-                // Remember choice checkbox
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-                ) {
-                    Checkbox(
-                        checked = rememberChoice,
-                        onCheckedChange = { rememberChoice = it },
-                    )
-                    Text(
-                        text = stringResource(R.string.dialog_remember_choice),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(1f),
-                    )
-                }
-            }
+            )
         },
-        confirmButton = {
-            AppTextButton(
-                onClick = {
-                    selectedNumber?.let { number ->
-                        onPhoneNumberSelected(number, rememberChoice)
-                    }
-                },
-                enabled = selectedNumber != null,
-            ) {
-                Text(
-                    text =
-                        if (isCall) {
-                            stringResource(R.string.contact_method_call_label)
-                        } else {
-                            stringResource(R.string.contact_method_message_label)
-                        },
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(AppPickerDrawerRowSpacing),
+        ) {
+            contactInfo.phoneNumbers.forEach { number ->
+                AppPickerDrawerRow(
+                    title = PhoneNumberUtils.formatPhoneNumberForDisplay(number),
+                    onClick = { onPhoneNumberSelected(number, rememberChoice) },
+                    leading = { Icon(imageVector = actionIcon, contentDescription = null) },
                 )
             }
-        },
-        dismissButton = {
-            AppTextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.dialog_cancel))
-            }
-        },
-    )
+        }
+    }
 }
 
+// ============================================================================
+// Direct Dial Choice Drawer
+// ============================================================================
+
+/** Picks whether calls start directly or open the dialer. The choice is saved as the default. */
 @Composable
 fun DirectDialChoiceDialog(
     contactName: String,
@@ -142,80 +90,44 @@ fun DirectDialChoiceDialog(
     onSelectOption: (DirectDialOption, Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    var selectedOption by remember { mutableStateOf(DirectDialOption.DIRECT_CALL) }
-
-    AppAlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(text = stringResource(R.string.dialog_direct_dial_title))
+    AppPickerDrawer(
+        title = stringResource(R.string.dialog_direct_dial_title),
+        onDismiss = onDismiss,
+        footer = {
+            Text(
+                text = stringResource(R.string.dialog_direct_dial_change_later),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         },
-        text = {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)) {
-                    DirectDialOption.values().forEach { option ->
-                        val title =
-                            when (option) {
-                                DirectDialOption.DIRECT_CALL -> stringResource(R.string.dialog_direct_dial_option_direct)
-                                DirectDialOption.DIALER -> stringResource(R.string.dialog_direct_dial_option_dialer)
-                            }
-                        val description =
-                            when (option) {
-                                DirectDialOption.DIRECT_CALL -> stringResource(R.string.dialog_direct_dial_option_direct_desc)
-                                DirectDialOption.DIALER -> stringResource(R.string.dialog_direct_dial_option_dialer_desc)
-                            }
-
-                        Row(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .clickable { selectedOption = option },
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-                        ) {
-                            RadioButton(
-                                selected = selectedOption == option,
-                                onClick = { selectedOption = option },
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().selectableGroup(),
+            verticalArrangement = Arrangement.spacedBy(AppPickerDrawerRowSpacing),
+        ) {
+            DirectDialOption.entries.forEach { option ->
+                val (titleRes, descriptionRes, icon) =
+                    when (option) {
+                        DirectDialOption.DIRECT_CALL ->
+                            Triple(
+                                R.string.dialog_direct_dial_option_direct,
+                                R.string.dialog_direct_dial_option_direct_desc,
+                                MaterialSymbols.Call,
                             )
-                            Column(
-                                modifier = Modifier.weight(1f),
-                                verticalArrangement = Arrangement.spacedBy(2.dp),
-                            ) {
-                                Text(
-                                    text = title,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                )
-                                Text(
-                                    text = description,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }
+                        DirectDialOption.DIALER ->
+                            Triple(
+                                R.string.dialog_direct_dial_option_dialer,
+                                R.string.dialog_direct_dial_option_dialer_desc,
+                                MaterialSymbols.OpenInNew,
+                            )
                     }
-                }
-
-                Spacer(modifier = Modifier.height(DesignTokens.SpacingSmall))
-
-                Text(
-                    text = stringResource(R.string.dialog_direct_dial_change_later),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                AppPickerDrawerRow(
+                    title = stringResource(titleRes),
+                    subtitle = stringResource(descriptionRes),
+                    onClick = { onSelectOption(option, true) },
+                    leading = { Icon(imageVector = icon, contentDescription = null) },
                 )
             }
-        },
-        confirmButton = {
-            AppTextButton(onClick = { onSelectOption(selectedOption, true) }) {
-                Text(text = stringResource(R.string.dialog_ok))
-            }
-        },
-        dismissButton = {
-            AppTextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.dialog_cancel))
-            }
-        },
-    )
+        }
+    }
 }

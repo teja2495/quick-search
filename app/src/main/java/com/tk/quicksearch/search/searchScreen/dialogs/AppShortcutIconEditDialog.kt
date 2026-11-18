@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -252,7 +251,7 @@ private fun ShortcutIconPreviewContent(
                     .align(Alignment.BottomEnd)
                     .offset(x = (-2).dp, y = (-4).dp)
                     .size(22.dp)
-                    .clip(CircleShape)
+                    .clip(AppShapes.full)
                     .background(MaterialTheme.colorScheme.primary),
             contentAlignment = Alignment.Center,
         ) {

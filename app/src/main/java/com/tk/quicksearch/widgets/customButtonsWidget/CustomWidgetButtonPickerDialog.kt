@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -87,6 +86,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 @Composable
 fun CustomWidgetButtonPickerDialog(
@@ -268,7 +268,7 @@ private fun CustomWidgetResultFilterChips(
                 selected = selected,
                 onClick = { onFilterSelected(filter) },
                 label = { Text(text = stringResource(filter.labelRes)) },
-                shape = CircleShape,
+                shape = AppShapes.full,
                 border =
                     FilterChipDefaults.filterChipBorder(
                         enabled = true,

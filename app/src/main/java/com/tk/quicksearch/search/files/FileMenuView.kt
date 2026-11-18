@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -40,6 +39,8 @@ import com.tk.quicksearch.search.appSettings.LocalOpenAppSettingDestination
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.utils.FileUtils
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.components.ItemMenuLongPressOption
 import com.tk.quicksearch.shared.ui.components.ItemMenuPopup
 import com.tk.quicksearch.shared.ui.components.ItemMenuRow
@@ -431,21 +432,12 @@ fun FileDropdownMenu(
         ) {
             menuItems.forEachIndexed { index, item ->
                 if (index > 0) {
-                    HorizontalDivider()
+                    AppDropdownMenuDivider()
                 }
-                DropdownMenuItem(
-                        text = {
-                            Text(
-                                    text =
-                                            if (item.textArg != null) {
-                                                stringResource(item.textResId, item.textArg)
-                                            } else {
-                                                stringResource(item.textResId)
-                                            },
-                            )
-                        },
-                        leadingIcon = { item.icon() },
-                        onClick = item.onClick,
+                AppDropdownMenuItem(
+                    text = if (item.textArg != null) { stringResource(item.textResId, item.textArg) } else { stringResource(item.textResId) },
+                    leadingIcon = item.icon,
+                    onClick = item.onClick,
                 )
             }
         }

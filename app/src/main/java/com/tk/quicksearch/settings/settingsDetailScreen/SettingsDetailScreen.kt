@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.floatingActionShape
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
@@ -645,20 +647,23 @@ internal fun SettingsDetailLevel1Screen(
         }
 
         if (detailType == SettingsDetailType.FEATURES_LIST && scrollState.value > 0) {
+            val scrollTopInteraction = remember { MutableInteractionSource() }
             FloatingActionButton(
                 onClick = { coroutineScope.launch { scrollState.animateScrollTo(0) } },
                 modifier =
                     Modifier
                         .align(Alignment.BottomEnd)
                         .padding(DesignTokens.SpacingLarge)
-                        .size(40.dp),
-                containerColor = AppColors.Accent,
-                contentColor = AppColors.OnAccent,
+                        .size(DesignTokens.FloatingActionHeight),
+                shape = floatingActionShape(scrollTopInteraction),
+                containerColor = AppColors.FloatingTonalContainer,
+                contentColor = AppColors.Accent,
+                interactionSource = scrollTopInteraction,
             ) {
                 Icon(
                     imageVector = MaterialSymbols.KeyboardArrowUp,
                     contentDescription = stringResource(R.string.settings_scroll_to_top),
-                    modifier = Modifier.size(DesignTokens.IconSizeSmall),
+                    modifier = Modifier.size(DesignTokens.IconSize),
                 )
             }
         }

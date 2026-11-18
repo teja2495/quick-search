@@ -47,7 +47,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -133,8 +132,10 @@ internal val WidgetEditRingWidth = 2.dp
 internal val WidgetActionButtonCornerOffset = 9.dp
 internal val WidgetEditBorderWidth = 1.dp
 
-// How far edit badges and resize handles can extend past a widget's top edge.
-private val WidgetEditOverhang = 8.dp
+// How far edit badges and resize handles can extend past a widget's top edge: the badge's 9dp
+// corner offset, the edit lift scale on a tall widget, and the badge shadow. The edge-fade layer
+// clips to the viewport, so anything past this is cut off.
+private val WidgetEditOverhang = 16.dp
 
 // How far the edit scale, side resize handles, and corner badges can extend past a widget's
 // left/right edges. Must stay within ContentHorizontalPadding.

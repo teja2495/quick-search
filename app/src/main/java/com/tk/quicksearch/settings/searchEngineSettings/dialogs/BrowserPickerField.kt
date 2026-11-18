@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.graphics.Color
@@ -209,7 +208,7 @@ private fun BrowserOptionRow(
             Box(
                 modifier = Modifier
                     .size(6.dp)
-                    .clip(CircleShape)
+                    .clip(AppShapes.full)
                     .background(
                         if (isSelected) accentColor else accentColor.copy(alpha = AppColors.TintStrongAlpha)
                     ),

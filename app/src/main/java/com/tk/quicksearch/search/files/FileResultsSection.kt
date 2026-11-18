@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.files
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
 import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
@@ -99,7 +100,7 @@ private const val THUMBNAIL_SIZE_DP = 60
 private const val THUMBNAIL_LOAD_SIZE_PX = 160
 internal const val THUMBNAIL_CACHE_MAX_SIZE = 60
 internal const val THUMBNAIL_FAILURE_RETRY_DELAY_MS = 30_000L
-private const val THUMBNAIL_FADE_IN_DURATION_MS = 100
+private const val THUMBNAIL_FADE_IN_DURATION_MS = AppMotion.DurationQuick
 private const val EXPAND_BUTTON_TOP_PADDING = 2
 
 /** Card sections squeeze the More button; flat ones keep the standard size other sections use. */
@@ -380,7 +381,7 @@ private fun FileCardContent(
                     Box(
                             modifier =
                                     Modifier.fillMaxWidth()
-                                            .padding(bottom = if (cardLayoutEnabled) 8.dp else 0.dp),
+                                            .padding(bottom = if (cardLayoutEnabled) DesignTokens.SpacingSmall else 0.dp),
                     ) {
                         ExpandButton(
                                 onClick = onExpandClick,

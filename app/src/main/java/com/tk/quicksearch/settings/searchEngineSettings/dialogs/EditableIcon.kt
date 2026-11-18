@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
 fun EditableIcon(
@@ -62,7 +62,7 @@ fun EditableIcon(
                     contentDescription = contentDescription,
                     modifier =
                         Modifier
-                            .size(24.dp)
+                            .size(DesignTokens.IconSize)
                             .align(androidx.compose.ui.Alignment.Center),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -76,7 +76,7 @@ fun EditableIcon(
                     .size(16.dp)
                     .background(
                         color = MaterialTheme.colorScheme.primary,
-                        shape = CircleShape,
+                        shape = AppShapes.full,
                     ),
             contentAlignment = androidx.compose.ui.Alignment.Center,
         ) {

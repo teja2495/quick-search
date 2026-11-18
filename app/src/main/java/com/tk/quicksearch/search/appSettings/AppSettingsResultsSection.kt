@@ -191,7 +191,7 @@ fun AppSettingsResultsSection(
                         onClick = onExpandClick,
                         modifier =
                             Modifier.align(Alignment.CenterHorizontally)
-                                .padding(top = if (LocalSearchCardLayoutEnabled.current) 4.dp else 0.dp),
+                                .padding(top = if (LocalSearchCardLayoutEnabled.current) DesignTokens.SpacingXSmall else 0.dp),
                     )
                 }
             }

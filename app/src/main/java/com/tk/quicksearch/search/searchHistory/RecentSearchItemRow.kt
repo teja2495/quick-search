@@ -21,7 +21,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -75,6 +74,7 @@ import com.tk.quicksearch.search.searchScreen.components.ExpandButton
 import com.tk.quicksearch.searchEngines.SearchTargetQueryShortcutActivity
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
@@ -246,11 +246,9 @@ internal fun RecentSearchItemRow(
             expanded = showRemoveMenu && canRemoveFromHistory,
             onDismissRequest = { showRemoveMenu = false },
         ) {
-            DropdownMenuItem(
-                text = { Text(text = stringResource(R.string.action_remove_from_history)) },
-                leadingIcon = {
-                    Icon(imageVector = MaterialSymbols.Close, contentDescription = null)
-                },
+            AppDropdownMenuItem(
+                text = stringResource(R.string.action_remove_from_history),
+                icon = MaterialSymbols.Close,
                 onClick = {
                     showRemoveMenu = false
                     onDeleteRecentItem(item.entry)

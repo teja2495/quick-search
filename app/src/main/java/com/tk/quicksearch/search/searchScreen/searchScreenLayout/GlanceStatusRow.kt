@@ -14,7 +14,6 @@ import com.tk.quicksearch.search.searchHistory.QUERY_ROW_ICON_SIZE
 import com.tk.quicksearch.search.searchHistory.QUERY_ROW_VERTICAL_PADDING
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +43,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 internal val GlanceDismissButtonSize = 28.dp
 
@@ -153,7 +153,7 @@ internal fun GlanceStatusRow(
                 Box(
                     modifier =
                         Modifier
-                            .clip(CircleShape)
+                            .clip(AppShapes.full)
                             .background(pillColors.container)
                             .padding(horizontal = 10.dp, vertical = DesignTokens.SpacingXSmall),
                     contentAlignment = Alignment.Center,
@@ -212,7 +212,7 @@ internal fun GlanceActionChip(
 ) {
     Surface(
         onClick = onClick,
-        shape = CircleShape,
+        shape = AppShapes.full,
         color = colors?.container ?: Color.Transparent,
         contentColor = colors?.content ?: MaterialTheme.colorScheme.onSurface,
         border = if (colors == null) BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant) else null,

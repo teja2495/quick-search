@@ -1,5 +1,6 @@
 package com.tk.quicksearch.shared.permissions
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.Intent
 import android.net.Uri
@@ -20,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -132,6 +132,5 @@ private fun ViewCodePill() {
 
 @Composable
 internal fun trustAccentColor(): Color {
-    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
-    return if (isDark) TrustGreenDark else TrustGreenLight
+    return AppColors.TrustAccent
 }

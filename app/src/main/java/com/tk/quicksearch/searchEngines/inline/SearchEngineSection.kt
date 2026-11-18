@@ -1,5 +1,6 @@
 package com.tk.quicksearch.searchEngines.inline
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -121,7 +122,7 @@ private fun InlineCardEnterAnimation(
     AnimatedVisibility(
         visibleState = enterState,
         enter =
-            fadeIn(animationSpec = tween(durationMillis = 170, easing = FastOutSlowInEasing)),
+            fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort, easing = FastOutSlowInEasing)),
     ) {
         content()
     }
@@ -207,9 +208,9 @@ fun SearchEngineIconsSection(
                 AnimatedVisibility(
                     visible = true,
                     enter =
-                        fadeIn(animationSpec = tween(durationMillis = 180)),
+                        fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort)),
                     exit =
-                        fadeOut(animationSpec = tween(durationMillis = 130)),
+                        fadeOut(animationSpec = tween(durationMillis = AppMotion.DurationExit)),
                 ) {
                     CompactToolActionContent(
                         label = toolActionLabel,
@@ -238,9 +239,9 @@ fun SearchEngineIconsSection(
                 AnimatedVisibility(
                     visible = hasToolAction,
                     enter =
-                        fadeIn(animationSpec = tween(durationMillis = 180)),
+                        fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort)),
                     exit =
-                        fadeOut(animationSpec = tween(durationMillis = 130)),
+                        fadeOut(animationSpec = tween(durationMillis = AppMotion.DurationExit)),
                 ) {
                     CompactToolActionContent(
                         label = toolActionLabel ?: return@AnimatedVisibility,

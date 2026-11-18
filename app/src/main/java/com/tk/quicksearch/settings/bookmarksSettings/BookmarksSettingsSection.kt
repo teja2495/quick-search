@@ -8,7 +8,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -307,7 +306,7 @@ private fun BookmarkManagementRow(
     ) {
         Box(
             modifier = Modifier.size(DesignTokens.Spacing40)
-                .clip(CircleShape)
+                .clip(AppShapes.full)
                 .background(AppColors.AccentTintTonal),
             contentAlignment = Alignment.Center,
         ) {

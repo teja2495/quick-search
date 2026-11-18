@@ -115,7 +115,7 @@ internal fun RenderMarkdownDocument(
                                     headingRequesters.getValue(index),
                                 ).onGloballyPositioned { coordinates ->
                                     headingTopInWindow[index] = coordinates.positionInWindow().y
-                                }.padding(top = 4.dp),
+                                }.padding(top = DesignTokens.SpacingXSmall),
                     )
                 }
 

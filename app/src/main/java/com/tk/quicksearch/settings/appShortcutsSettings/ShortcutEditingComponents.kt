@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import androidx.compose.animation.core.animateFloatAsState
@@ -195,7 +194,7 @@ fun EditCustomShortcutDialog(
                                     .align(Alignment.BottomEnd)
                                     .offset(x = (-4).dp, y = (-6).dp)
                                     .size(16.dp)
-                                    .clip(CircleShape)
+                                    .clip(AppShapes.full)
                                     .background(MaterialTheme.colorScheme.surface),
                             contentAlignment = Alignment.Center,
                         ) {

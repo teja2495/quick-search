@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +35,7 @@ import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRow
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRowSpacing
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 /** Header for a bookmark editor page, laid out like AppPickerDrawer's: optional back, title, close. */
 @Composable
@@ -85,9 +85,9 @@ internal fun BookmarkBrowserField(
                 .clip(OutlinedTextFieldDefaults.shape)
                 .border(1.dp, MaterialTheme.colorScheme.outline, OutlinedTextFieldDefaults.shape)
                 .clickable(onClick = onClick)
-                .padding(horizontal = 16.dp, vertical = 10.dp),
+                .padding(horizontal = DesignTokens.SpacingLarge, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
     ) {
         BrowserIcon(packageName = selectedPackage, size = 24.dp)
         Column(modifier = Modifier.weight(1f)) {
@@ -106,7 +106,7 @@ internal fun BookmarkBrowserField(
             imageVector = MaterialSymbols.ChevronRight,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(20.dp),
+            modifier = Modifier.size(DesignTokens.IconSizeSmall),
         )
     }
 }
@@ -226,7 +226,7 @@ private fun BrowserIcon(
         Image(
             bitmap = bitmap,
             contentDescription = null,
-            modifier = Modifier.size(size).clip(CircleShape),
+            modifier = Modifier.size(size).clip(AppShapes.full),
         )
     } else {
         Icon(

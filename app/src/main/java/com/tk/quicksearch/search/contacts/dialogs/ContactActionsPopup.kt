@@ -310,7 +310,7 @@ internal fun ContactActionsPopup(
                                 imageVector = MaterialSymbols.ChevronLeft,
                                 contentDescription = stringResource(R.string.contacts_action_previous_number),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(20.dp),
+                                modifier = Modifier.size(DesignTokens.IconSizeSmall),
                             )
                         }
                     } else {
@@ -369,7 +369,7 @@ internal fun ContactActionsPopup(
                                 imageVector = MaterialSymbols.ChevronRight,
                                 contentDescription = stringResource(R.string.contacts_action_next_number),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(20.dp),
+                                modifier = Modifier.size(DesignTokens.IconSizeSmall),
                             )
                         }
                     } else {
