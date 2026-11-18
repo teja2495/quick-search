@@ -408,7 +408,7 @@ fun SearchRoute(
             onOtherSearchItemAction = undoActions.onOtherSearchItemAction,
             onSettingsClick = onSettingsClick,
             onAppClick = { app: com.tk.quicksearch.search.models.AppInfo ->
-                if (SpeedBump.isEnabled(context, app.packageName)) {
+                if (SpeedBump.shouldShow(context, app.packageName)) {
                     speedBumpApp = app
                 } else {
                     runAfterAppUnlock(app.packageName, app.appName) {

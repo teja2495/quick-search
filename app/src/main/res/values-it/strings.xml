@@ -1392,6 +1392,8 @@
     <string name="speed_bump_overlay_prompt">%1$s si aprirà a breve…</string>
     <string name="speed_bump_overlay_title">Fai un respiro profondo</string>
     <string name="speed_bump_title">SpeedBump</string>
+    <string name="speed_bump_pause_action">Sospendi SpeedBump</string>
+    <string name="speed_bump_pause_menu_title">Sospendi SpeedBump per %1$s</string>
     <string name="speed_bump_outside_quick_search_title">Estendi SpeedBump</string>
     <string name="speed_bump_outside_quick_search_desc">Applica SpeedBump quando le app vengono aperte fuori da Quick Search</string>
     <string name="home_upcoming_alarm">Prossima sveglia</string>

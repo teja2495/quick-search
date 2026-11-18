@@ -15,9 +15,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,8 +29,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.produceState
@@ -47,6 +52,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -75,10 +82,16 @@ import kotlinx.coroutines.withContext
 import kotlin.math.sin
 import com.tk.quicksearch.shared.ui.components.PreserveHostKeyboardStateEffect
 import com.tk.quicksearch.shared.ui.components.AppButton
+import com.tk.quicksearch.shared.ui.components.AppButtonTone
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 private const val BreathCycleMillis = 3_400
 private val IconSize = 96.dp
 private val RingSize = 156.dp
+private val PauseDurationsMinutes = listOf(5, 15, 30)
 
 /**
  * Opacity of the words around the usage numbers. Held well below the emphasised values so the
@@ -117,9 +130,12 @@ fun SpeedBumpOverlay(
     val lifecycleOwner = LocalLifecycleOwner.current
     // The host drops the pending launch on configuration change, so this only needs to
     // survive recomposition.
-    val deadline = remember(appInfo.packageName) { SystemClock.elapsedRealtime() + SpeedBump.DELAY_MILLIS }
-    val progress = remember(deadline) { mutableFloatStateOf(0f) }
-    val breathAmount = remember(deadline) { mutableFloatStateOf(0.5f) }
+    var deadline by remember(appInfo.packageName) {
+        mutableStateOf<Long?>(SystemClock.elapsedRealtime() + SpeedBump.DELAY_MILLIS)
+    }
+    var remainingAtMenuOpen by remember(appInfo.packageName) { mutableLongStateOf(0L) }
+    val progress = remember(appInfo.packageName) { mutableFloatStateOf(0f) }
+    val breathAmount = remember(appInfo.packageName) { mutableFloatStateOf(0.5f) }
     val todayUsage by produceState<TodayAppUsage?>(
         initialValue = null,
         key1 = appInfo.packageName,
@@ -140,13 +156,15 @@ fun SpeedBumpOverlay(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    LaunchedEffect(deadline) {
+    val runningDeadline = deadline
+    LaunchedEffect(runningDeadline) {
+        if (runningDeadline == null) return@LaunchedEffect
         coroutineScope {
             val motionScale = coroutineContext[MotionDurationScale]
             val frames = launch {
                 while (true) {
                     withFrameNanos { }
-                    val remaining = (deadline - SystemClock.elapsedRealtime()).coerceIn(0, SpeedBump.DELAY_MILLIS)
+                    val remaining = (runningDeadline - SystemClock.elapsedRealtime()).coerceIn(0, SpeedBump.DELAY_MILLIS)
                     val elapsed = SpeedBump.DELAY_MILLIS - remaining
                     progress.floatValue = elapsed.toFloat() / SpeedBump.DELAY_MILLIS
                     val scale = motionScale?.scaleFactor ?: 1f
@@ -159,10 +177,11 @@ fun SpeedBumpOverlay(
                 }
             }
             // Launch timing stays independent of the frame clock and system animation scale.
-            delay((deadline - SystemClock.elapsedRealtime()).coerceAtLeast(0))
+            delay((runningDeadline - SystemClock.elapsedRealtime()).coerceAtLeast(0))
             frames.cancel()
         }
-        currentOnOpen()
+        // Opening the menu invalidates the timer immediately, before recomposition cancels it.
+        if (deadline == runningDeadline) currentOnOpen()
     }
 
     val iconResult =
@@ -211,8 +230,10 @@ fun SpeedBumpOverlay(
                     Modifier
                         .fillMaxSize()
                         .padding(
-                            horizontal = DesignTokens.SpacingHuge,
-                            vertical = DesignTokens.Spacing40,
+                            start = DesignTokens.SpacingHuge,
+                            end = DesignTokens.SpacingHuge,
+                            top = DesignTokens.Spacing40,
+                            bottom = DesignTokens.SpacingXXLarge,
                         ),
             ) {
                 // The breathing icon sits a little above the optical centre so the way out can
@@ -330,6 +351,69 @@ fun SpeedBumpOverlay(
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
+                SpeedBumpPauseMenu(
+                    appName = appInfo.appName,
+                    expanded = runningDeadline == null,
+                    onExpand = {
+                        deadline?.let {
+                            remainingAtMenuOpen = (it - SystemClock.elapsedRealtime()).coerceAtLeast(0)
+                            deadline = null
+                        }
+                    },
+                    onDismiss = {
+                        deadline = SystemClock.elapsedRealtime() + remainingAtMenuOpen
+                    },
+                    onSelectDuration = { minutes ->
+                        SpeedBump.pause(context, appInfo.packageName, minutes)
+                        onOpen()
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SpeedBumpPauseMenu(
+    appName: String,
+    expanded: Boolean,
+    onExpand: () -> Unit,
+    onDismiss: () -> Unit,
+    onSelectDuration: (Int) -> Unit,
+) {
+    Box(contentAlignment = Alignment.Center) {
+        AppTextButton(
+            onClick = onExpand,
+            tone = AppButtonTone.Neutral,
+            size = AppButtonSize.Small,
+            modifier = Modifier.heightIn(min = DesignTokens.Spacing48),
+        ) {
+            Text(stringResource(R.string.speed_bump_pause_action))
+        }
+        AppDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = onDismiss,
+            focusable = true,
+            modifier = Modifier.widthIn(max = 280.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.speed_bump_pause_menu_title, appName),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier =
+                    Modifier
+                        .semantics { heading() }
+                        .padding(
+                            horizontal = DesignTokens.SpacingXLarge,
+                            vertical = DesignTokens.SpacingMedium,
+                        ),
+            )
+            PauseDurationsMinutes.forEachIndexed { index, minutes ->
+                if (index > 0) AppDropdownMenuDivider()
+                AppDropdownMenuItem(
+                    text = pluralStringResource(R.plurals.calendar_relative_minutes, minutes, minutes),
+                    onClick = { onSelectDuration(minutes) },
+                )
             }
         }
     }

@@ -1393,6 +1393,8 @@
     <string name="speed_bump_overlay_prompt">Το %1$s θα ανοίξει σύντομα…</string>
     <string name="speed_bump_overlay_title">Πάρε μια βαθιά ανάσα</string>
     <string name="speed_bump_title">SpeedBump</string>
+    <string name="speed_bump_pause_action">Παύση SpeedBump</string>
+    <string name="speed_bump_pause_menu_title">Παύση του SpeedBump για την εφαρμογή %1$s</string>
     <string name="speed_bump_outside_quick_search_title">Επέκταση SpeedBump</string>
     <string name="speed_bump_outside_quick_search_desc">Εφαρμογή του SpeedBump όταν οι εφαρμογές ανοίγουν εκτός Quick Search</string>
     <string name="home_upcoming_alarm">Επερχόμενο ξυπνητήρι</string>

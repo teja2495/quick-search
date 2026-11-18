@@ -120,6 +120,10 @@ object SpeedBumpLaunchWatcher {
         allowedPackage = null
         pendingPackage = null
         if (packageName !in bumpedPackages) return
+        if (SpeedBump.isPaused(context, packageName)) {
+            allow(packageName)
+            return
+        }
         pendingPackage = packageName
         SpeedBumpActivity.start(context, packageName)
     }

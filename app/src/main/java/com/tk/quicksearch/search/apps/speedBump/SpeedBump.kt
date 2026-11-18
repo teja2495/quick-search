@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.apps.speedBump
 
 import android.content.Context
 import android.content.SharedPreferences
+import java.util.concurrent.TimeUnit
 
 /**
  * Per-app "SpeedBump" state.
@@ -25,6 +26,17 @@ object SpeedBump {
     fun isEnabled(context: Context, packageName: String): Boolean =
         bumpedPackages(context).contains(packageName)
 
+    fun shouldShow(context: Context, packageName: String): Boolean =
+        isEnabled(context, packageName) && !isPaused(context, packageName)
+
+    fun isPaused(context: Context, packageName: String): Boolean =
+        prefs(context).getLong(pauseKey(packageName), 0L) > System.currentTimeMillis()
+
+    fun pause(context: Context, packageName: String, minutes: Int) {
+        val expiresAt = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(minutes.toLong())
+        prefs(context).edit().putLong(pauseKey(packageName), expiresAt).apply()
+    }
+
     /** Flips the bump for [packageName] and returns the resulting state. */
     fun toggle(context: Context, packageName: String): Boolean {
         val enabled = !isEnabled(context, packageName)
@@ -37,7 +49,9 @@ object SpeedBump {
             bumpedPackages(context).toMutableSet().apply {
                 if (enabled) add(packageName) else remove(packageName)
             }
-        prefs(context).edit().putStringSet(BumpedPackagesKey, updated).apply()
+        val editor = prefs(context).edit().putStringSet(BumpedPackagesKey, updated)
+        if (!enabled) editor.remove(pauseKey(packageName))
+        editor.apply()
     }
 
     fun bumpedPackages(context: Context): Set<String> =
@@ -73,6 +87,8 @@ object SpeedBump {
         context: Context,
         listener: SharedPreferences.OnSharedPreferenceChangeListener,
     ) = prefs(context).unregisterOnSharedPreferenceChangeListener(listener)
+
+    private fun pauseKey(packageName: String) = "paused_until_$packageName"
 
     private fun prefs(context: Context) =
         context.applicationContext.getSharedPreferences(PreferencesName, Context.MODE_PRIVATE)

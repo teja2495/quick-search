@@ -576,6 +576,8 @@
     <string name="calendar_relative_in_format">بعد %1$s</string>
     <plurals name="calendar_relative_minutes">
         <item quantity="one">%d دقيقة</item>
+        <item quantity="few">%d دقائق</item>
+        <item quantity="many">%d دقيقة</item>
         <item quantity="other">%d دقائق</item>
     </plurals>
     <string name="calendar_relative_now">الآن</string>
@@ -1395,6 +1397,8 @@
     <string name="speed_bump_overlay_prompt">سيُفتح %1$s قريبًا…</string>
     <string name="speed_bump_overlay_title">خذ نفسًا عميقًا</string>
     <string name="speed_bump_title">SpeedBump</string>
+    <string name="speed_bump_pause_action">إيقاف SpeedBump مؤقتًا</string>
+    <string name="speed_bump_pause_menu_title">إيقاف SpeedBump مؤقتًا لتطبيق %1$s</string>
     <string name="speed_bump_outside_quick_search_title">توسيع SpeedBump</string>
     <string name="speed_bump_outside_quick_search_desc">تطبيق SpeedBump عند فتح التطبيقات خارج Quick Search</string>
     <string name="home_upcoming_alarm">المنبه القادم</string>

@@ -1380,6 +1380,8 @@
     <string name="speed_bump_overlay_prompt">%1$s 即将打开…</string>
     <string name="speed_bump_overlay_title">深呼吸一下</string>
     <string name="speed_bump_title">SpeedBump</string>
+    <string name="speed_bump_pause_action">暂停 SpeedBump</string>
+    <string name="speed_bump_pause_menu_title">暂停 %1$s 的 SpeedBump</string>
     <string name="speed_bump_outside_quick_search_title">扩展 SpeedBump</string>
     <string name="speed_bump_outside_quick_search_desc">在 Quick Search 之外打开应用时也应用 SpeedBump</string>
     <string name="home_upcoming_alarm">即将响铃的闹钟</string>
