@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.tk.quicksearch.search.core.SectionRenderParams
+import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.rememberSectionRenderContext
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
@@ -112,11 +113,19 @@ internal fun rememberTopMatchSubmission(
                             )
                         },
                 )
+    // Contact and file lookups debounce longer than the normal Top Matches deadline.
+    val isProviderSearchRefreshing =
+        state.topMatchesEnabled && state.secondarySearchSectionsInProgress.any { section ->
+            (section == SearchSection.CONTACTS || section == SearchSection.FILES) &&
+                section in state.topMatchesSectionOrder &&
+                section !in state.disabledTopMatchesSections
+        }
     val settledTopMatchesForSubmit =
             rememberSettledTopMatches(
                     query = state.query,
                     currentMatches = currentTopMatchesForSubmit,
                     isSearchRefreshing = isLocalSearchRefreshing,
+                    isProviderSearchRefreshing = isProviderSearchRefreshing,
                     limit = state.topMatchesLimit,
             )
     val topMatchesForSubmit = settledTopMatchesForSubmit.matches

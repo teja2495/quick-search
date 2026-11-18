@@ -331,8 +331,6 @@ internal fun ContentLayout(
     // Holding them back for that short window makes the whole result set appear at once.
     val holdRegularSectionsForTopMatches =
         canShowTopMatches && !settledTopMatches.isReady && displayedTopMatches.isEmpty()
-    val showTopMatchesSection =
-        canShowTopMatches && (showTopMatches || isLocalSearchRefreshing)
     val hasMoreResults =
         hasMoreResults(
             renderingState = regularRenderingState,
@@ -471,7 +469,6 @@ internal fun ContentLayout(
     @Composable
     fun renderTopMatches() {
         ContentLayoutTopMatches(
-            showTopMatchesSection = showTopMatchesSection,
             displayedTopMatches = displayedTopMatches,
             sectionParams = sectionParams,
             effectiveShowWallpaperBackground = effectiveShowWallpaperBackground,
@@ -481,7 +478,6 @@ internal fun ContentLayout(
             selectedTopMatchIndex = selectedTopMatchIndex,
             isReversed = isReversed,
             onOtherSearchItemAction = onOtherSearchItemAction,
-            showTopMatches = showTopMatches,
             hasMoreResults = hasMoreResults,
             appsSectionAbove = isReversed && rendersAppsSection,
         )
@@ -703,7 +699,7 @@ internal fun ContentLayout(
         bottomAnchoredResultsGap(
             resultCardGap = if (isExpanded) 0.dp else resultCardBottomGap,
             state = state,
-            showTopMatchesSection = showTopMatchesSection,
+            showTopMatchesSection = showTopMatches,
             topMatches = displayedTopMatches,
             rendersAppsSection = rendersAppsSection,
         )
@@ -713,7 +709,7 @@ internal fun ContentLayout(
     ContentLayoutColumn(
         layoutOrder = finalLayoutOrder,
         isReversed = isReversed,
-        showTopMatchesSection = showTopMatchesSection,
+        showTopMatchesSection = showTopMatches,
         showHomeWidgets =
             !hasQuery &&
                 !hideResults &&

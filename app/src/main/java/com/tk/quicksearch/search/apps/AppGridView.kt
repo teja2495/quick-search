@@ -451,9 +451,9 @@ fun AppGridView(
         }
 
         if (showAppGrid) {
-            val suggestionsContentModifier = Modifier.graphicsLayer {
-                alpha = suggestionsAlpha.value
-            }
+            val suggestionsContentModifier =
+                if (isSearching) Modifier
+                else Modifier.graphicsLayer { alpha = suggestionsAlpha.value }
             Column(
                     modifier = suggestionsContentModifier,
                     horizontalAlignment = Alignment.CenterHorizontally,

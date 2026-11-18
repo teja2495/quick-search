@@ -22,6 +22,7 @@ import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderin
 import kotlinx.coroutines.delay
 
 private const val TOP_MATCH_SETTLE_DEADLINE_MS = 110L
+private const val TOP_MATCH_PROVIDER_SETTLE_DEADLINE_MS = 250L
 
 internal class SettledSearchResultsBuffer<T>(private val emptyValue: T) {
     private var settledQuery = ""
@@ -101,21 +102,27 @@ internal fun rememberSettledTopMatches(
     query: String,
     currentMatches: List<TopMatchItem>,
     isSearchRefreshing: Boolean,
+    isProviderSearchRefreshing: Boolean,
     limit: Int,
 ): SettledTopMatchesState {
-    var deadlineReached by remember(query) { mutableStateOf(false) }
+    var elapsedMs by remember(query) { mutableStateOf(0L) }
     LaunchedEffect(query) {
         if (query.isNotBlank()) {
             delay(TOP_MATCH_SETTLE_DEADLINE_MS)
-            deadlineReached = true
+            elapsedMs = TOP_MATCH_SETTLE_DEADLINE_MS
+            delay(TOP_MATCH_PROVIDER_SETTLE_DEADLINE_MS - TOP_MATCH_SETTLE_DEADLINE_MS)
+            elapsedMs = TOP_MATCH_PROVIDER_SETTLE_DEADLINE_MS
         }
     }
+    val deadlineMs =
+        if (isProviderSearchRefreshing) TOP_MATCH_PROVIDER_SETTLE_DEADLINE_MS
+        else TOP_MATCH_SETTLE_DEADLINE_MS
     return remember { StableTopMatchesBuffer() }
         .displayedValue(
             query = query,
             currentMatches = currentMatches,
             isSearchRefreshing = isSearchRefreshing,
-            deadlineReached = deadlineReached,
+            deadlineReached = elapsedMs >= deadlineMs,
             limit = limit,
         )
 }

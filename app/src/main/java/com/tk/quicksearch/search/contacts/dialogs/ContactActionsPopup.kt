@@ -303,7 +303,7 @@ internal fun ContactActionsPopup(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(AppShapes.extraLarge)
-                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                        .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                         .padding(DesignTokens.SpacingXSmall),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,

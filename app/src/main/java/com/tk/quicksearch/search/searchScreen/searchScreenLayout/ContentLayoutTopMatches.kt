@@ -16,7 +16,6 @@ import com.tk.quicksearch.R
 
 @Composable
 internal fun ContentLayoutTopMatches(
-    showTopMatchesSection: Boolean,
     displayedTopMatches: List<com.tk.quicksearch.search.searchScreen.TopMatchItem>,
     sectionParams: SectionRenderParams,
     effectiveShowWallpaperBackground: Boolean,
@@ -26,11 +25,9 @@ internal fun ContentLayoutTopMatches(
     selectedTopMatchIndex: Int?,
     isReversed: Boolean,
     onOtherSearchItemAction: OtherSearchItemActionHandler,
-    showTopMatches: Boolean,
     hasMoreResults: Boolean,
     appsSectionAbove: Boolean,
 ) {
-        if (!showTopMatchesSection) return
         TopMatchesSection(
             matches = displayedTopMatches,
             params = sectionParams,
@@ -47,7 +44,7 @@ internal fun ContentLayoutTopMatches(
             onOtherSearchItemAction = onOtherSearchItemAction,
             modifier = Modifier.fillMaxWidth(),
         )
-        if (showTopMatches && hasMoreResults && !isReversed) {
+        if (hasMoreResults && !isReversed) {
             Text(
                 text = stringResource(R.string.more_results_title),
                 style = MaterialTheme.typography.labelSmall,
