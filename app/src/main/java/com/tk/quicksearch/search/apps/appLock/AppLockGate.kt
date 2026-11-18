@@ -1,11 +1,11 @@
 package com.tk.quicksearch.search.apps.appLock
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Bundle
-import android.widget.Toast
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
@@ -107,7 +107,7 @@ object AppLockGate {
                 ?: resumedActivity?.get()?.takeUnless { it.isFinishing || it.isDestroyed }
         if (activity == null) {
             // Fail closed: without an activity to host the prompt the locked app stays shut.
-            Toast.makeText(context, R.string.app_lock_unavailable, Toast.LENGTH_SHORT).show()
+            AppMessages.show(context, R.string.app_lock_unavailable)
             onCancelled()
             return
         }

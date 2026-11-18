@@ -653,10 +653,10 @@ internal fun PersistentSearchBar(
                                 )
                                 .togetherWith(
                                     fadeOut(
-                                        animationSpec = tween(durationMillis = LeadingIconExitDurationMs),
+                                        animationSpec = tween(durationMillis = LeadingIconExitDurationMs, easing = AppMotion.EmphasizedAccelerateEasing),
                                     ) +
                                         scaleOut(
-                                            animationSpec = tween(durationMillis = LeadingIconExitDurationMs),
+                                            animationSpec = tween(durationMillis = LeadingIconExitDurationMs, easing = AppMotion.EmphasizedAccelerateEasing),
                                             targetScale = LeadingIconExitTargetScale,
                                         ),
                                 )

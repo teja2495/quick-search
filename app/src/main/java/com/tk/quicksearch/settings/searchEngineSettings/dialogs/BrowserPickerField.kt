@@ -76,7 +76,7 @@ fun BrowserPickerField(
     var expanded by remember { mutableStateOf(false) }
     val chevronAngle by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
-        animationSpec = tween(durationMillis = AppMotion.DurationShort),
+        animationSpec = tween(durationMillis = AppMotion.DurationShort, easing = AppMotion.EmphasizedEasing),
         label = "chevron",
     )
 
@@ -140,8 +140,8 @@ fun BrowserPickerField(
         // ── Dropdown list ─────────────────────────────────────────────────────
         AnimatedVisibility(
             visible = expanded,
-            enter = expandVertically(tween(AppMotion.DurationShort)) + fadeIn(tween(AppMotion.DurationShort)),
-            exit = shrinkVertically(tween(AppMotion.DurationShort)) + fadeOut(tween(AppMotion.DurationShort)),
+            enter = expandVertically(tween(AppMotion.DurationShort, easing = AppMotion.EmphasizedDecelerateEasing)) + fadeIn(tween(AppMotion.DurationShort, easing = AppMotion.EmphasizedDecelerateEasing)),
+            exit = shrinkVertically(tween(AppMotion.DurationShort, easing = AppMotion.EmphasizedAccelerateEasing)) + fadeOut(tween(AppMotion.DurationShort, easing = AppMotion.EmphasizedAccelerateEasing)),
         ) {
             Column(
                 modifier = Modifier

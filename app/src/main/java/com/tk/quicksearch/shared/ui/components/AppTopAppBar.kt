@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -12,6 +11,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -24,7 +24,9 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
  *
  * The container stays transparent so the page background (theme gradient, AMOLED black) shows
  * through, and it skips the on-scroll fill because callers clip their scrolling content below the
- * bar, so content never passes under it. The caller's root already applies the window insets.
+ * bar, so content never passes under it. The caller's root normally applies the window insets;
+ * a page hosted in a `Scaffold` passes the status bar insets as [windowInsets] instead. A
+ * full-screen dialog (such as a widget configuration screen) passes a close [navigationIcon].
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +34,9 @@ fun AppTopAppBar(
     title: String,
     onBack: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    navigationIcon: ImageVector = MaterialSymbols.ArrowBack,
+    navigationContentDescription: String = stringResource(R.string.desc_navigate_back),
+    windowInsets: WindowInsets = WindowInsets(0),
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     val onSurface = MaterialTheme.colorScheme.onSurface
@@ -47,16 +52,16 @@ fun AppTopAppBar(
         modifier = modifier,
         navigationIcon = {
             if (onBack != null) {
-                IconButton(onClick = onBack) {
+                AppIconButton(onClick = onBack, tooltip = navigationContentDescription) {
                     Icon(
-                        imageVector = MaterialSymbols.ArrowBack,
-                        contentDescription = stringResource(R.string.desc_navigate_back),
+                        imageVector = navigationIcon,
+                        contentDescription = navigationContentDescription,
                     )
                 }
             }
         },
         actions = actions,
-        windowInsets = WindowInsets(0),
+        windowInsets = windowInsets,
         colors =
             TopAppBarDefaults.topAppBarColors(
                 containerColor = Color.Transparent,

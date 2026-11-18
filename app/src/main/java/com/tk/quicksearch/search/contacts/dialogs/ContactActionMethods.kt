@@ -116,10 +116,10 @@ internal fun RemainingMethodsList(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
                 ) {
-                    Box(modifier = Modifier.size(22.dp), contentAlignment = Alignment.Center) {
+                    Box(modifier = Modifier.size(DesignTokens.IconSize), contentAlignment = Alignment.Center) {
                         ContactMethodIcon(
                             method = method,
-                            iconSize = 22.dp,
+                            iconSize = DesignTokens.IconSize,
                             tintOverride = AppColors.DialogText,
                         )
                     }

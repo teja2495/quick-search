@@ -1,11 +1,11 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -33,7 +33,7 @@ internal fun noteEditorHeaderActions(
 ): (@Composable () -> Unit)? {
     if (toolbar.onConfirmedDelete == null) return null
     return {
-        IconButton(onClick = onDeleteClick) {
+        AppIconButton(onClick = onDeleteClick, tooltip = stringResource(R.string.notes_delete_note_desc)) {
             Icon(
                 imageVector = MaterialSymbols.Delete,
                 contentDescription = stringResource(R.string.notes_delete_note_desc),

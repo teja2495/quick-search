@@ -236,9 +236,9 @@ internal fun BoxScope.AnimatedWidgetEditOverlay(
             transition.animateFloat(
                 transitionSpec = {
                     if (targetState == EnterExitState.Visible) {
-                        tween(WIDGET_EDIT_OVERLAY_FADE_IN_MS)
+                        tween(WIDGET_EDIT_OVERLAY_FADE_IN_MS, easing = AppMotion.EmphasizedEasing)
                     } else {
-                        tween(WIDGET_EDIT_OVERLAY_FADE_OUT_MS)
+                        tween(WIDGET_EDIT_OVERLAY_FADE_OUT_MS, easing = AppMotion.EmphasizedEasing)
                     }
                 },
                 label = "widgetEditOverlayAlpha",

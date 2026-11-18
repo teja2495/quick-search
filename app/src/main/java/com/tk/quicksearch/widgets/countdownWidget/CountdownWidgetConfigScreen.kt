@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.countdownWidget
 
+import com.tk.quicksearch.shared.ui.components.AppDatePickerDialog
 import com.tk.quicksearch.shared.ui.components.AppFilterChip
 import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import com.tk.quicksearch.shared.ui.theme.AppShapes
@@ -16,8 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -205,19 +204,11 @@ private fun CountdownDatePickerDialog(
     // The picker works in UTC midnights, which map one-to-one onto epoch days.
     val initialEpochDay = targetEpochDay ?: LocalDate.now(ZoneId.systemDefault()).toEpochDay()
     val state = rememberDatePickerState(initialSelectedDateMillis = initialEpochDay * MILLIS_PER_DAY)
-    DatePickerDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            AppTextButton(
-                onClick = { state.selectedDateMillis?.let { onConfirm(Math.floorDiv(it, MILLIS_PER_DAY)) } ?: onDismiss() },
-            ) { Text(stringResource(R.string.dialog_save)) }
-        },
-        dismissButton = {
-            AppTextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) }
-        },
-    ) {
-        DatePicker(state = state)
-    }
+    AppDatePickerDialog(
+        state = state,
+        onDismiss = onDismiss,
+        onConfirm = { state.selectedDateMillis?.let { onConfirm(Math.floorDiv(it, MILLIS_PER_DAY)) } ?: onDismiss() },
+    )
 }
 
 @OptIn(ExperimentalLayoutApi::class)

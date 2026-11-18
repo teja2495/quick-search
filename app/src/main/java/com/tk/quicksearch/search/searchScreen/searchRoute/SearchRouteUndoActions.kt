@@ -27,6 +27,7 @@ import com.tk.quicksearch.search.other.OtherSearchItemAction
 import com.tk.quicksearch.search.other.OtherSearchItemId
 import com.tk.quicksearch.search.other.OtherSearchItemRegistry
 import com.tk.quicksearch.search.utils.FileUtils
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.shared.ui.components.AppUndoSnackbarHost
 import com.tk.quicksearch.shared.ui.components.LocalUndoSnackbarAnchor
 import com.tk.quicksearch.shared.ui.components.UndoSnackbarAnchor
@@ -86,6 +87,7 @@ internal fun rememberRouteUndoActions(
             }
         }
     val undoSnackbar = rememberUndoSnackbarController(effectiveSnackbarHostState)
+    AppMessages.HostEffect(undoSnackbar, AppMessages.ScreenHostPriority)
     val showUndoSnackbarVisuals: (UndoSnackbarVisuals, () -> Unit) -> Unit = undoSnackbar::show
     val showUndoSnackbar: (String, () -> Unit) -> Unit = { message, onUndo -> undoSnackbar.show(message, onUndo = onUndo) }
 

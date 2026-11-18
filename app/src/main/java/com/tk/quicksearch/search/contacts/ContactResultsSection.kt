@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.contacts
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
 import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
@@ -19,7 +20,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -589,13 +589,14 @@ private fun ContactActionHintBubble(
                 text = stringResource(R.string.contacts_action_hint_message),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface,
-                lineHeight = MaterialTheme.typography.bodySmall.lineHeight * 1.2f,
                 modifier =
                     Modifier.align(Alignment.CenterStart).padding(end = DesignTokens.Spacing40),
             )
-            IconButton(
+            AppIconButton(
                 onClick = onDismiss,
-                modifier = Modifier.align(Alignment.CenterEnd).size(DesignTokens.ButtonHeightSmall),
+                tooltip = stringResource(R.string.common_close),
+                modifier = Modifier.size(DesignTokens.ButtonHeightSmall),
+                anchorModifier = Modifier.align(Alignment.CenterEnd),
             ) {
                 Icon(
                     imageVector = MaterialSymbols.Close,

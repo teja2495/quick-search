@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.appShortcutsSettings
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -17,7 +18,6 @@ import androidx.compose.foundation.lazy.items
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -382,12 +382,17 @@ val context = LocalContext.current
                                 }
                             }
                         }
-                        IconButton(
+                        AppIconButton(
                             onClick = {
                                 visibleShortcutGroups.forEach { group ->
                                     expandedCards[group.packageName] = !allExpanded
                                 }
                             },
+                            tooltip = if (allExpanded) {
+                                        stringResource(R.string.settings_app_shortcuts_collapse_all)
+                                    } else {
+                                        stringResource(R.string.settings_app_shortcuts_expand_all)
+                                    },
                         ) {
                             Icon(
                                 imageVector = if (allExpanded) MaterialSymbols.UnfoldLess else MaterialSymbols.UnfoldMore,

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.app.navigation
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
@@ -25,7 +26,7 @@ internal fun animatedRootBackgroundColor(
         if (allowSystemWallpaperBackdrop && !showsSystemWallpaper) background else background.copy(alpha = 0f)
     return animateColorAsState(
         targetValue = target,
-        animationSpec = tween(NAVIGATION_ANIMATION_DURATION_MS),
+        animationSpec = tween(NAVIGATION_ANIMATION_DURATION_MS, easing = AppMotion.EmphasizedEasing),
         label = "RootBackgroundColor",
     ).value
 }
@@ -40,20 +41,20 @@ internal fun directionalNavigationTransition(
 ) = when (direction) {
     SwipeAnimationDirection.LEFT ->
         slideInHorizontally(
-            animationSpec = androidx.compose.animation.core.tween(NAVIGATION_ANIMATION_DURATION_MS),
+            animationSpec = androidx.compose.animation.core.tween(NAVIGATION_ANIMATION_DURATION_MS, easing = AppMotion.EmphasizedEasing),
             initialOffsetX = { it },
         ) togetherWith
             slideOutHorizontally(
-                animationSpec = androidx.compose.animation.core.tween(NAVIGATION_ANIMATION_DURATION_MS),
+                animationSpec = androidx.compose.animation.core.tween(NAVIGATION_ANIMATION_DURATION_MS, easing = AppMotion.EmphasizedEasing),
                 targetOffsetX = { -it },
             )
     SwipeAnimationDirection.RIGHT ->
         slideInHorizontally(
-            animationSpec = androidx.compose.animation.core.tween(NAVIGATION_ANIMATION_DURATION_MS),
+            animationSpec = androidx.compose.animation.core.tween(NAVIGATION_ANIMATION_DURATION_MS, easing = AppMotion.EmphasizedEasing),
             initialOffsetX = { -it },
         ) togetherWith
             slideOutHorizontally(
-                animationSpec = androidx.compose.animation.core.tween(NAVIGATION_ANIMATION_DURATION_MS),
+                animationSpec = androidx.compose.animation.core.tween(NAVIGATION_ANIMATION_DURATION_MS, easing = AppMotion.EmphasizedEasing),
                 targetOffsetX = { it },
             )
 }

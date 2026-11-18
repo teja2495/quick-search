@@ -277,7 +277,7 @@ private fun FolderRemoveZone(
     val visibility by
             animateFloatAsState(
                     targetValue = if (state.isActive) 1f else 0f,
-                    animationSpec = tween(RemoveZoneFadeMillis),
+                    animationSpec = tween(RemoveZoneFadeMillis, easing = AppMotion.EmphasizedEasing),
                     label = "folderRemoveZoneVisibility",
             )
     val glowAlpha by

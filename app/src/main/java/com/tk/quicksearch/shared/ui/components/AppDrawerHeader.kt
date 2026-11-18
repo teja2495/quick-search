@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
@@ -36,7 +35,7 @@ internal fun AppDrawerHeader(
             }
         }
         if (onClose != null) {
-            IconButton(onClick = onClose, modifier = Modifier.size(DesignTokens.Spacing48)) {
+            AppIconButton(onClick = onClose, modifier = Modifier.size(DesignTokens.Spacing48), tooltip = stringResource(R.string.common_close)) {
                 Icon(
                     imageVector = MaterialSymbols.Close,
                     contentDescription = stringResource(R.string.common_close),

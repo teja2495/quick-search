@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import android.app.AlarmManager
 import android.content.BroadcastReceiver
@@ -7,7 +9,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.text.format.DateFormat
-import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
@@ -19,7 +20,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -203,7 +203,7 @@ internal fun UpcomingAlarmRow(glance: UpcomingAlarmGlance) {
     val scheduleLabel = "$alarmTime • $relativeLabel"
     val title = stringResource(R.string.home_upcoming_alarm)
     val failureMessage = stringResource(R.string.common_error_unable_to_open, title)
-    val showFailure = { Toast.makeText(context, failureMessage, Toast.LENGTH_SHORT).show() }
+    val showFailure = { AppMessages.show(context, failureMessage) }
     var showMenu by remember { mutableStateOf(false) }
 
     Row(
@@ -249,9 +249,10 @@ internal fun UpcomingAlarmRow(glance: UpcomingAlarmGlance) {
                 )
             }
         }
-        IconButton(
+        AppIconButton(
             onClick = glance.dismiss,
             modifier = Modifier.size(UpcomingAlarmDismissSize),
+            tooltip = stringResource(R.string.common_close),
         ) {
             Icon(
                 imageVector = MaterialSymbols.Close,

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.contacts.dialogs
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.ContentUris
 import android.content.Intent
@@ -23,7 +24,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -300,11 +300,12 @@ internal fun ContactActionsPopup(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (reorderedPhoneNumbers.size > 1 && selectedPhoneIndex > 0) {
-                        IconButton(
+                        AppIconButton(
                             onClick = {
                                 selectedPhoneIndex = (selectedPhoneIndex - 1).coerceAtLeast(0)
                             },
                             modifier = Modifier.size(DesignTokens.Spacing48),
+                            tooltip = stringResource(R.string.contacts_action_previous_number),
                         ) {
                             Icon(
                                 imageVector = MaterialSymbols.ChevronLeft,
@@ -356,7 +357,7 @@ internal fun ContactActionsPopup(
                     if (reorderedPhoneNumbers.size > 1 &&
                         selectedPhoneIndex < reorderedPhoneNumbers.size - 1
                     ) {
-                        IconButton(
+                        AppIconButton(
                             onClick = {
                                 selectedPhoneIndex =
                                     (selectedPhoneIndex + 1).coerceAtMost(
@@ -364,6 +365,7 @@ internal fun ContactActionsPopup(
                                     )
                             },
                             modifier = Modifier.size(DesignTokens.Spacing48),
+                            tooltip = stringResource(R.string.contacts_action_next_number),
                         ) {
                             Icon(
                                 imageVector = MaterialSymbols.ChevronRight,

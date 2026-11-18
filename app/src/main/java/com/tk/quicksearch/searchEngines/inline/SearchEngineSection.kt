@@ -33,7 +33,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -92,7 +91,7 @@ internal fun compactTopDividerColor(showWallpaperBackground: Boolean): Color =
 internal object SearchEngineSectionConstants {
     val ICON_SIZE = SearchTargetConstants.DEFAULT_ICON_SIZE
     val SPACING = 20.dp
-    val ROW_SPACING = 10.dp
+    val ROW_SPACING = DesignTokens.SpacingMedium
     val PREDICTION_HIGHLIGHT_HEIGHT_EXTRA = 12.dp
     val PREDICTION_HIGHLIGHT_WIDTH_EXTRA = 8.dp
     val PREDICTION_HIGHLIGHT_CONTENT_PADDING =
@@ -207,9 +206,9 @@ fun SearchEngineIconsSection(
                 AnimatedVisibility(
                     visible = true,
                     enter =
-                        fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort)),
+                        fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort, easing = AppMotion.EmphasizedDecelerateEasing)),
                     exit =
-                        fadeOut(animationSpec = tween(durationMillis = AppMotion.DurationExit)),
+                        fadeOut(animationSpec = tween(durationMillis = AppMotion.DurationExit, easing = AppMotion.EmphasizedAccelerateEasing)),
                 ) {
                     CompactToolActionContent(
                         label = toolActionLabel,
@@ -238,9 +237,9 @@ fun SearchEngineIconsSection(
                 AnimatedVisibility(
                     visible = hasToolAction,
                     enter =
-                        fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort)),
+                        fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort, easing = AppMotion.EmphasizedDecelerateEasing)),
                     exit =
-                        fadeOut(animationSpec = tween(durationMillis = AppMotion.DurationExit)),
+                        fadeOut(animationSpec = tween(durationMillis = AppMotion.DurationExit, easing = AppMotion.EmphasizedAccelerateEasing)),
                 ) {
                     CompactToolActionContent(
                         label = toolActionLabel ?: return@AnimatedVisibility,

@@ -346,7 +346,7 @@ fun TonalIconBadgeContainer(
 
 private val SegmentedTileMinHeight = 72.dp
 val TonalIconBadgeSize = 40.dp
-val TonalIconBadgeIconSize = 22.dp
+val TonalIconBadgeIconSize = DesignTokens.IconSize
 private const val SegmentedTileDisabledAlpha = 0.72f
 
 /**

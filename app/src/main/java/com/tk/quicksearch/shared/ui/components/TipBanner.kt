@@ -15,7 +15,6 @@ import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -135,7 +134,7 @@ fun TipBanner(
             }
 
             if (actionIcon != null && onActionClick != null) {
-                IconButton(onClick = onActionClick) {
+                AppIconButton(onClick = onActionClick, tooltip = actionContentDescription) {
                     Icon(
                         imageVector = actionIcon,
                         contentDescription = actionContentDescription,
@@ -143,7 +142,7 @@ fun TipBanner(
                     )
                 }
             } else if (showDismissButton && onDismiss != null) {
-                IconButton(onClick = onDismiss) {
+                AppIconButton(onClick = onDismiss, tooltip = stringResource(R.string.common_close)) {
                     Icon(
                         imageVector = MaterialSymbols.Close,
                         contentDescription = stringResource(R.string.common_close),

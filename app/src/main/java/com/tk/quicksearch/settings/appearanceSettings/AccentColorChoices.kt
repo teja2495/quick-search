@@ -1,6 +1,6 @@
 package com.tk.quicksearch.settings.appearanceSettings
 
-import android.widget.Toast
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,7 +70,7 @@ internal fun AccentColorChoices(
                 else -> null
             }
             if (blockedMessage != null) {
-                Toast.makeText(context, blockedMessage, Toast.LENGTH_SHORT).show()
+                AppMessages.show(context, blockedMessage)
             } else {
                 hapticToggle(view)()
                 if (mode == AccentColorMode.CUSTOM) {

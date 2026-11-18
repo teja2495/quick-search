@@ -1,5 +1,6 @@
 package com.tk.quicksearch.app.navigation
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.EnterTransition
@@ -35,7 +36,7 @@ internal fun AnimatedContentTransitionScope<AppScreen>.appScreenTransform(
         // No size animation: the empty Main slot would shrink and recentre the page as it leaves.
         return (EnterTransition.None togetherWith fadeOut(hold) using null).apply { targetContentZIndex = -1f }
     }
-    val spec = tween<androidx.compose.ui.unit.IntOffset>(NAVIGATION_ANIMATION_DURATION_MS)
+    val spec = tween<androidx.compose.ui.unit.IntOffset>(NAVIGATION_ANIMATION_DURATION_MS, easing = AppMotion.EmphasizedEasing)
     return if (appScreenOrder.indexOf(targetState) > appScreenOrder.indexOf(initialState)) {
         slideInHorizontally(spec) { it } togetherWith slideOutHorizontally(spec) { -it }
     } else {

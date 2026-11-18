@@ -98,7 +98,7 @@ fun CardTextField(
             } else {
                 0.dp
             },
-        animationSpec = tween(durationMillis = CARD_TEXT_FIELD_LABEL_ANIMATION_MS),
+        animationSpec = tween(durationMillis = CARD_TEXT_FIELD_LABEL_ANIMATION_MS, easing = AppMotion.EmphasizedEasing),
         label = "cardTextFieldRestingLabelOffset",
     )
     TextField(

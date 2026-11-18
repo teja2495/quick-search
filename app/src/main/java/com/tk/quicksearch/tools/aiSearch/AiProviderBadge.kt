@@ -1,5 +1,6 @@
 package com.tk.quicksearch.tools.aiSearch
 
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -62,6 +63,6 @@ fun aiProviderDisplayName(providerId: AiSearchLlmProviderId): String =
     stringResource(AiSearchLlmProviderRegistry.definition(providerId)?.nameRes ?: R.string.common_custom)
 
 private val AiProviderBadgeSize = 40.dp
-private val AiProviderBadgeLogoSize = 22.dp
+private val AiProviderBadgeLogoSize = DesignTokens.IconSize
 
 // Matches SettingsIconBadge.

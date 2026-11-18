@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import android.text.format.DateFormat
@@ -13,11 +14,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -44,6 +42,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
+import com.tk.quicksearch.shared.ui.components.AppDatePickerDialog
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.text.SimpleDateFormat
@@ -130,21 +129,11 @@ internal fun ReminderFormDialog(
 
     when {
         showDatePicker -> {
-            DatePickerDialog(
-                onDismissRequest = { showDatePicker = false },
-                confirmButton = {
-                    AppTextButton(onClick = { dateOrTimeChosen = true; showDatePicker = false }) {
-                        Text(stringResource(R.string.dialog_save))
-                    }
-                },
-                dismissButton = {
-                    AppTextButton(onClick = { showDatePicker = false }) {
-                        Text(stringResource(R.string.dialog_cancel))
-                    }
-                },
-            ) {
-                DatePicker(state = datePickerState)
-            }
+            AppDatePickerDialog(
+                state = datePickerState,
+                onDismiss = { showDatePicker = false },
+                onConfirm = { dateOrTimeChosen = true; showDatePicker = false },
+            )
         }
 
         showTimePicker -> {
@@ -246,7 +235,7 @@ internal fun ReminderFormDialog(
                                     onClick = { showTimePicker = true },
                                     modifier = Modifier.weight(1f),
                                 )
-                                IconButton(onClick = { hasTime = false }) {
+                                AppIconButton(onClick = { hasTime = false }, tooltip = stringResource(R.string.common_action_clear)) {
                                     Icon(
                                         imageVector = MaterialSymbols.Close,
                                         contentDescription = stringResource(R.string.common_action_clear),

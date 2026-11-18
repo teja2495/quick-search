@@ -388,7 +388,7 @@ private fun ItemMenuListRow(row: ItemMenuRow, first: Boolean, last: Boolean) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
         ) {
-            Box(modifier = Modifier.size(22.dp), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier.size(DesignTokens.IconSize), contentAlignment = Alignment.Center) {
                 CompositionLocalProvider(LocalContentColor provides contentColor) {
                     row.icon()
                 }

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import android.content.Context
 import android.content.Intent
 import android.provider.CallLog
@@ -14,13 +15,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,7 +27,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
@@ -113,11 +110,8 @@ internal fun MissedCallsRow(
                     modifier = Modifier.padding(start = DesignTokens.SpacingXXLarge + DesignTokens.SpacingMedium, top = DesignTokens.SpacingXSmall),
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                 ) {
-                    // Without the 48dp minimum touch target, which pads the chips with empty space above and below.
-                    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
-                        appCalls.forEach { call ->
-                            MissedCallAppChip(call = call, onClick = { openCallHistory(context, call) })
-                        }
+                    appCalls.forEach { call ->
+                        MissedCallAppChip(call = call, onClick = { openCallHistory(context, call) })
                     }
                 }
             }
@@ -138,13 +132,14 @@ internal fun MissedCallsRow(
                 )
             }
         }
-        IconButton(
+        AppIconButton(
             onClick = onDismiss,
-            modifier =
+            tooltip = stringResource(R.string.common_close),
+            modifier = Modifier.size(GlanceDismissButtonSize),
+            anchorModifier =
                 Modifier
                     .align(if (hasAppChips) Alignment.Top else Alignment.CenterVertically)
-                    .padding(start = DesignTokens.SpacingSmall)
-                    .size(GlanceDismissButtonSize),
+                    .padding(start = DesignTokens.SpacingSmall),
         ) {
             Icon(
                 imageVector = MaterialSymbols.Close,

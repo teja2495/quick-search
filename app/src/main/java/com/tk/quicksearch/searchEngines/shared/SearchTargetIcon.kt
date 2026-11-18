@@ -15,6 +15,7 @@ import kotlinx.coroutines.withContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.asImageBitmap
@@ -106,7 +107,7 @@ fun SearchTargetIcon(
                         painter = painterResource(id = drawableResId),
                         contentDescription = targetEngine.getContentDescription(),
                         modifier = modifier.size(iconSize),
-                        tint = if (isLightMode) Color.Black else Color.White,
+                        tint = AppColors.indicatorBase(lightFill = !isLightMode),
                     )
                 } else {
                     when (style) {

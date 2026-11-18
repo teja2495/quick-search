@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import android.text.format.DateFormat
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -13,14 +14,11 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -54,7 +52,6 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -478,32 +475,30 @@ internal fun UpcomingReminderRow(
             }
             val trackColor = MaterialTheme.colorScheme.outlineVariant
             val progressColor = AppColors.Accent
-            // Drop the 48dp touch-target padding so the ring hugs the compact pill.
-            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
-                AppTextButton(
-                    onClick = onUndoDone,
-                    contentPadding = PaddingValues(horizontal = DesignTokens.SpacingMedium),
-                    modifier =
-                        Modifier
-                            // Overrides TextButton's 40dp default minimum height so the pill stays compact.
-                            .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
-                            .height(UndoPillHeight)
-                            .drawWithContent {
-                                drawContent()
-                                drawUndoCountdownRing(remaining.value, trackColor, progressColor)
-                            },
-                ) {
-                    Text(
-                        text = stringResource(R.string.action_undo),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = AppColors.Accent,
-                    )
-                }
+            AppTextButton(
+                onClick = onUndoDone,
+                contentPadding = PaddingValues(horizontal = DesignTokens.SpacingMedium),
+                modifier =
+                    Modifier
+                        // Overrides TextButton's 40dp default minimum height so the pill stays compact.
+                        .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                        .height(UndoPillHeight)
+                        .drawWithContent {
+                            drawContent()
+                            drawUndoCountdownRing(remaining.value, trackColor, progressColor)
+                        },
+            ) {
+                Text(
+                    text = stringResource(R.string.action_undo),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = AppColors.Accent,
+                )
             }
         } else {
-            IconButton(
+            AppIconButton(
                 onClick = onDone,
                 modifier = Modifier.size(UpcomingReminderDismissSize),
+                tooltip = stringResource(R.string.action_mark_as_done),
             ) {
                 Icon(
                     imageVector = MaterialSymbols.Check,

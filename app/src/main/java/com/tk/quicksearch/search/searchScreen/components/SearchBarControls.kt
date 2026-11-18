@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -32,7 +33,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -335,13 +335,13 @@ internal fun SearchBarTrailingIcon(
         targetState = action,
         transitionSpec = {
             (
-                fadeIn(tween(TrailingIconGrowMs, delayMillis = TrailingIconShrinkMs)) +
+                fadeIn(tween(TrailingIconGrowMs, delayMillis = TrailingIconShrinkMs, easing = AppMotion.EmphasizedDecelerateEasing)) +
                     scaleIn(
                         tween(TrailingIconGrowMs, delayMillis = TrailingIconShrinkMs, easing = AppMotion.EmphasizedEasing),
                         initialScale = 0f,
                     )
             ).togetherWith(
-                fadeOut(tween(TrailingIconShrinkMs)) +
+                fadeOut(tween(TrailingIconShrinkMs, easing = AppMotion.EmphasizedAccelerateEasing)) +
                     scaleOut(tween(TrailingIconShrinkMs, easing = AppMotion.EmphasizedEasing), targetScale = 0f),
             ).using(SizeTransform(clip = false))
         },
@@ -351,7 +351,7 @@ internal fun SearchBarTrailingIcon(
     ) { target ->
         when (target) {
             SearchBarTrailingAction.Clear ->
-                IconButton(onClick = onClear) {
+                AppIconButton(onClick = onClear, tooltip = stringResource(R.string.desc_clear_search)) {
                     Icon(
                         imageVector = MaterialSymbols.Close,
                         contentDescription = stringResource(R.string.desc_clear_search),
@@ -360,7 +360,7 @@ internal fun SearchBarTrailingIcon(
                 }
 
             SearchBarTrailingAction.Mic ->
-                IconButton(onClick = onMic) {
+                AppIconButton(onClick = onMic, tooltip = stringResource(R.string.desc_voice_search_icon)) {
                     Icon(
                         imageVector = MaterialSymbols.Mic,
                         contentDescription = stringResource(R.string.desc_voice_search_icon),

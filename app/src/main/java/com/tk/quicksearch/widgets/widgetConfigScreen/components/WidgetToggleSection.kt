@@ -1,6 +1,6 @@
 package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
-import android.widget.Toast
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -25,12 +25,7 @@ fun WidgetToggleSection(
         checked = state.showLabel,
         onCheckedChange = { enabled ->
             if (enabled && hasCustomButtons) {
-                Toast
-                    .makeText(
-                        context,
-                        context.getString(R.string.widget_custom_buttons_restriction),
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                AppMessages.show(context, R.string.widget_custom_buttons_restriction)
             } else {
                 onStateChange(state.copy(showLabel = enabled))
             }

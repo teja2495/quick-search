@@ -1,6 +1,6 @@
 package com.tk.quicksearch.search.core
 
-import android.widget.Toast
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.R
 import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.search.apps.IconPackService
@@ -588,11 +588,7 @@ internal class SearchPreferencesDelegate(
             if (dropWallpaperAccent) {
                 withContext(Dispatchers.Main) {
                     val app = applicationProvider()
-                    android.widget.Toast.makeText(
-                        app,
-                        app.getString(R.string.settings_accent_color_default_theme_required_toast),
-                        android.widget.Toast.LENGTH_SHORT,
-                    ).show()
+                    AppMessages.show(app, app.getString(R.string.settings_accent_color_default_theme_required_toast))
                 }
             }
             stateAccess.saveStartupSurfaceSnapshotAsync(

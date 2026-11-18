@@ -116,6 +116,9 @@ object DesignTokens {
     /** Extra large icon size - 52dp App icons in grid. (52/4 = 13). Fits grid. */
     val IconSizeXLarge = 52.dp
 
+    /** Minimum height of a one-line list row (Material 3 list item). */
+    val ListItemMinHeight = 56.dp
+
     /** Minimum height of an At a Glance row on Home. */
     val GlanceRowMinHeight = 52.dp
 

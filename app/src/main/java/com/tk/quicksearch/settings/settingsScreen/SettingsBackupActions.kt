@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsScreen
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.content.ClipData
 import android.content.ContentValues
 import android.content.Context
@@ -8,7 +9,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Text
@@ -66,10 +66,10 @@ internal fun exportSettingsToDownloads(
         withContext(Dispatchers.Main) {
             val uri = result.getOrNull()
             if (uri == null) {
-                Toast.makeText(context, R.string.settings_backup_export_failed, Toast.LENGTH_SHORT).show()
+                AppMessages.show(context, R.string.settings_backup_export_failed)
                 return@withContext
             }
-            Toast.makeText(context, R.string.settings_features_saved_to_downloads, Toast.LENGTH_SHORT).show()
+            AppMessages.show(context, R.string.settings_features_saved_to_downloads)
             val shareIntent =
                 Intent(Intent.ACTION_SEND).apply {
                     type = "application/octet-stream"
@@ -148,12 +148,7 @@ internal fun importSettingsFromUri(
                 } else {
                     R.string.settings_backup_import_failed
                 }
-            Toast
-                .makeText(
-                    context,
-                    context.getString(messageResId),
-                    Toast.LENGTH_SHORT,
-                ).show()
+            AppMessages.show(context, context.getString(messageResId))
             if (isSuccess) {
                 onSuccess()
             }

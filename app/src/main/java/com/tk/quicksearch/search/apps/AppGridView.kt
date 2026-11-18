@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.apps
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.lazy.grid.items
@@ -441,7 +442,7 @@ fun AppGridView(
             } else if (suggestionsAlpha.value < 1f) {
                 suggestionsAlpha.animateTo(
                         targetValue = 1f,
-                        animationSpec = tween(durationMillis = SuggestionsEnterDurationMillis),
+                        animationSpec = tween(durationMillis = SuggestionsEnterDurationMillis, easing = AppMotion.EmphasizedEasing),
                 )
             }
             if (!isSearching) {

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.appNotifications
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.Surface
@@ -196,7 +196,7 @@ private fun KeywordRow(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f).padding(vertical = DesignTokens.SpacingSmall),
         )
-        IconButton(onClick = onClick, modifier = Modifier.size(KeywordRowIconButtonSize)) {
+        AppIconButton(onClick = onClick, modifier = Modifier.size(KeywordRowIconButtonSize), tooltip = iconDescription) {
             Icon(imageVector = icon, contentDescription = iconDescription, tint = iconTint)
         }
     }

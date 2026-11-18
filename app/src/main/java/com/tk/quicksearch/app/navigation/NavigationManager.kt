@@ -1,17 +1,18 @@
 package com.tk.quicksearch.app.navigation
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.os.Environment
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.rememberScrollState
@@ -26,6 +27,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -69,6 +71,7 @@ import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.util.FeedbackUtils
 import com.tk.quicksearch.widgetsPanel.WidgetsPanelScreen
 import com.tk.quicksearch.widgetsPanel.rememberWidgetsPanelHost
+import com.tk.quicksearch.shared.ui.components.AppMessageSnackbarHost
 import com.tk.quicksearch.shared.ui.components.LocalSegmentedItemModifier
 import com.tk.quicksearch.onboarding.welcomeExitItem
 
@@ -379,7 +382,7 @@ fun MainContent(
                     }
 
                 val showToast: (String) -> Unit = { message ->
-                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                    AppMessages.show(context, message)
                 }
 
                 QuickSearchTheme(
@@ -670,6 +673,8 @@ private fun NavigationContent(
                 }
             }
         }
+        // In-app messages on Settings and the widgets panel; Search registers its own host.
+        AppMessageSnackbarHost(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth())
     }
 
 }

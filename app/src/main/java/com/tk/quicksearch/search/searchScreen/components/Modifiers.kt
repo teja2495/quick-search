@@ -60,8 +60,8 @@ internal fun Modifier.predictedSubmitHighlight(
         val highlightColor =
             // Over an image the neutral follows the image's luminance, not the app theme.
             when (imageBackgroundIsDark) {
-                true -> lerp(Color.White, primary, DesignTokens.PredictedSubmitHighlightAccentBlend)
-                false -> lerp(Color.Black, primary, DesignTokens.PredictedSubmitHighlightAccentBlend)
+                true, false ->
+                    lerp(AppColors.indicatorBase(lightFill = imageBackgroundIsDark == true), primary, DesignTokens.PredictedSubmitHighlightAccentBlend)
                 null ->
                     if (opaqueCardTopResultBorder) {
                         lerp(MaterialTheme.colorScheme.onSurface, primary, DesignTokens.PredictedSubmitHighlightAccentBlend)

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.graphics.Color as AndroidColor
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -71,7 +71,7 @@ fun WidgetColorPickerDialog(
             } else {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = title, modifier = Modifier.weight(1f))
-                    IconButton(onClick = onDismiss) {
+                    AppIconButton(onClick = onDismiss, tooltip = stringResource(R.string.common_close)) {
                         Icon(
                             imageVector = MaterialSymbols.Close,
                             contentDescription = stringResource(R.string.common_close),

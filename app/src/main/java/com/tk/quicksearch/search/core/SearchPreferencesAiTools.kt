@@ -1,6 +1,6 @@
 package com.tk.quicksearch.search.core
 
-import android.widget.Toast
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.R
 import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.search.apps.IconPackService
@@ -273,11 +273,7 @@ internal suspend fun SearchPreferencesDelegate.showCustomProviderModelsError(err
         val app = applicationProvider()
         val detail = error.message?.takeIf { it.isNotBlank() } ?: error.javaClass.simpleName
         withContext(Dispatchers.Main) {
-            Toast.makeText(
-                app,
-                app.getString(R.string.custom_provider_models_load_failed, detail),
-                Toast.LENGTH_LONG,
-            ).show()
+            AppMessages.show(app, app.getString(R.string.custom_provider_models_load_failed, detail), long = true)
         }
     }
 

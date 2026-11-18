@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.os.Build
-import android.widget.Toast
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
@@ -120,7 +120,7 @@ internal fun CustomInfoRow(
             onLongClick = {
                 val copied = copySensitiveText(context, copyLabel, item.answer, sensitive = false)
                 if (copied && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                    Toast.makeText(context, copiedMessage, Toast.LENGTH_SHORT).show()
+                    AppMessages.show(context, copiedMessage)
                 }
             },
             onDismiss = onDismiss,

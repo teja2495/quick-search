@@ -44,12 +44,24 @@ feature, screen, or component starts from the Material 3 guideline for that patt
   in feature code, except for radii the user configures or that animate.
 - **Motion:** `AppMotion` for every spring, duration, and easing curve; don't write `spring(...)`
   inline or use Material 2's `FastOutSlowInEasing`, `LinearOutSlowInEasing`, or
-  `FastOutLinearInEasing`.
+  `FastOutLinearInEasing`. Every `tween(...)` passes an `AppMotion` easing; a bare `tween()`
+  defaults to `FastOutSlowInEasing`.
 - **Press feedback:** every tappable element shows Material's state layer. Don't pass
   `indication = null` unless the tap has other immediate visual feedback, and say why in a comment.
 - **Components:** reuse a shared component before building a new dialog, sheet, popup, menu,
   button, or settings row. Never call Material `Button`, `FilledTonalButton`, `OutlinedButton`,
-  `TextButton`, or `DropdownMenu` directly.
+  `TextButton`, `IconButton`, `DatePickerDialog`, `InputChip`, or `DropdownMenu` directly.
+- **Icon buttons:** use `AppIconButton` with a `tooltip`, normally the icon's content description.
+  Material 3 labels every icon-only action with a tooltip.
+- **Messages:** show brief feedback with `AppMessages.show(context, …)`, which appears as a
+  snackbar on the visible screen. Keep `Toast` only where no app UI is on screen (widgets, Quick
+  Settings tiles, trampoline activities, the accessibility service).
+- **Touch targets:** keep Material's 48dp minimum. Don't provide
+  `LocalMinimumInteractiveComponentSize provides Dp.Unspecified` unless a larger parent row is the
+  touch target (`SettingsNestedCheckbox`, `AliasPill`), and say so in a comment.
+- **Type weight:** take weight from the type scale. Override `fontWeight` only to emphasize text
+  one step above its style (a featured value, a bold name in a sentence), never to restate the
+  style's own weight. Don't override `letterSpacing` or `lineHeight`.
 - **Menus:** in action menus, never leave placeholder gaps between options. Reflow so any gap is
   only at the end of the last row.
 - **Every mode:** shared surfaces must work over the theme gradient, system wallpaper, custom
@@ -180,6 +192,9 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
   in use, so AI answers use `GeminiLoadingAnimation` (the same morphing shapes, built on
   graphics-shapes) and other waits use `CircularProgressIndicator`. Switch area-filling waits to
   `LoadingIndicator` once it is public.
+- **Search bar section menu.** `SearchBarSectionMenu` is an anchored `Popup` rather than an
+  `AppDropdownMenu` or `ItemMenuPopup`. It opens from the search bar in either bar position and
+  carries section toggles, which neither the dropdown nor the bottom-anchored item menu fits.
 - **Small badges.** Edit/remove badges on wallpaper thumbnails (20dp) and the notification history
   chevron are smaller than 48dp. They are clickable with a button role, and Compose extends their
   hit area to the 48dp minimum touch target where space allows.
@@ -207,7 +222,7 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
   `SegmentedListGap` 2, `SegmentedListTile*Padding`.
 - **Action menus:** `ItemMenuMaxWidth` 640, `ItemMenuRowHeight` 56.
 - **Sizes:** `IconSizeSmall` 20, `IconSize` 24, `LargeIconSize` 28, `IconSizeXLarge` 52,
-  `AppIconSize` 64, `BorderWidth` 1, `DividerThickness` 0.5.
+  `ListItemMinHeight` 56 (one-line list row), `AppIconSize` 64, `BorderWidth` 1, `DividerThickness` 0.5.
 - **At a Glance rows:** `GlanceRowMinHeight` 52, `GlanceRowHorizontalPadding` 7. The inset is off
   the 4dp grid; every glance row shares it so they line up. `ResultIconStartInset` gives the 24dp
   leading glyph in notes, reminders, calendar, and bookmark rows the same inset.
@@ -285,7 +300,8 @@ settings and add a property in sorted order.
 | `SegmentedGroup`, `SegmentedTile`, `SegmentedTileRow`, `SegmentedToggleTile`, `SegmentedTileContent`, `AppSwitch`, `TonalIconBadge`, `TonalIconBadgeContainer` (`SegmentedList.kt`) | Segmented list | The default layout for settings pages, dialogs that list items, widget config screens, onboarding, and drawers. Each row is its own tile, with 28dp outer corners, 4dp inner corners, and 2dp gaps; inner corners round to 16dp while pressed. Rows lead with a 40dp `TonalIconBadge`. Inside a tile, `LocalSegmentedItemModifier` and `LocalInSegmentedTile` adjust nested rows |
 | `ExpandableSegmentedGroup` | Expandable list | A `SegmentedGroup` that collapses to its title row (`titleMedium` heading, rotating chevron) |
 | `Settings*Row`, `SettingsSegmentNavigationRow`, `SettingsIconBadge`, `BooleanSettingTile`, `SettingsNestedCheckbox`, `SettingsRemoveButton`, `AliasPill` (`settings/shared/`) | List items | Settings toggle, navigation, and sub-option rows. `BooleanSettingTile` binds a registered boolean preference to the same command that searchable Settings uses |
-| `AppTopAppBar` | Top app bar (small) | Full-screen page headers (Settings and its detail pages): back button, `titleLarge` heading, and `actions`. The container is transparent over the page background, and there is no on-scroll fill because the page clips its scrolling content below the bar |
+| `AppTopAppBar` | Top app bar (small) | Full-screen page headers (Settings and its detail pages, widget config screens): back button, `titleLarge` heading, and `actions`. `navigationIcon` and `navigationContentDescription` swap the back arrow (a close icon for config screens that cancel); `windowInsets` is zero by default, and screens that draw under the status bar pass `TopAppBarDefaults.windowInsets`. The container is transparent over the page background, and there is no on-scroll fill because the page clips its scrolling content below the bar |
+| `AppIconButton` | Icon button with plain tooltip | Every icon-only action. `tooltip` is shown on long-press or hover. `modifier` goes on the button; parent-data modifiers (`align`, `weight`) go in `anchorModifier`, because the tooltip anchor wraps the button |
 | `AppAlertDialog` | Dialog | Alerts and confirmations on `surfaceContainerHigh`. Pass `confirmLabel`/`onConfirm` and an optional `dismissLabel`; set `destructive = true` for an error-tinted confirm |
 | `AppDialogSurface` | Dialog (custom content) | Custom centered content (File Preview, Pinned Notification Items). The feature owns sizing and actions |
 | `AppBottomSheet` | Modal bottom sheet | Bottom sheets with 28dp top corners. `scrimColor = Color.Transparent` keeps the screen behind undimmed for live previews |
@@ -294,7 +310,10 @@ settings and add a property in sorted order.
 | `AppBottomPopup` | Bottom sheet (floating) | Bottom-anchored floating popup with the drawer header, 28dp corners, and a 640dp max width. `animateSizeChanges` animates height changes with the bottom anchored |
 | `ItemMenuPopup` | Menu (expressive) | Long-press action menus: tonal quick-action tiles, segmented option rows, and pill buttons on `surfaceContainerHighest`. Contact action popups reuse its tiles. Reflow options so gaps fall only at the end of the last row |
 | `AppDropdownMenu`, `AppDropdownMenuItem`, `AppDropdownMenuDivider`, `AppOverflowMenu` | Menu | Every three-dot and long-press dropdown: 28dp corners on `surfaceContainer`. `destructive = true` items must still confirm with `AppAlertDialog`. `AppDropdownMenuItem` takes an `icon: ImageVector` or a `leadingIcon` slot for custom leading content; don't use raw `DropdownMenuItem` |
-| `AppUndoSnackbarHost`, `AppUndoSnackbarPopup`, `rememberUndoSnackbarController()` | Snackbar | Undo after a removal. Put the host in a screen's root overlay; settings pages without one use the popup. It lifts above `Modifier.undoSnackbarAvoidArea()` so it never covers the bottom search bar |
+| `AppUndoSnackbarHost`, `AppUndoSnackbarPopup`, `rememberUndoSnackbarController()` | Snackbar | Undo after a removal. Put the host in a screen's root overlay; settings pages without one use the popup. It lifts above `Modifier.undoSnackbarAvoidArea()` so it never covers the bottom search bar. `showMessage` shows a message with no action |
+| `AppMessages`, `AppMessageSnackbarHost` (`AppMessages.kt`) | Snackbar | Brief feedback in place of a `Toast`. `AppMessages.show(context, text or @StringRes, long)` works from any thread and goes to the highest-priority host registered by a resumed screen, falling back to a `Toast` when none is. The search route and overlay register their undo snackbar with `AppMessages.HostEffect(controller, ScreenHostPriority)`; navigation's root and `WidgetConfigScaffold` (with `inScaffold = true`) hold an `AppMessageSnackbarHost` at fallback priority |
+| `AppDatePickerDialog` | Date picker dialog | Picking a date. Wraps Material's `DatePickerDialog` and `DatePicker` with `AppTextButton` confirm and cancel actions |
+| `AppInputChip` | Input chip | A removable entry the user added (excluded file extensions): pill shape, trailing close icon, and a `SettingsDivider` outline |
 | `AppOutlinedTextField`, `dialogTextFieldColors()`, `CardTextField`, `cardTextFieldColors()` | Text fields | Every form input: outlined fields in dialogs, sheets, and settings forms (both `String` and `TextFieldValue` overloads take an optional label, placeholder, supporting text, icons, keyboard options, and a `shape`, `AppShapes.extraSmall` by default for strings); borderless fields stacked as rows on a settings surface. Don't call Material `TextField` or `OutlinedTextField` directly; search-style fields are the exception below |
 | `AppFloatingActionButton`, `AppExtendedFloatingActionButton`, `AppFabTone` (`AppFloatingActionButton.kt`) | FAB, extended FAB | 56dp page-bottom actions with a 24dp icon, fully round and squaring on press. `AppFabTone.Primary` (`Accent`) for the main action, `Tonal` (`FloatingTonalContainer`) for a secondary one, `Error` for destructive. The extended FAB takes a label and an `enabled` flag (fades to `DisabledContentAlpha`); the caller sets its width. Don't call Material FABs directly |
 | `AppFilterChip`, `AppFilterChipStyle` (`AppFilterChip.kt`) | Filter chip | Filter and multi-select chips. Selected fills with `Accent`; `Outlined` (default) has a `SettingsDivider` outline, `Tonal` uses `AccentTintTonal` for chips on a tonal surface. `showSelectedCheck` adds the multi-select check. Over a wallpaper, pass the wallpaper-aware label and border colors |

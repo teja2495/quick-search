@@ -1,5 +1,6 @@
 package com.tk.quicksearch.searchEngines.inline
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.insetCardBackdrop
@@ -38,7 +39,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -121,9 +121,10 @@ internal fun AiFollowUpInputSection(
                     .focusRequester(focusRequester),
             placeholder = { Text(stringResource(R.string.direct_search_follow_up_hint)) },
             trailingIcon = {
-                IconButton(
+                AppIconButton(
                     onClick = submit,
                     enabled = value.isNotBlank(),
+                    tooltip = stringResource(R.string.dialog_send),
                 ) {
                     Icon(
                         imageVector = MaterialSymbols.Send,

@@ -4,19 +4,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.components.AppMessageSnackbarHost
+import com.tk.quicksearch.shared.ui.components.AppTopAppBar
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.widgets.utils.WidgetConfigConstants
 
@@ -32,21 +31,19 @@ internal fun WidgetConfigScaffold(
 ) {
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = title, style = MaterialTheme.typography.titleLarge) },
-                navigationIcon = {
-                    IconButton(onClick = onCancel) {
-                        Icon(
-                            imageVector = MaterialSymbols.Close,
-                            contentDescription = stringResource(R.string.dialog_cancel),
-                        )
-                    }
-                },
+            AppTopAppBar(
+                title = title,
+                onBack = onCancel,
+                navigationIcon = MaterialSymbols.Close,
+                navigationContentDescription = stringResource(R.string.dialog_cancel),
+                windowInsets = TopAppBarDefaults.windowInsets,
             )
         },
+        snackbarHost = { AppMessageSnackbarHost(inScaffold = true) },
         bottomBar = {
             if (onSave != null) {
-                Surface(shadowElevation = WidgetConfigConstants.SURFACE_ELEVATION) {
+                // Material 3 bottom bar: a tonal container rather than a shadow.
+                Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
                     Box(
                         modifier =
                             Modifier.fillMaxWidth().padding(

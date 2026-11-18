@@ -21,14 +21,12 @@ import androidx.compose.material3.ripple
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -422,30 +420,27 @@ private fun SearchHistoryTabs(
             }
         },
     ) {
-        // No tap ripple on the tabs; the indicator already shows the selection.
-        CompositionLocalProvider(LocalRippleConfiguration provides null) {
-            SearchHistoryTab.entries.forEach { tab ->
-                Tab(
-                    selected = selectedTab == tab,
-                    onClick = { if (selectedTab != tab) onTabSelected(tab) },
-                    selectedContentColor = selectedColor,
-                    unselectedContentColor = unselectedColor,
-                    text = {
-                        Text(
-                            text =
-                                stringResource(
-                                    when (tab) {
-                                        SearchHistoryTab.RECENTLY_OPENED -> R.string.search_history_tab_recently_opened
-                                        else -> R.string.search_history_tab_searches
-                                    },
-                                ),
-                            style = MaterialTheme.typography.titleSmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    },
-                )
-            }
+        SearchHistoryTab.entries.forEach { tab ->
+            Tab(
+                selected = selectedTab == tab,
+                onClick = { if (selectedTab != tab) onTabSelected(tab) },
+                selectedContentColor = selectedColor,
+                unselectedContentColor = unselectedColor,
+                text = {
+                    Text(
+                        text =
+                            stringResource(
+                                when (tab) {
+                                    SearchHistoryTab.RECENTLY_OPENED -> R.string.search_history_tab_recently_opened
+                                    else -> R.string.search_history_tab_searches
+                                },
+                            ),
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                },
+            )
         }
     }
 }

@@ -1,10 +1,11 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
@@ -19,7 +20,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -197,7 +197,7 @@ private fun TavilyWebSearchSection() {
                                 coroutineScope.launch(Dispatchers.IO) {
                                     preferences.setTavilyWebSearchMode(selected)
                                 }
-                                Toast.makeText(context, selected.descriptionResId(), Toast.LENGTH_SHORT).show()
+                                AppMessages.show(context, selected.descriptionResId())
                             }
                         },
                     )
@@ -318,7 +318,7 @@ private fun AddCustomProviderTile(
                             modifier = Modifier.fillMaxWidth(),
                             leadingIcon = { Icon(imageVector = MaterialSymbols.Key, contentDescription = null) },
                             trailingIcon = {
-                                IconButton(onClick = { apiKeyInput = "" }) {
+                                AppIconButton(onClick = { apiKeyInput = "" }, tooltip = stringResource(R.string.common_action_clear)) {
                                     Icon(
                                         imageVector = MaterialSymbols.Close,
                                         contentDescription = stringResource(R.string.common_action_clear),

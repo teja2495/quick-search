@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.shared
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -7,7 +8,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -66,9 +66,10 @@ fun SettingsManagementSearchBar(
         trailingIcon =
             if (query.isNotBlank()) {
                 {
-                    IconButton(
+                    AppIconButton(
                         onClick = onClear,
                         modifier = Modifier.offset(x = (-2).dp),
+                        tooltip = stringResource(R.string.common_close),
                     ) {
                         Icon(
                             imageVector = MaterialSymbols.Close,

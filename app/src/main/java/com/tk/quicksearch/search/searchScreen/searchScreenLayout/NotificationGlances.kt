@@ -302,8 +302,8 @@ internal fun TimerRow(
                                     targetState = action,
                                     contentKey = { it.title },
                                     transitionSpec = {
-                                        (fadeIn(tween(AppMotion.DurationStandard)) + scaleIn(tween(AppMotion.DurationStandard), initialScale = 0.8f)) togetherWith
-                                            (fadeOut(tween(AppMotion.DurationExit)) + scaleOut(tween(AppMotion.DurationExit), targetScale = 0.8f)) using
+                                        (fadeIn(tween(AppMotion.DurationStandard, easing = AppMotion.EmphasizedDecelerateEasing)) + scaleIn(tween(AppMotion.DurationStandard, easing = AppMotion.EmphasizedDecelerateEasing), initialScale = 0.8f)) togetherWith
+                                            (fadeOut(tween(AppMotion.DurationExit, easing = AppMotion.EmphasizedAccelerateEasing)) + scaleOut(tween(AppMotion.DurationExit, easing = AppMotion.EmphasizedAccelerateEasing), targetScale = 0.8f)) using
                                             SizeTransform(clip = false)
                                     },
                                     label = "timerAction",

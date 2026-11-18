@@ -1,14 +1,14 @@
 package com.tk.quicksearch.reminders
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import android.Manifest
 import android.content.Context
 import android.os.Build
 import android.text.format.DateFormat
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -133,11 +133,11 @@ fun ReminderEditorHost() {
                                 } else {
                                     reminderSetMessage(appContext, ReminderRepository(appContext).createReminder(title, date, timeMinutes, repeat))
                                 }
-                            Toast.makeText(appContext, message, Toast.LENGTH_SHORT).show()
+                            AppMessages.show(appContext, message)
                         }
                     } else {
                         val created = repository.createReminder(title, date, timeMinutes, repeat)
-                        Toast.makeText(context, reminderSetMessage(context, created), Toast.LENGTH_SHORT).show()
+                        AppMessages.show(context, reminderSetMessage(context, created))
                         requestPermissionsIfFirst()
                     }
                     current.onCreated?.invoke()
@@ -203,7 +203,7 @@ private fun ReminderFormDialog(
         confirmResId = R.string.dialog_save,
         extraActions = {
             if (onDelete != null) {
-                IconButton(onClick = onDelete) {
+                AppIconButton(onClick = onDelete, tooltip = stringResource(R.string.reminder_delete)) {
                     Icon(
                         imageVector = MaterialSymbols.Delete,
                         contentDescription = stringResource(R.string.reminder_delete),

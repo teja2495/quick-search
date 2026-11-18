@@ -240,16 +240,16 @@ internal fun SearchScreenBottomChrome(
                 visible = visible,
                 modifier = Modifier.fillMaxWidth(),
                 enter =
-                        fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort)) +
+                        fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort, easing = AppMotion.EmphasizedDecelerateEasing)) +
                                 expandVertically(
                                         expandFrom = Alignment.Bottom,
-                                        animationSpec = tween(durationMillis = AppMotion.DurationStandard),
+                                        animationSpec = tween(durationMillis = AppMotion.DurationStandard, easing = AppMotion.EmphasizedDecelerateEasing),
                                 ),
                 exit =
-                        fadeOut(animationSpec = tween(durationMillis = AppMotion.DurationExit)) +
+                        fadeOut(animationSpec = tween(durationMillis = AppMotion.DurationExit, easing = AppMotion.EmphasizedAccelerateEasing)) +
                                 shrinkVertically(
                                         shrinkTowards = Alignment.Bottom,
-                                        animationSpec = tween(durationMillis = AppMotion.DurationShort),
+                                        animationSpec = tween(durationMillis = AppMotion.DurationShort, easing = AppMotion.EmphasizedAccelerateEasing),
                                 ),
         ) {
             NumberKeyboardOperatorPills(
@@ -281,16 +281,16 @@ internal fun SearchScreenBottomChrome(
                         visible = shouldRenderInlineNumberKeyboardOperators && !showBottomSearchBar,
                         modifier = Modifier.fillMaxWidth(),
                         enter =
-                                fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort)) +
+                                fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort, easing = AppMotion.EmphasizedDecelerateEasing)) +
                                         expandVertically(
                                                 expandFrom = Alignment.Bottom,
-                                                animationSpec = tween(durationMillis = AppMotion.DurationStandard),
+                                                animationSpec = tween(durationMillis = AppMotion.DurationStandard, easing = AppMotion.EmphasizedDecelerateEasing),
                                         ),
                         exit =
-                                fadeOut(animationSpec = tween(durationMillis = AppMotion.DurationExit)) +
+                                fadeOut(animationSpec = tween(durationMillis = AppMotion.DurationExit, easing = AppMotion.EmphasizedAccelerateEasing)) +
                                         shrinkVertically(
                                                 shrinkTowards = Alignment.Bottom,
-                                                animationSpec = tween(durationMillis = AppMotion.DurationShort),
+                                                animationSpec = tween(durationMillis = AppMotion.DurationShort, easing = AppMotion.EmphasizedAccelerateEasing),
                                         ),
                 ) {
                     NumberKeyboardOperatorPills(
@@ -373,19 +373,19 @@ internal fun SearchScreenBottomChrome(
                     visible = shouldShowOpenKeyboardAction && delayedOpenKeyboardActionVisible,
                     modifier = Modifier.fillMaxWidth(),
                     enter =
-                            fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort)) +
+                            fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort, easing = AppMotion.EmphasizedDecelerateEasing)) +
                                     expandVertically(
                                             expandFrom = Alignment.Bottom,
-                                            animationSpec = tween(durationMillis = AppMotion.DurationStandard),
+                                            animationSpec = tween(durationMillis = AppMotion.DurationStandard, easing = AppMotion.EmphasizedDecelerateEasing),
                                     ),
                     exit =
                             if (hideOpenKeyboardActionInstantly) {
                                 ExitTransition.None
                             } else {
-                                fadeOut(animationSpec = tween(durationMillis = AppMotion.DurationExit)) +
+                                fadeOut(animationSpec = tween(durationMillis = AppMotion.DurationExit, easing = AppMotion.EmphasizedAccelerateEasing)) +
                                         shrinkVertically(
                                                 shrinkTowards = Alignment.Bottom,
-                                                animationSpec = tween(durationMillis = AppMotion.DurationShort),
+                                                animationSpec = tween(durationMillis = AppMotion.DurationShort, easing = AppMotion.EmphasizedAccelerateEasing),
                                         )
                             },
             ) {

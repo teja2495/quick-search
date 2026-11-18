@@ -145,7 +145,7 @@ internal fun ReleaseNotesDrawer(
                                         label = "v${release.versionName}",
                                         isExpanded = isExpanded,
                                         style = MaterialTheme.typography.bodyMedium,
-                                        bottomPadding = if (isExpanded) 0.dp else 10.dp,
+                                        bottomPadding = if (isExpanded) 0.dp else DesignTokens.SpacingMedium,
                                         onClick = {
                                             expandedPastVersion =
                                                 if (isExpanded) null else release.versionName
@@ -226,7 +226,7 @@ private fun ReleaseNotesExpanderRow(
     label: String,
     isExpanded: Boolean,
     style: TextStyle,
-    bottomPadding: Dp = 10.dp,
+    bottomPadding: Dp = DesignTokens.SpacingMedium,
     onClick: () -> Unit,
 ) {
     val chevronRotation by animateFloatAsState(

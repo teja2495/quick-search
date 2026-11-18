@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.common
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ShortcutInfo
@@ -9,7 +10,6 @@ import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Build
 import android.util.Base64
-import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -316,15 +316,10 @@ class AddToHomeHandler(private val context: Context) {
     }
 
     private fun showUnsupportedMessage() {
-        Toast.makeText(
-                        context,
-                        context.getString(R.string.error_shortcuts_not_supported),
-                        Toast.LENGTH_SHORT,
-                )
-                .show()
+        AppMessages.show(context, context.getString(R.string.error_shortcuts_not_supported))
     }
 
     private fun showErrorMessage() {
-        Toast.makeText(context, context.getString(R.string.error_shortcut_creation_failed), Toast.LENGTH_SHORT).show()
+        AppMessages.show(context, context.getString(R.string.error_shortcut_creation_failed))
     }
 }

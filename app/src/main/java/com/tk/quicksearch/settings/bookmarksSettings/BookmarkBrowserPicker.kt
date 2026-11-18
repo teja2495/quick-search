@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.bookmarksSettings
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -51,7 +51,7 @@ internal fun BookmarkSheetHeader(
             .padding(top = DesignTokens.SpacingLarge),
         leadingContent = navigationIcon?.let { onBack ->
             {
-                IconButton(onClick = onBack) {
+                AppIconButton(onClick = onBack, tooltip = stringResource(R.string.desc_navigate_back)) {
                     Icon(
                         imageVector = MaterialSymbols.ArrowBack,
                         contentDescription = stringResource(R.string.desc_navigate_back),

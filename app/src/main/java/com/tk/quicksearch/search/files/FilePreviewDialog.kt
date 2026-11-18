@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.files
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -33,7 +34,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -129,7 +129,7 @@ fun FilePreviewDialog(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),
                 )
-                IconButton(onClick = onDismiss) {
+                AppIconButton(onClick = onDismiss, tooltip = stringResource(R.string.common_close)) {
                     Icon(
                         imageVector = MaterialSymbols.Close,
                         contentDescription = stringResource(R.string.common_close),

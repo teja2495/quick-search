@@ -3,7 +3,6 @@ package com.tk.quicksearch.shared.ui.components
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -96,7 +95,7 @@ fun AppOutlinedTextField(
         trailingIcon = if (onClear != null) {
             {
                 if (value.text.isNotEmpty()) {
-                    IconButton(onClick = onClear) {
+                    AppIconButton(onClick = onClear, tooltip = stringResource(R.string.desc_clear_search)) {
                         Icon(
                             imageVector = MaterialSymbols.Close,
                             contentDescription = stringResource(R.string.desc_clear_search),

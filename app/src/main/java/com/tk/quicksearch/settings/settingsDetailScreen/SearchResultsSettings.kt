@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,7 +15,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
@@ -500,7 +500,10 @@ internal fun PinnedNotificationItemsDialog(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                 }
-                                IconButton(onClick = { onRemove(action) }) {
+                                AppIconButton(onClick = { onRemove(action) }, tooltip = stringResource(
+                                            R.string.notification_pinned_items_remove,
+                                            action.displayLabel(),
+                                        )) {
                                     Icon(
                                         imageVector = MaterialSymbols.Delete,
                                         contentDescription = stringResource(

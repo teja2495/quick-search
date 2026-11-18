@@ -650,8 +650,8 @@ fun OverlayRoot(
                         AnimatedVisibility(
                                 visible = shouldShowOverlayOperatorRow,
                                 modifier = Modifier.align(Alignment.BottomCenter),
-                                enter = fadeIn(animationSpec = tween(durationMillis = OVERLAY_CONTENT_RESIZE_ANIMATION_MS)),
-                                exit = fadeOut(animationSpec = tween(durationMillis = OVERLAY_CONTENT_RESIZE_ANIMATION_MS)),
+                                enter = fadeIn(animationSpec = tween(durationMillis = OVERLAY_CONTENT_RESIZE_ANIMATION_MS, easing = AppMotion.EmphasizedDecelerateEasing)),
+                                exit = fadeOut(animationSpec = tween(durationMillis = OVERLAY_CONTENT_RESIZE_ANIMATION_MS, easing = AppMotion.EmphasizedAccelerateEasing)),
                         ) {
                                 NumberKeyboardOperatorPills(
                                         modifier =

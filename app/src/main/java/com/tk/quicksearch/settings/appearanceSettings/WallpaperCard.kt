@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.appearanceSettings
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.shared.ui.components.SliderWithValue
 import android.graphics.PixelFormat
 import android.graphics.PorterDuff
@@ -9,7 +10,6 @@ import android.view.SurfaceView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -221,14 +221,9 @@ fun WallpaperCard(
                                 if (isWallpaperSourceSelected) return@OverlaySourceBox
                                 hapticToggle(view)()
                                 if (isLiveWallpaperUnsupported) {
-                                    Toast.makeText(
-                                                    context,
-                                                    context.getString(
+                                    AppMessages.show(context, context.getString(
                                                             R.string.settings_overlay_source_live_wallpaper_unsupported,
-                                                    ),
-                                                    Toast.LENGTH_SHORT,
-                                            )
-                                            .show()
+                                                    ))
                                 } else if (canShowSystemWallpaperBackdrop) {
                                     onSetBackgroundSource(BackgroundSource.SYSTEM_WALLPAPER)
                                 } else {
@@ -249,7 +244,7 @@ fun WallpaperCard(
                                                         R.string.permission_required_title,
                                                 ),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(14.dp),
+                                        modifier = Modifier.size(DesignTokens.ButtonIconSizeExtraSmall),
                                 )
                                 Text(
                                         text =
@@ -271,7 +266,7 @@ fun WallpaperCard(
                                         imageVector = MaterialSymbols.Info,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(14.dp),
+                                        modifier = Modifier.size(DesignTokens.ButtonIconSizeExtraSmall),
                                 )
                                 Text(
                                         text =

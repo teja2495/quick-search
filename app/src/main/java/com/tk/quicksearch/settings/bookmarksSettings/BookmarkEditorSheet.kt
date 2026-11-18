@@ -154,10 +154,10 @@ internal fun BookmarkEditorSheet(
             transitionSpec = {
                 val forward = targetState == BookmarkEditorPage.Browsers
                 val duration = AppMotion.DurationShort
-                (slideInHorizontally(tween(duration)) { if (forward) it / 4 else -it / 4 } + fadeIn(tween(duration)))
+                (slideInHorizontally(tween(duration, easing = AppMotion.EmphasizedDecelerateEasing)) { if (forward) it / 4 else -it / 4 } + fadeIn(tween(duration, easing = AppMotion.EmphasizedDecelerateEasing)))
                     .togetherWith(
-                        slideOutHorizontally(tween(duration)) { if (forward) -it / 4 else it / 4 } +
-                            fadeOut(tween(duration)),
+                        slideOutHorizontally(tween(duration, easing = AppMotion.EmphasizedAccelerateEasing)) { if (forward) -it / 4 else it / 4 } +
+                            fadeOut(tween(duration, easing = AppMotion.EmphasizedAccelerateEasing)),
                     )
             },
             label = "bookmarkEditorPage",
@@ -360,7 +360,7 @@ private fun BookmarkIconPicker(
                 modifier =
                     Modifier
                         .align(Alignment.BottomEnd)
-                        .size(22.dp)
+                        .size(DesignTokens.IconSize)
                         .clip(AppShapes.full)
                         .background(AppColors.AccentTintEmphasis.compositeOver(AppColors.DialogBackground)),
                 contentAlignment = Alignment.Center,

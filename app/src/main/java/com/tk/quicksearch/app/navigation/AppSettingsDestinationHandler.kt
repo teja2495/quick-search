@@ -1,11 +1,11 @@
 package com.tk.quicksearch.app.navigation
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.appSettings.AppSettingsAction
 import com.tk.quicksearch.search.appSettings.AppSettingsTarget
@@ -84,10 +84,6 @@ private fun openSystemSettingsFallback(context: Context) {
     try {
         context.startActivity(Intent(Settings.ACTION_SETTINGS))
     } catch (_: Exception) {
-        Toast.makeText(
-            context,
-            context.getString(R.string.settings_unable_to_open_settings),
-            Toast.LENGTH_SHORT,
-        ).show()
+        AppMessages.show(context, context.getString(R.string.settings_unable_to_open_settings))
     }
 }

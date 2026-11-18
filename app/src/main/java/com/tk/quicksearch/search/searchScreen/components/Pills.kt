@@ -56,7 +56,7 @@ import com.tk.quicksearch.shared.ui.components.ConnectedButtonRow
 private val QuickActionIconSize = 16.dp
 
 /** Space above the number keyboard operator row, inside its band. */
-internal val NumberKeyboardOperatorRowTopPadding = 9.dp
+internal val NumberKeyboardOperatorRowTopPadding = DesignTokens.SpacingSmall
 private val QuickActionMinFontSize = 10.sp
 
 /** Container opacity of the search quick actions (50% transparent). */
@@ -363,14 +363,13 @@ internal fun OverlayExpandPill(
                 text = text,
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Medium,
             )
             Spacer(modifier = Modifier.size(DesignTokens.SpacingXSmall))
             Icon(
                 imageVector = MaterialSymbols.ExpandMore,
                 contentDescription = stringResource(R.string.desc_expand),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(14.dp),
+                modifier = Modifier.size(DesignTokens.ButtonIconSizeExtraSmall),
             )
         }
     }

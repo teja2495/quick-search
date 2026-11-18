@@ -1,7 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.shared.ui.theme.AppShapes
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -119,11 +119,7 @@ internal fun PriorityReorderDialog(
                                     checked = checked,
                                     onCheckedChange = { enabled ->
                                         if (!enabled && orderedItems.count { it !in disabledSections } <= 1 && checked) {
-                                            Toast.makeText(
-                                                view.context,
-                                                view.context.getString(R.string.settings_sections_at_least_one_required),
-                                                Toast.LENGTH_SHORT,
-                                            ).show()
+                                            AppMessages.show(view.context, view.context.getString(R.string.settings_sections_at_least_one_required))
                                         } else {
                                             onItemEnabledChange(section, enabled)
                                         }

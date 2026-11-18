@@ -273,7 +273,7 @@ private fun TopMatchesHeader() {
             imageVector = MaterialSymbols.AutoAwesome,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.ContentNearOpaqueAlpha),
-            modifier = Modifier.size(14.dp),
+            modifier = Modifier.size(DesignTokens.ButtonIconSizeExtraSmall),
         )
         Text(
             text = stringResource(R.string.top_matches_title),

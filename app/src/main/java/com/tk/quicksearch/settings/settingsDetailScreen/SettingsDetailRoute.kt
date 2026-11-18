@@ -1,7 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.content.Intent
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -89,11 +89,7 @@ fun SettingsDetailRoute(
                             SettingsCommand.BackgroundSourceSetting(BackgroundSource.CUSTOM_IMAGE),
                         )
                     } else {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.settings_overlay_source_custom_save_failed),
-                            Toast.LENGTH_SHORT,
-                        ).show()
+                        AppMessages.show(context, context.getString(R.string.settings_overlay_source_custom_save_failed))
                     }
                 }
             }
@@ -174,21 +170,13 @@ fun SettingsDetailRoute(
     val onShortcutAdded: (StaticShortcut) -> Unit = { addedShortcut ->
         appShortcutFocusShortcut = addedShortcut
         appShortcutFocusPackageName = addedShortcut.packageName
-        Toast.makeText(
-            context,
-            context.getString(
+        AppMessages.show(context, context.getString(
                 R.string.settings_app_shortcuts_add_success_with_app_name,
                 addedShortcut.appLabel,
-            ),
-            Toast.LENGTH_SHORT,
-        ).show()
+            ))
     }
     val onShortcutAddFailed: () -> Unit = {
-        Toast.makeText(
-            context,
-            context.getString(R.string.settings_app_shortcuts_add_failed),
-            Toast.LENGTH_SHORT,
-        ).show()
+        AppMessages.show(context, context.getString(R.string.settings_app_shortcuts_add_failed))
     }
     val appShortcutSourceFlow =
             rememberAppShortcutSourceFlow(
@@ -213,14 +201,9 @@ fun SettingsDetailRoute(
                         )
                     },
                     onSourceLaunchUnsupported = {
-                        Toast.makeText(
-                                        context,
-                                        context.getString(
+                        AppMessages.show(context, context.getString(
                                                 R.string.settings_app_shortcuts_create_not_supported,
-                                        ),
-                                        Toast.LENGTH_SHORT,
-                                )
-                                .show()
+                                        ))
                     },
             )
 

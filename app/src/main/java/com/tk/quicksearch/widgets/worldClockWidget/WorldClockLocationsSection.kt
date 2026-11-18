@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.worldClockWidget
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -128,7 +128,7 @@ private fun LocationRow(
                 overflow = TextOverflow.Ellipsis,
             )
         }
-        IconButton(onClick = onRename) {
+        AppIconButton(onClick = onRename, tooltip = stringResource(R.string.settings_edit_label)) {
             Icon(
                 imageVector = MaterialSymbols.Edit,
                 contentDescription = stringResource(R.string.settings_edit_label),
@@ -136,7 +136,7 @@ private fun LocationRow(
             )
         }
         if (canMoveUp) {
-            IconButton(onClick = onMoveUp) {
+            AppIconButton(onClick = onMoveUp, tooltip = stringResource(R.string.action_move_up)) {
                 Icon(
                     imageVector = MaterialSymbols.ArrowUpward,
                     contentDescription = stringResource(R.string.action_move_up),
@@ -144,7 +144,7 @@ private fun LocationRow(
                 )
             }
         }
-        IconButton(onClick = onRemove) {
+        AppIconButton(onClick = onRemove, tooltip = stringResource(R.string.action_remove)) {
             Icon(
                 imageVector = MaterialSymbols.Close,
                 contentDescription = stringResource(R.string.action_remove),
@@ -178,7 +178,7 @@ private fun AddLocationRow(enabled: Boolean) {
                 imageVector = MaterialSymbols.Add,
                 contentDescription = null,
                 tint = color,
-                modifier = Modifier.size(22.dp),
+                modifier = Modifier.size(DesignTokens.IconSize),
             )
         }
         Text(

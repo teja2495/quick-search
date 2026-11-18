@@ -26,7 +26,6 @@ import androidx.compose.material3.ButtonDefaults
 import com.tk.quicksearch.shared.ui.components.AppTopAppBar
 import com.tk.quicksearch.settings.preloadFeaturesMarkdown
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -465,7 +464,6 @@ fun SettingsVersionDisplay(
                     Text(
                         text = developerName,
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 }

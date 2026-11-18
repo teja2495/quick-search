@@ -68,25 +68,25 @@ internal fun SearchScreenBackground(
     val wallpaperLayerAlpha by
         animateFloatAsState(
             targetValue = if (hasWallpaperLayer) 1f else 0f,
-            animationSpec = tween(durationMillis = backgroundTransitionDuration),
+            animationSpec = tween(durationMillis = backgroundTransitionDuration, easing = AppMotion.EmphasizedEasing),
             label = "wallpaperLayerAlpha",
         )
     val fallbackLayerAlpha by
         animateFloatAsState(
             targetValue = if (hasWallpaperLayer) 0f else 1f,
-            animationSpec = tween(durationMillis = backgroundTransitionDuration),
+            animationSpec = tween(durationMillis = backgroundTransitionDuration, easing = AppMotion.EmphasizedEasing),
             label = "fallbackLayerAlpha",
         )
     val wallpaperOverlayAlpha by
         animateFloatAsState(
             targetValue = if (hasWallpaperLayer) overlayAlpha else 0f,
-            animationSpec = tween(durationMillis = backgroundTransitionDuration),
+            animationSpec = tween(durationMillis = backgroundTransitionDuration, easing = AppMotion.EmphasizedEasing),
             label = "wallpaperOverlayAlpha",
         )
     val animatedBlurRadius by
         animateFloatAsState(
             targetValue = if (hasWallpaperLayer) blurRadius else 0f,
-            animationSpec = tween(durationMillis = backgroundTransitionDuration),
+            animationSpec = tween(durationMillis = backgroundTransitionDuration, easing = AppMotion.EmphasizedEasing),
             label = "wallpaperBlurRadius",
         )
     val effectiveBlurRadius =

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
@@ -36,7 +37,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
@@ -127,15 +127,10 @@ fun AiProviderSettingsSection(
                                 Modifier.fillMaxWidth().then(
                                         if (!supportsInstructions) {
                                                 Modifier.clickable {
-                                                        Toast.makeText(
-                                                                        context,
-                                                                        context.getString(
+                                                        AppMessages.show(context, context.getString(
                                                                                 R.string
                                                                                         .settings_direct_search_personal_context_unsupported
-                                                                        ),
-                                                                        Toast.LENGTH_SHORT,
-                                                                )
-                                                                .show()
+                                                                        ))
                                                 }
                                         } else {
                                                 Modifier

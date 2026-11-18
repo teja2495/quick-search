@@ -619,7 +619,7 @@ private fun NoteEditorScrollIndicator(
     }
     val alpha by animateFloatAsState(
         targetValue = if (indicatorVisible && scrollState.maxValue > 0) 1f else 0f,
-        animationSpec = tween(durationMillis = AppMotion.DurationShort),
+        animationSpec = tween(durationMillis = AppMotion.DurationShort, easing = AppMotion.EmphasizedEasing),
         label = "noteScrollIndicator",
     )
     if (alpha <= 0.01f) return

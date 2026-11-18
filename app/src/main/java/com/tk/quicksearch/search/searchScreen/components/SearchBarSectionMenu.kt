@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.AnimatedVisibility
@@ -19,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -80,16 +80,16 @@ internal fun SearchBarSectionMenu(
         AnimatedVisibility(
             visibleState = visibleState,
             enter =
-                fadeIn(tween(SectionMenuAnimationMs)) +
+                fadeIn(tween(SectionMenuAnimationMs, easing = AppMotion.EmphasizedDecelerateEasing)) +
                     scaleIn(
-                        animationSpec = tween(SectionMenuAnimationMs),
+                        animationSpec = tween(SectionMenuAnimationMs, easing = AppMotion.EmphasizedDecelerateEasing),
                         initialScale = SectionMenuInitialScale,
                         transformOrigin = positionProvider.transformOrigin,
                     ),
             exit =
-                fadeOut(tween(SectionMenuAnimationMs)) +
+                fadeOut(tween(SectionMenuAnimationMs, easing = AppMotion.EmphasizedAccelerateEasing)) +
                     scaleOut(
-                        animationSpec = tween(SectionMenuAnimationMs),
+                        animationSpec = tween(SectionMenuAnimationMs, easing = AppMotion.EmphasizedAccelerateEasing),
                         targetScale = SectionMenuInitialScale,
                         transformOrigin = positionProvider.transformOrigin,
                     ),
@@ -129,7 +129,7 @@ private fun SectionMenuGrid(
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f).padding(start = DesignTokens.SpacingXSmall),
             )
-            IconButton(onClick = onDismiss) {
+            AppIconButton(onClick = onDismiss, tooltip = stringResource(R.string.dialog_cancel)) {
                 Icon(
                     imageVector = MaterialSymbols.Close,
                     contentDescription = stringResource(R.string.dialog_cancel),

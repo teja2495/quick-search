@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.apps.privateSpace
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -12,7 +13,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.UserHandle
 import android.os.UserManager
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.search.apps.sortedForAllApps
 import com.tk.quicksearch.search.core.intentHelpers.AppLaunchingIntents
@@ -99,7 +99,7 @@ internal class PrivateSpaceController(
         app: AppInfo,
     ) {
         AppLaunchingIntents.launchApp(context, app) { messageRes, appName ->
-            Toast.makeText(context, context.getString(messageRes, appName), Toast.LENGTH_SHORT).show()
+            AppMessages.show(context, context.getString(messageRes, appName))
         }
     }
 

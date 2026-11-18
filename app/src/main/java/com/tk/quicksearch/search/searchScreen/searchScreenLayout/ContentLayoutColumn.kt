@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
@@ -10,7 +11,7 @@ import com.tk.quicksearch.widgetsPanel.HomeWidgetStack
 import com.tk.quicksearch.widgetsPanel.rememberHomePinnedWidgets
 import com.tk.quicksearch.widgetsPanel.rememberHomeWidgetHost
 
-private val ContentItemSpacing = 14.dp
+private val ContentItemSpacing = DesignTokens.SpacingMedium
 
 /**
  * Lays out the search content in [layoutOrder], with top matches first (or last when

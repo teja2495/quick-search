@@ -96,9 +96,9 @@ internal fun HomeLoadingAnimatedContent(
             visibleState = visibility,
             enter =
                 expandVertically(
-                    animationSpec = tween(durationMillis = HomeSectionExpandDurationMillis),
+                    animationSpec = tween(durationMillis = HomeSectionExpandDurationMillis, easing = AppMotion.EmphasizedDecelerateEasing),
                     expandFrom = Alignment.Top,
-                ) + fadeIn(animationSpec = tween(durationMillis = HomeSectionExpandDurationMillis)),
+                ) + fadeIn(animationSpec = tween(durationMillis = HomeSectionExpandDurationMillis, easing = AppMotion.EmphasizedDecelerateEasing)),
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -116,7 +116,7 @@ internal fun HomeLoadingAnimatedContent(
     }
     val contentAlpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(durationMillis = HomeSectionFadeDurationMillis),
+        animationSpec = tween(durationMillis = HomeSectionFadeDurationMillis, easing = AppMotion.EmphasizedEasing),
         label = "homeSectionFade",
     )
     Column(
@@ -133,7 +133,7 @@ private const val HomeSectionFadeDurationMillis = AppMotion.DurationShort
 private const val HomeSectionExpandDurationMillis = AppMotion.DurationMedium
 internal const val HOME_TODAY_CALENDAR_ANIMATION_KEY = "home-today-calendar"
 /** Gap between home content items; flat dividers sit half the stack spacing into it. */
-internal val HomeSectionContentSpacing = 14.dp
+internal val HomeSectionContentSpacing = DesignTokens.SpacingMedium
 
 internal fun hasMoreResults(
     renderingState: SectionRenderingState,
@@ -201,13 +201,13 @@ internal fun UnifiedPinnedItemsBlock(
             SearchResultCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 60.dp),
+                    .heightIn(min = DesignTokens.ListItemMinHeight),
                 showWallpaperBackground = showWallpaperBackground,
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 60.dp),
+                        .heightIn(min = DesignTokens.ListItemMinHeight),
                     contentAlignment = Alignment.Center,
                 ) {
                     headerContent(

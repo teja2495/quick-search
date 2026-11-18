@@ -43,7 +43,7 @@ fun EditableIcon(
         Box(
             modifier =
                 Modifier
-                    .size(26.dp)
+                    .size(DesignTokens.IconSize)
                     .align(androidx.compose.ui.Alignment.Center),
         ) {
             if (iconBitmap != null) {
@@ -52,7 +52,7 @@ fun EditableIcon(
                     contentDescription = contentDescription,
                     modifier =
                         Modifier
-                            .size(26.dp)
+                            .size(DesignTokens.IconSize)
                             .align(androidx.compose.ui.Alignment.Center),
                     contentScale = ContentScale.Fit,
                 )

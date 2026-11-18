@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.components.AppTopAppBar
 import com.tk.quicksearch.shared.ui.components.AppFabTone
 import com.tk.quicksearch.shared.ui.components.AppFloatingActionButton
@@ -7,7 +9,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
@@ -23,7 +24,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -94,11 +94,7 @@ internal fun SettingsDetailLevel1Screen(
         coroutineScope.launch {
             runCatching { downloadAndShareFeatures(context) }
                 .onFailure {
-                    Toast.makeText(
-                        context,
-                        R.string.settings_features_export_failed,
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                    AppMessages.show(context, R.string.settings_features_export_failed)
                 }
         }
     }
@@ -107,11 +103,7 @@ internal fun SettingsDetailLevel1Screen(
             if (granted) {
                 exportFeatures()
             } else {
-                Toast.makeText(
-                    context,
-                    R.string.settings_features_export_failed,
-                    Toast.LENGTH_SHORT,
-                ).show()
+                AppMessages.show(context, R.string.settings_features_export_failed)
             }
         }
     val onExportFeatures: () -> Unit = {
@@ -179,7 +171,7 @@ internal fun SettingsDetailLevel1Screen(
                 trailingContent =
                     if (detailType == SettingsDetailType.FEATURES_LIST) {
                         {
-                            IconButton(onClick = onExportFeatures) {
+                            AppIconButton(onClick = onExportFeatures, tooltip = stringResource(R.string.settings_features_export)) {
                                 Icon(
                                     imageVector = MaterialSymbols.Download,
                                     contentDescription =
@@ -252,12 +244,7 @@ internal fun SettingsDetailLevel1Screen(
                                 if (hasExcludedItems) {
                                     onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS)
                                 } else {
-                                    Toast
-                                        .makeText(
-                                            context,
-                                            context.getString(R.string.settings_excluded_items_empty),
-                                            Toast.LENGTH_SHORT,
-                                        ).show()
+                                    AppMessages.show(context, R.string.settings_excluded_items_empty)
                                 }
                             },
                             onNavigateToNicknames = {

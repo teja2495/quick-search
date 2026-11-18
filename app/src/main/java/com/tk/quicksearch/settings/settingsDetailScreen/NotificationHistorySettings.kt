@@ -1,10 +1,10 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SwipeToDismissBox
@@ -241,11 +241,7 @@ fun NotificationHistorySettingsSection(
                                     onClick = {
                                         AppLockGate.runAfterUnlock(context, entry.packageName, appLabel) {
                                             if (!NotificationHistoryLauncher.open(context, entry)) {
-                                                Toast.makeText(
-                                                    context,
-                                                    context.getString(R.string.common_error_unable_to_open, appLabel),
-                                                    Toast.LENGTH_SHORT,
-                                                ).show()
+                                                AppMessages.show(context, context.getString(R.string.common_error_unable_to_open, appLabel))
                                             }
                                         }
                                     },
@@ -656,7 +652,7 @@ private fun NotificationHistoryAppFilterItem(
                         imageVector = MaterialSymbols.Check,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(14.dp),
+                        modifier = Modifier.size(DesignTokens.ButtonIconSizeExtraSmall),
                     )
                 }
             }

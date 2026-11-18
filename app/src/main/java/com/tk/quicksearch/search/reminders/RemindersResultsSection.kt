@@ -366,6 +366,6 @@ fun ReminderDoneIcon(modifier: Modifier = Modifier) {
         imageVector = MaterialSymbols.Check,
         contentDescription = stringResource(R.string.reminder_status_done),
         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = modifier.size(14.dp),
+        modifier = modifier.size(DesignTokens.ButtonIconSizeExtraSmall),
     )
 }

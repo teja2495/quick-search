@@ -1,7 +1,7 @@
 package com.tk.quicksearch.settings.shared
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -14,7 +14,7 @@ internal fun SettingsRemoveButton(
     onClick: () -> Unit,
     tint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
-    IconButton(onClick = onClick) {
+    AppIconButton(onClick = onClick, tooltip = stringResource(R.string.action_remove)) {
         Icon(
             imageVector = MaterialSymbols.Close,
             contentDescription = stringResource(R.string.action_remove),

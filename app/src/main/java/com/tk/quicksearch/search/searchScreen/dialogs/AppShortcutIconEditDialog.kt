@@ -250,7 +250,7 @@ private fun ShortcutIconPreviewContent(
                 Modifier
                     .align(Alignment.BottomEnd)
                     .offset(x = (-2).dp, y = (-4).dp)
-                    .size(22.dp)
+                    .size(DesignTokens.IconSize)
                     .clip(AppShapes.full)
                     .background(MaterialTheme.colorScheme.primary),
             contentAlignment = Alignment.Center,

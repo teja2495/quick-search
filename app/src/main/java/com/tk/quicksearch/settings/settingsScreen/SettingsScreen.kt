@@ -351,7 +351,7 @@ fun SettingsScreen(
             )
 
             SettingsVersionDisplay(
-                modifier = Modifier.padding(top = DesignTokens.SectionTopPadding, bottom = 60.dp),
+                modifier = Modifier.padding(top = DesignTokens.SectionTopPadding, bottom = DesignTokens.Spacing48 + DesignTokens.SpacingLarge),
             )
         }
     }

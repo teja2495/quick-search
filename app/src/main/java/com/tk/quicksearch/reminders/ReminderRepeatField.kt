@@ -1,5 +1,6 @@
 package com.tk.quicksearch.reminders
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -62,7 +62,7 @@ internal fun ReminderRepeatField(
                 modifier = Modifier.weight(1f),
             )
             if (repeat != null) {
-                IconButton(onClick = { onRepeatChange(null) }) {
+                AppIconButton(onClick = { onRepeatChange(null) }, tooltip = stringResource(R.string.common_action_clear)) {
                     Icon(
                         imageVector = MaterialSymbols.Close,
                         contentDescription = stringResource(R.string.common_action_clear),

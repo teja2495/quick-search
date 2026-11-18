@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.appShortcutsSettings
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.shared.ui.components.AppSwitch
 import android.graphics.BitmapFactory
@@ -26,7 +27,6 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.material3.ripple
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -131,7 +131,7 @@ fun EditCustomShortcutDialog(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(text = stringResource(R.string.settings_app_shortcuts_edit_dialog_title))
-                IconButton(onClick = onDelete) {
+                AppIconButton(onClick = onDelete, tooltip = stringResource(R.string.settings_app_shortcuts_delete_action)) {
                     Icon(
                         imageVector = MaterialSymbols.Delete,
                         contentDescription = stringResource(R.string.settings_app_shortcuts_delete_action),
@@ -161,7 +161,7 @@ fun EditCustomShortcutDialog(
                                     contentDescription = trimmedName,
                                     modifier =
                                         Modifier
-                                            .size(34.dp)
+                                            .size(32.dp)
                                             .offset(y = 2.dp),
                                     contentScale = ContentScale.Fit,
                                 )
@@ -172,7 +172,7 @@ fun EditCustomShortcutDialog(
                                     contentDescription = trimmedName,
                                     modifier =
                                         Modifier
-                                            .size(34.dp)
+                                            .size(32.dp)
                                             .offset(y = 2.dp),
                                     contentScale = ContentScale.Fit,
                                 )
@@ -467,7 +467,7 @@ fun ShortcutToggleRow(
         )
 
         if (onEditClick != null) {
-            IconButton(onClick = onEditClick) {
+            AppIconButton(onClick = onEditClick, tooltip = stringResource(R.string.settings_edit_label)) {
                 Icon(
                     imageVector = MaterialSymbols.Edit,
                     contentDescription = stringResource(R.string.settings_edit_label),

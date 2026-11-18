@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppInputChip
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -9,8 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -200,18 +200,9 @@ fun FileTypesSection(
                         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                     ) {
                         excludedExtensions.sorted().forEach { extension ->
-                            InputChip(
-                                selected = false,
-                                onClick = { onRemoveExcludedExtension(extension) },
-                                shape = AppShapes.full,
-                                label = { Text(text = ".$extension") },
-                                trailingIcon = {
-                                    Icon(
-                                        imageVector = MaterialSymbols.Close,
-                                        contentDescription = stringResource(R.string.action_remove),
-                                        modifier = Modifier.size(DesignTokens.IconSizeSmall),
-                                    )
-                                },
+                            AppInputChip(
+                                label = ".$extension",
+                                onRemove = { onRemoveExcludedExtension(extension) },
                             )
                         }
                     }
@@ -324,7 +315,7 @@ private fun FolderFilterGroup(
                 description = displayPathWithLeadingSlash(path),
                 leading = { TonalIconBadge(icon = MaterialSymbols.Folder) },
                 trailing = {
-                    IconButton(onClick = { onRemove(pattern) }) {
+                    AppIconButton(onClick = { onRemove(pattern) }, tooltip = stringResource(R.string.action_remove)) {
                         Icon(
                             imageVector = MaterialSymbols.Delete,
                             contentDescription = stringResource(R.string.action_remove),

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.searchEngineSettings.dialogs
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import android.graphics.BitmapFactory
@@ -19,7 +20,6 @@ import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -145,7 +145,7 @@ fun EditCustomSearchEngineDialog(
                 Text(
                     text = stringResource(R.string.settings_edit_search_engine_dialog_title),
                 )
-                IconButton(onClick = onDelete) {
+                AppIconButton(onClick = onDelete, tooltip = stringResource(R.string.dialog_delete)) {
                     Icon(
                         imageVector = MaterialSymbols.Delete,
                         contentDescription = stringResource(R.string.dialog_delete),

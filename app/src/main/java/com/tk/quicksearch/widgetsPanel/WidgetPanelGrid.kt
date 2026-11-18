@@ -135,9 +135,9 @@ internal fun WidgetsPanelHeader(
         AnimatedContent(
             targetState = inEditMode,
             transitionSpec = {
-                (fadeIn(tween(HEADER_ACTION_FADE_MS)) +
+                (fadeIn(tween(HEADER_ACTION_FADE_MS, easing = AppMotion.EmphasizedDecelerateEasing)) +
                     scaleIn(initialScale = HEADER_ACTION_INITIAL_SCALE, animationSpec = AppMotion.fastSpatial()))
-                    .togetherWith(fadeOut(tween(HEADER_ACTION_FADE_MS)))
+                    .togetherWith(fadeOut(tween(HEADER_ACTION_FADE_MS, easing = AppMotion.EmphasizedAccelerateEasing)))
                     .using(SizeTransform(clip = false))
             },
             contentAlignment = Alignment.CenterEnd,

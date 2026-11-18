@@ -1,11 +1,11 @@
 package com.tk.quicksearch.settings.shared.settingsRoute
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Environment
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -243,12 +243,7 @@ fun SettingsRoute(
                 )
             },
             onSourceLaunchUnsupported = {
-                Toast
-                    .makeText(
-                        context,
-                        context.getString(R.string.settings_app_shortcuts_create_not_supported),
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                AppMessages.show(context, R.string.settings_app_shortcuts_create_not_supported)
             },
         )
     var filteredAppShortcutSources by remember { mutableStateOf<List<AppShortcutSource>>(emptyList()) }
@@ -344,36 +339,21 @@ fun SettingsRoute(
                     },
                     onRefreshApps = { showToast ->
                         if (SearchSection.APPS in uiState.disabledSections) {
-                            Toast
-                                .makeText(
-                                    context,
-                                    context.getString(R.string.settings_refresh_apps_disabled),
-                                    Toast.LENGTH_SHORT,
-                                ).show()
+                            AppMessages.show(context, R.string.settings_refresh_apps_disabled)
                         } else {
                             viewModel.refreshApps(showToast)
                         }
                     },
                     onRefreshContacts = { showToast ->
                         if (SearchSection.CONTACTS in uiState.disabledSections) {
-                            Toast
-                                .makeText(
-                                    context,
-                                    context.getString(R.string.settings_refresh_contacts_disabled),
-                                    Toast.LENGTH_SHORT,
-                                ).show()
+                            AppMessages.show(context, R.string.settings_refresh_contacts_disabled)
                         } else {
                             viewModel.refreshContacts(showToast)
                         }
                     },
                     onRefreshFiles = { showToast ->
                         if (SearchSection.FILES in uiState.disabledSections) {
-                            Toast
-                                .makeText(
-                                    context,
-                                    context.getString(R.string.settings_refresh_files_disabled),
-                                    Toast.LENGTH_SHORT,
-                                ).show()
+                            AppMessages.show(context, R.string.settings_refresh_files_disabled)
                         } else {
                             viewModel.refreshFiles(showToast)
                         }

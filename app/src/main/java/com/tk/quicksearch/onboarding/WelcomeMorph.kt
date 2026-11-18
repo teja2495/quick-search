@@ -399,8 +399,8 @@ fun WelcomeMorphOverlay(
         if (!landing) return@LaunchedEffect
         coroutineScope {
             launch {
-                animate(1f, PressedScale, animationSpec = tween(scaled(PressMs) / 2)) { v, _ -> state.press = v }
-                animate(PressedScale, 1f, animationSpec = tween(scaled(PressMs) / 2)) { v, _ -> state.press = v }
+                animate(1f, PressedScale, animationSpec = tween(scaled(PressMs) / 2, easing = AppMotion.EmphasizedEasing)) { v, _ -> state.press = v }
+                animate(PressedScale, 1f, animationSpec = tween(scaled(PressMs) / 2, easing = AppMotion.EmphasizedEasing)) { v, _ -> state.press = v }
             }
             // The search bar reports itself on the search screen's first layout.
             withTimeoutOrNull(TargetWaitMs) { snapshotFlow { state.target }.first { it != null } }
@@ -412,7 +412,7 @@ fun WelcomeMorphOverlay(
             }
         }
         // The real bar is visible from here; fade the travelling copy off it.
-        animate(0f, 1f, animationSpec = tween(scaled(HandoffMs))) { v, _ -> state.handoff = v }
+        animate(0f, 1f, animationSpec = tween(scaled(HandoffMs), easing = AppMotion.EmphasizedEasing)) { v, _ -> state.handoff = v }
         state.finishLanding()
         currentOnFinished()
     }
@@ -420,7 +420,7 @@ fun WelcomeMorphOverlay(
     LaunchedEffect(phase) {
         if (phase != WelcomeMorphPhase.Glowing) return@LaunchedEffect
         delay(GlowHoldMs)
-        animate(state.glow, 0f, animationSpec = tween(scaled(GlowFadeMs))) { v, _ -> state.glow = v }
+        animate(state.glow, 0f, animationSpec = tween(scaled(GlowFadeMs), easing = AppMotion.EmphasizedEasing)) { v, _ -> state.glow = v }
         state.phase = WelcomeMorphPhase.Idle
     }
 

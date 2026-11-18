@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchRoute
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import com.tk.quicksearch.search.searchScreen.LocalPinnedGlanceOnly
@@ -9,7 +10,6 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.speech.RecognizerIntent
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
@@ -142,7 +142,7 @@ fun SearchRoute(
         try {
             voiceInputLauncher.launch(intent)
         } catch (_: ActivityNotFoundException) {
-            Toast.makeText(context, R.string.voice_input_not_available, Toast.LENGTH_SHORT).show()
+            AppMessages.show(context, R.string.voice_input_not_available)
         }
     }
 

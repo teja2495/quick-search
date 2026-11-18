@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.components.AppButtonSize
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.Image
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -91,12 +91,11 @@ internal fun QuickSearchPromptCard(
                         )
                     }
                 }
-                IconButton(
+                AppIconButton(
                     onClick = onNotNowClick,
-                    modifier =
-                        Modifier
-                            .align(Alignment.Top)
-                            .size(RateCardDismissSize),
+                    tooltip = stringResource(R.string.action_not_now),
+                    modifier = Modifier.size(RateCardDismissSize),
+                    anchorModifier = Modifier.align(Alignment.Top),
                 ) {
                     Icon(
                         imageVector = MaterialSymbols.Close,

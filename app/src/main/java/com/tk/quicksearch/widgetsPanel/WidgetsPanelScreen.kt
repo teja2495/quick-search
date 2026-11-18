@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgetsPanel
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import android.app.Activity
 import android.appwidget.AppWidgetManager
@@ -48,7 +49,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -92,7 +92,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
-import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalView
@@ -128,7 +127,7 @@ internal val WidgetEditRingWidth = 2.dp
 
 // Centers action buttons on the 45° point of the 20dp card-corner arc
 // (20dp × (1 − 1/√2) ≈ 6dp in from each edge, minus the 15dp button radius).
-internal val WidgetActionButtonCornerOffset = 9.dp
+internal val WidgetActionButtonCornerOffset = DesignTokens.SpacingSmall
 internal val WidgetEditBorderWidth = 1.dp
 
 // How far edit badges and resize handles can extend past a widget's top edge: the badge's 9dp
@@ -243,7 +242,7 @@ internal fun WidgetsPanelScreen(
             },
         )
         editingWidgetId = null
-        Toast.makeText(context, R.string.widget_pinned_to_home, Toast.LENGTH_SHORT).show()
+        AppMessages.show(context, R.string.widget_pinned_to_home)
     }
 
     fun persistPanelItems(next: List<PanelWidgetInfo>) {

@@ -1,9 +1,10 @@
 package com.tk.quicksearch.settings.bookmarksSettings
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.Context
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -21,7 +22,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -109,7 +109,7 @@ fun BookmarksSettingsSection(
                 val message =
                     withContext(Dispatchers.IO) { importBookmarksFile(context, repository, uri, defaultBrowser) }
                 isImporting = false
-                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                AppMessages.show(context, message, long = true)
             }
         }
 
@@ -118,7 +118,7 @@ fun BookmarksSettingsSection(
             if (uri == null) return@rememberLauncherForActivityResult
             scope.launch {
                 val message = withContext(Dispatchers.IO) { exportBookmarksFile(context, repository, uri) }
-                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                AppMessages.show(context, message, long = true)
             }
         }
 
@@ -328,7 +328,7 @@ private fun BookmarkManagementRow(
                 overflow = TextOverflow.Ellipsis,
             )
         }
-        IconButton(onClick = onDelete) {
+        AppIconButton(onClick = onDelete, tooltip = stringResource(R.string.dialog_delete)) {
             Icon(
                 imageVector = MaterialSymbols.DeleteOutline,
                 contentDescription = stringResource(R.string.dialog_delete),

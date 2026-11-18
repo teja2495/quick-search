@@ -24,7 +24,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
@@ -47,7 +46,7 @@ internal const val EVENLY_SPACED_ENGINE_MAX_COUNT = 6
 private const val LABELED_ENGINE_MAX_COUNT = 2
 
 private val LABELED_ICON_SIZE = 18.dp
-private val ICON_ONLY_ICON_SIZE = 22.dp
+private val ICON_ONLY_ICON_SIZE = DesignTokens.IconSize
 private val DIVIDER_HEIGHT = 16.dp
 private val HIGHLIGHT_SHAPE = AppShapes.engineHighlight
 private val HIGHLIGHT_HORIZONTAL_INSET = DesignTokens.SpacingXSmall
@@ -224,7 +223,6 @@ private fun EngineIconAndLabel(
         text = label,
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.onSurface,
-        fontWeight = FontWeight.Medium,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
     )

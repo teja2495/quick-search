@@ -1,11 +1,11 @@
 package com.tk.quicksearch.search.apps.swipeGestures
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitVerticalTouchSlopOrCancellation
 import androidx.compose.foundation.gestures.verticalDrag
 import androidx.compose.ui.input.pointer.positionChange
-import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -141,7 +141,7 @@ fun AppSwipeGesturePickerHost(
             onSelect = { action ->
                 AppSwipeGestures.setAction(context, pending.targetKey, pending.direction, action)
                 close()
-                Toast.makeText(context, setMessage, Toast.LENGTH_SHORT).show()
+                AppMessages.show(context, setMessage)
             },
         )
     }

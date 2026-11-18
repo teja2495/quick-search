@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
@@ -102,12 +103,7 @@ onClick = {
                                     if (SetAlarmHandler.launchSetAlarm(context, detectedAlarmTime)) {
                                         onQuickActionCompleted()
                                     } else {
-                                        android.widget.Toast.makeText(
-                                                        context,
-                                                        context.getString(R.string.set_alarm_no_clock_app),
-                                                        android.widget.Toast.LENGTH_SHORT,
-                                                )
-                                                .show()
+                                        AppMessages.show(context, context.getString(R.string.set_alarm_no_clock_app))
                                     }
                                 },
                         )
@@ -142,18 +138,13 @@ onClick = {
                                                     context,
                                                     detectedTimerSeconds,
                                             )
-                                    android.widget.Toast.makeText(
-                                                    context,
-                                                    context.getString(
+                                    AppMessages.show(context, context.getString(
                                                             if (started) {
                                                                 R.string.start_timer_started
                                                             } else {
                                                                 R.string.set_alarm_no_clock_app
                                                             }
-                                                    ),
-                                                    android.widget.Toast.LENGTH_SHORT,
-                                            )
-                                            .show()
+                                                    ))
                                     if (started) onQuickActionCompleted()
                                 },
                         )
@@ -166,12 +157,7 @@ onClick = {
                                     if (SetAlarmHandler.launchSetAlarm(context, alarmTime)) {
                                         onQuickActionCompleted()
                                     } else {
-                                        android.widget.Toast.makeText(
-                                                        context,
-                                                        context.getString(R.string.set_alarm_no_clock_app),
-                                                        android.widget.Toast.LENGTH_SHORT,
-                                                )
-                                                .show()
+                                        AppMessages.show(context, context.getString(R.string.set_alarm_no_clock_app))
                                     }
                                 },
                         )

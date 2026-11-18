@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import android.media.MediaMetadata
@@ -20,7 +21,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -74,8 +74,8 @@ internal val NowPlayingTransitionStates =
 
 private val NowPlayingAlbumArtSize = 56.dp
 private val NowPlayingControlButtonSize = 44.dp
-private val NowPlayingControlIconSize = 21.dp
-private val NowPlayingProminentCircleSize = 33.dp
+private val NowPlayingControlIconSize = DesignTokens.IconSizeSmall
+private val NowPlayingProminentCircleSize = 32.dp
 private val NowPlayingProminentCircleBorder = 1.dp
 private const val NowPlayingProminentCircleBorderAlpha = 0.35f
 private val NowPlayingPlayPauseCircleSize = NowPlayingProminentCircleSize
@@ -376,7 +376,7 @@ internal fun NowPlayingRow(
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                 )
-                IconButton(onClick = onDismiss, modifier = Modifier.size(NowPlayingDismissButtonSize)) {
+                AppIconButton(onClick = onDismiss, modifier = Modifier.size(NowPlayingDismissButtonSize), tooltip = stringResource(R.string.common_close)) {
                     Icon(
                         imageVector = MaterialSymbols.Close,
                         contentDescription = stringResource(R.string.common_close),
@@ -450,7 +450,7 @@ internal fun NowPlayingRow(
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                 ) {
                     innerBack?.let { NowPlayingSkipButton(it, isProminent = true) }
-                    IconButton(onClick = glance.playPause, modifier = Modifier.size(NowPlayingControlButtonSize)) {
+                    AppIconButton(onClick = glance.playPause, modifier = Modifier.size(NowPlayingControlButtonSize), tooltip = stringResource(R.string.media_command_play_pause)) {
                         Box(
                             modifier =
                                 Modifier
@@ -532,7 +532,7 @@ private fun NowPlayingSkipButton(
     control: NowPlayingControl,
     isProminent: Boolean,
 ) {
-    IconButton(onClick = control.onClick, modifier = Modifier.size(NowPlayingControlButtonSize)) {
+    AppIconButton(onClick = control.onClick, modifier = Modifier.size(NowPlayingControlButtonSize), tooltip = control.appLabel ?: stringResource(control.labelRes)) {
         val icon =
             @Composable {
                 val contentDescription = control.appLabel ?: stringResource(control.labelRes)

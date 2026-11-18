@@ -103,6 +103,14 @@ class UndoSnackbarController internal constructor(
         show(UndoSnackbarVisuals(message = message, actionLabel = undoLabel, icon = icon), onUndo)
     }
 
+    /** Shows a plain message with no icon or action, replacing the visible snackbar. */
+    fun showMessage(
+        message: String,
+        duration: SnackbarDuration = SnackbarDuration.Short,
+    ) {
+        show(UndoSnackbarVisuals(message = message, actionLabel = null, icon = null, duration = duration), onUndo = {})
+    }
+
     /** Builds visuals with the Undo label, for callers that need supporting text. */
     fun visuals(
         message: String,

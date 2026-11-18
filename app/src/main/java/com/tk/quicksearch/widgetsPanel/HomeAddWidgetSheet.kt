@@ -1,9 +1,9 @@
 package com.tk.quicksearch.widgetsPanel
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -45,7 +45,7 @@ fun HomeAddWidgetSheet(onDismiss: () -> Unit) {
                 ),
             )
             // New widgets land below the app grid, which can be off screen on a long Home.
-            Toast.makeText(appContext, R.string.widget_pinned_to_home, Toast.LENGTH_SHORT).show()
+            AppMessages.show(appContext, R.string.widget_pinned_to_home)
             currentOnDismiss()
         }
 

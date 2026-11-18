@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.files
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
@@ -31,7 +32,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -538,7 +538,7 @@ internal fun FileResultThumbnailOrIcon(
             if (thumbnailBitmap != null && thumbnailAlpha.value < 1f) {
                 thumbnailAlpha.animateTo(
                         targetValue = 1f,
-                        animationSpec = tween(durationMillis = THUMBNAIL_FADE_IN_DURATION_MS),
+                        animationSpec = tween(durationMillis = THUMBNAIL_FADE_IN_DURATION_MS, easing = AppMotion.EmphasizedEasing),
                 )
             }
         }
@@ -578,7 +578,7 @@ internal fun FileResultThumbnailOrIcon(
     val hasCustomFileIcon = customIconSpec != null && customIcon != null
     val iconSize =
             when {
-                iconOverride != null -> 34.dp
+                iconOverride != null -> 32.dp
                 hasCustomFileIcon -> CUSTOM_FILE_ICON_SIZE.dp
                 else -> FILE_ICON_SIZE.dp
             }
@@ -707,7 +707,13 @@ internal fun FileResultRow(
                     }
                 }
 
-                IconButton(onClick = { showFileInfoDialog = true }) {
+                AppIconButton(onClick = { showFileInfoDialog = true }, tooltip = stringResource(
+                                            if (deviceFile.isDirectory) {
+                                                R.string.action_folder_info
+                                            } else {
+                                                R.string.action_file_info
+                                            },
+                                    )) {
                     Icon(
                             imageVector = MaterialSymbols.InfoOutlined,
                             contentDescription =

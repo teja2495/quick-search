@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.tasker
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.Image
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -164,7 +164,7 @@ fun TaskerIntegrationScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
-                        IconButton(onClick = { onDelete(tool.id) }) {
+                        AppIconButton(onClick = { onDelete(tool.id) }, tooltip = stringResource(R.string.tasker_delete_intent)) {
                             Icon(
                                 MaterialSymbols.Delete,
                                 contentDescription = stringResource(R.string.tasker_delete_intent),

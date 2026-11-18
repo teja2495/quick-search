@@ -1,8 +1,8 @@
 package com.tk.quicksearch.search.noted
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.content.Context
 import android.os.SystemClock
-import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.preferences.AliasPreferences
 import com.tk.quicksearch.search.data.preferences.SearchEnginePreferences
@@ -64,7 +64,7 @@ internal object NotedQuickNoteAlias {
         scope.launch {
             val added = NotedRepository(appContext).addToQuickNote(text)
             val message = if (added) R.string.noted_quick_note_added else R.string.noted_quick_note_failed
-            Toast.makeText(appContext, message, Toast.LENGTH_SHORT).show()
+            AppMessages.show(appContext, message)
             if (!added) return@launch
             // Leave the search bar a frame or so to see the typed query applied before clearing it.
             delay(MIN_CLEAR_DELAY_MS - (SystemClock.uptimeMillis() - startedAt))

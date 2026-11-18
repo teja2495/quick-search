@@ -112,4 +112,4 @@ fun AliasPill(
 
 private val AliasChipHeight = 24.dp
 private val AliasChipStartPadding = 6.dp
-private val AliasChipIconSize = 14.dp
+private val AliasChipIconSize = DesignTokens.ButtonIconSizeExtraSmall

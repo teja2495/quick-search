@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.components.AppFabTone
 import com.tk.quicksearch.shared.ui.components.AppFloatingActionButton
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -18,7 +19,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -210,7 +210,7 @@ internal fun SettingsNestedDetailScreen(
                                 notificationHistoryAccessGranted == true
                         ) {
                             {
-                                IconButton(onClick = { showNotificationHistoryAppFilter = true }) {
+                                AppIconButton(onClick = { showNotificationHistoryAppFilter = true }, tooltip = stringResource(R.string.notification_history_app_filter_title)) {
                                     Icon(
                                         imageVector = MaterialSymbols.MoreVert,
                                         contentDescription =
@@ -230,10 +230,10 @@ internal fun SettingsNestedDetailScreen(
                             }
                             if (existingToolForHeader != null) {
                                 {
-                                    IconButton(onClick = {
+                                    AppIconButton(onClick = {
                                         callbacks.onDeleteCustomTool(existingToolForHeader.id)
                                         callbacks.onBack()
-                                    }) {
+                                    }, tooltip = stringResource(R.string.settings_custom_tool_delete_button)) {
                                         Icon(
                                             imageVector = MaterialSymbols.Delete,
                                             contentDescription = stringResource(R.string.settings_custom_tool_delete_button),

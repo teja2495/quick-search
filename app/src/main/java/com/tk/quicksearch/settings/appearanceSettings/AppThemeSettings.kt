@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.appearanceSettings
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.graphics.PixelFormat
 import android.graphics.PorterDuff
@@ -9,7 +10,6 @@ import android.view.SurfaceView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -207,11 +207,7 @@ fun AppThemeCard(
                                                             indication = null,
                                                     ) {
                                                         if (deviceThemeEnabled) {
-                                                            Toast.makeText(
-                                                                    context,
-                                                                    context.getString(R.string.settings_device_theme_blocked_toast),
-                                                                    Toast.LENGTH_SHORT,
-                                                            ).show()
+                                                            AppMessages.show(context, context.getString(R.string.settings_device_theme_blocked_toast))
                                                         } else if (option.isCustom) {
                                                             showCustomPaletteDialog = true
                                                         } else {
@@ -254,12 +250,12 @@ fun AppThemeCard(
                                                 imageVector = MaterialSymbols.Palette,
                                                 contentDescription = null,
                                                 tint = MaterialTheme.colorScheme.onSurface,
-                                                modifier = Modifier.size(22.dp),
+                                                modifier = Modifier.size(DesignTokens.IconSize),
                                         )
                                     } else if (showSelection) {
                                         Box(
                                                 modifier =
-                                                        Modifier.size(22.dp)
+                                                        Modifier.size(DesignTokens.IconSize)
                                                                 .clip(AppShapes.full)
                                                                 .background(MaterialTheme.colorScheme.primary),
                                                 contentAlignment = Alignment.Center,
@@ -268,7 +264,7 @@ fun AppThemeCard(
                                                     imageVector = MaterialSymbols.Check,
                                                     contentDescription = null,
                                                     tint = MaterialTheme.colorScheme.onPrimary,
-                                                    modifier = Modifier.size(14.dp),
+                                                    modifier = Modifier.size(DesignTokens.ButtonIconSizeExtraSmall),
                                             )
                                         }
                                     }
@@ -426,7 +422,7 @@ internal fun OverlaySourceBox(
                                     if (selectedIndicatorInCorner) {
                                         Modifier.align(Alignment.TopStart).padding(DesignTokens.SpacingSmall).size(20.dp)
                                     } else {
-                                        Modifier.size(22.dp)
+                                        Modifier.size(DesignTokens.IconSize)
                                     }
                                 )
                                         .clip(AppShapes.full)
@@ -437,7 +433,7 @@ internal fun OverlaySourceBox(
                             imageVector = MaterialSymbols.Check,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(if (selectedIndicatorInCorner) 12.dp else 14.dp),
+                            modifier = Modifier.size(if (selectedIndicatorInCorner) 12.dp else DesignTokens.ButtonIconSizeExtraSmall),
                     )
                 }
             }

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import com.tk.quicksearch.reminders.ReminderEditorRequests
 import androidx.compose.runtime.collectAsState
@@ -19,7 +20,6 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -136,12 +136,7 @@ internal fun ColumnScope.ToolsDetailContent(
                                 val definition =
                                         ToolSettingsRegistry.definitionFor(toolId) ?: return@ToolsSettingsSection
                                 if (enabled && definition.requiresLlmApiKey && !state.hasApiKey) {
-                                    android.widget.Toast.makeText(
-                                                    context,
-                                                    context.getString(R.string.currency_converter_requires_gemini_key),
-                                                    android.widget.Toast.LENGTH_SHORT,
-                                            )
-                                            .show()
+                                    AppMessages.show(context, context.getString(R.string.currency_converter_requires_gemini_key))
                                     return@ToolsSettingsSection
                                 }
                                 definition.booleanSetting?.let { setting ->

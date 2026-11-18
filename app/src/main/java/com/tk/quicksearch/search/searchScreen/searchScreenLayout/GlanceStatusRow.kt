@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -15,7 +16,6 @@ import com.tk.quicksearch.search.searchHistory.QUERY_ROW_VERTICAL_PADDING
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -181,12 +181,11 @@ internal fun GlanceStatusRow(
             Box(modifier = Modifier.padding(start = DesignTokens.SpacingSmall)) { trailing() }
         }
         if (onDismiss != null) {
-            IconButton(
+            AppIconButton(
                 onClick = onDismiss,
-                modifier =
-                    Modifier
-                        .then(if (dismissAtTop) Modifier.align(Alignment.Top) else Modifier)
-                        .size(GlanceDismissButtonSize),
+                tooltip = stringResource(R.string.common_close),
+                modifier = Modifier.size(GlanceDismissButtonSize),
+                anchorModifier = if (dismissAtTop) Modifier.align(Alignment.Top) else Modifier,
             ) {
                 Icon(
                     imageVector = MaterialSymbols.Close,

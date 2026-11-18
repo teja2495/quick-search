@@ -1,12 +1,12 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.Composable
@@ -104,7 +104,7 @@ private fun GestureOptionRow(
             }
             option.onDelete != null -> {
                 {
-                    IconButton(onClick = option.onDelete) {
+                    AppIconButton(onClick = option.onDelete, tooltip = stringResource(R.string.action_remove)) {
                         Icon(
                             imageVector = MaterialSymbols.Delete,
                             contentDescription = stringResource(R.string.action_remove),

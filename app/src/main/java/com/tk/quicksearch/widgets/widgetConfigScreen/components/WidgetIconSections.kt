@@ -1,8 +1,8 @@
 package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.content.Context
 import android.content.Intent
-import android.widget.Toast
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -41,15 +41,7 @@ fun WidgetSearchIconSection(
             selectedDisplay = state.searchIconDisplay,
             onSelectionChange = { display ->
                 if (display != SearchIconDisplay.LEFT && state.hasCustomButtons) {
-                    Toast
-                        .makeText(
-                            context,
-                            context.getString(
-                                R.string
-                                    .widget_custom_buttons_restriction,
-                            ),
-                            Toast.LENGTH_SHORT,
-                        ).show()
+                    AppMessages.show(context, R.string.widget_custom_buttons_restriction)
                 } else {
                     onStateChange(state.copy(searchIconDisplay = display))
                 }

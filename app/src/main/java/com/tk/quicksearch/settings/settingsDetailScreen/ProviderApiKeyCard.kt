@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -161,12 +161,13 @@ internal fun ApiKeyTile(
                     }
                 }
                 if (showDelete) {
-                    IconButton(
+                    AppIconButton(
                         enabled = !isSaving,
                         onClick = {
                             pendingKey = ""
                             onDelete()
                         },
+                        tooltip = stringResource(R.string.settings_gemini_api_key_reset),
                     ) {
                         Icon(
                             imageVector = MaterialSymbols.DeleteOutline,

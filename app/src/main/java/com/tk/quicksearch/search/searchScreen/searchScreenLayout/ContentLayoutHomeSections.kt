@@ -283,13 +283,13 @@ internal fun HomePinnedSection(
                 SearchResultCard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 60.dp),
+                        .heightIn(min = DesignTokens.ListItemMinHeight),
                     showWallpaperBackground = effectiveShowWallpaperBackground,
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(min = 60.dp)
+                            .heightIn(min = DesignTokens.ListItemMinHeight)
                             .then(headerGestures),
                         contentAlignment = Alignment.Center,
                     ) {

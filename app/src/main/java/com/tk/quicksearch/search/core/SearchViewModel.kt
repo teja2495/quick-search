@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.core
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.app.Application
 import android.os.Trace
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tk.quicksearch.R
@@ -452,10 +452,10 @@ class SearchViewModel(
         _externalNavigationEvent.tryEmit(Unit)
     }
     private fun showToast(messageResId: Int) {
-        Toast.makeText(getApplication(), messageResId, Toast.LENGTH_SHORT).show()
+        AppMessages.show(getApplication(), messageResId)
     }
     private fun showToast(message: String) {
-        Toast.makeText(getApplication(), message, Toast.LENGTH_SHORT).show()
+        AppMessages.show(getApplication(), message)
     }
     private fun hasContactPermission(): Boolean = contactRepository.hasPermission()
     private fun hasFilePermission(): Boolean = fileRepository.hasPermission()

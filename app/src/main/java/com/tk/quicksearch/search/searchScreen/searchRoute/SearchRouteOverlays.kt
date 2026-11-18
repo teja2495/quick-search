@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchRoute
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -7,7 +8,6 @@ import com.tk.quicksearch.R
 import android.content.Context
 import android.content.Intent
 import android.content.ActivityNotFoundException
-import android.widget.Toast
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.models.AppInfo
@@ -23,14 +23,10 @@ internal fun launchSystemWallpaperPicker(context: Context) {
     try {
         context.startActivity(intent)
     } catch (_: ActivityNotFoundException) {
-        Toast.makeText(
-            context,
-            context.getString(
+        AppMessages.show(context, context.getString(
                 R.string.common_error_unable_to_open,
                 context.getString(R.string.action_change_wallpaper),
-            ),
-            Toast.LENGTH_SHORT,
-        ).show()
+            ))
     }
 }
 

@@ -299,7 +299,7 @@ fun AddAppDeepLinkDialog(
                                     contentDescription = appLabel,
                                     modifier =
                                         Modifier
-                                            .size(34.dp)
+                                            .size(32.dp)
                                             .offset(y = 2.dp),
                                     contentScale = ContentScale.Fit,
                                 )
@@ -310,7 +310,7 @@ fun AddAppDeepLinkDialog(
                                     contentDescription = appLabel,
                                     modifier =
                                         Modifier
-                                            .size(34.dp)
+                                            .size(32.dp)
                                             .offset(y = 2.dp),
                                     contentScale = ContentScale.Fit,
                                 )

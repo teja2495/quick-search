@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -227,7 +227,7 @@ fun RemindersSettingsSection(
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.weight(1f),
                     )
-                    IconButton(onClick = { permissionHintDismissed = true }) {
+                    AppIconButton(onClick = { permissionHintDismissed = true }, tooltip = stringResource(R.string.common_close)) {
                         Icon(
                             imageVector = MaterialSymbols.Close,
                             contentDescription = stringResource(R.string.common_close),
@@ -387,7 +387,7 @@ private fun ReminderManagementRow(
         }
         when {
             isPast ->
-                IconButton(onClick = onDelete) {
+                AppIconButton(onClick = onDelete, tooltip = stringResource(R.string.dialog_delete)) {
                     Icon(
                         imageVector = MaterialSymbols.Delete,
                         contentDescription = stringResource(R.string.dialog_delete),
@@ -395,7 +395,7 @@ private fun ReminderManagementRow(
                     )
                 }
             isOverdue ->
-                IconButton(onClick = onMarkDone) {
+                AppIconButton(onClick = onMarkDone, tooltip = stringResource(R.string.action_mark_as_done)) {
                     Icon(
                         imageVector = MaterialSymbols.Check,
                         contentDescription = stringResource(R.string.action_mark_as_done),

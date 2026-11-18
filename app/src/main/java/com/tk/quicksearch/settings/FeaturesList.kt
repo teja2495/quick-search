@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings
 
+import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.content.ClipData
 import android.content.ContentValues
 import android.content.Context
@@ -8,7 +9,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.widget.Toast
 import androidx.compose.foundation.ScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -100,11 +100,7 @@ internal suspend fun downloadAndShareFeatures(context: Context) {
             saveFeaturesToDownloads(context, markdown)
         }
 
-    Toast.makeText(
-        context,
-        R.string.settings_features_saved_to_downloads,
-        Toast.LENGTH_SHORT,
-    ).show()
+    AppMessages.show(context, R.string.settings_features_saved_to_downloads)
     val shareIntent =
         Intent(Intent.ACTION_SEND).apply {
             type = MARKDOWN_MIME_TYPE
