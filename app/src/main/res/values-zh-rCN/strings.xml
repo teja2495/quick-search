@@ -265,6 +265,7 @@
     <string name="desc_navigate_forward">前进至下一页</string>
     <string name="desc_open_settings">打开 Quick Search 设置</string>
     <string name="desc_open_device_settings">打开设备设置</string>
+    <string name="desc_show_options">显示选项</string>
     <string name="desc_selected">已选中</string>
     <string name="desc_voice_search_icon">启动语音搜索</string>
 

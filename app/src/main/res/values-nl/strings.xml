@@ -271,6 +271,7 @@
     <string name="desc_navigate_forward">Vooruit navigeren</string>
     <string name="desc_open_settings">Instellingen openen</string>
     <string name="desc_open_device_settings">Apparaatinstellingen openen</string>
+    <string name="desc_show_options">Opties tonen</string>
     <string name="desc_selected">Geselecteerd</string>
     <string name="desc_voice_search_icon">Spraakgestuurd zoeken starten</string>
 

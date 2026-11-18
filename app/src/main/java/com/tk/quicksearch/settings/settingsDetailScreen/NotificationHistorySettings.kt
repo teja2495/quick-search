@@ -289,6 +289,7 @@ private fun NotificationHistoryRow(
                     .combinedClickable(
                         role = Role.Button,
                         onClick = onClick,
+                        onLongClickLabel = stringResource(R.string.desc_show_options),
                         onLongClick = {
                             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                             showMenu = true

@@ -265,6 +265,7 @@
     <string name="desc_navigate_forward">ముందుకు వెళ్ళు</string>
     <string name="desc_open_settings">Quick Search సెట్టింగ్‌లను తెరువు</string>
     <string name="desc_open_device_settings">పరికర సెట్టింగ్‌లను తెరవండి</string>
+    <string name="desc_show_options">ఎంపికలను చూపించు</string>
     <string name="desc_selected">ఎంచుకోబడింది</string>
     <string name="desc_voice_search_icon">వాయిస్ శోధనను ప్రారంభించు</string>
 

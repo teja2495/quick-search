@@ -62,7 +62,7 @@ fun AppIconOverrideDrawer(
 ) {
     val context = LocalContext.current
     val drawerHeight = LocalConfiguration.current.screenHeightDp.dp * 0.75f
-    val iconContainerColor = AppColors.getSettingsCardContainerColor()
+    val iconContainerColor = AppColors.DrawerTileBackground
     val appliedIconPackPackage = remember(context) {
         UserAppPreferences(context).getSelectedIconPackPackage()
     }

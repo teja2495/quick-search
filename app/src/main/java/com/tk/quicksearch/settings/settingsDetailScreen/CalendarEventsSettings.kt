@@ -507,7 +507,7 @@ private fun CalendarEventManagementRow(
                 Modifier
                     .fillMaxWidth()
                     .alpha(if (isHidden) AppColors.ContentMutedAlpha else if (isPast) AppColors.ContentHighAlpha else 1f)
-                    .combinedClickable(role = Role.Button, onClick = onClick, onLongClick = { showMenu = true })
+                    .combinedClickable(role = Role.Button, onClick = onClick, onLongClickLabel = stringResource(R.string.desc_show_options), onLongClick = { showMenu = true })
                     .padding(
                         horizontal = DesignTokens.SpacingLarge,
                         vertical = DesignTokens.SpacingLarge,

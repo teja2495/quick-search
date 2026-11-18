@@ -89,6 +89,7 @@ internal fun ScreenTimeResultCard(
                 .fillMaxWidth()
                 .combinedClickable(
                     onClick = {},
+                    onLongClickLabel = stringResource(R.string.desc_show_options),
                     onLongClick = { showPinMenu = true },
                 ),
     ) {
@@ -224,7 +225,7 @@ private fun ScreenTimeAppUsageRow(
         }
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(1.dp),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing),
         ) {
             Text(
                 text = app.appName,

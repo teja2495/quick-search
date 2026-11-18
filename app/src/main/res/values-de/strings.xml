@@ -265,6 +265,7 @@
     <string name="desc_navigate_forward">Vorwärts navigieren</string>
     <string name="desc_open_settings">Quick Search-Einstellungen öffnen</string>
     <string name="desc_open_device_settings">Geräteeinstellungen öffnen</string>
+    <string name="desc_show_options">Optionen anzeigen</string>
     <string name="desc_selected">Ausgewählt</string>
     <string name="desc_voice_search_icon">Sprachsuche starten</string>
 

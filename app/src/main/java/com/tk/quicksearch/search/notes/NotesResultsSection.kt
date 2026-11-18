@@ -227,6 +227,7 @@ internal fun NoteRow(
                             hapticConfirm(rowView)()
                             onClick(note)
                         },
+                        onLongClickLabel = stringResource(R.string.desc_show_options),
                         onLongClick = { showMenu = true },
                     )
                     .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),

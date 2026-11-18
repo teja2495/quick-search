@@ -164,6 +164,7 @@ internal fun AppIconSurface(
                                 hapticConfirm(view)()
                                 onClick()
                             },
+                            onLongClickLabel = stringResource(R.string.desc_show_options),
                             onLongClick = onLongClick,
                     )
                 } else {

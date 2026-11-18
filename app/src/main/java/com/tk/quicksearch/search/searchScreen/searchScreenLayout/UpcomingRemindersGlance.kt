@@ -376,6 +376,7 @@ internal fun UpcomingReminderRow(
                 role = Role.Button,
                 enabled = !isPendingDone,
                 onClick = onClick,
+                onLongClickLabel = stringResource(R.string.desc_show_options),
                 onLongClick = { showMenu = true },
             ),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),

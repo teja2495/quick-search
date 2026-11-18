@@ -50,7 +50,7 @@ fun HomeTextColorOptions(
             modifier = modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
     ) {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing)) {
                 Text(
                         text = stringResource(homeTextColorTitleRes(compactLayoutEnabled)),
                         style = MaterialTheme.typography.titleMedium,

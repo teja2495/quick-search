@@ -458,6 +458,7 @@ private fun SearchEngineRowContent(
                         Modifier.combinedClickable(
                             role = Role.Button,
                             onClick = rowClick,
+                            onLongClickLabel = stringResource(R.string.desc_show_options),
                             onLongClick = if (onCustomEngineClick != null) openMoveMenu else null,
                         )
                     } else {

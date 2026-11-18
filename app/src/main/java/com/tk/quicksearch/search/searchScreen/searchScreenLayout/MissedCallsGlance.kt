@@ -88,7 +88,7 @@ internal fun MissedCallsRow(
                         tint = MaterialTheme.colorScheme.error,
                     )
                 }
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing)) {
                     Text(
                         text = title,
                         style = MaterialTheme.typography.bodyLarge,

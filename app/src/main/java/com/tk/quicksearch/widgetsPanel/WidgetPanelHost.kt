@@ -219,6 +219,8 @@ internal class WidgetPanelHost(
      * so the newest surface takes over updates and hands them back when it is released.
      */
     fun startListeningShared() {
+        // Listening again would make the system resend, and this host re-apply, every widget's views.
+        if (activeHosts.lastOrNull() === this) return
         activeHosts.remove(this)
         activeHosts.add(this)
         startListening()
@@ -259,7 +261,22 @@ internal class WidgetPanelHost(
     }
 
     private fun applyListening() {
-        if (isLifecycleStarted && !isSuspended) startListeningShared() else pauseListening()
+        when {
+            isLifecycleStarted && !isSuspended -> startListeningShared()
+            // While the app is in the foreground, the panel keeps listening after its page closes.
+            // Listening again makes the system resend every widget's views, and re-applying them
+            // on entry visibly reloads the widgets (lists blank, backgrounds flash). Applying the
+            // occasional update to the kept views off screen is cheaper than that.
+            isPanelHost && isLifecycleStarted && viewsById.isNotEmpty() -> listenInBackground()
+            else -> pauseListening()
+        }
+    }
+
+    /** Listens without taking updates from a surface that is showing its widgets now. */
+    private fun listenInBackground() {
+        if (this in activeHosts) return
+        activeHosts.add(0, this)
+        if (activeHosts.size == 1) startListening()
     }
 
     /** Stops this host's updates, handing them back to the previous surface if it was the listener. */
@@ -277,7 +294,8 @@ internal class WidgetPanelHost(
 
     /**
      * Called when the surface showing this host is disposed but the host is kept for its next
-     * showing: stops updates and drops the surface's callbacks, keeping the widget views.
+     * showing: drops the surface's callbacks, keeping the widget views (and, for the panel, their
+     * updates while the app is in the foreground).
      */
     fun detachSurface() {
         onWidgetLongPress = null

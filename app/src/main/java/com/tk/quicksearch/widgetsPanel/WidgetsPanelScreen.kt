@@ -132,8 +132,15 @@ internal enum class ResizeEdge(
 @Composable
 internal fun rememberWidgetsPanelHost(): WidgetPanelHost {
     val appContext = LocalContext.current.applicationContext
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
     val host = remember(appContext) {
         WidgetPanelHost(appContext, QUICK_SEARCH_WIDGET_HOST_ID, isPanelHost = true).apply { setSuspended(true) }
+    }
+    // Follow the lifecycle here, not in the page: the host keeps listening while the page is
+    // closed, so it must still stop when the app goes to the background.
+    DisposableEffect(host, lifecycle) {
+        val stopFollowingLifecycle = host.listenWhileStarted(lifecycle)
+        onDispose { stopFollowingLifecycle() }
     }
     DisposableEffect(host) {
         onDispose { host.release() }
@@ -248,13 +255,10 @@ internal fun WidgetsPanelScreen(
             ActivityResultContracts.StartActivityForResult(),
         ) { /* result intentionally ignored */ }
 
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-    DisposableEffect(appWidgetHost, lifecycle) {
+    DisposableEffect(appWidgetHost) {
         appWidgetHost.isScrollInProgressProvider = { panelScrollState.isScrollInProgress }
         appWidgetHost.setSuspended(!showHostedWidgets)
-        val stopFollowingLifecycle = appWidgetHost.listenWhileStarted(lifecycle)
         onDispose {
-            stopFollowingLifecycle()
             // The host outlives this page so its widget views are shown again on the next entry.
             appWidgetHost.detachSurface()
         }

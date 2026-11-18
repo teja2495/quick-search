@@ -265,6 +265,7 @@
     <string name="desc_navigate_forward">आगे जाएं</string>
     <string name="desc_open_settings">Quick Search सेटिंग्स खोलें</string>
     <string name="desc_open_device_settings">डिवाइस सेटिंग खोलें</string>
+    <string name="desc_show_options">विकल्प दिखाएं</string>
     <string name="desc_selected">चयनित</string>
     <string name="desc_voice_search_icon">वॉइस खोज शुरू करें</string>
 

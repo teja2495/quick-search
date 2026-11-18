@@ -88,6 +88,7 @@ internal fun NotedRow(
                         hapticConfirm(rowView)()
                         onClick(item)
                     },
+                    onLongClickLabel = stringResource(R.string.desc_show_options),
                     onLongClick = if (hasMenu) ({ showMenu = true }) else null,
                 )
                 .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
@@ -97,7 +98,7 @@ internal fun NotedRow(
         NotedAppIcon(iconPackPackage = iconPackPackage)
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing),
         ) {
             Text(
                 text = rememberQueryHighlightedText(item.title),

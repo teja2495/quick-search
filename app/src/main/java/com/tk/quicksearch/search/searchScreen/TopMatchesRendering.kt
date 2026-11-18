@@ -603,6 +603,7 @@ private fun TopMatchAppRow(
                                 params.onAppClick(app)
                             }
                         },
+                        onLongClickLabel = stringResource(R.string.desc_show_options),
                         onLongClick = if (app.isArchived) null else ({ showOptions = true }),
                     )
                     .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),

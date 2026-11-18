@@ -223,6 +223,14 @@ object AppColors {
         @Composable
         get() = getDialogContainerColor()
 
+    /**
+     * Tile and field fill on a drawer or sheet ([DialogBackground]). The settings card color is
+     * tuned for the settings page background and looks wrong on the drawer surface.
+     */
+    val DrawerTileBackground: Color
+        @Composable
+        get() = AccentTintSubtle
+
     val DialogText: Color
         @Composable
         get() = current.dialogText

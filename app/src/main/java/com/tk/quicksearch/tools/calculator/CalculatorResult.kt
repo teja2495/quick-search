@@ -106,6 +106,7 @@ fun CalculatorResult(
                             .heightIn(min = cardMinHeight)
                             .combinedClickable(
                                     onClick = {},
+                                    onLongClickLabel = stringResource(R.string.calculator_copy_result),
                                     onLongClick =
                                             copyText?.let { text ->
                                                 { clipboardManager.setText(AnnotatedString(text)) }

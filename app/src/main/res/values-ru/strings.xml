@@ -265,6 +265,7 @@
 <string name="desc_navigate_forward">Вперед</string>
 <string name="desc_open_settings">Открыть настройки Quick Search</string>
 <string name="desc_open_device_settings">Открыть настройки устройства</string>
+<string name="desc_show_options">Показать параметры</string>
 <string name="desc_selected">Выбрано</string>
 <string name="desc_voice_search_icon">Запустить голосовой поиск</string>
 

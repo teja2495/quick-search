@@ -141,6 +141,10 @@ Main `AppColors` groups:
   surface luminance).
 - **Settings and dialogs:** `getSettingsCardContainerColor()`, `SettingsDivider`,
   `getDialogContainerColor()`, `DialogBackground`, `DialogText`, `Overlay*`.
+- **Drawers and sheets:** `DrawerTileBackground` (`AccentTintSubtle`) fills tiles and fields on a
+  `DialogBackground` sheet. `AppBottomSheet` provides it through `LocalSegmentedTileContainerColor`,
+  so `SegmentedTile`s inside a drawer pick it up by default; use `segmentedTileContainerColor()` when
+  composing your own tile color. Never use `getSettingsCardContainerColor()` inside a drawer.
 - **Contact actions:** `ActionPhone`, `ActionSms`, `ActionSignal`, `ActionCustom`, `ActionView`.
 - **Widgets:** `Widget*` (RemoteViews, so not theme-aware).
 

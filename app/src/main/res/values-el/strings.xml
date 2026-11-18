@@ -265,6 +265,7 @@
     <string name="desc_navigate_forward">Πλοήγηση εμπρός</string>
     <string name="desc_open_settings">Άνοιγμα ρυθμίσεων Quick Search</string>
     <string name="desc_open_device_settings">Άνοιγμα ρυθμίσεων συσκευής</string>
+    <string name="desc_show_options">Εμφάνιση επιλογών</string>
     <string name="desc_selected">Επιλέχθηκε</string>
     <string name="desc_voice_search_icon">Έναρξη φωνητικής αναζήτησης</string>
 

@@ -562,6 +562,7 @@ internal fun RecentQueryRow(
                     interactionSource = interactionSource,
                     indication = ripple(),
                     onClick = onClick,
+                    onLongClickLabel = stringResource(R.string.desc_show_options),
                     onLongClick = onLongPress,
                 ).padding(
                     start = historyRowHorizontalPadding(QUERY_ICON_START_PADDING.dp),

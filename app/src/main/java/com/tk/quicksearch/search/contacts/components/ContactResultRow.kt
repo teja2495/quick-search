@@ -133,6 +133,7 @@ internal fun ContactResultRow(
                                                                         onContactClick(contactInfo)
                                                                 }
                                                         },
+                                                        onLongClickLabel = stringResource(R.string.desc_show_options),
                                                         onLongClick = onLongPressOverride
                                                                         ?: if (enableLongPress) {
                                                                                 {
@@ -370,6 +371,7 @@ private fun ContactActionButtons(
                                                                         hapticConfirm(view)()
                                                                         onClick()
                                                                 },
+                                                                onLongClickLabel = stringResource(R.string.desc_show_options),
                                                                 onLongClick = {
                                                                         hapticConfirm(view)()
                                                                         onLongClick()

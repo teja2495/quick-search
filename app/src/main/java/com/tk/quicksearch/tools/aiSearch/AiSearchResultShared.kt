@@ -103,6 +103,7 @@ private fun ColumnWithContent(
                         } else {
                             baseModifier.combinedClickable(
                                     onClick = {},
+                                    onLongClickLabel = stringResource(R.string.calculator_copy_result),
                                     onLongClick = {
                                         clipboardManager.setText(AnnotatedString(copyText))
                                     },

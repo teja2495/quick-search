@@ -294,6 +294,7 @@ internal fun CalendarEventRow(
                         hapticConfirm(rowView)()
                         onClick(event)
                     },
+                    onLongClickLabel = stringResource(R.string.desc_show_options),
                     onLongClick = { showMenu = true },
                 )
                 .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),

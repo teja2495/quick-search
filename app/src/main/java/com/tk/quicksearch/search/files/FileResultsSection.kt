@@ -640,6 +640,7 @@ internal fun FileResultRow(
                                             hapticConfirm(view)()
                                             onClick(deviceFile)
                                         },
+                                        onLongClickLabel = stringResource(R.string.desc_show_options),
                                         onLongClick = onLongPressOverride
                                                         ?: if (enableLongPress) {
                                                             { showOptions = true }

@@ -60,6 +60,17 @@ import com.tk.quicksearch.shared.ui.theme.AppShapes
 val LocalInSegmentedTile = staticCompositionLocalOf { false }
 
 /**
+ * Tile color for [SegmentedTile]s in this subtree, or null for the settings card color.
+ * [AppBottomSheet] provides [AppColors.DrawerTileBackground] so drawer tiles match the sheet.
+ */
+val LocalSegmentedTileContainerColor = staticCompositionLocalOf<Color?> { null }
+
+/** The default [SegmentedTile] color here: the drawer tile color in a sheet, else the settings card color. */
+@Composable
+fun segmentedTileContainerColor(): Color =
+    LocalSegmentedTileContainerColor.current ?: AppColors.getSettingsCardContainerColor()
+
+/**
  * Decoration a host applies to every segmented group header and tile, such as the welcome screen's
  * exit animation; identity elsewhere.
  */
@@ -135,7 +146,7 @@ fun SegmentedTile(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    containerColor: Color = AppColors.getSettingsCardContainerColor(),
+    containerColor: Color = segmentedTileContainerColor(),
     backdrop: @Composable (Modifier, Shape) -> Modifier = { m, _ -> m },
     contentPadding: PaddingValues = PaddingValues(),
     pressMorph: Boolean = true,

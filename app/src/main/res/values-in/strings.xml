@@ -266,6 +266,7 @@
     <string name="desc_navigate_forward">Maju</string>
     <string name="desc_open_settings">Buka pengaturan Quick Search</string>
     <string name="desc_open_device_settings">Buka setelan perangkat</string>
+    <string name="desc_show_options">Tampilkan opsi</string>
     <string name="desc_selected">Dipilih</string>
     <string name="desc_voice_search_icon">Mulai pencarian suara</string>
 

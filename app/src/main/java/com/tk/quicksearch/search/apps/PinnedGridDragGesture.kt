@@ -18,6 +18,13 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.onLongClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.util.hapticConfirm
 
 // Holding a pinned tile still this long, from touch down, picks it up: it can then drag, or opens
@@ -76,7 +83,14 @@ internal fun rememberPinnedGridDragModifier(
     // The tile is translated and scaled while it drags, so finger movement is measured in root
     // coordinates; local deltas would be shrunk by the drag scale and the tile would lag the finger.
     val coordinatesHolder = remember { arrayOfNulls<LayoutCoordinates>(1) }
-    return Modifier.onGloballyPositioned { coordinatesHolder[0] = it }.pointerInput(key) {
+    val showOptionsLabel = stringResource(R.string.desc_show_options)
+    // The raw pointer handler exposes no actions, so accessibility services get the tap and the
+    // options menu here, as they would from combinedClickable on a non-draggable tile.
+    return Modifier.semantics(mergeDescendants = true) {
+        role = Role.Button
+        onClick { currentClick(); true }
+        onLongClick(label = showOptionsLabel) { currentShowOptions(); true }
+    }.onGloballyPositioned { coordinatesHolder[0] = it }.pointerInput(key) {
         awaitEachGesture {
             val down = awaitFirstDown(requireUnconsumed = false)
             down.consume()

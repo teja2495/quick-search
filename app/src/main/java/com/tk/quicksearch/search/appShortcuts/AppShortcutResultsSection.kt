@@ -342,6 +342,7 @@ internal fun AppShortcutRow(
                                                 hapticConfirm(view)()
                                                 onShortcutClick(shortcut)
                                         },
+                                        onLongClickLabel = stringResource(R.string.desc_show_options),
                                         onLongClick = onLongPressOverride
                                                         ?: if (enableLongPress) {
                                                                 { showOptions = true }
@@ -374,7 +375,7 @@ internal fun AppShortcutRow(
 
                 Column(
                         modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                        verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing),
                 ) {
                         val secondaryText =
                                 if (showAppLabel) {

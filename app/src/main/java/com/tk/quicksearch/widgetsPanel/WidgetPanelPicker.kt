@@ -78,7 +78,7 @@ private val WidgetPickerStageHeight = 176.dp
 
 /** Same accent tint as the drawer's search field, so tiles follow the app's accent and theme. */
 @Composable
-private fun widgetPickerTileColor() = AppColors.AccentTintSubtle
+private fun widgetPickerTileColor() = AppColors.DrawerTileBackground
 
 private const val WIDGET_PREVIEW_FALLBACK_SIZE_PX = 96
 private const val MAX_WIDGET_PREVIEW_DIMENSION_PX = 1024

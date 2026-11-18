@@ -181,6 +181,7 @@ private fun EvenlySpacedEngineItem(
                         hapticConfirm(view)()
                         onSearchEngineClick(query(), engine)
                     },
+                    onLongClickLabel = stringResource(R.string.customize_search_engines),
                     onLongClick = onSearchEngineLongPress,
                 ),
         horizontalArrangement = Arrangement.Center,

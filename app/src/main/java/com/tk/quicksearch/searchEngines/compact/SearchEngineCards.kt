@@ -160,6 +160,7 @@ fun SearchEngineCard(
                         hapticConfirm(view)()
                         onClick()
                     },
+                    onLongClickLabel = stringResource(R.string.customize_search_engines),
                     onLongClick = onLongClick,
                 ),
         showWallpaperBackground = showWallpaperBackground,
@@ -241,6 +242,7 @@ private fun SearchTargetCard(
                         hapticConfirm(view)()
                         onClick()
                     },
+                    onLongClickLabel = stringResource(R.string.customize_search_engines),
                     onLongClick = onLongClick,
                 ),
         showWallpaperBackground = showWallpaperBackground,

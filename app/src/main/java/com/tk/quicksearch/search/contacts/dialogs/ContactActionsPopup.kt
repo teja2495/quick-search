@@ -315,6 +315,7 @@ internal fun ContactActionsPopup(
                                 indication = null,
                                 interactionSource = remember { MutableInteractionSource() },
                                 onClick = {},
+                                onLongClickLabel = stringResource(R.string.calculator_copy_result),
                                 onLongClick = {
                                     clipboardScope.launch { clipboard.writeText(phoneNumber) }
                                 },

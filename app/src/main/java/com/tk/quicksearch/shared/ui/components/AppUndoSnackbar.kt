@@ -267,7 +267,7 @@ private fun UndoSnackbar(
             }
             Column(
                 modifier = Modifier.weight(1f).padding(vertical = DesignTokens.SpacingXSmall),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing),
             ) {
                 Text(
                     text = message,
@@ -288,7 +288,7 @@ private fun UndoSnackbar(
                     onClick = onAction,
                     tone = AppButtonTone.Custom(actionColor),
                 ) {
-                    Text(text = label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                    Text(text = label, style = MaterialTheme.typography.labelLarge)
                 }
             }
         }

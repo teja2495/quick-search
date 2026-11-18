@@ -189,6 +189,7 @@ internal fun FolderGridItem(
                                 onClick()
                             }
                         },
+                        onLongClickLabel = stringResource(R.string.desc_show_options),
                         onLongClick = { showOptions = true },
                 )
             }

@@ -38,6 +38,7 @@ fun ColorVisualizerResult(
         modifier =
             Modifier.fillMaxWidth().combinedClickable(
                 onClick = {},
+                onLongClickLabel = stringResource(R.string.calculator_copy_result),
                 onLongClick = {
                     calculatorState.result?.let { clipboardScope.launch { clipboard.writeText(it) } }
                 },

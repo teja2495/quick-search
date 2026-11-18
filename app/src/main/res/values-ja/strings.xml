@@ -266,6 +266,7 @@
     <string name="desc_navigate_forward">進む</string>
     <string name="desc_open_settings">Quick Searchの設定を開く</string>
     <string name="desc_open_device_settings">端末の設定を開く</string>
+    <string name="desc_show_options">オプションを表示</string>
     <string name="desc_selected">選択中</string>
     <string name="desc_voice_search_icon">音声検索を開始</string>
 

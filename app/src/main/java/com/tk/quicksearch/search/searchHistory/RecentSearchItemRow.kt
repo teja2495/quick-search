@@ -319,6 +319,7 @@ private fun RecentNoteRow(
                     interactionSource = interactionSource,
                     indication = ripple(),
                     onClick = onClick,
+                    onLongClickLabel = stringResource(R.string.desc_show_options),
                     onLongClick = onLongPress,
                 ).padding(
                     horizontal = historyRowHorizontalPadding(DesignTokens.SpacingMedium),

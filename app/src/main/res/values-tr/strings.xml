@@ -264,6 +264,7 @@
 <string name="desc_navigate_forward">İleri git</string>
 <string name="desc_open_settings">Quick Search ayarlarını aç</string>
 <string name="desc_open_device_settings">Cihaz ayarlarını aç</string>
+<string name="desc_show_options">Seçenekleri göster</string>
 <string name="desc_selected">Seçildi</string>
 <string name="desc_voice_search_icon">Sesli aramayı başlat</string>
 

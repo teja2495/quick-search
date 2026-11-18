@@ -201,6 +201,7 @@ internal fun ReminderRow(
                         hapticConfirm(rowView)()
                         if (notedItem != null) NotedLauncher.open(context, notedItem) else onClick(reminder)
                     },
+                    onLongClickLabel = stringResource(R.string.desc_show_options),
                     onLongClick = { showMenu = true },
                 )
                 .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),

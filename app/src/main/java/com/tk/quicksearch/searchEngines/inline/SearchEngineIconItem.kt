@@ -1,8 +1,9 @@
 package com.tk.quicksearch.searchEngines.inline
 
+import com.tk.quicksearch.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -14,6 +15,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
@@ -80,7 +82,22 @@ fun SearchEngineIconItem(
             modifier =
                 Modifier
                     .width(itemWidth)
-                    .heightIn(min = DesignTokens.MinTouchTarget)
+                    // A 48dp touch target that overflows into the strip's padding, so the strip
+                    // keeps the icon's height instead of growing to fit the target.
+                    .layout { measurable, constraints ->
+                        val visibleHeight = compactVisualIconSize.roundToPx()
+                        val placeable =
+                            measurable.measure(
+                                constraints.copy(
+                                    minHeight = DesignTokens.MinTouchTarget.roundToPx()
+                                        .coerceAtMost(constraints.maxHeight),
+                                ),
+                            )
+                        val reportedHeight = visibleHeight.coerceIn(constraints.minHeight, placeable.height)
+                        layout(placeable.width, reportedHeight) {
+                            placeable.place(0, (reportedHeight - placeable.height) / 2)
+                        }
+                    }
                     .then(
                         if (!isPredicted) {
                             Modifier
@@ -89,9 +106,11 @@ fun SearchEngineIconItem(
                                 val extraWidthPx = highlightExtraWidth.toPx()
                                 val extraHeightPx = highlightExtraHeight.toPx()
                                 val left = -extraWidthPx / 2f
-                                val top = -extraHeightPx / 2f
+                                // Outline the visible icon, not the taller touch target.
+                                val visibleHeightPx = compactVisualIconSize.toPx().coerceAtMost(size.height)
+                                val top = (size.height - visibleHeightPx - extraHeightPx) / 2f
                                 val outlineWidth = size.width + extraWidthPx
-                                val outlineHeight = size.height + extraHeightPx
+                                val outlineHeight = visibleHeightPx + extraHeightPx
                                 val strokeWidth = 1.dp.toPx()
                                 val cornerRadius = highlightShape.topStart.toPx(size, this)
 
@@ -117,6 +136,7 @@ fun SearchEngineIconItem(
                             hapticConfirm(view)()
                             onSearchEngineClick(query(), engine)
                         },
+                        onLongClickLabel = stringResource(R.string.customize_search_engines),
                         onLongClick = onSearchEngineLongPress,
                     ),
             contentAlignment = Alignment.Center,

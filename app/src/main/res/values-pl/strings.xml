@@ -266,6 +266,7 @@
     <string name="desc_navigate_forward">Przejdź dalej</string>
     <string name="desc_open_settings">Otwórz ustawienia Quick Search</string>
     <string name="desc_open_device_settings">Otwórz ustawienia urządzenia</string>
+    <string name="desc_show_options">Pokaż opcje</string>
     <string name="desc_selected">Wybrano</string>
     <string name="desc_voice_search_icon">Rozpocznij wyszukiwanie głosowe</string>
 

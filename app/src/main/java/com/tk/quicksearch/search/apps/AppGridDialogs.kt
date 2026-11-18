@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.apps
 
+import com.tk.quicksearch.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.search.apps.swipeGestures.appSwipeGestures
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -235,6 +237,7 @@ internal fun AllAppsDialogGridItem(
                                             hapticConfirm(view)()
                                             onClick()
                                         },
+                                        onLongClickLabel = stringResource(R.string.desc_show_options),
                                         onLongClick =
                                                 if (app.isArchived || appActions == null || appState == null) null
                                                 else ({ showOptions = true }),

@@ -266,6 +266,7 @@
     <string name="desc_navigate_forward">الانتقال للأمام</string>
     <string name="desc_open_settings">فتح إعدادات Quick Search</string>
     <string name="desc_open_device_settings">فتح إعدادات الجهاز</string>
+    <string name="desc_show_options">عرض الخيارات</string>
     <string name="desc_selected">تم التحديد</string>
     <string name="desc_voice_search_icon">بدء البحث الصوتي</string>
 

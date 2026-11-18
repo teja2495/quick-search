@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.segmentedTileContainerColor
 import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
@@ -91,9 +92,9 @@ internal fun PriorityReorderDialog(
                         index = if (isDragging) 0 else index,
                         count = if (isDragging) 1 else orderedItems.size,
                         containerColor = if (isDragging) {
-                            AppColors.AccentTintStrong.compositeOver(AppColors.getSettingsCardContainerColor())
+                            AppColors.AccentTintStrong.compositeOver(segmentedTileContainerColor())
                         } else {
-                            AppColors.getSettingsCardContainerColor()
+                            segmentedTileContainerColor()
                         },
                     ) {
                         Row(

@@ -126,7 +126,7 @@ internal fun GlanceStatusRow(
         Row(
             modifier =
                 Modifier.weight(1f).then(
-                    if (onClick != null) Modifier.combinedClickable(role = Role.Button, onClick = onClick, onLongClick = onLongClick) else Modifier,
+                    if (onClick != null) Modifier.combinedClickable(role = Role.Button, onClick = onClick, onLongClickLabel = stringResource(R.string.desc_show_options), onLongClick = onLongClick) else Modifier,
                 ),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             verticalAlignment = Alignment.CenterVertically,
