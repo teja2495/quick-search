@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.size
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import androidx.compose.material3.Icon
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,6 +54,8 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.withoutWhitespaces
 import java.util.Locale
 import com.tk.quicksearch.shared.ui.components.AppTextButton
+import com.tk.quicksearch.shared.ui.components.AppIconButton
+import com.tk.quicksearch.shared.ui.components.AppIconButtonStyle
 
 @Composable
 fun ShortcutSourceRow(
@@ -106,7 +107,11 @@ fun ShortcutSourceRow(
             modifier = Modifier.weight(1f),
         )
 
-        FilledTonalIconButton(onClick = onClick) {
+        AppIconButton(
+            onClick = onClick,
+            tooltip = stringResource(R.string.settings_app_shortcuts_add_button),
+            style = AppIconButtonStyle.Tonal,
+        ) {
             Icon(
                 imageVector = MaterialSymbols.Add,
                 contentDescription = stringResource(R.string.settings_app_shortcuts_add_button),
@@ -149,7 +154,11 @@ fun SearchTargetShortcutSourceRow(
             modifier = Modifier.weight(1f),
         )
 
-        FilledTonalIconButton(onClick = onClick) {
+        AppIconButton(
+            onClick = onClick,
+            tooltip = stringResource(actionLabelResId),
+            style = AppIconButtonStyle.Tonal,
+        ) {
             Icon(
                 imageVector = MaterialSymbols.Add,
                 contentDescription = stringResource(actionLabelResId),
@@ -205,7 +214,11 @@ fun AppDeepLinkSourceRow(
             modifier = Modifier.weight(1f),
         )
 
-        FilledTonalIconButton(onClick = onClick) {
+        AppIconButton(
+            onClick = onClick,
+            tooltip = stringResource(R.string.settings_app_shortcuts_add_deep_link),
+            style = AppIconButtonStyle.Tonal,
+        ) {
             Icon(
                 imageVector = MaterialSymbols.Add,
                 contentDescription = stringResource(R.string.settings_app_shortcuts_add_deep_link),
@@ -287,7 +300,7 @@ fun AddAppDeepLinkDialog(
                     Box(
                         modifier =
                             Modifier
-                                .size(50.dp)
+                                .size(DesignTokens.Spacing48)
                                 .clip(AppShapes.medium)
                                 .clickable { pickIconLauncher.launch(arrayOf("image/*")) },
                         contentAlignment = Alignment.Center,
@@ -339,7 +352,7 @@ fun AddAppDeepLinkDialog(
                             Icon(
                                 imageVector = MaterialSymbols.Edit,
                                 contentDescription = stringResource(R.string.settings_edit_label),
-                                modifier = Modifier.size(10.dp),
+                                modifier = Modifier.size(DesignTokens.EditBadgeIconSize),
                                 tint = MaterialTheme.colorScheme.primary,
                             )
                         }

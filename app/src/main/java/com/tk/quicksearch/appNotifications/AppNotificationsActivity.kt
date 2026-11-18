@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -65,6 +64,8 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.shared.util.AppLanguageManager
 import com.tk.quicksearch.shared.util.setSystemBarsDark
+import com.tk.quicksearch.shared.ui.components.AppIconButton
+import com.tk.quicksearch.shared.ui.components.AppIconButtonStyle
 
 /** Holds the At a Glance widget's list that [AppNotificationsActivity] edits and returns. */
 internal const val EXTRA_WIDGET_FILTERS = "com.tk.quicksearch.appNotifications.WIDGET_FILTERS"
@@ -336,8 +337,10 @@ private fun SourceRow(
         }
         if (onRemove != null) {
             val error = MaterialTheme.colorScheme.error
-            FilledTonalIconButton(
+            AppIconButton(
                 onClick = onRemove,
+                tooltip = stringResource(R.string.app_notifications_remove_app, title),
+                style = AppIconButtonStyle.Tonal,
                 colors = IconButtonDefaults.filledTonalIconButtonColors(
                     containerColor = error.copy(alpha = AppColors.TintTonalAlpha),
                     contentColor = error,

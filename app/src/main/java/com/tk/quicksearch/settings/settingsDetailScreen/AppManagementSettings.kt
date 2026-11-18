@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.FilledTonalIconButton
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.TonalButton
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -66,6 +65,8 @@ import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import java.util.Locale
+import com.tk.quicksearch.shared.ui.components.AppIconButton
+import com.tk.quicksearch.shared.ui.components.AppIconButtonStyle
 
 private enum class AppSortOption(
     @StringRes val labelResId: Int,
@@ -256,8 +257,13 @@ fun AppManagementSettingsSection(
                 }
             }
             Spacer(modifier = Modifier.weight(1f))
-            FilledTonalIconButton(
+            AppIconButton(
                 onClick = { isSortAscending = !isSortAscending },
+                tooltip =
+                    stringResource(
+                        if (isSortAscending) R.string.settings_app_sort_ascending else R.string.settings_app_sort_descending,
+                    ),
+                style = AppIconButtonStyle.Tonal,
             ) {
                 Icon(
                     imageVector =

@@ -149,7 +149,7 @@ fun EditCustomShortcutDialog(
                     Box(
                         modifier =
                             Modifier
-                                .size(50.dp)
+                                .size(DesignTokens.Spacing48)
                                 .clip(AppShapes.medium)
                                 .clickable { pickIconLauncher.launch(arrayOf("image/*")) },
                         contentAlignment = Alignment.Center,
@@ -201,7 +201,7 @@ fun EditCustomShortcutDialog(
                             Icon(
                                 imageVector = MaterialSymbols.Edit,
                                 contentDescription = stringResource(R.string.settings_edit_label),
-                                modifier = Modifier.size(10.dp),
+                                modifier = Modifier.size(DesignTokens.EditBadgeIconSize),
                                 tint = MaterialTheme.colorScheme.primary,
                             )
                         }

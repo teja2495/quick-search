@@ -37,7 +37,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FilledTonalIconToggleButton
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
@@ -90,6 +89,8 @@ import kotlin.math.floor
 import kotlin.math.roundToInt
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.components.AppTonalButton
+import com.tk.quicksearch.shared.ui.components.AppIconButton
+import com.tk.quicksearch.shared.ui.components.AppIconButtonStyle
 
 internal tailrec fun Context.findActivity(): Activity? =
     when (this) {
@@ -152,8 +153,10 @@ internal fun WidgetsPanelHeader(
                     Text(text = stringResource(R.string.dialog_done))
                 }
             } else {
-                FilledTonalIconButton(
+                AppIconButton(
                     onClick = onAddWidget,
+                    tooltip = stringResource(R.string.common_action_add),
+                    style = AppIconButtonStyle.Tonal,
                     enabled = layoutLocked == false,
                     modifier = Modifier.size(DesignTokens.Spacing40),
                     colors = actionColors,

@@ -155,7 +155,7 @@ internal fun ContactResultRow(
                                                         contentDescription = null,
                                                         tint = iconTint,
                                                         modifier =
-                                                                Modifier.size(30.dp)
+                                                                Modifier.size(DesignTokens.IconSize + DesignTokens.SpacingXSmall)
                                                                         .padding(
                                                                                 start =
                                                                                         DesignTokens

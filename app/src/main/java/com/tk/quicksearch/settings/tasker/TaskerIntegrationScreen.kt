@@ -101,7 +101,7 @@ fun TaskerIntegrationScreen(
                     onValueChange = { action = it },
                     modifier = Modifier.fillMaxWidth(),
                     label = stringResource(R.string.tasker_broadcast_action_label),
-                    placeholder = { Text("com.example.MY_TASK") },
+                    placeholder = { Text(stringResource(R.string.tasker_broadcast_action_placeholder)) },
                     singleLine = true,
                 )
                 AppButton(

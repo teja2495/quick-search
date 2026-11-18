@@ -254,7 +254,7 @@ internal fun InlineSliderRow(
 ) {
     SliderWithValue(
         modifier = Modifier.fillMaxWidth().padding(top = DesignTokens.SpacingSmall),
-        valueSpacing = 6.dp,
+        valueSpacing = DesignTokens.SpacingSmall,
         valueLabel = {
             Text(
                 text = label,

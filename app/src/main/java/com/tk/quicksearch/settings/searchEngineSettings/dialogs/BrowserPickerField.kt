@@ -207,7 +207,7 @@ private fun BrowserOptionRow(
         ) {
             Box(
                 modifier = Modifier
-                    .size(6.dp)
+                    .size(DesignTokens.SpacingSmall)
                     .clip(AppShapes.full)
                     .background(
                         if (isSelected) accentColor else accentColor.copy(alpha = AppColors.TintStrongAlpha)

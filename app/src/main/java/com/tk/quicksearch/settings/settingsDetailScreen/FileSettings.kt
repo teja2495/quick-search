@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +35,7 @@ import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
 import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.TonalIconBadge
+import com.tk.quicksearch.shared.ui.components.AppIconButtonStyle
 
 private val multiSlashRegex = "/+".toRegex()
 
@@ -300,7 +300,7 @@ private fun FolderFilterGroup(
             verticalAlignment = Alignment.CenterVertically,
             leading = { TonalIconBadge(icon = MaterialSymbols.Folder) },
             trailing = {
-                FilledTonalIconButton(onClick = onAdd) {
+                AppIconButton(onClick = onAdd, tooltip = addDescription, style = AppIconButtonStyle.Tonal) {
                     Icon(
                         imageVector = MaterialSymbols.Add,
                         contentDescription = addDescription,

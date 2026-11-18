@@ -253,7 +253,7 @@ internal fun SettingResultRow(
                         contentDescription = null,
                         tint = iconTint,
                         modifier =
-                                Modifier.size(if (icon != null) 30.dp else ICON_SIZE.dp)
+                                Modifier.size(if (icon != null) DesignTokens.IconSize + DesignTokens.SpacingXSmall else ICON_SIZE.dp)
                                         .padding(start = DesignTokens.SpacingXSmall),
                 )
 

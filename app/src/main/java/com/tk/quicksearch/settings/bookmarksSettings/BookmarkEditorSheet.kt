@@ -337,7 +337,10 @@ private fun BookmarkIconPicker(
             contentAlignment = Alignment.Center,
         ) {
             when {
-                isLoading -> CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                isLoading -> CircularProgressIndicator(
+                    modifier = Modifier.size(DesignTokens.InlineProgressSize),
+                    strokeWidth = DesignTokens.InlineProgressStrokeWidth,
+                )
                 pickedBitmap != null ->
                     Image(
                         bitmap = pickedBitmap,
@@ -369,7 +372,7 @@ private fun BookmarkIconPicker(
                 Icon(
                     imageVector = MaterialSymbols.Edit,
                     contentDescription = null,
-                    modifier = Modifier.size(13.dp),
+                    modifier = Modifier.size(DesignTokens.EditBadgeIconSize),
                     tint = MaterialTheme.colorScheme.primary,
                 )
             }

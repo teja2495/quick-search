@@ -176,6 +176,8 @@ fun OverlayRoot(
                         modifier =
                                 modifier
                                         .fillMaxSize()
+                                        // Tapping the scrim outside the card dismisses the overlay; the
+                                        // dismiss animation is the feedback, so a full-screen ripple is skipped.
                                         .clickable(
                                                 interactionSource =
                                                         remember { MutableInteractionSource() },
@@ -468,6 +470,9 @@ fun OverlayRoot(
                                                                 color = overlayBorderColor,
                                                                 shape = cardShape,
                                                         )
+                                                        // Swallows taps on the card's empty space so they don't
+                                                        // reach the dismiss-on-scrim handler; it has no action,
+                                                        // so it shows no ripple.
                                                         .clickable(
                                                                 interactionSource =
                                                                         remember {

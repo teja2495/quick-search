@@ -32,7 +32,6 @@ import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -74,6 +73,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.tk.quicksearch.shared.ui.components.AppButton
 import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.components.AppIconButtonStyle
 
 private val DIALOG_MAX_WIDTH = 640.dp
 private const val DIALOG_HEIGHT_FRACTION = 0.85f
@@ -175,8 +175,10 @@ private fun FilePreviewActions(
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        FilledTonalIconButton(
+        AppIconButton(
             onClick = onShare,
+            tooltip = stringResource(R.string.action_share),
+            style = AppIconButtonStyle.Tonal,
             modifier = Modifier.size(ACTION_BUTTON_HEIGHT),
         ) {
             Icon(
@@ -320,6 +322,8 @@ private fun PdfPreview(
                             contentDescription = null,
                             contentScale = ContentScale.Fit,
                             modifier = Modifier
+                                // PDF pages render with a transparent background; white is the
+                                // paper itself, not a surface, so it stays white in dark mode too.
                                 .background(Color.White)
                                 .graphicsLayer {
                                     if (isCurrent) {

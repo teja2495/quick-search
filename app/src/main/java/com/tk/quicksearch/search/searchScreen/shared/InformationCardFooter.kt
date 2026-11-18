@@ -9,17 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PlainTooltip
-import androidx.compose.material3.Text
-import androidx.compose.material3.TooltipAnchorPosition
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,6 +29,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.delay
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 
 /** Tonal step of the footer band over the card container (works on frosted and overlay cards). */
 private const val FooterTonalAlpha = 0.06f
@@ -88,31 +81,25 @@ private val InformationCardFooterContentPadding =
     PaddingValues(start = DesignTokens.SpacingLarge, end = DesignTokens.SpacingXSmall)
 
 /** Standard icon button for [InformationCardFooter], labelled by a plain tooltip on long-press. */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InformationCardFooterAction(
     icon: ImageVector,
     label: String,
     onClick: () -> Unit,
 ) {
-    TooltipBox(
-        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-        tooltip = { PlainTooltip { Text(label) } },
-        state = rememberTooltipState(),
+    AppIconButton(
+        onClick = onClick,
+        tooltip = label,
+        colors =
+            IconButtonDefaults.iconButtonColors(
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            ),
     ) {
-        IconButton(
-            onClick = onClick,
-            colors =
-                IconButtonDefaults.iconButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                ),
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                modifier = Modifier.size(FooterActionIconSize),
-            )
-        }
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            modifier = Modifier.size(FooterActionIconSize),
+        )
     }
 }
 

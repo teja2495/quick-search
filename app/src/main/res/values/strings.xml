@@ -1382,6 +1382,7 @@
     <string name="tasker_alias_conflict">This alias is already in use</string>
     <string name="tasker_intent_name_label">Broadcast Intent Name</string>
     <string name="tasker_broadcast_action_label">Broadcast Action</string>
+    <string name="tasker_broadcast_action_placeholder" translatable="false">com.example.MY_TASK</string>
     <string name="tasker_add_intent_button">Add Intent</string>
     <string name="tasker_saved_alias">Alias: %1$s</string>
     <string name="tasker_delete_intent">Delete Tasker intent</string>

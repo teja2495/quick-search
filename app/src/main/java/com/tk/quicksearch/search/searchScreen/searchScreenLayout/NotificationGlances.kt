@@ -27,8 +27,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
@@ -78,6 +76,8 @@ import java.text.NumberFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.AppIconButton
+import com.tk.quicksearch.shared.ui.components.AppIconButtonStyle
 
 /** At most this many ongoing (progress and Live Update) and finished ones show on home, running ones first. */
 private const val MAX_PROGRESS_ROWS = 3
@@ -335,8 +335,10 @@ private fun TimerActionButton(action: GlanceNotificationAction) {
         GlanceActionChip(label = action.title, onClick = { action.intent.sendFromUserTap() })
         return
     }
-    FilledTonalIconButton(
+    AppIconButton(
         onClick = { action.intent.sendFromUserTap() },
+        tooltip = action.title,
+        style = AppIconButtonStyle.Tonal,
         modifier = Modifier.size(DesignTokens.ButtonHeightSmall),
     ) {
         if (bitmap != null) {
@@ -418,8 +420,10 @@ internal fun OngoingCallRow(
         trailing =
             onHangUp?.let { hangUp ->
                 {
-                    FilledIconButton(
+                    AppIconButton(
                         onClick = hangUp,
+                        tooltip = stringResource(R.string.home_ongoing_call_hang_up),
+                        style = AppIconButtonStyle.Filled,
                         modifier = Modifier.size(DesignTokens.ButtonHeightSmall),
                         colors =
                             IconButtonDefaults.filledIconButtonColors(

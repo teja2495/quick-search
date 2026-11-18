@@ -50,9 +50,11 @@ feature, screen, or component starts from the Material 3 guideline for that patt
   `indication = null` unless the tap has other immediate visual feedback, and say why in a comment.
 - **Components:** reuse a shared component before building a new dialog, sheet, popup, menu,
   button, or settings row. Never call Material `Button`, `FilledTonalButton`, `OutlinedButton`,
-  `TextButton`, `IconButton`, `DatePickerDialog`, `InputChip`, or `DropdownMenu` directly.
-- **Icon buttons:** use `AppIconButton` with a `tooltip`, normally the icon's content description.
-  Material 3 labels every icon-only action with a tooltip.
+  `TextButton`, `IconButton`, `FilledIconButton`, `FilledTonalIconButton`, `DatePickerDialog`,
+  `InputChip`, or `DropdownMenu` directly.
+- **Icon buttons:** use `AppIconButton` with a `tooltip`, normally the icon's content description,
+  and pick the filled or tonal variant with `style`. Material 3 labels every icon-only action with
+  a tooltip.
 - **Messages:** show brief feedback with `AppMessages.show(context, …)`, which appears as a
   snackbar on the visible screen. Keep `Toast` only where no app UI is on screen (widgets, Quick
   Settings tiles, trampoline activities, the accessibility service).
@@ -184,7 +186,11 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
   on its own surface, so a form field's container and label would be wrong.
 - **Ripple-free taps.** The theme palette drawer and the theme tiles in Appearance apply the choice
   live and show the selection, so they skip the ripple. The long-press easter eggs (version
-  footer, contact number copy) have no tap action to give feedback for.
+  footer, contact number copy) have no tap action to give feedback for. In the overlay, tapping the
+  scrim dismisses it (the exit animation is the feedback), and the card swallows taps on its empty
+  space so they don't reach the scrim.
+- **PDF paper.** `FilePreviewDialog` draws PDF pages on `Color.White` in every theme. Pages render
+  with a transparent background, and the white is the page itself, not an app surface.
 - **Icon shadows.** App icons and search engine icons over a light wallpaper, and the All Apps
   letter bubble, cast a shadow at a Material elevation level. A tonal surface can't separate a bare
   icon from an arbitrary wallpaper.
@@ -222,7 +228,9 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
   `SegmentedListGap` 2, `SegmentedListTile*Padding`.
 - **Action menus:** `ItemMenuMaxWidth` 640, `ItemMenuRowHeight` 56.
 - **Sizes:** `IconSizeSmall` 20, `IconSize` 24, `LargeIconSize` 28, `IconSizeXLarge` 52,
-  `ListItemMinHeight` 56 (one-line list row), `AppIconSize` 64, `BorderWidth` 1, `DividerThickness` 0.5.
+  `ListItemMinHeight` 56 (one-line list row), `AppIconSize` 64, `BorderWidth` 1, `DividerThickness` 0.5,
+  `EditBadgeIconSize` 12 (pencil in an edit badge), `InlineProgressSize` 24 with
+  `InlineProgressStrokeWidth` 2 (a small spinner standing in for an icon or icon button).
 - **At a Glance rows:** `GlanceRowMinHeight` 52, `GlanceRowHorizontalPadding` 7. The inset is off
   the 4dp grid; every glance row shares it so they line up. `ResultIconStartInset` gives the 24dp
   leading glyph in notes, reminders, calendar, and bookmark rows the same inset.
@@ -301,7 +309,7 @@ settings and add a property in sorted order.
 | `ExpandableSegmentedGroup` | Expandable list | A `SegmentedGroup` that collapses to its title row (`titleMedium` heading, rotating chevron) |
 | `Settings*Row`, `SettingsSegmentNavigationRow`, `SettingsIconBadge`, `BooleanSettingTile`, `SettingsNestedCheckbox`, `SettingsRemoveButton`, `AliasPill` (`settings/shared/`) | List items | Settings toggle, navigation, and sub-option rows. `BooleanSettingTile` binds a registered boolean preference to the same command that searchable Settings uses |
 | `AppTopAppBar` | Top app bar (small) | Full-screen page headers (Settings and its detail pages, widget config screens): back button, `titleLarge` heading, and `actions`. `navigationIcon` and `navigationContentDescription` swap the back arrow (a close icon for config screens that cancel); `windowInsets` is zero by default, and screens that draw under the status bar pass `TopAppBarDefaults.windowInsets`. The container is transparent over the page background, and there is no on-scroll fill because the page clips its scrolling content below the bar |
-| `AppIconButton` | Icon button with plain tooltip | Every icon-only action. `tooltip` is shown on long-press or hover. `modifier` goes on the button; parent-data modifiers (`align`, `weight`) go in `anchorModifier`, because the tooltip anchor wraps the button |
+| `AppIconButton`, `AppIconButtonStyle` | Icon button (standard, filled, tonal) with plain tooltip | Every icon-only action. `style` picks `Standard` (default), `Filled`, or `Tonal`; `colors` overrides the style's colors. `tooltip` is shown on long-press or hover. `modifier` goes on the button; parent-data modifiers (`align`, `weight`) go in `anchorModifier`, because the tooltip anchor wraps the button |
 | `AppAlertDialog` | Dialog | Alerts and confirmations on `surfaceContainerHigh`. Pass `confirmLabel`/`onConfirm` and an optional `dismissLabel`; set `destructive = true` for an error-tinted confirm |
 | `AppDialogSurface` | Dialog (custom content) | Custom centered content (File Preview, Pinned Notification Items). The feature owns sizing and actions |
 | `AppBottomSheet` | Modal bottom sheet | Bottom sheets with 28dp top corners. `scrimColor = Color.Transparent` keeps the screen behind undimmed for live previews |

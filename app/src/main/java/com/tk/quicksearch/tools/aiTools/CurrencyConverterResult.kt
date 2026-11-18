@@ -96,7 +96,7 @@ fun CurrencyConverterResult(
                                     null
                                 }
                         Box(
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 143.dp),
+                                modifier = Modifier.fillMaxWidth().heightIn(min = CurrencyConverterMinHeight),
                         ) {
                             Column {
                                 Text(
@@ -128,7 +128,7 @@ fun CurrencyConverterResult(
                     CurrencyConverterStatus.Error -> {
                         // Same min height as the success layout so the card doesn't jump between states.
                         Column(
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 143.dp),
+                                modifier = Modifier.fillMaxWidth().heightIn(min = CurrencyConverterMinHeight),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement =
                                         Arrangement.spacedBy(
@@ -213,3 +213,6 @@ private fun getCurrencySymbolForCode(code: String): String? {
             ?.trim()
             ?.takeIf { it.isNotBlank() && !it.equals(normalizedCode, ignoreCase = true) }
 }
+
+/** Shared min height of the success and error layouts so the card doesn't jump between states. */
+private val CurrencyConverterMinHeight = 144.dp
