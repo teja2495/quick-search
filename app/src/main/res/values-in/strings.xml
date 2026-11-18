@@ -81,6 +81,7 @@
     <string name="action_unlock_app">Buka Kunci</string>
     <string name="app_lock_prompt_lock">Kunci %1$s</string>
     <string name="app_lock_prompt_unlock">Buka kunci %1$s</string>
+    <string name="app_lock_unlock_device_credential">Buka kunci dengan kredensial perangkat</string>
     <string name="app_lock_unavailable">Buka Quick Search untuk membuka kunci aplikasi ini</string>
     <string name="action_change_icon">Ubah Ikon</string>
     <string name="icon_picker_no_icon_packs">Tidak ada paket ikon yang terpasang untuk mengubah ikon aplikasi.</string>
@@ -1132,6 +1133,7 @@
     <string name="shortcut_voice_search_short_label">Pencarian Suara</string>
     <string name="voice_input_not_available">Pengetikan suara tidak tersedia saat ini.</string>
     <string name="widget_background_color_custom_dialog_title">Warna Kustom</string>
+    <string name="color_picker_hex">Warna heksadesimal (#RRGGBB)</string>
     <string name="widget_border_color">Warna Bingkai</string>
     <string name="widget_custom_button_add_desc">Tambah tombol kustom</string>
     <string name="widget_custom_button_change_colour">Ubah warna</string>
@@ -1203,6 +1205,13 @@
     <string name="widget_toggle_show_label">Teks Quick Search</string>
     <string name="widget_toggle_show_empty_date">Tampilkan tanggal saat tidak ada item</string>
     <string name="widgets_panel_title">Widget</string>
+    <string name="widget_edit_layout">Edit tata letak widget</string>
+    <string name="widget_move_left">Geser ke kiri</string>
+    <string name="widget_move_right">Geser ke kanan</string>
+    <string name="widget_increase_width">Tambah lebar</string>
+    <string name="widget_decrease_width">Kurangi lebar</string>
+    <string name="widget_increase_height">Tambah tinggi</string>
+    <string name="widget_decrease_height">Kurangi tinggi</string>
     <string name="widgets_panel_lock_layout">Kunci tata letak</string>
     <string name="widgets_panel_unlock_layout">Buka kunci tata letak</string>
     <string name="widgets_picker_empty">Widget tidak ditemukan.</string>

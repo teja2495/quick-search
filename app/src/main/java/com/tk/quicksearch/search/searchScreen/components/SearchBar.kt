@@ -676,10 +676,7 @@ internal fun PersistentSearchBar(
                     SearchBarSectionMenu(
                         expanded = showSectionMenu,
                         onDismiss = { showSectionMenu = false },
-                        onSectionSelected = { section ->
-                            showSectionMenu = false
-                            onSectionSelected(section)
-                        },
+                        onSectionSelected = onSectionSelected,
                     )
                 }
             },

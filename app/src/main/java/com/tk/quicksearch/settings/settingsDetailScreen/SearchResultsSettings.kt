@@ -28,6 +28,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -404,6 +407,8 @@ internal fun PinnedNotificationItemsDialog(
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val view = LocalView.current
     val reorderableItems = remember(items) { items.toMutableStateList() }
+    val moveUp = stringResource(R.string.action_move_up)
+    val moveDown = stringResource(R.string.action_move_down)
     val listState = rememberLazyListState()
     var reorderedDuringDrag by remember { mutableStateOf(false) }
     val reorderableState =
@@ -448,6 +453,14 @@ internal fun PinnedNotificationItemsDialog(
                         state = reorderableState,
                         key = action.toJson(),
                     ) { isDragging ->
+                        fun moveBy(delta: Int): Boolean {
+                            val current = reorderableItems.indexOf(action)
+                            val target = current + delta
+                            if (current < 0 || target !in reorderableItems.indices) return false
+                            reorderableItems.add(target, reorderableItems.removeAt(current))
+                            onReorder(reorderableItems.toList())
+                            return true
+                        }
                         if (index > 0) HorizontalDivider(color = AppColors.SettingsDivider)
                         val category = stringResource(action.type.categoryRes)
                         Surface(
@@ -468,8 +481,7 @@ internal fun PinnedNotificationItemsDialog(
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier =
                                         Modifier
-                                            .size(DesignTokens.LargeIconSize)
-                                            .padding(end = DesignTokens.SpacingMedium)
+                                            .size(DesignTokens.MinTouchTarget)
                                             .longPressDraggableHandle(
                                                 onDragStarted = {
                                                     reorderedDuringDrag = false
@@ -487,9 +499,17 @@ internal fun PinnedNotificationItemsDialog(
                                                         HapticFeedbackConstantsCompat.GESTURE_END,
                                                     )
                                                 },
-                                            ),
+                                            )
+                                            .padding(DesignTokens.SpacingMedium),
                                 )
-                                Column(modifier = Modifier.weight(1f)) {
+                                Column(
+                                    modifier = Modifier.weight(1f).semantics(mergeDescendants = true) {
+                                        customActions = buildList {
+                                            if (index > 0) add(CustomAccessibilityAction(moveUp) { moveBy(-1) })
+                                            if (index < reorderableItems.lastIndex) add(CustomAccessibilityAction(moveDown) { moveBy(1) })
+                                        }
+                                    },
+                                ) {
                                     Text(
                                         text = action.displayLabel(),
                                         style = MaterialTheme.typography.bodyMedium,

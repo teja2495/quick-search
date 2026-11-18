@@ -90,7 +90,7 @@ private const val WIDGET_PANEL_SWIPE_THRESHOLD_PX = 140f
 internal val WidgetPanelGridRowHeight = 80.dp
 internal val WidgetPanelGridGap = 8.dp
 internal val WidgetResizeEdgeHitLong = 64.dp
-internal val WidgetResizeEdgeHitShort = 32.dp
+internal val WidgetResizeEdgeHitShort = DesignTokens.MinTouchTarget
 internal val WidgetResizeVisualLong = 32.dp
 internal val WidgetResizeVisualShort = 8.dp
 internal val WidgetActionButtonSize = 30.dp
@@ -410,7 +410,11 @@ internal fun WidgetsPanelScreen(
                         // full remaining panel height.
                         Box(modifier = Modifier.fillMaxWidth()) {
                             CompactQuickNoteWidget(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().widgetEditAction(
+                                    if (layoutLocked == false && editingWidgetId == null) {
+                                        { editingWidgetId = QUICK_NOTE_PANEL_WIDGET_ID }
+                                    } else null,
+                                ),
                                 fitContentHeight = true,
                                 onFocusChanged = { isQuickNoteFocused = it },
                                 onDragStart = if (layoutLocked == false) {

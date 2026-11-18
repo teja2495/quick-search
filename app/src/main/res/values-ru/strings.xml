@@ -82,6 +82,7 @@
     <string name="action_unlock_app">Разблокировать</string>
     <string name="app_lock_prompt_lock">Заблокировать %1$s</string>
     <string name="app_lock_prompt_unlock">Разблокировать %1$s</string>
+    <string name="app_lock_unlock_device_credential">Разблокировать с помощью данных устройства</string>
     <string name="app_lock_unavailable">Откройте Quick Search, чтобы разблокировать это приложение</string>
 <string name="action_change_icon">Изменить значок</string>
 <string name="icon_picker_search">Поиск значков</string>
@@ -1156,6 +1157,7 @@
 <string name="shortcut_voice_search_short_label">Голосовой поиск</string>
 <string name="voice_input_not_available">Голосовой ввод сейчас недоступен.</string>
 <string name="widget_background_color_custom_dialog_title">Кастомный цвет</string>
+<string name="color_picker_hex">Цвет в формате HEX (#RRGGBB)</string>
 <string name="widget_border_color">Цвет рамки</string>
 <string name="widget_custom_button_add_desc">Добавить кастомную кнопку</string>
 <string name="widget_custom_buttons_dialog_hint">Ищите приложения, ярлыки приложений, контакты, файлы, папки, заметки и настройки устройства.</string>
@@ -1225,6 +1227,13 @@
 <string name="widget_toggle_show_label">Текст Quick Search</string>
 <string name="widget_toggle_show_empty_date">Показывать дату, когда нет элементов</string>
 <string name="widgets_panel_title">Виджеты</string>
+<string name="widget_edit_layout">Изменить расположение виджета</string>
+<string name="widget_move_left">Переместить влево</string>
+<string name="widget_move_right">Переместить вправо</string>
+<string name="widget_increase_width">Увеличить ширину</string>
+<string name="widget_decrease_width">Уменьшить ширину</string>
+<string name="widget_increase_height">Увеличить высоту</string>
+<string name="widget_decrease_height">Уменьшить высоту</string>
 <string name="widgets_panel_lock_layout">Заблокировать расположение</string>
 <string name="widgets_panel_unlock_layout">Разблокировать расположение</string>
 <string name="widgets_picker_empty">Виджеты не найдены.</string>

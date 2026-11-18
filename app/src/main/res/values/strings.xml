@@ -81,6 +81,7 @@
     <string name="action_unlock_app">Unlock</string>
     <string name="app_lock_prompt_lock">Lock %1$s</string>
     <string name="app_lock_prompt_unlock">Unlock %1$s</string>
+    <string name="app_lock_unlock_device_credential">Unlock with device credentials</string>
     <string name="app_lock_unavailable">Open Quick Search to unlock this app</string>
     <string name="action_change_icon">Change Icon</string>
     <string name="icon_picker_no_icon_packs">No Icon packs are installed to change the app icon.</string>
@@ -1170,6 +1171,7 @@
     <string name="shortcut_voice_search_short_label">Voice Search</string>
     <string name="voice_input_not_available">Voice typing isn’t available right now.</string>
     <string name="widget_background_color_custom_dialog_title">Custom Color</string>
+    <string name="color_picker_hex">Hex color (#RRGGBB)</string>
     <string name="widget_border_color">Border Color</string>
     <string name="widget_custom_button_add_desc">Add custom button</string>
     <string name="widget_custom_button_change_colour">Change colour</string>
@@ -1241,6 +1243,13 @@
     <string name="widget_toggle_show_label">Quick Search Text</string>
     <string name="widget_toggle_show_empty_date">Show date when there are no items</string>
     <string name="widgets_panel_title">Widgets</string>
+    <string name="widget_edit_layout">Edit widget layout</string>
+    <string name="widget_move_left">Move left</string>
+    <string name="widget_move_right">Move right</string>
+    <string name="widget_increase_width">Increase width</string>
+    <string name="widget_decrease_width">Decrease width</string>
+    <string name="widget_increase_height">Increase height</string>
+    <string name="widget_decrease_height">Decrease height</string>
     <string name="widgets_panel_lock_layout">Lock layout</string>
     <string name="widgets_panel_unlock_layout">Unlock layout</string>
     <string name="widgets_picker_empty">No widgets found.</string>

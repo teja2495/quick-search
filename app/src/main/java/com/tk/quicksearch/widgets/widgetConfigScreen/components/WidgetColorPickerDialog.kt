@@ -7,6 +7,9 @@ import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
@@ -22,13 +25,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -36,16 +42,19 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
+import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 private val ColorAreaHeight = 180.dp
-private val HueBarHeight = 28.dp
+private val HueTrackHeight = DesignTokens.Spacing28
+private val HexColorPattern = Regex("#?[0-9A-Fa-f]{6}")
 private val ColorPreviewSize = 32.dp
 
 @Composable
@@ -61,7 +70,11 @@ fun WidgetColorPickerDialog(
     var hue by rememberSaveable(initialColor.toArgb()) { mutableFloatStateOf(initialHsv[0]) }
     var saturation by rememberSaveable(initialColor.toArgb()) { mutableFloatStateOf(initialHsv[1]) }
     var brightness by rememberSaveable(initialColor.toArgb()) { mutableFloatStateOf(initialHsv[2]) }
-    val selectedColor = Color.hsv(hue, saturation, brightness)
+    var hexInput by rememberSaveable(initialColor.toArgb()) { mutableStateOf<String?>(null) }
+    val typedColor = hexInput?.parseHexRgb()
+    val selectedColor = typedColor ?: Color.hsv(hue, saturation, brightness)
+    val hexValue = hexInput ?: selectedColor.toHexRgb()
+    val validHex = hexInput == null || typedColor != null
 
     AppAlertDialog(
         onDismissRequest = onDismiss,
@@ -81,19 +94,26 @@ fun WidgetColorPickerDialog(
             }
         },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge)) {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
+            ) {
                 SaturationBrightnessPicker(
                     hue = hue,
                     saturation = saturation,
                     brightness = brightness,
                     onColorChange = { newSaturation, newBrightness ->
+                        hexInput = null
                         saturation = newSaturation
                         brightness = newBrightness
                     },
                 )
                 HuePicker(
                     hue = hue,
-                    onHueChange = { hue = it },
+                    onHueChange = {
+                        hexInput = null
+                        hue = it
+                    },
                 )
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
@@ -111,15 +131,29 @@ fun WidgetColorPickerDialog(
                                     shape = AppShapes.full,
                                 ),
                     )
-                    Text(
-                        text = selectedColor.toHexRgb(),
-                        style = MaterialTheme.typography.bodyMedium,
+                    AppOutlinedTextField(
+                        value = hexValue,
+                        onValueChange = { input ->
+                            if (input.length <= 7) {
+                                hexInput = input
+                                input.parseHexRgb()?.toHsv()?.let { hsv ->
+                                    hue = hsv[0]
+                                    saturation = hsv[1]
+                                    brightness = hsv[2]
+                                }
+                            }
+                        },
+                        label = stringResource(R.string.color_picker_hex),
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        isError = !validHex,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
                     )
                 }
             }
         },
         confirmButton = {
-            AppTextButton(onClick = { onConfirm(selectedColor) }) {
+            AppTextButton(onClick = { onConfirm(selectedColor) }, enabled = validHex) {
                 Text(stringResource(R.string.dialog_save))
             }
         },
@@ -213,8 +247,7 @@ private fun HuePicker(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .height(HueBarHeight)
-                .clip(AppShapes.full)
+                .height(DesignTokens.MinTouchTarget)
                 .pointerInput(Unit) {
                     awaitEachGesture {
                         val down = awaitFirstDown()
@@ -229,6 +262,9 @@ private fun HuePicker(
                     }
                 },
     ) {
+        val trackHeight = HueTrackHeight.toPx().coerceAtMost(size.height)
+        val trackTop = (size.height - trackHeight) / 2
+        val thumbInset = 3.dp.toPx()
         drawRoundRect(
             brush =
                 Brush.horizontalGradient(
@@ -242,22 +278,24 @@ private fun HuePicker(
                         Color.Red,
                     ),
                 ),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2f),
+            topLeft = Offset(0f, trackTop),
+            size = Size(size.width, trackHeight),
+            cornerRadius = CornerRadius(trackHeight / 2),
         )
         val indicatorX =
             ((hue / 360f) * size.width)
-                .coerceIn(3.dp.toPx(), size.width - 3.dp.toPx())
+                .coerceIn(thumbInset, size.width - thumbInset)
         drawLine(
             color = Color.Black.copy(alpha = AppColors.ContentSecondaryAlpha),
-            start = Offset(indicatorX, 3.dp.toPx()),
-            end = Offset(indicatorX, size.height - 3.dp.toPx()),
+            start = Offset(indicatorX, trackTop + thumbInset),
+            end = Offset(indicatorX, trackTop + trackHeight - thumbInset),
             strokeWidth = 6.dp.toPx(),
             cap = StrokeCap.Round,
         )
         drawLine(
             color = Color.White,
-            start = Offset(indicatorX, 3.dp.toPx()),
-            end = Offset(indicatorX, size.height - 3.dp.toPx()),
+            start = Offset(indicatorX, trackTop + thumbInset),
+            end = Offset(indicatorX, trackTop + trackHeight - thumbInset),
             strokeWidth = 3.dp.toPx(),
             cap = StrokeCap.Round,
         )
@@ -269,3 +307,7 @@ private fun Color.toHsv(): FloatArray =
 
 private fun Color.toHexRgb(): String =
     String.format(java.util.Locale.US, "#%06X", toArgb() and 0xFFFFFF)
+
+private fun String.parseHexRgb(): Color? =
+    if (HexColorPattern.matches(this)) Color(0xFF000000.toInt() or removePrefix("#").toInt(16))
+    else null

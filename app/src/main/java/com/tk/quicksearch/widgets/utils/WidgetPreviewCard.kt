@@ -45,7 +45,6 @@ import com.tk.quicksearch.widgets.mediaControlsWidget.MediaControlsWidgetPreview
 import com.tk.quicksearch.widgets.noteWidget.NoteWidgetPreview
 import com.tk.quicksearch.widgets.atAGlanceWidget.AtAGlanceWidgetPreview
 import com.tk.quicksearch.widgets.searchWidget.MicAction
-import kotlin.math.floor
 
 /** The home screen wallpaper to draw widget previews on, or null without wallpaper access. */
 @Composable
@@ -117,6 +116,22 @@ fun WidgetPreviewCard(
     val previewBarHeight = (WidgetConfigConstants.PREVIEW_HEIGHT - (verticalInset * 2)).coerceAtLeast(1.dp)
     val customButtons = previewState.customButtons.filterNotNull()
     val iconSize = WidgetConfigConstants.PREVIEW_ICON_SIZE * previewState.iconSizeScale
+    val showMic = previewState.micAction != MicAction.OFF
+    val searchShortcuts = if (widgetVariant == WidgetVariant.STANDARD) {
+        customButtons.take(
+            WidgetLayoutUtils.searchShortcutCapacity(
+                widgetWidth = previewWidth,
+                innerWidth = previewWidth - outerHorizontalPadding * 2,
+                showLabel = previewState.showLabel,
+                showSearchIcon = previewState.showSearchIcon,
+                iconSize = iconSize,
+                showMic = showMic,
+            ),
+        )
+    } else {
+        emptyList()
+    }
+    val searchActionsWidth = WidgetLayoutUtils.searchActionsWidth(searchShortcuts.size + if (showMic) 1 else 0)
 
     Box(
         modifier =
@@ -166,11 +181,20 @@ fun WidgetPreviewCard(
                     contentAlignment = Alignment.Center,
                 ) {
                     if (previewState.showLabel) {
-                        Text(
-                            text = stringResource(R.string.app_name),
-                            color = colors.textIcon,
-                            style = MaterialTheme.typography.titleMedium,
-                        )
+                        Box(
+                            modifier = Modifier.fillMaxSize().padding(
+                                start = if (searchActionsWidth > 0.dp && previewState.showSearchIcon) iconSize else 0.dp,
+                                end = searchActionsWidth,
+                            ),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = stringResource(R.string.app_name),
+                                color = colors.textIcon,
+                                style = MaterialTheme.typography.titleMedium,
+                                maxLines = 1,
+                            )
+                        }
                     }
 
                     if (previewState.showSearchIcon) {
@@ -192,7 +216,10 @@ fun WidgetPreviewCard(
                     modifier =
                         Modifier
                             .fillMaxSize()
-                            .padding(horizontal = innerHorizontalPadding),
+                            .padding(
+                                start = innerHorizontalPadding,
+                                end = innerHorizontalPadding + searchActionsWidth,
+                            ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
                 ) {
@@ -225,21 +252,21 @@ fun WidgetPreviewCard(
 
             when (widgetVariant) {
                 WidgetVariant.STANDARD -> {
-                    if (customButtons.isNotEmpty() || previewState.micAction != MicAction.OFF) {
+                    if (searchShortcuts.isNotEmpty() || showMic) {
                         Box(
                             modifier =
                                 Modifier
                                     .fillMaxSize()
-                                    .padding(end = innerHorizontalPadding),
+                                    .padding(end = WidgetLayoutUtils.searchActionsInset),
                             contentAlignment = Alignment.CenterEnd,
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(WidgetConfigConstants.CUSTOM_BUTTON_SPACING),
+                                horizontalArrangement = Arrangement.spacedBy(WidgetLayoutUtils.searchActionsGap),
                             ) {
-                                customButtons.forEach { action ->
+                                searchShortcuts.forEach { action ->
                                     Box(
-                                        modifier = Modifier.size(36.dp), // Match micTouchSpace from actual widget
+                                        modifier = Modifier.size(DesignTokens.MinTouchTarget),
                                         contentAlignment = Alignment.Center,
                                     ) {
                                         CustomWidgetButtonIcon(
@@ -250,9 +277,9 @@ fun WidgetPreviewCard(
                                         )
                                     }
                                 }
-                                if (previewState.micAction != MicAction.OFF) {
+                                if (showMic) {
                                     Box(
-                                        modifier = Modifier.size(36.dp), // Match micTouchSpace from actual widget
+                                        modifier = Modifier.size(DesignTokens.MinTouchTarget),
                                         contentAlignment = Alignment.Center,
                                     ) {
                                         Icon(
@@ -277,26 +304,17 @@ fun WidgetPreviewCard(
                             R.drawable.ic_widget_shortcut,
                             R.drawable.ic_widget_settings,
                         )
-                    val touchSpace = if (customButtons.size >= 5 || customButtons.isEmpty()) 28.dp else 36.dp
-                    val containerWidth =
-                        (previewWidth.value - (outerHorizontalPadding.value * 2f)).coerceAtLeast(0f)
-                    val availableWidth =
-                        (containerWidth - (innerHorizontalPadding.value * 2f)).coerceAtLeast(0f)
-                    val minimumGap = if (touchSpace == 28.dp) 4.dp else 8.dp
-                    val maxVisibleButtons =
-                        if (customButtons.isEmpty()) {
-                            0
-                        } else {
-                            floor((availableWidth - minimumGap.value) / (touchSpace.value + minimumGap.value))
-                                .toInt()
-                                .coerceIn(0, customButtons.size)
-                        }
-                    val visibleButtons = customButtons.take(maxVisibleButtons)
+                    val touchSpace = DesignTokens.MinTouchTarget
+                    val availableWidth = previewWidth - (outerHorizontalPadding + WidgetLayoutUtils.customButtonsInset) * 2
+                    val capacity = WidgetLayoutUtils.buttonCapacity(
+                        availableWidth, WidgetLayoutUtils.customButtonsGap(customButtons.size, previewWidth),
+                    )
+                    val visibleButtons = customButtons.take(capacity)
                     Box(
                         modifier =
                             Modifier
                                 .fillMaxSize()
-                                .padding(horizontal = innerHorizontalPadding),
+                                .padding(horizontal = WidgetLayoutUtils.customButtonsInset),
                         contentAlignment = Alignment.Center,
                     ) {
                         Row(
@@ -319,7 +337,7 @@ fun WidgetPreviewCard(
                                     }
                                 }
                             } else {
-                                placeholderIcons.forEach { iconRes ->
+                                placeholderIcons.take(capacity).forEach { iconRes ->
                                     Box(
                                         modifier = Modifier.size(touchSpace),
                                         contentAlignment = Alignment.Center,

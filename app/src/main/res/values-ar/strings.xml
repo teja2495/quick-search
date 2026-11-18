@@ -83,6 +83,7 @@
     <string name="action_unlock_app">إلغاء القفل</string>
     <string name="app_lock_prompt_lock">قفل %1$s</string>
     <string name="app_lock_prompt_unlock">إلغاء قفل %1$s</string>
+    <string name="app_lock_unlock_device_credential">فتح القفل ببيانات اعتماد الجهاز</string>
     <string name="app_lock_unavailable">افتح Quick Search لإلغاء قفل هذا التطبيق</string>
     <string name="action_change_icon">تغيير الأيقونة</string>
     <string name="icon_picker_search">البحث عن الأيقونات</string>
@@ -1183,6 +1184,7 @@
     <string name="shortcut_voice_search_short_label">البحث الصوتي</string>
     <string name="voice_input_not_available">الكتابة الصوتية غير متاحة حالياً.</string>
     <string name="widget_background_color_custom_dialog_title">لون مخصص</string>
+    <string name="color_picker_hex">لون سداسي عشري (#RRGGBB)</string>
     <string name="widget_border_color">لون الحدود</string>
     <string name="widget_custom_button_add_desc">إضافة زر مخصص</string>
     <string name="widget_custom_buttons_dialog_hint">ابحث عن التطبيقات، واختصارات التطبيقات، وجهات الاتصال، والملفات، والمجلدات، والملاحظات، وإعدادات الجهاز.</string>
@@ -1252,6 +1254,13 @@
     <string name="widget_toggle_show_label">نص Quick Search</string>
     <string name="widget_toggle_show_empty_date">إظهار التاريخ عند عدم وجود عناصر</string>
     <string name="widgets_panel_title">عناصر واجهة المستخدم</string>
+    <string name="widget_edit_layout">تعديل تخطيط الأداة</string>
+    <string name="widget_move_left">نقل إلى اليسار</string>
+    <string name="widget_move_right">نقل إلى اليمين</string>
+    <string name="widget_increase_width">زيادة العرض</string>
+    <string name="widget_decrease_width">تقليل العرض</string>
+    <string name="widget_increase_height">زيادة الارتفاع</string>
+    <string name="widget_decrease_height">تقليل الارتفاع</string>
     <string name="widgets_panel_lock_layout">قفل التخطيط</string>
     <string name="widgets_panel_unlock_layout">إلغاء قفل التخطيط</string>
     <string name="widgets_picker_empty">لم يتم العثور على أي عناصر واجهة مستخدم.</string>

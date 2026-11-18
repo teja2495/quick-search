@@ -57,8 +57,10 @@ import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.tk.quicksearch.app.navigation.LocalRootPageSettled
@@ -157,6 +159,7 @@ internal fun HomeWidgetStack(
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
+    val horizontalSign = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1 else 1
     val appWidgetManager = remember(context) { AppWidgetManager.getInstance(context.applicationContext) }
 
     var editingWidgetId by remember { mutableStateOf<Int?>(null) }
@@ -407,7 +410,7 @@ internal fun HomeWidgetStack(
                         if (unitWidth <= 0f) {
                             home.column
                         } else {
-                            (active.startColumn + (totalDx / unitWidth).roundToInt())
+                            (active.startColumn + (totalDx * horizontalSign / unitWidth).roundToInt())
                                 .coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - home.columnSpan)
                         }
                     widget.copy(home = home.copy(column = column, gapSteps = gapSteps))
@@ -474,7 +477,7 @@ internal fun HomeWidgetStack(
                             },
                 ) { leadingContent() }
             }
-            entries.forEach { entry ->
+            entries.forEachIndexed { entryIndex, entry ->
                 key(entry.key) {
                     when (entry) {
                         is HomeLayoutEntry.Item -> {
@@ -541,8 +544,28 @@ internal fun HomeWidgetStack(
                                                     else -> reorderShift.shift
                                                 }
                                         },
+                                onEdit = { editingWidgetId = appWidgetId },
                                 onMoveStart = { startDrag(appWidgetId) },
                                 onMove = { dx, dy -> dragTo(dx, dy) },
+                                canMoveUp = entryIndex > 0,
+                                canMoveDown = entryIndex < entries.lastIndex,
+                                onMoveBy = { columnDelta, rowDelta ->
+                                    liveWidgets =
+                                        if (rowDelta != 0) {
+                                            moveHomeWidget(entries, appWidgetId, entryIndex + rowDelta, isReversed)
+                                        } else {
+                                            displayWidgets.map { item ->
+                                                val home = item.home
+                                                if (item.appWidgetId == appWidgetId && home != null) {
+                                                    item.copy(home = home.copy(column = home.column + columnDelta))
+                                                } else {
+                                                    item
+                                                }
+                                            }
+                                        }
+                                    commit()
+                                    true
+                                },
                                 onInteractionEnd = { commit() },
                                 onResizePreview = { resize -> resizePreview(appWidgetId, resize) },
                                 onRemove = {

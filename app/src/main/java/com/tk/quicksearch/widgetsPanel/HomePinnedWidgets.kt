@@ -346,9 +346,13 @@ internal fun HomePinnedWidgetItem(
     appWidgetHost: WidgetPanelHost,
     isEditing: Boolean,
     onWidgetBoundsChanged: (Rect) -> Unit,
+    onEdit: () -> Unit,
     modifier: Modifier,
     onMoveStart: () -> Unit,
     onMove: (totalDx: Float, totalDy: Float) -> Unit,
+    canMoveUp: Boolean,
+    canMoveDown: Boolean,
+    onMoveBy: (columnDelta: Int, rowDelta: Int) -> Boolean,
     onInteractionEnd: () -> Unit,
     onResizePreview: (WidgetGridResize) -> Unit,
     onRemove: () -> Unit,
@@ -419,6 +423,7 @@ internal fun HomePinnedWidgetItem(
             modifier =
                 Modifier
                     .offset { IntOffset(x = animatedX.roundToPx(), y = 0) }
+                    .widgetEditAction(onEdit.takeUnless { isEditing })
                     .size(width = animatedWidth, height = animatedHeight)
                     .graphicsLayer {
                         scaleX = editScale
@@ -458,6 +463,9 @@ internal fun HomePinnedWidgetItem(
                     minRowSpan = minRowSpan,
                     onMoveStart = onMoveStart,
                     onMove = onMove,
+                    canMoveUp = canMoveUp,
+                    canMoveDown = canMoveDown,
+                    onMoveBy = onMoveBy,
                     onInteractionEnd = onInteractionEnd,
                     onResizePreview = onResizePreview,
                     onRemove = onRemove,
@@ -479,6 +487,9 @@ private fun BoxScope.HomeWidgetEditOverlay(
     minRowSpan: Int,
     onMoveStart: () -> Unit,
     onMove: (totalDx: Float, totalDy: Float) -> Unit,
+    canMoveUp: Boolean,
+    canMoveDown: Boolean,
+    onMoveBy: (columnDelta: Int, rowDelta: Int) -> Boolean,
     onInteractionEnd: () -> Unit,
     onResizePreview: (WidgetGridResize) -> Unit,
     onRemove: () -> Unit,
@@ -492,6 +503,18 @@ private fun BoxScope.HomeWidgetEditOverlay(
         modifier =
             Modifier
                 .matchParentSize()
+                .widgetLayoutActions(
+                    layout = WidgetGridResize(column, 0, columnSpan, rowSpan),
+                    minColumnSpan = minColumnSpan,
+                    minRowSpan = minRowSpan,
+                    canMoveUp = canMoveUp,
+                    canMoveDown = canMoveDown,
+                    onMove = onMoveBy,
+                    onResize = { resize ->
+                        onResizePreview(resize)
+                        onInteractionEnd()
+                    },
+                )
                 .pointerInput(Unit) {
                     // Absorb taps on the selected widget so they don't reach the widget content.
                     detectTapGestures(onTap = {})

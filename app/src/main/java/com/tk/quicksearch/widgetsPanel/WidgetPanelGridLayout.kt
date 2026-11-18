@@ -208,6 +208,38 @@ internal fun moveWidgetToCell(
 }
 
 /**
+ * Move by one column or past the closest widget in the requested vertical direction. A single
+ * row of drag can fall short of a tall neighbour's midpoint and leave the layout unchanged.
+ */
+internal fun moveWidgetByStep(
+    widgets: List<PanelWidgetInfo>,
+    appWidgetId: Int,
+    columnDelta: Int,
+    rowDelta: Int,
+): List<PanelWidgetInfo>? {
+    val widget = widgets.firstOrNull { it.appWidgetId == appWidgetId } ?: return null
+    val column = widget.column ?: 0
+    val row = widget.rowOrZero()
+    if (columnDelta != 0) {
+        val moved = moveWidgetToCell(widgets, appWidgetId, column + columnDelta, row)
+        return moved.takeUnless { it == widgets }
+    }
+
+    val targetRows =
+        when {
+            rowDelta < 0 -> row - 1 downTo 0
+            rowDelta > 0 -> row + 1..widgets.maxOf { it.bottomRow() }
+            else -> return null
+        }
+    for (targetRow in targetRows) {
+        val moved = moveWidgetToCell(widgets, appWidgetId, column, targetRow)
+        val nextRow = moved.first { it.appWidgetId == appWidgetId }.rowOrZero()
+        if ((rowDelta < 0 && nextRow < row) || (rowDelta > 0 && nextRow > row)) return moved
+    }
+    return null
+}
+
+/**
  * Applies a resize to a widget, clamping to the panel bounds. When the new bounds would overlap
  * other widgets, those widgets are pushed downward to make room. If a widget *above* the anchor
  * would need to move (the anchor grew upward into it), the resize is rejected (we can't push

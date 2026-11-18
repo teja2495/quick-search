@@ -82,6 +82,7 @@
     <string name="action_unlock_app">解锁</string>
     <string name="app_lock_prompt_lock">锁定 %1$s</string>
     <string name="app_lock_prompt_unlock">解锁 %1$s</string>
+    <string name="app_lock_unlock_device_credential">使用设备凭据解锁</string>
     <string name="app_lock_unavailable">打开 Quick Search 以解锁此应用</string>
     <string name="action_change_icon">更改图标</string>
     <string name="icon_picker_search">搜索图标</string>
@@ -1117,6 +1118,7 @@
     <string name="shortcut_voice_search_short_label">语音搜索</string>
     <string name="voice_input_not_available">目前无法使用语音输入法。</string>
     <string name="widget_background_color_custom_dialog_title">自定义色彩</string>
+    <string name="color_picker_hex">十六进制颜色 (#RRGGBB)</string>
     <string name="widget_border_color">边框颜色</string>
     <string name="widget_custom_button_add_desc">添加自定义按钮</string>
     <string name="widget_custom_buttons_dialog_hint">搜索应用、应用快捷方式、联系人、文件、文件夹、笔记及设备系统设置。</string>
@@ -1186,6 +1188,13 @@
     <string name="widget_toggle_show_label">Quick Search 文本提示</string>
     <string name="widget_toggle_show_empty_date">没有项目时显示日期</string>
     <string name="widgets_panel_title">小部件管理</string>
+    <string name="widget_edit_layout">编辑小组件布局</string>
+    <string name="widget_move_left">向左移动</string>
+    <string name="widget_move_right">向右移动</string>
+    <string name="widget_increase_width">增加宽度</string>
+    <string name="widget_decrease_width">减小宽度</string>
+    <string name="widget_increase_height">增加高度</string>
+    <string name="widget_decrease_height">减小高度</string>
     <string name="widgets_panel_lock_layout">锁定布局</string>
     <string name="widgets_panel_unlock_layout">解锁布局</string>
     <string name="widgets_picker_empty">未找到任何小部件。</string>

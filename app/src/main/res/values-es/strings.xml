@@ -82,6 +82,7 @@
     <string name="action_unlock_app">Desbloquear</string>
     <string name="app_lock_prompt_lock">Bloquear %1$s</string>
     <string name="app_lock_prompt_unlock">Desbloquear %1$s</string>
+    <string name="app_lock_unlock_device_credential">Desbloquear con las credenciales del dispositivo</string>
     <string name="app_lock_unavailable">Abre Quick Search para desbloquear esta app</string>
     <string name="action_change_icon">Cambiar icono</string>
     <string name="icon_picker_search">Buscar iconos</string>
@@ -1130,6 +1131,7 @@
     <string name="shortcut_voice_search_short_label">Búsqueda por voz</string>
     <string name="voice_input_not_available">El dictado por voz no está disponible en este momento.</string>
     <string name="widget_background_color_custom_dialog_title">Color personalizado</string>
+    <string name="color_picker_hex">Color hexadecimal (#RRGGBB)</string>
     <string name="widget_border_color">Color del borde</string>
     <string name="widget_custom_button_add_desc">Añadir botón personalizado</string>
     <string name="widget_custom_buttons_dialog_hint">Busca aplicaciones, accesos directos, contactos, archivos, carpetas, notas y ajustes del dispositivo.</string>
@@ -1199,6 +1201,13 @@
     <string name="widget_toggle_show_label">Texto de Quick Search</string>
     <string name="widget_toggle_show_empty_date">Mostrar la fecha cuando no haya elementos</string>
     <string name="widgets_panel_title">Widgets</string>
+    <string name="widget_edit_layout">Editar diseño del widget</string>
+    <string name="widget_move_left">Mover a la izquierda</string>
+    <string name="widget_move_right">Mover a la derecha</string>
+    <string name="widget_increase_width">Aumentar el ancho</string>
+    <string name="widget_decrease_width">Reducir el ancho</string>
+    <string name="widget_increase_height">Aumentar la altura</string>
+    <string name="widget_decrease_height">Reducir la altura</string>
     <string name="widgets_panel_lock_layout">Bloquear diseño</string>
     <string name="widgets_panel_unlock_layout">Desbloquear diseño</string>
     <string name="widgets_picker_empty">No se encontraron widgets.</string>

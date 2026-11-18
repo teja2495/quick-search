@@ -3,11 +3,10 @@ package com.tk.quicksearch.shared.ui.components
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -38,6 +37,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -118,14 +118,14 @@ fun AppBottomPopup(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .safeDrawingPadding()
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() },
-                    onClick = onDismiss,
-                ),
+                .safeDrawingPadding(),
             contentAlignment = Alignment.BottomCenter,
         ) {
+            // The scrim is a sibling of the sheet. Back and the header close action handle dismissal
+            // for accessibility without adding an invisible focus stop to the dialog.
+            Box(Modifier.matchParentSize().pointerInput(onDismiss) {
+                detectTapGestures(onTap = { onDismiss() })
+            })
             Surface(
                 modifier =
                     modifier
@@ -170,11 +170,6 @@ fun AppBottomPopup(
                                     },
                                 )
                                 .fillMaxWidth()
-                                .clickable(
-                                    indication = null,
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    onClick = {},
-                                )
                                 .padding(
                                     start = DesignTokens.ContentHorizontalPadding,
                                     top = DesignTokens.SpacingLarge,

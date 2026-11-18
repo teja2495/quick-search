@@ -16,6 +16,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,6 +52,8 @@ internal fun PriorityReorderDialog(
 ) {
     val view = LocalView.current
     val orderedItems = remember(items) { items.toMutableStateList() }
+    val moveUp = stringResource(R.string.action_move_up)
+    val moveDown = stringResource(R.string.action_move_down)
     val listState = rememberLazyListState()
     val reorderState = rememberReorderableLazyListState(listState) { from, to ->
         if (from.index != to.index) {
@@ -74,6 +79,14 @@ internal fun PriorityReorderDialog(
         ) {
             itemsIndexed(orderedItems, key = { _, section -> section.name }) { index, section ->
                 ReorderableItem(state = reorderState, key = section.name) { isDragging ->
+                    fun moveBy(delta: Int): Boolean {
+                        val current = orderedItems.indexOf(section)
+                        val target = current + delta
+                        if (current < 0 || target !in orderedItems.indices) return false
+                        orderedItems.add(target, orderedItems.removeAt(current))
+                        onItemsChange(orderedItems.toList())
+                        return true
+                    }
                     SegmentedTile(
                         index = if (isDragging) 0 else index,
                         count = if (isDragging) 1 else orderedItems.size,
@@ -111,7 +124,12 @@ internal fun PriorityReorderDialog(
                                 text = stringResource(SearchSectionUiMetadataRegistry.metadataFor(section).sectionLabelRes),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier.weight(1f).semantics {
+                                    customActions = buildList {
+                                        if (index > 0) add(CustomAccessibilityAction(moveUp) { moveBy(-1) })
+                                        if (index < orderedItems.lastIndex) add(CustomAccessibilityAction(moveDown) { moveBy(1) })
+                                    }
+                                },
                             )
                             if (onItemEnabledChange != null) {
                                 val checked = section !in disabledSections

@@ -51,7 +51,7 @@ private object NowPlayingRowDimens {
     val ROW_TOP_PADDING = 12.dp
     val ROW_BOTTOM_PADDING = 8.dp
     val ART_SPACING = 12.dp
-    val DISMISS_BUTTON_SIZE = 28.dp
+    val DISMISS_BUTTON_SIZE = 48.dp
     val CONTROL_BUTTON_SIZE = 48.dp
     val CONTROL_ICON_SIZE = 24.dp
     val SECONDARY_CONTROL_ICON_SIZE = 21.dp
@@ -164,7 +164,7 @@ internal fun AtAGlanceWidgetNowPlayingRow(
             Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = media.title.orEmpty(),
-                    modifier = GlanceModifier.defaultWeight().clickable(openAction, rippleOverride = android.R.color.transparent),
+                    modifier = GlanceModifier.defaultWeight().clickable(openAction),
                     style = TextStyle(color = colors.title, fontSize = AtAGlanceWidgetDimens.TITLE_FONT_SIZE * textScale),
                     maxLines = 1,
                 )
@@ -177,7 +177,6 @@ internal fun AtAGlanceWidgetNowPlayingRow(
                                     actionRunCallback<AtAGlanceWidgetDismissAction>(
                                         AtAGlanceWidgetDismissAction.parameters(AtAGlanceWidgetDismissType.NOW_PLAYING),
                                     ),
-                                rippleOverride = android.R.color.transparent,
                             ),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -207,7 +206,7 @@ private fun AlbumArt(
     val modifier =
         GlanceModifier
             .size(NowPlayingRowDimens.ALBUM_ART_SIZE)
-            .clickable(openAction, rippleOverride = android.R.color.transparent)
+            .clickable(openAction)
     if (art != null) {
         Image(provider = ImageProvider(art), contentDescription = null, modifier = modifier)
     } else {
@@ -334,7 +333,7 @@ private fun PlayPauseButton(
         modifier =
             GlanceModifier
                 .size(NowPlayingRowDimens.CONTROL_BUTTON_SIZE)
-                .clickable(commandAction(MediaCommand.PLAY_PAUSE), rippleOverride = android.R.color.transparent),
+                .clickable(commandAction(MediaCommand.PLAY_PAUSE)),
         contentAlignment = Alignment.Center,
     ) {
         Box(contentAlignment = Alignment.Center) {
@@ -364,7 +363,7 @@ private fun ControlButton(
         modifier =
             GlanceModifier
                 .size(NowPlayingRowDimens.CONTROL_BUTTON_SIZE)
-                .clickable(commandAction(control.command, control.customAction), rippleOverride = android.R.color.transparent),
+                .clickable(commandAction(control.command, control.customAction)),
         contentAlignment = Alignment.Center,
     ) {
         when (style) {

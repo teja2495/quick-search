@@ -171,10 +171,9 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
 
 ### Other deliberate deviations
 
-- **Search-style fields.** The search bar (`SearchBar.kt`), `SettingsManagementSearchBar`, the AI
-  follow-up input (`AiFollowUpInputSection.kt`), and the icon search in `AppIconOverrideDrawer`
-  build on Material's `TextField` directly. They are search bars, not form fields, and own their
-  own container, shape, and focus behavior.
+- **Search-style fields.** The search bar (`SearchBar.kt`), `SettingsManagementSearchBar`, and the
+  icon search in `AppIconOverrideDrawer` build on Material text fields directly so they can own
+  their container, shape, and focus behavior.
 - **Full-window dialogs.** `HomeAddWidgetSheet`, `SpeedBumpOverlay`, and the onboarding
   `PermissionsScreen` use a raw Compose `Dialog` as a full-window host for custom layouts, not as
   a Material dialog, so they don't use `AppDialogSurface`.
@@ -201,9 +200,6 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
   in use, so AI answers use `GeminiLoadingAnimation` (the same morphing shapes, built on
   graphics-shapes) and other waits use `CircularProgressIndicator`. Switch area-filling waits to
   `LoadingIndicator` once it is public.
-- **Search bar section menu.** `SearchBarSectionMenu` is an anchored `Popup` rather than an
-  `AppDropdownMenu` or `ItemMenuPopup`. It opens from the search bar in either bar position and
-  carries section toggles, which neither the dropdown nor the bottom-anchored item menu fits.
 - **Small badges.** Edit/remove badges on wallpaper thumbnails (20dp) and the notification history
   chevron are smaller than 48dp. They are clickable with a button role, and Compose extends their
   hit area to the 48dp minimum touch target where space allows.
@@ -307,7 +303,7 @@ settings and add a property in sorted order.
 |---|---|---|
 | `AppButton`, `AppTonalButton`, `AppOutlinedButton`, `AppTextButton`, `TonalButton` (`AppButtons.kt`) | Buttons | Every button. Pick a `tone` (`AppButtonTone.Accent` default, `Secondary` inside result cards, `Error` for destructive, `Neutral` for de-emphasized, `Custom(color)` over wallpaper), a `size` (`AppButtonSize.ExtraSmall` 32dp, `Small` 40dp default, `Medium` 56dp), and an optional `icon`. The wrappers own shape (a pill that squares on press), colors, and padding. `TonalButton` is the 48dp tonal action inside a tile (Reset, Edit, Delete) |
 | `ConnectedButtonRow` (`ConnectedButtonGroup.kt`) | Connected button group | A row of related actions (not a choice). Declare buttons with `button(onClick, width, weight) { … }`; the row works out first and last, so conditional buttons need no position flags |
-| `ConnectedChoiceGroup`, `ChoiceOption`, `ChoiceTile` (`ConnectedChoiceGroup.kt`) | Connected button group (single select) | Single choices in settings and app-setting results. The selected option fills with `Accent` and morphs fully round. Labels share the row and shrink down to 11sp before wrapping; they never ellipsize. `ChoiceTile` is a segmented tile with a `titleMedium` heading over a full-width group |
+| `ConnectedChoiceGroup`, `ChoiceOption`, `ChoiceTile` (`ConnectedChoiceGroup.kt`) | Connected button group (single select) | Single choices in settings and app-setting results. The selected option fills with `Accent` and morphs fully round. Labels use the Material type scale. Options stack vertically when they cannot fit side by side. `ChoiceTile` is a segmented tile with a `titleMedium` heading over a full-width group |
 | `SegmentedGroup`, `SegmentedTile`, `SegmentedTileRow`, `SegmentedToggleTile`, `SegmentedTileContent`, `AppSwitch`, `TonalIconBadge`, `TonalIconBadgeContainer` (`SegmentedList.kt`) | Segmented list | The default layout for settings pages, dialogs that list items, widget config screens, onboarding, and drawers. Each row is its own tile, with 28dp outer corners, 4dp inner corners, and 2dp gaps; inner corners round to 16dp while pressed. Rows lead with a 40dp `TonalIconBadge`. Inside a tile, `LocalSegmentedItemModifier` and `LocalInSegmentedTile` adjust nested rows |
 | `ExpandableSegmentedGroup` | Expandable list | A `SegmentedGroup` that collapses to its title row (`titleMedium` heading, rotating chevron) |
 | `SettingsToggleRow`, `SettingsNavigationToggleRow`, `SettingsSegmentNavigationRow`, `SettingsIconBadge`, `BooleanSettingTile`, `SettingsNestedCheckbox`, `SettingsRemoveButton`, `AliasPill` (`settings/shared/`) | List items | Settings toggle, navigation, and sub-option rows. `BooleanSettingTile` binds a registered boolean preference to the same command that searchable Settings uses |
@@ -316,7 +312,7 @@ settings and add a property in sorted order.
 | `AppAlertDialog` | Dialog | Alerts and confirmations on `surfaceContainerHigh`. Pass `confirmLabel`/`onConfirm` and an optional `dismissLabel`; set `destructive = true` for an error-tinted confirm |
 | `AppDialogSurface` | Dialog (custom content) | Custom centered content (File Preview, Pinned Notification Items). The feature owns sizing and actions |
 | `AppBottomSheet` | Modal bottom sheet | Bottom sheets with 28dp top corners. `scrimColor = Color.Transparent` keeps the screen behind undimmed for live previews |
-| `AppPickerDrawer`, `AppPickerDrawerRow`, `AppPickerDrawerSearch` | Bottom sheet with list | Pick one item from a list, with an optional search field, header, and footer. Prefer it over a dialog with a radio list |
+| `AppPickerDrawer`, `AppPickerDrawerRow`, `AppPickerDrawerSearch` | Bottom sheet with list | Pick one item from a list, with an optional search field, header, and footer. Prefer it over a dialog with a radio list. The search bar section picker uses it with a scrollable grid |
 | `AppDrawerHeader` | Sheet header | `titleLarge` drawer header with optional leading content and a 48dp close button |
 | `AppBottomPopup` | Bottom sheet (floating) | Bottom-anchored floating popup with the drawer header, 28dp corners, and a 640dp max width. `animateSizeChanges` animates height changes with the bottom anchored |
 | `ItemMenuPopup` | Menu (expressive) | Long-press action menus: tonal quick-action tiles, segmented option rows, and pill buttons on `surfaceContainerHighest`. Contact action popups reuse its tiles. Reflow options so gaps fall only at the end of the last row |
@@ -325,7 +321,7 @@ settings and add a property in sorted order.
 | `AppMessages`, `AppMessageSnackbarHost` (`AppMessages.kt`) | Snackbar | Brief feedback in place of a `Toast`. `AppMessages.show(context, text or @StringRes, long)` works from any thread and goes to the highest-priority host registered by a resumed screen, falling back to a `Toast` when none is. The search route and overlay register their undo snackbar with `AppMessages.HostEffect(controller, ScreenHostPriority)`; navigation's root and `WidgetConfigScaffold` (with `inScaffold = true`) hold an `AppMessageSnackbarHost` at fallback priority |
 | `AppDatePickerDialog` | Date picker dialog | Picking a date. Wraps Material's `DatePickerDialog` and `DatePicker` with `AppTextButton` confirm and cancel actions |
 | `AppInputChip` | Input chip | A removable entry the user added (excluded file extensions): pill shape, trailing close icon, and a `SettingsDivider` outline |
-| `AppOutlinedTextField`, `dialogTextFieldColors()`, `CardTextField`, `cardTextFieldColors()` | Text fields | Every form input: outlined fields in dialogs, sheets, and settings forms (both `String` and `TextFieldValue` overloads take an optional label, placeholder, supporting text, icons, keyboard options, and a `shape`, `AppShapes.extraSmall` by default for strings); borderless fields stacked as rows on a settings surface. Don't call Material `TextField` or `OutlinedTextField` directly; search-style fields are the exception below |
+| `AppOutlinedTextField`, `dialogTextFieldColors()`, `CardTextField`, `cardTextFieldColors()` | Text fields | Every form input: outlined fields in dialogs, sheets, and settings forms (both `String` and `TextFieldValue` overloads take an optional label, placeholder, supporting text, icons, keyboard options, and a `shape`, `AppShapes.extraSmall` by default for strings); transparent fields with a visible focus indicator stacked as rows on a settings surface. Don't call Material `TextField` or `OutlinedTextField` directly; search-style fields are the exception below |
 | `AppFloatingActionButton`, `AppExtendedFloatingActionButton`, `AppFabTone` (`AppFloatingActionButton.kt`) | FAB, extended FAB | 56dp page-bottom actions with a 24dp icon, fully round and squaring on press. `AppFabTone.Primary` (`Accent`) for the main action, `Tonal` (`FloatingTonalContainer`) for a secondary one, `Error` for destructive. The extended FAB takes a label and an `enabled` flag (fades to `DisabledContentAlpha`); the caller sets its width. Don't call Material FABs directly |
 | `AppFilterChip`, `AppFilterChipStyle` (`AppFilterChip.kt`) | Filter chip | Filter and multi-select chips. Selected fills with `Accent`; `Outlined` (default) has a `SettingsDivider` outline, `Tonal` uses `AccentTintTonal` for chips on a tonal surface. `showSelectedCheck` adds the multi-select check. Over a wallpaper, pass the wallpaper-aware label and border colors |
 | `PickerFieldButton` | Text field (read-only) | Outlined field that opens a date, time, or repeat picker |

@@ -82,6 +82,7 @@
     <string name="action_unlock_app">Ξεκλείδωμα</string>
     <string name="app_lock_prompt_lock">Κλείδωμα %1$s</string>
     <string name="app_lock_prompt_unlock">Ξεκλείδωμα %1$s</string>
+    <string name="app_lock_unlock_device_credential">Ξεκλείδωμα με τα διαπιστευτήρια της συσκευής</string>
     <string name="app_lock_unavailable">Ανοίξτε το Quick Search για να ξεκλειδώσετε αυτήν την εφαρμογή</string>
     <string name="action_change_icon">Αλλαγή εικονιδίου</string>
     <string name="icon_picker_search">Αναζήτηση εικονιδίων</string>
@@ -1130,6 +1131,7 @@
     <string name="shortcut_voice_search_short_label">Φωνητική Αναζήτηση</string>
     <string name="voice_input_not_available">Η φωνητική πληκτρολόγηση δεν είναι διαθέσιμη αυτή τη στιγμή.</string>
     <string name="widget_background_color_custom_dialog_title">Προσαρμοσμένο χρώμα</string>
+    <string name="color_picker_hex">Δεκαεξαδικό χρώμα (#RRGGBB)</string>
     <string name="widget_border_color">Χρώμα περιγράμματος</string>
     <string name="widget_custom_button_add_desc">Προσθήκη προσαρμοσμένου κουμπιού</string>
     <string name="widget_custom_buttons_dialog_hint">Αναζητήστε Εφαρμογές, Συντομεύσεις, Επαφές, Αρχεία, Φακέλους, Σημειώσεις &amp; Ρυθμίσεις συσκευής.</string>
@@ -1199,6 +1201,13 @@
     <string name="widget_toggle_show_label">Κείμενο Quick Search</string>
     <string name="widget_toggle_show_empty_date">Εμφάνιση ημερομηνίας όταν δεν υπάρχουν στοιχεία</string>
     <string name="widgets_panel_title">Widgets</string>
+    <string name="widget_edit_layout">Επεξεργασία διάταξης γραφικού στοιχείου</string>
+    <string name="widget_move_left">Μετακίνηση αριστερά</string>
+    <string name="widget_move_right">Μετακίνηση δεξιά</string>
+    <string name="widget_increase_width">Αύξηση πλάτους</string>
+    <string name="widget_decrease_width">Μείωση πλάτους</string>
+    <string name="widget_increase_height">Αύξηση ύψους</string>
+    <string name="widget_decrease_height">Μείωση ύψους</string>
     <string name="widgets_panel_lock_layout">Κλείδωμα διάταξης</string>
     <string name="widgets_panel_unlock_layout">Ξεκλείδωμα διάταξης</string>
     <string name="widgets_picker_empty">Δεν βρέθηκαν widgets.</string>

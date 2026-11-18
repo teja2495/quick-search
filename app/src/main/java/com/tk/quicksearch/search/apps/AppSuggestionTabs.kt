@@ -1,8 +1,5 @@
 package com.tk.quicksearch.search.apps
 
-import com.tk.quicksearch.shared.ui.theme.AppColors
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.Alignment
@@ -15,10 +12,8 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.homeTextColor
 import com.tk.quicksearch.shared.util.hapticToggle
 import androidx.compose.ui.platform.LocalView
 
@@ -35,7 +30,6 @@ internal fun AppSuggestionTabStrip(
 ) {
     if (tabs.isEmpty()) return
     val selected = selectedIndex.coerceIn(tabs.indices)
-    val foreground = homeTextColor()
     val view = LocalView.current
     SecondaryScrollableTabRow(
         selectedTabIndex = selected,
@@ -45,17 +39,12 @@ internal fun AppSuggestionTabStrip(
             Modifier.fillMaxWidth().padding(
                 bottom = TabStripOpticalShift * 2,
             ),
-        containerColor = Color.Transparent,
-        contentColor = foreground,
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         edgePadding = DesignTokens.SpacingXSmall,
-        indicator = {},
         divider = {},
     ) {
         tabs.forEachIndexed { index, tab ->
-            val labelColor by animateColorAsState(
-                targetValue = if (index == selected) foreground else foreground.copy(alpha = AppColors.ContentMutedAlpha),
-                label = "suggestionTabText",
-            )
             Tab(
                 selected = selected == index,
                 onClick = {
@@ -65,8 +54,8 @@ internal fun AppSuggestionTabStrip(
                     }
                 },
                 modifier = Modifier.heightIn(min = SuggestionTabHeight),
-                selectedContentColor = foreground,
-                unselectedContentColor = foreground.copy(alpha = AppColors.ContentMutedAlpha),
+                selectedContentColor = MaterialTheme.colorScheme.onSurface,
+                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             ) {
                 Box(
                     modifier = Modifier.heightIn(min = SuggestionTabHeight)
@@ -75,7 +64,6 @@ internal fun AppSuggestionTabStrip(
                 ) {
                     Text(
                         text = tab.title,
-                        color = labelColor,
                         style = MaterialTheme.typography.labelLarge,
                         maxLines = 1,
                         softWrap = false,

@@ -82,6 +82,7 @@
     <string name="action_unlock_app">अनलॉक करें</string>
     <string name="app_lock_prompt_lock">%1$s को लॉक करें</string>
     <string name="app_lock_prompt_unlock">%1$s को अनलॉक करें</string>
+    <string name="app_lock_unlock_device_credential">डिवाइस क्रेडेंशियल से अनलॉक करें</string>
     <string name="app_lock_unavailable">इस ऐप को अनलॉक करने के लिए Quick Search खोलें</string>
     <string name="action_change_icon">आइकन बदलें</string>
     <string name="icon_picker_search">आइकन खोजें</string>
@@ -1130,6 +1131,7 @@
     <string name="shortcut_voice_search_short_label">Voice Search</string>
     <string name="voice_input_not_available">वॉइस टाइपिंग अभी उपलब्ध नहीं है।</string>
     <string name="widget_background_color_custom_dialog_title">कस्टम रंग</string>
+    <string name="color_picker_hex">हेक्स रंग (#RRGGBB)</string>
     <string name="widget_border_color">बॉर्डर रंग</string>
     <string name="widget_custom_button_add_desc">कस्टम बटन जोड़ें</string>
     <string name="widget_custom_buttons_dialog_hint">ऐप्स, ऐप शॉर्टकट्स, कॉन्टैक्ट्स, फाइलें, फोल्डर्स, नोट्स और डिवाइस सेटिंग्स खोजें।</string>
@@ -1199,6 +1201,13 @@
     <string name="widget_toggle_show_label">Quick Search टेक्स्ट</string>
     <string name="widget_toggle_show_empty_date">कोई आइटम न होने पर तारीख दिखाएं</string>
     <string name="widgets_panel_title">विजेट्स</string>
+    <string name="widget_edit_layout">विजेट का लेआउट बदलें</string>
+    <string name="widget_move_left">बाईं ओर ले जाएँ</string>
+    <string name="widget_move_right">दाईं ओर ले जाएँ</string>
+    <string name="widget_increase_width">चौड़ाई बढ़ाएँ</string>
+    <string name="widget_decrease_width">चौड़ाई घटाएँ</string>
+    <string name="widget_increase_height">ऊँचाई बढ़ाएँ</string>
+    <string name="widget_decrease_height">ऊँचाई घटाएँ</string>
     <string name="widgets_panel_lock_layout">लेआउट लॉक करें</string>
     <string name="widgets_panel_unlock_layout">लेआउट अनलॉक करें</string>
     <string name="widgets_picker_empty">कोई विजेट नहीं मिला।</string>

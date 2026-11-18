@@ -72,10 +72,12 @@ import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
@@ -100,6 +102,7 @@ internal fun BoxScope.QuickNotePanelGridItem(
     onDrag: (totalDragX: Float, totalDragY: Float) -> Unit,
     onDragEnd: () -> Unit,
     onFocusChanged: (Boolean) -> Unit,
+    onMoveBy: (columnDelta: Int, rowDelta: Int) -> Boolean,
     onResizePreview: (WidgetGridResize) -> Unit,
     onInteractionEnd: () -> Unit,
     onRemove: () -> Unit,
@@ -146,7 +149,11 @@ internal fun BoxScope.QuickNotePanelGridItem(
                 },
     ) {
         CompactQuickNoteWidget(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().widgetEditAction(
+                onDragStart?.takeUnless { isEditing }?.let { start ->
+                    { start(); onDragEnd() }
+                },
+            ),
             onFocusChanged = onFocusChanged,
             onDragStart = onDragStart?.let { start ->
                 {
@@ -171,6 +178,7 @@ internal fun BoxScope.QuickNotePanelGridItem(
                 rowSpan = rowSpan,
                 gridUnitHeightPx = gridUnitHeightPx,
                 minRowSpan = minRowSpan,
+                onMoveBy = onMoveBy,
                 onResizePreview = onResizePreview,
                 onInteractionEnd = onInteractionEnd,
                 onRemove = onRemove,
@@ -249,6 +257,7 @@ internal fun BoxScope.QuickNoteEditOverlay(
     rowSpan: Int = WIDGET_PANEL_DEFAULT_ROW_SPAN,
     gridUnitHeightPx: Float = 0f,
     minRowSpan: Int = 1,
+    onMoveBy: ((Int, Int) -> Boolean)? = null,
     onResizePreview: ((WidgetGridResize) -> Unit)? = null,
     onInteractionEnd: () -> Unit = {},
     onRemove: () -> Unit,
@@ -257,6 +266,20 @@ internal fun BoxScope.QuickNoteEditOverlay(
         modifier =
             Modifier
                 .matchParentSize()
+                .widgetLayoutActions(
+                    layout = WidgetGridResize(column, row, columnSpan, rowSpan),
+                    minColumnSpan = WIDGET_PANEL_GRID_COLUMNS,
+                    minRowSpan = minRowSpan,
+                    canMoveUp = row > 0,
+                    canMoveDown = true,
+                    onMove = onMoveBy,
+                    onResize = onResizePreview?.let { resize ->
+                        { resized ->
+                            resize(resized)
+                            onInteractionEnd()
+                        }
+                    },
+                )
                 .pointerInput(Unit) {
                     // Keep taps on the selected Quick Note from being treated as outside taps.
                     detectTapGestures(onTap = {})
@@ -378,6 +401,7 @@ internal fun BoxScope.WidgetEditOverlay(
     minRowSpan: Int,
     hasConfigure: Boolean,
     canPinToHome: Boolean,
+    onMoveBy: (columnDelta: Int, rowDelta: Int) -> Boolean,
     onMovePreview: (column: Int, row: Int) -> Unit,
     onResizePreview: (WidgetGridResize) -> Unit,
     onInteractionEnd: () -> Unit,
@@ -385,6 +409,7 @@ internal fun BoxScope.WidgetEditOverlay(
     onConfigure: () -> Unit,
     onPinToHome: () -> Unit,
 ) {
+    val horizontalSign = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1 else 1
     val currentColumn by rememberUpdatedState(column)
     val currentRow by rememberUpdatedState(row)
     val currentColumnSpan by rememberUpdatedState(columnSpan)
@@ -394,6 +419,18 @@ internal fun BoxScope.WidgetEditOverlay(
         modifier =
             Modifier
                 .matchParentSize()
+                .widgetLayoutActions(
+                    layout = WidgetGridResize(column, row, columnSpan, rowSpan),
+                    minColumnSpan = minColumnSpan,
+                    minRowSpan = minRowSpan,
+                    canMoveUp = row > 0,
+                    canMoveDown = true,
+                    onMove = onMoveBy,
+                    onResize = { resize ->
+                        onResizePreview(resize)
+                        onInteractionEnd()
+                    },
+                )
                 .pointerInput(Unit) {
                     // Absorb taps anywhere on the widget so the screen-level dismiss doesn't fire.
                     detectTapGestures(onTap = {})
@@ -406,7 +443,7 @@ internal fun BoxScope.WidgetEditOverlay(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .pointerInput(Unit) {
+                    .pointerInput(horizontalSign) {
                         var totalDragX = 0f
                         var totalDragY = 0f
                         var startColumn = currentColumn
@@ -422,7 +459,7 @@ internal fun BoxScope.WidgetEditOverlay(
                             },
                             onDrag = { change, dragAmount ->
                                 change.consume()
-                                totalDragX += dragAmount.x
+                                totalDragX += dragAmount.x * horizontalSign
                                 totalDragY += dragAmount.y
                                 val nextColumn =
                                     (startColumn + (totalDragX / gridUnitWidthPx).roundToInt())
@@ -574,6 +611,7 @@ internal fun EdgeResizeHandle(
     onInteractionEnd: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val horizontalSign = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1 else 1
     val capturedStartColumn by rememberUpdatedState(startColumn)
     val capturedStartRow by rememberUpdatedState(startRow)
     val capturedStartColumnSpan by rememberUpdatedState(startColumnSpan)
@@ -600,7 +638,7 @@ internal fun EdgeResizeHandle(
         modifier =
             modifier
                 .size(width = hitWidth, height = hitHeight)
-                .pointerInput(edge) {
+                .pointerInput(edge, horizontalSign) {
                     var totalX = 0f
                     var totalY = 0f
                     var startCol = capturedStartColumn
@@ -618,7 +656,7 @@ internal fun EdgeResizeHandle(
                         },
                         onDrag = { change, dragAmount ->
                             change.consume()
-                            totalX += dragAmount.x
+                            totalX += dragAmount.x * horizontalSign
                             totalY += dragAmount.y
                             onResizePreview(
                                 calculateGridResize(

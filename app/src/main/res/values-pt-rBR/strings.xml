@@ -82,6 +82,7 @@
     <string name="action_unlock_app">Desbloquear</string>
     <string name="app_lock_prompt_lock">Bloquear %1$s</string>
     <string name="app_lock_prompt_unlock">Desbloquear %1$s</string>
+    <string name="app_lock_unlock_device_credential">Desbloquear com as credenciais do dispositivo</string>
     <string name="app_lock_unavailable">Abra o Quick Search para desbloquear este app</string>
     <string name="action_change_icon">Alterar ícone</string>
     <string name="icon_picker_search">Buscar ícones</string>
@@ -1130,6 +1131,7 @@
     <string name="shortcut_voice_search_short_label">Pesquisa por voz</string>
     <string name="voice_input_not_available">A digitação por voz não está disponível no momento.</string>
     <string name="widget_background_color_custom_dialog_title">Cor personalizada</string>
+    <string name="color_picker_hex">Cor hexadecimal (#RRGGBB)</string>
     <string name="widget_border_color">Cor da borda</string>
     <string name="widget_custom_button_add_desc">Adicionar botão personalizado</string>
     <string name="widget_custom_buttons_dialog_hint">Pesquise por Apps, Atalhos de apps, Contatos, Arquivos, Pastas, Notas e Configurações do dispositivo.</string>
@@ -1199,6 +1201,13 @@
     <string name="widget_toggle_show_label">Texto do Quick Search</string>
     <string name="widget_toggle_show_empty_date">Mostrar a data quando não houver itens</string>
     <string name="widgets_panel_title">Widgets</string>
+    <string name="widget_edit_layout">Editar layout do widget</string>
+    <string name="widget_move_left">Mover para a esquerda</string>
+    <string name="widget_move_right">Mover para a direita</string>
+    <string name="widget_increase_width">Aumentar a largura</string>
+    <string name="widget_decrease_width">Diminuir a largura</string>
+    <string name="widget_increase_height">Aumentar a altura</string>
+    <string name="widget_decrease_height">Diminuir a altura</string>
     <string name="widgets_panel_lock_layout">Bloquear layout</string>
     <string name="widgets_panel_unlock_layout">Desbloquear layout</string>
     <string name="widgets_picker_empty">Nenhum widget encontrado.</string>

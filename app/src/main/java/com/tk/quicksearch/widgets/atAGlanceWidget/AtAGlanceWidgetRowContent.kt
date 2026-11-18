@@ -100,7 +100,6 @@ internal fun AtAGlanceWidgetRowContent(
                     if (!row.tappable) return@let modifier
                     modifier.clickable(
                         onClick = actionStartActivity(AtAGlanceWidgetActionActivity.createIntent(context, row)),
-                        rippleOverride = android.R.color.transparent,
                     )
                 },
         verticalAlignment = Alignment.CenterVertically,
@@ -193,7 +192,6 @@ private fun RowText(
                                 AtAGlanceWidgetTap(AtAGlanceWidgetTapType.OTP, key = row.tap.key, packageName = row.tap.packageName),
                             ),
                         ),
-                    rippleOverride = android.R.color.transparent,
                 ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -306,7 +304,6 @@ private fun RowButton(
     val click =
         GlanceModifier.clickable(
             onClick = actionStartActivity(AtAGlanceWidgetActionActivity.createIntent(context, row, button.tap)),
-            rippleOverride = android.R.color.transparent,
         )
     when (button.style) {
         AtAGlanceWidgetButtonStyle.HANG_UP ->
@@ -416,7 +413,6 @@ private fun DismissButton(
                 .size(AtAGlanceWidgetDimens.DISMISS_BUTTON_SIZE)
                 .clickable(
                     onClick = actionRunCallback<AtAGlanceWidgetDismissAction>(AtAGlanceWidgetDismissAction.parameters(row)),
-                    rippleOverride = android.R.color.transparent,
                 ),
         contentAlignment = Alignment.Center,
     ) {

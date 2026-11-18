@@ -73,10 +73,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.tk.quicksearch.R
@@ -252,6 +254,7 @@ internal fun WidgetPanelGrid(
     onPinWidgetToHome: (PanelWidgetInfo) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val horizontalSign = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1 else 1
     BoxWithConstraints(modifier = modifier) {
         val cellWidth =
             (maxWidth - WidgetPanelGridGap * (WIDGET_PANEL_GRID_COLUMNS - 1)) / WIDGET_PANEL_GRID_COLUMNS
@@ -324,6 +327,7 @@ internal fun WidgetPanelGrid(
         }
 
         val currentGridUnitWidthPx by rememberUpdatedState(gridUnitWidthPx)
+        val currentHorizontalSign by rememberUpdatedState(horizontalSign)
         val currentGridUnitHeightPx by rememberUpdatedState(gridUnitHeightPx)
         val currentOnPersist by rememberUpdatedState(onPersist)
         val currentOnSetEditing by rememberUpdatedState(onSetEditingWidgetId)
@@ -333,7 +337,7 @@ internal fun WidgetPanelGrid(
             val start = quickNoteDragStart ?: return
             val columnSpan = start.columnSpan ?: WIDGET_PANEL_GRID_COLUMNS
             val nextColumn =
-                ((start.column ?: 0) + (totalDragX / gridUnitWidthPx).roundToInt())
+                ((start.column ?: 0) + (totalDragX * horizontalSign / gridUnitWidthPx).roundToInt())
                     .coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - columnSpan)
             val nextRow =
                 ((start.row ?: 0) + (totalDragY / gridUnitHeightPx).roundToInt())
@@ -363,7 +367,7 @@ internal fun WidgetPanelGrid(
                     // tracking the finger as the page scrolls under it.
                     val scrollDelta = (panelScrollState.value - scrollAtDragStart).toFloat()
                     val nextColumn =
-                        ((start.column ?: 0) + (dx / currentGridUnitWidthPx).roundToInt())
+                        ((start.column ?: 0) + (dx * currentHorizontalSign / currentGridUnitWidthPx).roundToInt())
                             .coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - columnSpan)
                     val nextRow =
                         ((start.row ?: 0) + ((dy + scrollDelta) / currentGridUnitHeightPx).roundToInt())
@@ -485,6 +489,13 @@ internal fun WidgetPanelGrid(
                         gridUnitWidthPx = gridUnitWidthPx,
                         gridUnitHeightPx = gridUnitHeightPx,
                         spec = specs[widget.appWidgetId],
+                        onEdit = { onSetEditingWidgetId(widget.appWidgetId) },
+                        onMoveBy = move@{ columnDelta, rowDelta ->
+                            val next = moveWidgetByStep(laidOut, widget.appWidgetId, columnDelta, rowDelta)
+                                ?: return@move false
+                            onPersist(next)
+                            true
+                        },
                         onMovePreview = { targetColumn, targetRow ->
                             previewMove(widget.appWidgetId, targetColumn, targetRow)
                         },
@@ -545,6 +556,8 @@ private fun BoxScope.WidgetPanelGridItem(
     gridUnitWidthPx: Float,
     gridUnitHeightPx: Float,
     spec: WidgetGridSpec?,
+    onEdit: () -> Unit,
+    onMoveBy: (columnDelta: Int, rowDelta: Int) -> Boolean,
     onMovePreview: (column: Int, row: Int) -> Unit,
     onResizePreview: (WidgetGridResize) -> Unit,
     onInteractionEnd: () -> Unit,
@@ -594,6 +607,7 @@ private fun BoxScope.WidgetPanelGridItem(
             onDrag = onQuickNoteDrag,
             onDragEnd = onQuickNoteDragEnd,
             onFocusChanged = onQuickNoteFocusChanged,
+            onMoveBy = onMoveBy,
             onResizePreview = onResizePreview,
             onInteractionEnd = onInteractionEnd,
             onRemove = onRemove,
@@ -634,6 +648,7 @@ private fun BoxScope.WidgetPanelGridItem(
         modifier =
             Modifier
                 .size(width = animatedWidth, height = animatedHeight)
+                .widgetEditAction(onEdit.takeIf { layoutEditingEnabled && !isEditing })
                 .offset {
                     IntOffset(
                         x = with(density) { animatedX.roundToPx() },
@@ -711,6 +726,7 @@ private fun BoxScope.WidgetPanelGridItem(
                 minRowSpan = spec?.minRowSpan ?: 1,
                 hasConfigure = configureIntent != null,
                 canPinToHome = widget.home == null,
+                onMoveBy = onMoveBy,
                 onMovePreview = onMovePreview,
                 onResizePreview = onResizePreview,
                 onInteractionEnd = onInteractionEnd,

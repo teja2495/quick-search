@@ -82,6 +82,7 @@
     <string name="action_unlock_app">Entsperren</string>
     <string name="app_lock_prompt_lock">%1$s sperren</string>
     <string name="app_lock_prompt_unlock">%1$s entsperren</string>
+    <string name="app_lock_unlock_device_credential">Mit Geräteanmeldedaten entsperren</string>
     <string name="app_lock_unavailable">Öffne Quick Search, um diese App zu entsperren</string>
     <string name="action_change_icon">Symbol ändern</string>
     <string name="icon_picker_search">Symbole suchen</string>
@@ -1130,6 +1131,7 @@
     <string name="shortcut_voice_search_short_label">Sprachsuche</string>
     <string name="voice_input_not_available">Spracheingabe ist gerade nicht verfügbar.</string>
     <string name="widget_background_color_custom_dialog_title">Benutzerdefinierte Farbe</string>
+    <string name="color_picker_hex">Hex-Farbe (#RRGGBB)</string>
     <string name="widget_border_color">Rahmenfarbe</string>
     <string name="widget_custom_button_add_desc">Benutzerdefinierte Schaltfläche hinzufügen</string>
     <string name="widget_custom_buttons_dialog_hint">Suche nach Apps, App-Verknüpfungen, Kontakten, Dateien, Ordnern, Notizen &amp; Geräteeinstellungen.</string>
@@ -1199,6 +1201,13 @@
     <string name="widget_toggle_show_label">Quick Search-Text</string>
     <string name="widget_toggle_show_empty_date">Datum anzeigen, wenn keine Elemente vorhanden sind</string>
     <string name="widgets_panel_title">Widgets</string>
+    <string name="widget_edit_layout">Widget-Layout bearbeiten</string>
+    <string name="widget_move_left">Nach links verschieben</string>
+    <string name="widget_move_right">Nach rechts verschieben</string>
+    <string name="widget_increase_width">Breite vergrößern</string>
+    <string name="widget_decrease_width">Breite verkleinern</string>
+    <string name="widget_increase_height">Höhe vergrößern</string>
+    <string name="widget_decrease_height">Höhe verkleinern</string>
     <string name="widgets_panel_lock_layout">Layout sperren</string>
     <string name="widgets_panel_unlock_layout">Layout entsperren</string>
     <string name="widgets_picker_empty">Keine Widgets gefunden.</string>

@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -46,6 +47,9 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.onLongClick
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -88,6 +92,7 @@ data class ItemMenuRow(
     /** Runs only after this button remains continuously pressed for [longHoldDurationMillis]. */
     val onLongHold: (() -> Unit)? = null,
     val longHoldDurationMillis: Long = 0L,
+    val longHoldLabel: String? = null,
     val trailingText: String? = null,
     val destructive: Boolean = false,
     /** List rows only: shown in a small dropdown on long press when [onLongClick] isn't set. */
@@ -264,7 +269,7 @@ private fun ItemMenuSectionTitle(text: String) {
         text = text,
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(
+        modifier = Modifier.semantics { heading() }.padding(
             start = DesignTokens.SpacingLarge,
             bottom = DesignTokens.SpacingSmall,
         ),
@@ -452,6 +457,23 @@ private fun ItemMenuButton(
     val contentColor =
         if (button.destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
     val containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+    if (button.iconOnly && button.onLongClick == null && button.onLongHold == null) {
+        AppIconButton(
+            onClick = button.onClick,
+            tooltip = button.label,
+            style = AppIconButtonStyle.Tonal,
+            colors = IconButtonDefaults.filledTonalIconButtonColors(
+                containerColor = containerColor,
+                contentColor = contentColor,
+            ),
+            anchorModifier = modifier,
+            modifier = Modifier.size(DesignTokens.ItemMenuRowHeight).semantics {
+                contentDescription = button.label
+            },
+            content = button.icon,
+        )
+        return
+    }
     var marqueeReplayKey by remember { mutableIntStateOf(0) }
     val longHoldInteractionSource = remember { MutableInteractionSource() }
     val longHoldIndication = LocalIndication.current
@@ -460,7 +482,12 @@ private fun ItemMenuButton(
         if (button.onLongHold != null && button.longHoldDurationMillis > 0L) {
             Modifier
                 .indication(longHoldInteractionSource, longHoldIndication)
-                .semantics {
+                .semantics(mergeDescendants = true) {
+                    role = Role.Button
+                    onLongClick(label = button.longHoldLabel) {
+                        button.onLongHold.invoke()
+                        true
+                    }
                     onClick {
                         button.onClick()
                         true

@@ -4,12 +4,12 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -34,10 +34,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -66,9 +67,8 @@ data class ChoiceOption<T>(
  *
  * [fillWidth] spreads the options across the row, each button's share proportional to its label so
  * a long label gets the room a short one doesn't need. When that doesn't fit, only the selected
- * plain option keeps room for its check (the widths animate on selection), and labels stay on one
- * line, shrinking a little only when the row is still too narrow. Otherwise each button wraps its label, for a group placed
- * at the end of a row. [onSelect] also gets taps on the selected option, so a Custom
+ * plain option keeps room for its check. If labels still do not fit, the group stacks vertically
+ * at the Material type size. [onSelect] also gets taps on the selected option, so a Custom
  * option can reopen its picker; [haptic] plays the toggle haptic on a change, off for callers that
  * play their own.
  */
@@ -83,6 +83,10 @@ fun <T> ConnectedChoiceGroup(
     haptic: Boolean = true,
 ) {
     val view = LocalView.current
+    fun select(value: T) {
+        if (haptic && value != selected) hapticToggle(view)()
+        onSelect(value)
+    }
     val labelStyle = MaterialTheme.typography.labelLarge
     val textMeasurer = rememberTextMeasurer()
     val density = LocalDensity.current
@@ -97,7 +101,7 @@ fun <T> ConnectedChoiceGroup(
     val reservedWidths =
         options.mapIndexed { index, option ->
             val leading = if (option.swatch != null) ChoiceSwatchSize else ChoiceIconSize
-            labelWidths[index] + leading + ChoiceIconSpacing + ChoicePadding * 2
+            (labelWidths[index] + leading + ChoiceIconSpacing + ChoicePadding * 2).coerceAtLeast(DesignTokens.MinTouchTarget)
         }
     // When the row is too narrow for that, only the selected plain option keeps the check's slot,
     // so the room goes to the labels instead of empty slots and long labels stay whole.
@@ -110,19 +114,34 @@ fun <T> ConnectedChoiceGroup(
                     hasLeading -> ChoiceIconSize + ChoiceIconSpacing
                     else -> 0.dp
                 }
-            labelWidths[index] + leading + ChoicePadding * 2
+            (labelWidths[index] + leading + ChoicePadding * 2).coerceAtLeast(DesignTokens.MinTouchTarget)
         }
     BoxWithConstraints(modifier = modifier.then(if (fillWidth) Modifier.fillMaxWidth() else Modifier)) {
         val available = maxWidth - DesignTokens.ConnectedGroupGap * (options.size - 1).coerceAtLeast(0)
-        val compact = fillWidth && reservedWidths.fold(0.dp) { sum, width -> sum + width } > available
-        // Labels never ellipsize: when even the smallest font can't keep them on one line, they
-        // wrap at that size and the buttons grow taller.
-        val minScale = ChoiceMinFontSize.value / labelStyle.fontSize.value
-        val wrapLabels =
-            compact &&
-                options.indices.fold(0.dp) { sum, index ->
-                    sum + compactWidths[index] - labelWidths[index] * (1f - minScale)
-                } > available
+        val compact = reservedWidths.fold(0.dp, Dp::plus) > available
+        if (compactWidths.fold(0.dp, Dp::plus) > available) {
+            Column(
+                modifier = Modifier
+                    .widthIn(max = if (fillWidth) maxWidth else maxWidth / 2)
+                    .fillMaxWidth()
+                    .selectableGroup()
+                    .alpha(if (enabled) 1f else ChoiceDisabledAlpha),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.ConnectedGroupGap),
+            ) {
+                options.forEach { option ->
+                    ChoiceButton(
+                        option = option,
+                        checked = option.value == selected,
+                        isStart = true,
+                        isEnd = true,
+                        enabled = enabled,
+                        onClick = { select(option.value) },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
+            return@BoxWithConstraints
+        }
         val targetWeights = (if (compact) compactWidths else reservedWidths).map { it.value }
         Row(
             modifier =
@@ -144,11 +163,7 @@ fun <T> ConnectedChoiceGroup(
                     isStart = index == 0,
                     isEnd = index == options.lastIndex,
                     enabled = enabled,
-                    wrapLabel = wrapLabels,
-                    onClick = {
-                        if (haptic && option.value != selected) hapticToggle(view)()
-                        onSelect(option.value)
-                    },
+                    onClick = { select(option.value) },
                     modifier = if (fillWidth) Modifier.weight(weight) else Modifier,
                 )
             }
@@ -163,7 +178,6 @@ private fun <T> ChoiceButton(
     isStart: Boolean,
     isEnd: Boolean,
     enabled: Boolean,
-    wrapLabel: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -187,6 +201,7 @@ private fun <T> ChoiceButton(
     Row(
         modifier =
             modifier
+                .widthIn(min = DesignTokens.MinTouchTarget)
                 .heightIn(min = ChoiceHeight)
                 .clip(shape)
                 .background(container, shape)
@@ -213,35 +228,13 @@ private fun <T> ChoiceButton(
                     modifier = Modifier.size(ChoiceIconSize),
                 )
         }
-        // One line, shrinking toward ChoiceMinFontSize when the row is too narrow; past
-        // that ([wrapLabel]) the label wraps at the minimum size. Never ellipsized.
-        val labelStyle = MaterialTheme.typography.labelLarge
-        if (wrapLabel) {
-            BasicText(
-                text = option.label,
-                style =
-                    labelStyle.copy(
-                        color = content,
-                        textAlign = TextAlign.Center,
-                        fontSize = ChoiceMinFontSize,
-                        lineHeight = ChoiceMinFontSize * 1.3f,
-                    ),
-                modifier = Modifier.padding(vertical = DesignTokens.SpacingSmall),
-            )
-        } else {
-            BasicText(
-                text = option.label,
-                style = labelStyle.copy(color = content, textAlign = TextAlign.Center),
-                maxLines = 1,
-                softWrap = false,
-                autoSize =
-                    TextAutoSize.StepBased(
-                        minFontSize = ChoiceMinFontSize,
-                        maxFontSize = labelStyle.fontSize,
-                        stepSize = 0.5.sp,
-                    ),
-            )
-        }
+        Text(
+            text = option.label,
+            style = MaterialTheme.typography.labelLarge,
+            color = content,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(vertical = DesignTokens.SpacingSmall),
+        )
     }
 }
 
@@ -263,7 +256,6 @@ private val ChoiceRound: Dp = ChoiceHeight / 2
 private val ChoicePadding: Dp = 12.dp
 private val ChoiceIconSize: Dp = 18.dp
 private val ChoiceIconSpacing: Dp = 8.dp
-private val ChoiceMinFontSize = 11.sp
 private val ChoiceSwatchSize: Dp = 16.dp
 private const val ChoiceDisabledAlpha = 0.5f
 
@@ -284,6 +276,7 @@ fun <T> ChoiceTile(
         SegmentedTileContent {
             Text(
                 text = title,
+                modifier = Modifier.semantics { heading() },
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )

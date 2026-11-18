@@ -44,22 +44,22 @@ fun dialogTextFieldColors(
         cursorColor = AppColors.Accent,
     )
 
-/** Borderless, transparent fields for text inputs stacked as rows of a settings card. */
+/** Transparent fields with a Material focus indicator for text inputs stacked as rows of a settings card. */
 @Composable
 fun cardTextFieldColors(): TextFieldColors =
     TextFieldDefaults.colors(
         focusedContainerColor = Color.Transparent,
         unfocusedContainerColor = Color.Transparent,
         disabledContainerColor = Color.Transparent,
-        focusedIndicatorColor = Color.Transparent,
+        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
         unfocusedIndicatorColor = Color.Transparent,
         disabledIndicatorColor = Color.Transparent,
-        focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentMutedAlpha),
-        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentMutedAlpha),
+        focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
     )
 
 /**
- * A borderless [TextField] for a row of a settings card. With a [placeholder], the label stays
+ * A transparent [TextField] for a row of a settings card. With a [placeholder], the label stays
  * floated so the hint is visible before the field is focused. The label keeps a fixed gap above
  * the input so focusing never changes the field's height.
  */

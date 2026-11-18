@@ -82,6 +82,7 @@
     <string name="action_unlock_app">Déverrouiller</string>
     <string name="app_lock_prompt_lock">Verrouiller %1$s</string>
     <string name="app_lock_prompt_unlock">Déverrouiller %1$s</string>
+    <string name="app_lock_unlock_device_credential">Déverrouiller avec les identifiants de l’appareil</string>
     <string name="app_lock_unavailable">Ouvrez Quick Search pour déverrouiller cette appli</string>
 <string name="action_change_icon">Changer l\'icône</string>
 <string name="icon_picker_search">Rechercher des icônes</string>
@@ -1130,6 +1131,7 @@
 <string name="shortcut_voice_search_short_label">Recherche vocale</string>
 <string name="voice_input_not_available">La saisie vocale n\'est pas disponible pour le moment.</string>
 <string name="widget_background_color_custom_dialog_title">Couleur personnalisée</string>
+<string name="color_picker_hex">Couleur hexadécimale (#RRGGBB)</string>
 <string name="widget_border_color">Couleur de la bordure</string>
 <string name="widget_custom_button_add_desc">Ajouter un bouton personnalisé</string>
 <string name="widget_custom_buttons_dialog_hint">Recherchez des applications, des raccourcis d\'app, des contacts, des fichiers, des dossiers, des notes &amp; des paramètres d\'appareil.</string>
@@ -1199,6 +1201,13 @@
 <string name="widget_toggle_show_label">Texte Quick Search</string>
 <string name="widget_toggle_show_empty_date">Afficher la date en l’absence d’éléments</string>
 <string name="widgets_panel_title">Widgets</string>
+<string name="widget_edit_layout">Modifier la disposition du widget</string>
+<string name="widget_move_left">Déplacer vers la gauche</string>
+<string name="widget_move_right">Déplacer vers la droite</string>
+<string name="widget_increase_width">Augmenter la largeur</string>
+<string name="widget_decrease_width">Réduire la largeur</string>
+<string name="widget_increase_height">Augmenter la hauteur</string>
+<string name="widget_decrease_height">Réduire la hauteur</string>
 <string name="widgets_panel_lock_layout">Verrouiller la disposition</string>
 <string name="widgets_panel_unlock_layout">Déverrouiller la disposition</string>
 <string name="widgets_picker_empty">Aucun widget trouvé.</string>

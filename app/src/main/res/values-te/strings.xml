@@ -82,6 +82,7 @@
     <string name="action_unlock_app">అన్‌లాక్ చేయండి</string>
     <string name="app_lock_prompt_lock">%1$sను లాక్ చేయండి</string>
     <string name="app_lock_prompt_unlock">%1$sను అన్‌లాక్ చేయండి</string>
+    <string name="app_lock_unlock_device_credential">పరికర ఆధారాలతో అన్‌లాక్ చేయండి</string>
     <string name="app_lock_unavailable">ఈ యాప్‌ను అన్‌లాక్ చేయడానికి Quick Searchను తెరవండి</string>
     <string name="action_change_icon">ఐకాన్ మార్చు</string>
     <string name="icon_picker_search">చిహ్నాలను శోధించండి</string>
@@ -1130,6 +1131,7 @@
     <string name="shortcut_voice_search_short_label">వాయిస్ శోధన</string>
     <string name="voice_input_not_available">వాయిస్ టైపింగ్ ప్రస్తుతం అందుబాటులో లేదు.</string>
     <string name="widget_background_color_custom_dialog_title">కస్టమ్ రంగు</string>
+    <string name="color_picker_hex">హెక్స్ రంగు (#RRGGBB)</string>
     <string name="widget_border_color">అంచు రంగు</string>
     <string name="widget_custom_button_add_desc">కస్టమ్ బటన్‌ను జోడించండి</string>
     <string name="widget_custom_buttons_dialog_hint">యాప్‌లు, యాప్ షార్ట్‌కట్‌లు, పరిచయాలు, ఫైళ్లు, ఫోల్డర్‌లు, గమనికలు &amp; పరికర సెట్టింగ్‌ల కోసం శోధించండి.</string>
@@ -1199,6 +1201,13 @@
     <string name="widget_toggle_show_label">Quick Search టెక్స్ట్</string>
     <string name="widget_toggle_show_empty_date">అంశాలు లేనప్పుడు తేదీని చూపించు</string>
     <string name="widgets_panel_title">విడ్జెట్‌లు</string>
+    <string name="widget_edit_layout">విడ్జెట్ అమరికను మార్చండి</string>
+    <string name="widget_move_left">ఎడమకు జరపండి</string>
+    <string name="widget_move_right">కుడికి జరపండి</string>
+    <string name="widget_increase_width">వెడల్పు పెంచండి</string>
+    <string name="widget_decrease_width">వెడల్పు తగ్గించండి</string>
+    <string name="widget_increase_height">ఎత్తు పెంచండి</string>
+    <string name="widget_decrease_height">ఎత్తు తగ్గించండి</string>
     <string name="widgets_panel_lock_layout">లేఅవుట్‌ను లాక్ చేయండి</string>
     <string name="widgets_panel_unlock_layout">లేఅవుట్‌ను అన్‌లాక్ చేయండి</string>
     <string name="widgets_picker_empty">విడ్జెట్‌లు ఏవీ కనుగొనబడలేదు.</string>

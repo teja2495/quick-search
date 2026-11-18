@@ -40,8 +40,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -51,7 +49,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -65,6 +62,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.SearchBarStyle
 import com.tk.quicksearch.search.core.SearchTarget
@@ -108,7 +106,7 @@ internal fun AiFollowUpInputSection(
 
     val dividerColor = compactTopDividerColor(showWallpaperBackground)
     val inputContent: @Composable ColumnScope.() -> Unit = {
-        OutlinedTextField(
+        AppOutlinedTextField(
             value = value,
             onValueChange = onValueChange,
             modifier =
@@ -119,7 +117,7 @@ internal fun AiFollowUpInputSection(
                         vertical = SearchEngineSectionConstants.VERTICAL_PADDING,
                     )
                     .focusRequester(focusRequester),
-            placeholder = { Text(stringResource(R.string.direct_search_follow_up_hint)) },
+            label = stringResource(R.string.direct_search_follow_up_hint),
             trailingIcon = {
                 AppIconButton(
                     onClick = submit,
@@ -134,7 +132,6 @@ internal fun AiFollowUpInputSection(
             },
             singleLine = true,
             shape = AppShapes.inlineInput,
-            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Transparent),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
             keyboardActions = KeyboardActions(onSend = { submit() }),
         )

@@ -279,6 +279,7 @@ fun AppItemDropdownMenu(
                         null
                     },
                 longHoldDurationMillis = AppUnlockCredentialHoldMillis,
+                longHoldLabel = stringResource(R.string.app_lock_unlock_device_credential),
             )
         } else {
             null

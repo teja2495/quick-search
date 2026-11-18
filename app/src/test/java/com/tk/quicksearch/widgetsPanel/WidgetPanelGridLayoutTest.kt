@@ -51,6 +51,21 @@ class WidgetPanelGridLayoutTest {
     }
 
     @Test
+    fun `an accessible move crosses a tall neighbour in one action`() {
+        val first = widget(id = 1, column = 0, row = 0, columnSpan = 4, rowSpan = 3)
+        val second = widget(id = 2, column = 0, row = 3, columnSpan = 4, rowSpan = 5)
+        val widgets = listOf(first, second)
+
+        val moved = checkNotNull(moveWidgetByStep(widgets, first.appWidgetId, columnDelta = 0, rowDelta = 1))
+        assertEquals(5, moved.byId(first.appWidgetId).row)
+        assertEquals(0, moved.byId(second.appWidgetId).row)
+        assertEquals(null, moveWidgetByStep(moved, first.appWidgetId, columnDelta = 0, rowDelta = 1))
+
+        val restored = moveWidgetByStep(moved, first.appWidgetId, columnDelta = 0, rowDelta = -1)
+        assertEquals(widgets, restored)
+    }
+
+    @Test
     fun `equal-height vertical reorder still swaps`() {
         val a = widget(id = 1, column = 0, row = 0, columnSpan = 4, rowSpan = 2)
         val b = widget(id = 2, column = 0, row = 2, columnSpan = 4, rowSpan = 2)
