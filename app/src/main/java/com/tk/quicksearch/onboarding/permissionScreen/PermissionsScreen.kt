@@ -1,15 +1,11 @@
 package com.tk.quicksearch.onboarding.permissionScreen
 
-import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
@@ -21,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.onboarding.OnboardingBottomActionButton
@@ -31,9 +26,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.onboarding.OnboardingHeader
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.shared.permissions.PermissionCardStates
-import com.tk.quicksearch.shared.permissions.PermissionCardTexts
-import com.tk.quicksearch.shared.permissions.PermissionsCardSection
-import com.tk.quicksearch.shared.permissions.PermissionsTrustPoints
+import com.tk.quicksearch.shared.permissions.PermissionsPageContent
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
@@ -84,64 +77,11 @@ fun PermissionsScreen(
             topPadding = DesignTokens.SpacingMedium,
         )
 
-        PermissionsTrustPoints(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(top = DesignTokens.SpacingSmall),
-        )
-
-        Spacer(modifier = Modifier.height(DesignTokens.SpacingXXLarge))
-
-        Column(
+        PermissionsPageContent(
+            isOnboarding = true,
             modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Top,
-        ) {
-            PermissionsCardSection(
-                texts =
-                    PermissionCardTexts(
-                        usageTitle = stringResource(R.string.settings_shortcut_usage_access),
-                        usageDescription = stringResource(R.string.permissions_usage_desc),
-                        contactsTitle = stringResource(R.string.contacts_action_button_contacts),
-                        contactsDescription = stringResource(R.string.permissions_contacts_desc),
-                        filesTitle = stringResource(R.string.permissions_files_title),
-                        filesDescription = stringResource(R.string.permissions_files_desc),
-                        calendarTitle = stringResource(R.string.settings_calendar_permission_title),
-                        calendarDescription = stringResource(R.string.permissions_calendar_desc),
-                        callingTitle = stringResource(R.string.settings_call_permission_title),
-                        callingDescription = stringResource(R.string.permissions_calling_desc),
-                        notificationsTitle = stringResource(R.string.settings_notifications_permission_title),
-                        notificationsDescription = stringResource(R.string.permissions_notifications_desc),
-                        exactAlarmsTitle = stringResource(R.string.permissions_exact_alarms_title),
-                        exactAlarmsDescription = stringResource(R.string.permissions_exact_alarms_desc),
-                        notificationAccessTitle = stringResource(R.string.settings_shortcut_notification_listener),
-                        notificationAccessDescription = stringResource(R.string.permissions_notification_access_desc),
-                        accessibilityTitle = stringResource(R.string.permissions_accessibility_lock_screen_title),
-                        accessibilityDescription = stringResource(R.string.permissions_accessibility_lock_screen_desc),
-                        backgroundUsageTitle = stringResource(R.string.permissions_background_usage_title),
-                        backgroundUsageDescription = stringResource(R.string.permissions_background_usage_desc),
-                ),
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(1f, fill = false)
-                        .heightIn(max = DesignTokens.OnboardingPermissionCardViewportHeight),
-                internalScrollEnabled = true,
-                showCalendarPermission = true,
-                showCallingPermission = false,
-                showNotificationsPermission = false,
-                showAccessibilityPermission = false,
-                showNotificationAccessPermission = true,
-                showBackgroundUsage = false,
-                segmented = true,
-                showItemIcons = false,
-                cardContainer = { cardModifier, content ->
-                    Column(modifier = cardModifier.clip(AppShapes.extraLarge)) { content() }
-                },
-                onStatesChanged = { permissionStates = it },
-            )
-        }
+            onStatesChanged = { permissionStates = it },
+        )
 
         Spacer(modifier = Modifier.height(DesignTokens.SpacingXXLarge))
 

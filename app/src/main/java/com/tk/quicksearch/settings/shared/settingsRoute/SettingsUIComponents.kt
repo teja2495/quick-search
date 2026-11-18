@@ -9,7 +9,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
@@ -114,7 +113,7 @@ fun SectionSettingsSection(
                             isAppSettingsRow -> onAppSettingsClick
                             else -> null
                         },
-                    subtitleContent =
+                    footerContent =
                         if (showAliasForSection && onSetSectionAlias != null) {
                             {
                                 AliasCodeDisplay(
@@ -130,7 +129,6 @@ fun SectionSettingsSection(
                                     },
                                     conflictErrorMessage = stringResource(R.string.dialog_edit_alias_error_prefix),
                                     aliasDisplayType = AliasDisplayType.SEARCH_TYPE,
-                                    modifier = Modifier.padding(top = DesignTokens.SpacingXSmall),
                                 )
                             }
                         } else {

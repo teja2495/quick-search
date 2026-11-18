@@ -7,6 +7,7 @@ import android.net.Uri
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,8 +32,10 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
+private const val SOURCE_CODE_URL = "https://github.com/teja2495/quick-search"
+
 /**
- * Compact ticked list of the three promises shown at the top of the onboarding permissions screen:
+ * Compact checklist of the three promises shown at the top of both permissions pages:
  * every permission is optional, data stays on the device, and the code is public. The last
  * row carries a View code pill and opens the project's source code.
  */
@@ -72,7 +75,7 @@ private fun TrustPointLine(
     onClick: (() -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
 ) {
-    Row(
+    Box(
         modifier =
             modifier
                 .fillMaxWidth()
@@ -83,23 +86,30 @@ private fun TrustPointLine(
                     } else {
                         Modifier
                     },
-                ).heightIn(min = if (onClick != null) DesignTokens.MinTouchTarget else DesignTokens.Spacing28),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+                )
+                .heightIn(min = if (onClick != null) DesignTokens.MinTouchTarget else DesignTokens.Spacing28),
     ) {
-        Icon(
-            imageVector = MaterialSymbols.Check,
-            contentDescription = null,
-            tint = accent,
-            modifier = Modifier.size(DesignTokens.IconSizeSmall),
-        )
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f, fill = false),
-        )
-        trailing?.invoke()
+        Row(
+            // Keep all three checklist lines on the same rhythm. The link target extends below the
+            // last line into the section gap.
+            modifier = Modifier.fillMaxWidth().heightIn(min = DesignTokens.Spacing28),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+        ) {
+            Icon(
+                imageVector = MaterialSymbols.Check,
+                contentDescription = null,
+                tint = accent,
+                modifier = Modifier.size(DesignTokens.IconSizeSmall),
+            )
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f, fill = false),
+            )
+            trailing?.invoke()
+        }
     }
 }
 

@@ -4,7 +4,6 @@ import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,7 +15,6 @@ import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.settings.searchEngineSettings.AliasDisplayType
 import com.tk.quicksearch.settings.searchEngineSettings.AliasCodeDisplay
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 
@@ -76,7 +74,7 @@ fun ToolToggleRow(
         isBeta = tool.isBeta,
         tagLabel = tool.tagLabel,
         onRowClick = tool.onRowClick,
-        subtitleContent =
+        footerContent =
             if (tool.aliasCode != null) {
                 {
                     AliasCodeDisplay(
@@ -94,7 +92,6 @@ fun ToolToggleRow(
                         aliasDisplayType = AliasDisplayType.TOOL,
                         allowClearAction = tool.allowAliasClear,
                         allowEmptyAlias = tool.allowAliasClear,
-                        modifier = Modifier.padding(top = DesignTokens.SpacingXSmall),
                     )
                 }
             } else {

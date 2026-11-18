@@ -1,20 +1,9 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import com.tk.quicksearch.R
-import com.tk.quicksearch.shared.permissions.OpenSourceTrustCard
-import com.tk.quicksearch.shared.permissions.PermissionCardTexts
-import com.tk.quicksearch.shared.permissions.PermissionsCardSection
-import com.tk.quicksearch.shared.permissions.permissionsScreenSubtitle
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.permissions.PermissionsPageContent
 import com.tk.quicksearch.shared.util.isDefaultDigitalAssistant
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
 
@@ -34,56 +23,11 @@ fun PermissionsSettings(
     val showBackgroundUsage =
         !context.isDefaultHomeApp() && !context.isDefaultDigitalAssistant()
 
-    Column(modifier = modifier) {
-        Text(
-            text = permissionsScreenSubtitle(),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = DesignTokens.SpacingLarge),
-        )
-
-        OpenSourceTrustCard(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = DesignTokens.SpacingLarge),
-        )
-
-        PermissionsCardSection(
-            texts =
-                PermissionCardTexts(
-                    usageTitle = stringResource(R.string.settings_shortcut_usage_access),
-                    usageDescription = stringResource(R.string.permissions_usage_desc),
-                    contactsTitle = stringResource(R.string.contacts_action_button_contacts),
-                    contactsDescription = stringResource(R.string.permissions_contacts_desc),
-                    filesTitle = stringResource(R.string.section_files),
-                    filesDescription = stringResource(R.string.permissions_files_desc),
-                    calendarTitle = stringResource(R.string.settings_calendar_permission_title),
-                    calendarDescription = stringResource(R.string.permissions_calendar_desc),
-                    callingTitle = stringResource(R.string.settings_call_permission_title),
-                    callingDescription = stringResource(R.string.permissions_calling_desc),
-                    notificationsTitle = stringResource(R.string.settings_notifications_permission_title),
-                    notificationsDescription = stringResource(R.string.permissions_notifications_desc),
-                    exactAlarmsTitle = stringResource(R.string.permissions_exact_alarms_title),
-                    exactAlarmsDescription = stringResource(R.string.permissions_exact_alarms_desc),
-                    notificationAccessTitle = stringResource(R.string.settings_shortcut_notification_listener),
-                    notificationAccessDescription = stringResource(R.string.permissions_notification_access_desc),
-                    accessibilityTitle = stringResource(R.string.permissions_accessibility_lock_screen_title),
-                    accessibilityDescription = stringResource(R.string.permissions_accessibility_lock_screen_desc),
-                    backgroundUsageTitle = stringResource(R.string.permissions_background_usage_title),
-                    backgroundUsageDescription = stringResource(R.string.permissions_background_usage_desc),
-                ),
-            modifier = Modifier.fillMaxWidth(),
-            segmented = true,
-            showCalendarPermission = true,
-            showCallingPermission = true,
-            showNotificationsPermission = true,
-            showBackgroundUsage = showBackgroundUsage,
-            onRequestUsagePermission = onRequestUsagePermission,
-            onRequestFilePermission = onRequestFilePermission,
-            cardContainer = { cardModifier, content ->
-                Column(modifier = cardModifier) { content() }
-            },
-        )
-    }
+    PermissionsPageContent(
+        isOnboarding = false,
+        modifier = modifier,
+        showBackgroundUsage = showBackgroundUsage,
+        onRequestUsagePermission = onRequestUsagePermission,
+        onRequestFilePermission = onRequestFilePermission,
+    )
 }

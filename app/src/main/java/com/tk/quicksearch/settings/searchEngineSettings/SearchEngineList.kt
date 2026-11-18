@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ripple
@@ -40,6 +41,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import com.tk.quicksearch.R
@@ -439,7 +443,10 @@ private fun SearchEngineRowContent(
     val moveUpLabel = stringResource(R.string.settings_action_move_up)
     val moveDownLabel = stringResource(R.string.settings_action_move_down)
     val rowClick = onCustomEngineClick ?: openMoveMenu
-
+    val dragHandle = dragHandleModifier?.takeIf { showToggle && allowDrag }
+    val rowSpacing = DesignTokens.SpacingSmall
+    // The drag handle and switch occupy their own columns, so their 48dp targets need
+    // not set the gap between the engine name and its actions.
     Row(
         modifier =
             Modifier
@@ -465,39 +472,55 @@ private fun SearchEngineRowContent(
                         )
                 }
                 .padding(
-                    horizontal = SegmentedTileContentPadding,
-                    vertical = DesignTokens.SpacingMedium,
+                    start = if (dragHandle == null) SegmentedTileContentPadding else DesignTokens.SpacingSmall,
+                    end = SegmentedTileContentPadding,
+                    top = DesignTokens.SpacingXSmall,
+                    bottom = DesignTokens.SpacingXSmall,
                 ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+        verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.spacedBy(rowSpacing),
     ) {
-        if (showToggle && allowDrag && dragHandleModifier != null) {
-            Icon(
-                imageVector = MaterialSymbols.DragHandle,
-                contentDescription = stringResource(R.string.settings_action_reorder),
-                tint = if (isDragging) AppColors.Accent else MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier =
-                    Modifier
-                        .size(DesignTokens.IconSize)
-                        .then(dragHandleModifier),
-            )
+        if (dragHandle != null) {
+            Box(
+                modifier = Modifier.size(DesignTokens.MinTouchTarget).then(dragHandle),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = MaterialSymbols.DragHandle,
+                    contentDescription = stringResource(R.string.settings_action_reorder),
+                    tint = if (isDragging) AppColors.Accent else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(DesignTokens.IconSize),
+                )
+            }
         }
 
-        SearchTargetIcon(
-            target = engine,
-            iconSize = DesignTokens.IconSize,
-            style = IconRenderStyle.ADVANCED,
-        )
-
         Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing),
+            modifier = Modifier
+                .weight(1f)
+                .padding(top = (DesignTokens.MinTouchTarget - DesignTokens.IconSize) / 2),
         ) {
-            Text(
-                text = engineName,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(rowSpacing),
+            ) {
+                Box(
+                    modifier = Modifier.heightIn(min = DesignTokens.IconSize),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    SearchTargetIcon(
+                        target = engine,
+                        iconSize = DesignTokens.IconSize,
+                        style = IconRenderStyle.ADVANCED,
+                    )
+                }
+
+                Text(
+                    text = engineName,
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
             if (onShortcutCodeChange != null) {
                 val isSearchEngineAlias =
                     engine is SearchTarget.Engine || engine is SearchTarget.Browser
@@ -528,8 +551,8 @@ private fun SearchEngineRowContent(
             }
         }
 
-        if (hasMoveMenu) {
-            Box {
+        Box {
+            if (hasMoveMenu) {
                 AppDropdownMenu(
                     expanded = showMenu,
                     onDismissRequest = { showMenu = false },
@@ -562,17 +585,17 @@ private fun SearchEngineRowContent(
                     }
                 }
             }
-        }
 
-        if (showToggle) {
-            AppSwitch(
-                checked = isEnabled,
-                onCheckedChange = { enabled ->
-                    hapticToggle(view)()
-                    onToggle(enabled)
-                },
-                enabled = switchEnabled,
-            )
+            if (showToggle) {
+                AppSwitch(
+                    checked = isEnabled,
+                    onCheckedChange = { enabled ->
+                        hapticToggle(view)()
+                        onToggle(enabled)
+                    },
+                    enabled = switchEnabled,
+                )
+            }
         }
     }
 }
@@ -595,20 +618,23 @@ private fun AmazonDomainLink(
         )
     }
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+    val label = stringResource(R.string.settings_amazon_domain_label)
+    val domain = amazonDomain ?: stringResource(R.string.settings_amazon_domain_default)
+    val domainColor = AppColors.LinkColor
+    Box(
+        modifier = Modifier
+            .clickable(role = Role.Button) { showDialog = true }
+            .heightIn(min = DesignTokens.MinTouchTarget),
+        contentAlignment = Alignment.CenterStart,
     ) {
         Text(
-            text = stringResource(R.string.settings_amazon_domain_label),
+            text = buildAnnotatedString {
+                append(label)
+                append(' ')
+                withStyle(SpanStyle(color = domainColor)) { append(domain) }
+            },
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Text(
-            text = amazonDomain ?: stringResource(R.string.settings_amazon_domain_default),
-            style = MaterialTheme.typography.bodyMedium,
-            color = AppColors.LinkColor,
-            modifier = Modifier.clickable(role = Role.Button) { showDialog = true },
         )
     }
 }

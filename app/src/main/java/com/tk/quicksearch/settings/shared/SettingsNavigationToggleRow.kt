@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -36,6 +35,7 @@ import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.LocalInSegmentedTile
 import com.tk.quicksearch.shared.ui.components.AppSwitch
 import com.tk.quicksearch.shared.ui.components.TonalIconBadge
+import com.tk.quicksearch.shared.ui.components.TonalIconBadgeSize
 
 /**
  * A settings row with a leading icon, title/subtitle text, an optional navigation arrow,
@@ -43,6 +43,7 @@ import com.tk.quicksearch.shared.ui.components.TonalIconBadge
  *
  * When [onRowClick] is provided, a chevron and vertical divider appear between the
  * navigation area and the toggle switch. Inside a [SegmentedTile] it takes the tile layout.
+ * [footerContent] puts a secondary action below the row, aligned with the title.
  */
 @Composable
 fun SettingsNavigationToggleRow(
@@ -56,7 +57,7 @@ fun SettingsNavigationToggleRow(
     isBeta: Boolean = false,
     tagLabel: String? = null,
     onRowClick: (() -> Unit)? = null,
-    subtitleContent: (@Composable () -> Unit)? = null,
+    footerContent: (@Composable () -> Unit)? = null,
 ) {
     val view = LocalView.current
     val rowInteractionSource = remember { MutableInteractionSource() }
@@ -64,109 +65,132 @@ fun SettingsNavigationToggleRow(
     // In a segmented tile: tonal icon badge, tile padding, and bodyMedium supporting text.
     val segmented = LocalInSegmentedTile.current
 
-    Row(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .alpha(if (enabled) 1f else AppColors.DisabledContentAlpha)
-                .let { rowModifier ->
-                    if (onRowClick != null && enabled) {
-                        rowModifier.clickable(
-                            role = Role.Button,
-                            interactionSource = rowInteractionSource,
-                            indication = rowIndication,
-                            onClick = onRowClick,
-                        )
+    val horizontalPadding =
+        if (segmented) SegmentedTileContentPadding else DesignTokens.CardHorizontalPadding
+    val tileMinHeight =
+        if (footerContent == null) SettingsNavigationToggleTileMinHeight else DesignTokens.ListItemMinHeight
+    Column(modifier = modifier.fillMaxWidth().alpha(if (enabled) 1f else AppColors.DisabledContentAlpha)) {
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .let { rowModifier ->
+                        if (onRowClick != null && enabled) {
+                            rowModifier.clickable(
+                                role = Role.Button,
+                                interactionSource = rowInteractionSource,
+                                indication = rowIndication,
+                                onClick = onRowClick,
+                            )
+                        } else {
+                            rowModifier
+                        }
+                    }
+                    .then(
+                        if (segmented) {
+                            Modifier
+                                .heightIn(min = tileMinHeight)
+                                .padding(
+                                    start = horizontalPadding,
+                                    top = if (footerContent == null) SegmentedTileContentPadding else DesignTokens.SpacingSmall,
+                                    end = horizontalPadding,
+                                    bottom = if (footerContent == null) SegmentedTileContentPadding else DesignTokens.SpacingXSmall,
+                                )
+                        } else {
+                            Modifier.padding(
+                                horizontal = horizontalPadding,
+                                vertical = DesignTokens.CardVerticalPadding,
+                            )
+                        },
+                    ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+        ) {
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+            ) {
+                leadingIcon?.let {
+                    if (segmented) {
+                        TonalIconBadge(icon = it)
                     } else {
-                        rowModifier
+                        Icon(
+                            imageVector = it,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(DesignTokens.IconSize),
+                        )
                     }
                 }
-                .then(
-                    if (segmented) {
-                        Modifier.heightIn(min = SettingsNavigationToggleTileMinHeight).padding(SegmentedTileContentPadding)
-                    } else {
-                        Modifier.padding(
-                            horizontal = DesignTokens.CardHorizontalPadding,
-                            vertical = DesignTokens.CardVerticalPadding,
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+                    ) {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
-                    },
-                ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
-    ) {
-        Row(
-            modifier = Modifier.weight(1f),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(if (segmented) SegmentedTileContentPadding else DesignTokens.ItemRowSpacing),
-        ) {
-            leadingIcon?.let {
-                if (segmented) {
-                    TonalIconBadge(icon = it)
-                } else {
-                    Icon(
-                        imageVector = it,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(DesignTokens.IconSize),
-                    )
+                        if (isBeta || tagLabel != null) {
+                            BetaTagChip(tagText = tagLabel)
+                        }
+                    }
+
+                    if (!subtitle.isNullOrBlank()) {
+                        Text(
+                            text = subtitle,
+                            style = if (segmented) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = if (segmented) DesignTokens.SpacingXSmall / 2 else DesignTokens.SpacingXSmall),
+                        )
+                    }
                 }
             }
 
-            Column(modifier = Modifier.weight(1f)) {
+            if (onRowClick != null) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                 ) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
+                    Icon(
+                        imageVector = MaterialSymbols.ChevronRight,
+                        contentDescription = stringResource(R.string.desc_navigate_forward),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    if (isBeta || tagLabel != null) {
-                        BetaTagChip(tagText = tagLabel)
-                    }
-                }
-
-                if (!subtitle.isNullOrBlank()) {
-                    Text(
-                        text = subtitle,
-                        style = if (segmented) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = if (segmented) DesignTokens.SpacingXSmall / 2 else DesignTokens.SpacingXSmall),
+                    VerticalDivider(
+                        modifier = Modifier
+                            .height(DesignTokens.IconSize)
+                            .padding(start = DesignTokens.SpacingXSmall),
+                        color = AppColors.SettingsDivider,
                     )
                 }
-
-                subtitleContent?.invoke()
             }
+
+            AppSwitch(
+                checked = checked,
+                onCheckedChange = { enabled ->
+                    hapticToggleState(view, enabled)
+                    onCheckedChange(enabled)
+                },
+                enabled = enabled,
+            )
         }
 
-        if (onRowClick != null) {
-            Row(
-                modifier = Modifier.offset(x = DesignTokens.SpacingSmall),
-                verticalAlignment = Alignment.CenterVertically,
+        if (footerContent != null) {
+            val iconWidth = if (segmented) TonalIconBadgeSize else DesignTokens.IconSize
+            val titleInset = if (leadingIcon != null) iconWidth + DesignTokens.ItemRowSpacing else 0.dp
+            Column(
+                modifier = Modifier.padding(
+                    start = horizontalPadding + titleInset,
+                    end = horizontalPadding,
+                    bottom = DesignTokens.SpacingXSmall,
+                ),
             ) {
-                Icon(
-                    imageVector = MaterialSymbols.ChevronRight,
-                    contentDescription = stringResource(R.string.desc_navigate_forward),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                VerticalDivider(
-                    modifier = Modifier
-                        .height(24.dp)
-                        .padding(horizontal = DesignTokens.SpacingSmall),
-                    color = AppColors.SettingsDivider,
-                )
+                footerContent()
             }
         }
-
-        AppSwitch(
-            checked = checked,
-            onCheckedChange = { enabled ->
-                hapticToggleState(view, enabled)
-                onCheckedChange(enabled)
-            },
-            enabled = enabled,
-        )
     }
 }
 

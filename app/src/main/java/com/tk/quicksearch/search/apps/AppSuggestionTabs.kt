@@ -1,8 +1,9 @@
 package com.tk.quicksearch.search.apps
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -11,11 +12,21 @@ import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.util.hapticToggle
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppMotion
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.homeTextColor
+import com.tk.quicksearch.shared.util.hapticToggle
 
 private val TabStripOpticalShift = 2.dp
 private val SuggestionTabHeight = DesignTokens.MinTouchTarget
@@ -31,6 +42,7 @@ internal fun AppSuggestionTabStrip(
     if (tabs.isEmpty()) return
     val selected = selectedIndex.coerceIn(tabs.indices)
     val view = LocalView.current
+    val tabColor = homeTextColor()
     SecondaryScrollableTabRow(
         selectedTabIndex = selected,
         // Spacing around the strip is even to the text baseline, but descenders and the solid icon
@@ -39,9 +51,10 @@ internal fun AppSuggestionTabStrip(
             Modifier.fillMaxWidth().padding(
                 bottom = TabStripOpticalShift * 2,
             ),
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        contentColor = MaterialTheme.colorScheme.onSurface,
+        containerColor = Color.Transparent,
+        contentColor = tabColor,
         edgePadding = DesignTokens.SpacingXSmall,
+        indicator = {},
         divider = {},
     ) {
         tabs.forEachIndexed { index, tab ->
@@ -54,22 +67,45 @@ internal fun AppSuggestionTabStrip(
                     }
                 },
                 modifier = Modifier.heightIn(min = SuggestionTabHeight),
-                selectedContentColor = MaterialTheme.colorScheme.onSurface,
-                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                selectedContentColor = tabColor,
+                unselectedContentColor = tabColor.copy(alpha = AppColors.ContentStrongAlpha),
             ) {
-                Box(
-                    modifier = Modifier.heightIn(min = SuggestionTabHeight)
-                        .padding(horizontal = DesignTokens.SpacingLarge),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = tab.title,
-                        style = MaterialTheme.typography.labelLarge,
-                        maxLines = 1,
-                        softWrap = false,
-                    )
-                }
+                SuggestionTabLabel(title = tab.title, selected = index == selected)
             }
         }
+    }
+}
+
+@Composable
+private fun SuggestionTabLabel(title: String, selected: Boolean) {
+    val boldAlpha = animateFloatAsState(
+        targetValue = if (selected) 1f else 0f,
+        animationSpec = tween(AppMotion.DurationShort, easing = AppMotion.EmphasizedEasing),
+        label = "Suggestion tab weight",
+    )
+    val labelStyle = MaterialTheme.typography.labelLarge
+    // Measure both weights so changing selection keeps the scrollable tabs in place.
+    Box(
+        modifier = Modifier
+            .heightIn(min = SuggestionTabHeight)
+            .padding(horizontal = DesignTokens.SpacingLarge)
+            .clearAndSetSemantics { text = AnnotatedString(title) },
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = title,
+            modifier = Modifier.graphicsLayer { alpha = 1f - boldAlpha.value },
+            style = labelStyle,
+            maxLines = 1,
+            softWrap = false,
+        )
+        Text(
+            text = title,
+            modifier = Modifier.graphicsLayer { alpha = boldAlpha.value },
+            style = labelStyle,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            softWrap = false,
+        )
     }
 }
