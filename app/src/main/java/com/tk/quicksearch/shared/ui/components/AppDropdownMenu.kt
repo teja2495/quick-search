@@ -2,6 +2,7 @@ package com.tk.quicksearch.shared.ui.components
 
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
@@ -11,17 +12,44 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
+import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+
+/** A three-dot button anchored to a dropdown. Menu items can dismiss it when selected. */
+@Composable
+fun AppOverflowMenu(content: @Composable ColumnScope.(dismiss: () -> Unit) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    val dismiss: () -> Unit = { expanded = false }
+    Box {
+        IconButton(onClick = { expanded = true }) {
+            Icon(
+                imageVector = MaterialSymbols.MoreVert,
+                contentDescription = stringResource(R.string.settings_more_options_title),
+                tint = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+        AppDropdownMenu(expanded = expanded, onDismissRequest = dismiss) {
+            content(dismiss)
+        }
+    }
+}
 
 /** Container colors for [AppDropdownMenu]. */
 object AppDropdownMenuDefaults {

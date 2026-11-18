@@ -1,11 +1,7 @@
 package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -13,13 +9,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.graphics.Color
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.components.SliderWithValue
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.widgets.utils.WidgetPreferences
@@ -177,23 +173,23 @@ internal fun SliderRow(
             },
         )
     }
-    Column {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = WidgetTileTextInset),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+    SliderWithValue(
+        headerModifier = Modifier.padding(horizontal = WidgetTileTextInset),
+        headerLabel = {
             Text(
                 text = label,
                 style = labelTextStyle,
                 color = labelColor,
             )
+        },
+        valueLabel = {
             Text(
                 text = valueFormatter(value),
                 style = MaterialTheme.typography.labelLarge,
                 color = AppColors.Accent,
             )
-        }
+        },
+    ) { sliderModifier ->
         Slider(
             value = value,
             onValueChange = { rawValue ->
@@ -220,6 +216,7 @@ internal fun SliderRow(
             },
             valueRange = valueRange,
             steps = if (showTicks) (steps - 1).coerceAtLeast(0) else 0,
+            modifier = sliderModifier,
         )
     }
 }

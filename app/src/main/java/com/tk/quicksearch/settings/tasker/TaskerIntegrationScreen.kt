@@ -13,7 +13,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,12 +32,12 @@ import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
 import com.tk.quicksearch.search.apps.rememberAppIcon
+import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.tools.tasker.TaskerIntentTool
 import com.tk.quicksearch.tools.tasker.TaskerIntegration
 import com.tk.quicksearch.shared.ui.components.TonalIconBadge
@@ -77,19 +76,18 @@ fun TaskerIntegrationScreen(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                OutlinedTextField(
+                AppOutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(stringResource(R.string.tasker_intent_name_label)) },
+                    label = stringResource(R.string.tasker_intent_name_label),
                     singleLine = true,
-                    colors = dialogTextFieldColors(),
                 )
-                OutlinedTextField(
+                AppOutlinedTextField(
                     value = alias,
                     onValueChange = { alias = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(stringResource(R.string.settings_custom_tool_alias_label)) },
+                    label = stringResource(R.string.settings_custom_tool_alias_label),
                     supportingText = if (aliasConflict) {
                         { Text(stringResource(R.string.tasker_alias_conflict)) }
                     } else {
@@ -97,16 +95,14 @@ fun TaskerIntegrationScreen(
                     },
                     isError = aliasConflict,
                     singleLine = true,
-                    colors = dialogTextFieldColors(),
                 )
-                OutlinedTextField(
+                AppOutlinedTextField(
                     value = action,
                     onValueChange = { action = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(stringResource(R.string.tasker_broadcast_action_label)) },
+                    label = stringResource(R.string.tasker_broadcast_action_label),
                     placeholder = { Text("com.example.MY_TASK") },
                     singleLine = true,
-                    colors = dialogTextFieldColors(),
                 )
                 AppButton(
                     onClick = {

@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.settings.shared.SettingsRemoveButton
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.data.appShortcutRepository.AppShortcutCache
@@ -221,13 +221,7 @@ private fun NicknameItemRow(
             }
         },
         trailing = {
-            IconButton(onClick = onRemove) {
-                Icon(
-                    imageVector = MaterialSymbols.Close,
-                    contentDescription = stringResource(R.string.action_remove),
-                    tint = AppColors.Accent,
-                )
-            }
+            SettingsRemoveButton(onClick = onRemove, tint = AppColors.Accent)
         },
     )
 }

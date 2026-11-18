@@ -1,10 +1,10 @@
 package com.tk.quicksearch.search.appSettings
 
+import com.tk.quicksearch.shared.ui.components.SliderWithValue
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,7 +20,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -253,11 +252,17 @@ internal fun InlineSliderRow(
     label: String,
     onValueChangeFinished: (() -> Unit)? = null,
 ) {
-    Row(
+    SliderWithValue(
         modifier = Modifier.fillMaxWidth().padding(top = DesignTokens.SpacingSmall),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
+        valueSpacing = 6.dp,
+        valueLabel = {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+    ) { sliderModifier ->
         Slider(
             value = value,
             onValueChange = onValueChange,
@@ -269,12 +274,7 @@ internal fun InlineSliderRow(
                     inactiveTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintTonalAlpha),
                     inactiveTickColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 ),
-            modifier = Modifier.weight(1f).height(36.dp),
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = sliderModifier.height(36.dp),
         )
     }
 }

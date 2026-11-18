@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,6 +39,7 @@ import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.data.preferences.TriggerPreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
+import com.tk.quicksearch.settings.shared.SettingsRemoveButton
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -210,13 +210,7 @@ private fun TriggerItemRow(
             }
         },
         trailing = {
-            IconButton(onClick = onRemove) {
-                Icon(
-                    imageVector = MaterialSymbols.Close,
-                    contentDescription = stringResource(R.string.action_remove),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            SettingsRemoveButton(onClick = onRemove)
         },
     )
 }

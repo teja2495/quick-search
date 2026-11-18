@@ -62,8 +62,8 @@ import com.tk.quicksearch.search.core.BrowserApp
 import com.tk.quicksearch.search.data.bookmarks.BookmarkUrls
 import com.tk.quicksearch.search.models.BookmarkInfo
 import com.tk.quicksearch.searchEngines.loadCustomIconAsBase64
+import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import com.tk.quicksearch.shared.ui.components.AppBottomSheet
-import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -253,22 +253,21 @@ private fun BookmarkEditorForm(
                 onClick = onPickIcon,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
             )
-            OutlinedTextField(
+            AppOutlinedTextField(
                 value = name,
                 onValueChange = onNameChange,
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                label = { Text(stringResource(R.string.settings_app_sort_name)) },
+                label = stringResource(R.string.settings_app_sort_name),
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                colors = dialogTextFieldColors(),
             )
             // Not single-line, so a long link wraps and stays fully visible. Whitespace
             // (including the Enter key's newline) is filtered out.
-            OutlinedTextField(
+            AppOutlinedTextField(
                 value = url,
                 onValueChange = { onUrlChange(it.filterNot(Char::isWhitespace)) },
                 modifier = Modifier.fillMaxWidth().focusRequester(urlFocusRequester),
-                label = { Text(stringResource(R.string.bookmarks_link_label)) },
+                label = stringResource(R.string.bookmarks_link_label),
                 isError = showUrlError,
                 supportingText =
                     if (showUrlError) {
@@ -277,7 +276,6 @@ private fun BookmarkEditorForm(
                         null
                     },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
-                colors = dialogTextFieldColors(),
             )
             BookmarkBrowserField(
                 availableBrowsers = availableBrowsers,

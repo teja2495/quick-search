@@ -1,7 +1,6 @@
 package com.tk.quicksearch.widgets.widgetConfigScreen
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,16 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -29,6 +19,7 @@ import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetConfigScaffold
 import com.tk.quicksearch.widgets.atAGlanceWidget.AtAGlanceWidgetItemsSection
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonsSection
 import com.tk.quicksearch.widgets.utils.WidgetButtonSlotConfig
@@ -47,14 +38,12 @@ import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetMicIconSec
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetInternalPaddingSection
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetIconSizeSection
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetSearchIconSection
-import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetSaveButton
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetSlidersSection
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetTextSizeSection
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetTextIconColorSection
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetThemeSection
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetToggleSection
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WidgetConfigScreen(
     state: WidgetPreferences,
@@ -77,63 +66,16 @@ fun WidgetConfigScreen(
         onStateChange(updated.enforceVariantConstraints(widgetVariant))
     }
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(titleResId),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onCancel) {
-                        Icon(
-                            imageVector = MaterialSymbols.Close,
-                            contentDescription =
-                                stringResource(
-                                    R.string
-                                        .dialog_cancel,
-                                ),
-                        )
-                    }
-                },
-            )
-        },
-        bottomBar = {
-            Surface(shadowElevation = WidgetConfigConstants.SURFACE_ELEVATION) {
-                androidx.compose.foundation.layout.Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                start =
-                                    WidgetConfigConstants
-                                        .BOTTOM_BAR_HORIZONTAL_PADDING,
-                                end =
-                                    WidgetConfigConstants
-                                        .BOTTOM_BAR_HORIZONTAL_PADDING,
-                                top =
-                                    WidgetConfigConstants
-                                        .BOTTOM_BAR_VERTICAL_PADDING,
-                                bottom =
-                                    WidgetConfigConstants
-                                        .BOTTOM_BAR_BOTTOM_PADDING,
-                            ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    WidgetSaveButton(
-                        text = stringResource(saveLabelResId),
-                        enabled = isSaveEnabled,
-                        onClick = onApply,
-                    )
-                }
-            }
-        },
+    WidgetConfigScaffold(
+        title = stringResource(titleResId),
+        onCancel = onCancel,
+        onSave = onApply,
+        saveEnabled = isSaveEnabled,
+        saveLabel = stringResource(saveLabelResId),
     ) { innerPadding ->
         if (!isLoaded) {
             WidgetLoadingState(innerPadding = innerPadding)
-            return@Scaffold
+            return@WidgetConfigScaffold
         }
 
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {

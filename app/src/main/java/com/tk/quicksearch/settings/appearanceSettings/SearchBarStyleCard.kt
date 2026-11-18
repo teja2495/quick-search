@@ -45,6 +45,7 @@ import com.tk.quicksearch.searchEngines.inline.InsetSearchBarGeometry
 import com.tk.quicksearch.searchEngines.inline.SearchEngineIconsSection
 import com.tk.quicksearch.searchEngines.inline.insetCardGlow
 import com.tk.quicksearch.searchEngines.inline.rememberInsetCardStyle
+import com.tk.quicksearch.shared.ui.components.SliderWithValue
 import com.tk.quicksearch.shared.ui.components.TonalButton
 import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
@@ -475,21 +476,24 @@ private fun SliderSetting(
             color = MaterialTheme.colorScheme.onSurface,
         )
         // No spacing: the value is centered in the gap between the slider end and the card edge.
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        SliderWithValue(
+            valueLabel = {
+                Text(
+                    text = valueText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.width(SliderValueWidth),
+                )
+            },
+        ) { sliderModifier ->
             Slider(
                 value = value,
                 onValueChange = onValueChange,
                 onValueChangeFinished = onValueChangeFinished,
                 valueRange = valueRange,
                 steps = steps,
-                modifier = Modifier.weight(1f),
-            )
-            Text(
-                text = valueText,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.width(SliderValueWidth),
+                modifier = sliderModifier,
             )
         }
     }

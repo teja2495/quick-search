@@ -11,12 +11,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -45,6 +41,7 @@ import com.tk.quicksearch.settings.shared.SettingsManagementSearchBar
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetConfigScaffold
 import com.tk.quicksearch.widgets.utils.WidgetConfigConstants
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
@@ -65,7 +62,6 @@ internal fun rememberWidgetNote(noteId: Long?): NoteInfo? {
 }
 
 /** Full-screen list of the user's notes with a search bar, shown when a Note widget is placed. */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteWidgetPickerScreen(
     selectedNoteId: Long?,
@@ -88,25 +84,9 @@ fun NoteWidgetPickerScreen(
             }
         }
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.widget_note_picker_title),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onClose) {
-                        Icon(
-                            imageVector = MaterialSymbols.Close,
-                            contentDescription = stringResource(R.string.dialog_cancel),
-                        )
-                    }
-                },
-            )
-        },
+    WidgetConfigScaffold(
+        title = stringResource(R.string.widget_note_picker_title),
+        onCancel = onClose,
     ) { innerPadding ->
         Column(
             modifier =
