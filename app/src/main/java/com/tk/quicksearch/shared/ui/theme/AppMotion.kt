@@ -2,11 +2,9 @@ package com.tk.quicksearch.shared.ui.theme
 
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
-import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 
 /**
  * Motion specs for the whole app. Components take their springs from here, never from inline
@@ -54,9 +52,6 @@ object AppMotion {
     /** No-bounce glide of a grid tile into its new slot after a reorder or drop. */
     fun <T> placement(visibilityThreshold: T? = null): SpringSpec<T> =
         spring(stiffness = Spring.StiffnessMedium, visibilityThreshold = visibilityThreshold)
-
-    /** Subtle height change of a card expanding or collapsing to show more or fewer rows. */
-    fun <T> expandCollapse(): FiniteAnimationSpec<T> = tween(durationMillis = DurationStandard, easing = EmphasizedEasing)
 
     // Easing for tweens --------------------------------------------------------------------
     // Material 3 easing curves. Use these instead of Material 2's FastOutSlowIn, LinearOutSlowIn
