@@ -1,5 +1,9 @@
 package com.tk.quicksearch.search.contacts.components
 
+import com.tk.quicksearch.search.contacts.models.ContactCardAction
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -47,7 +51,6 @@ import com.tk.quicksearch.search.core.LocalItemCustomizationRemover
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
-import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
 import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.shared.ui.components.AppVoiceCallIcon
@@ -68,8 +71,8 @@ internal fun ContactResultRow(
         contactInfo: ContactInfo,
         primaryContactButton: ContactButtonAction,
         secondaryContactButton: ContactButtonAction,
-        primaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction? = null,
-        secondaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction? = null,
+        primaryAction: ContactCardAction? = null,
+        secondaryAction: ContactCardAction? = null,
         onContactClick: (ContactInfo) -> Unit,
         onShowContactMethods: (ContactInfo) -> Unit = {},
         onCallContact: (ContactInfo) -> Unit,
@@ -77,7 +80,7 @@ internal fun ContactResultRow(
         onPrimaryActionLongPress: (ContactInfo) -> Unit = {},
         onSecondaryActionLongPress: (ContactInfo) -> Unit = {},
         onCustomAction:
-                (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit =
+                (ContactInfo, ContactCardAction) -> Unit =
                 { _, _ ->
                 },
         onContactMethodClick: (ContactMethod) -> Unit,
@@ -118,6 +121,7 @@ internal fun ContactResultRow(
                                                         isTopPredicted = isPredicted,
                                                 )
                                                 .combinedClickable(
+                                                        role = Role.Button,
                                                         onClick = {
                                                                 if (contactInfo.hasContactMethods) {
                                                                         onShowContactMethods(
@@ -137,7 +141,6 @@ internal fun ContactResultRow(
                                                                                 null
                                                                         },
                                                 )
-                                                .topPredictedRowContentPadding()
                                                 .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingSmall)),
                                 horizontalArrangement =
                                         Arrangement.spacedBy(DesignTokens.SpacingMedium),
@@ -286,7 +289,7 @@ internal fun ContactAvatar(
                                 .then(
                                         if (onClick != null) {
                                                 // Keeps the press ripple inside the circle.
-                                                Modifier.clip(AppShapes.full).clickable(onClick = onClick)
+                                                Modifier.clip(AppShapes.full).clickable(role = Role.Button, onClick = onClick)
                                         } else {
                                                 Modifier
                                         },
@@ -326,13 +329,13 @@ private fun ContactActionButtons(
         hasNumber: Boolean,
         primaryContactButton: ContactButtonAction,
         secondaryContactButton: ContactButtonAction,
-        primaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction?,
-        secondaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction?,
+        primaryAction: ContactCardAction?,
+        secondaryAction: ContactCardAction?,
         onCallClick: () -> Unit,
         onSmsClick: () -> Unit,
         onPrimaryLongPress: () -> Unit,
         onSecondaryLongPress: () -> Unit,
-        onCustomAction: (com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit,
+        onCustomAction: (ContactCardAction) -> Unit,
 ) {
         val view = LocalView.current
         // A resolved Email action means the contact has an email address, even without a number.
@@ -352,11 +355,13 @@ private fun ContactActionButtons(
         ) {
                 Box(
                         modifier =
-                                Modifier.size(ContactUiConstants.ACTION_BUTTON_SIZE.dp)
+                                Modifier.size(DesignTokens.MinTouchTarget)
                                         .clip(AppShapes.full)
                                         .then(
                                                 if (enabled) {
                                                         Modifier.combinedClickable(
+                                                                role = Role.Button,
+                                                                onClickLabel = contentDescription,
                                                                 onClick = {
                                                                         hapticConfirm(view)()
                                                                         onClick()
@@ -369,7 +374,7 @@ private fun ContactActionButtons(
                                                 } else {
                                                         Modifier
                                                 },
-                                        ),
+                                        ).semantics { this.contentDescription = contentDescription },
                         contentAlignment = Alignment.Center,
                 ) { icon() }
         }
@@ -389,7 +394,7 @@ private fun ContactActionButtons(
                                 )
                         }
                 },
-                contentDescription = stringResource(R.string.contacts_action_call),
+                contentDescription = contactActionLabel(primaryAction, primaryContactButton),
                 onClick = {
                         if (primaryAction != null) {
                                 onCustomAction(primaryAction)
@@ -417,7 +422,7 @@ private fun ContactActionButtons(
                                 )
                         }
                 },
-                contentDescription = stringResource(R.string.contacts_action_sms),
+                contentDescription = contactActionLabel(secondaryAction, secondaryContactButton),
                 onClick = {
                         if (secondaryAction != null) {
                                 onCustomAction(secondaryAction)
@@ -431,8 +436,30 @@ private fun ContactActionButtons(
 }
 
 @Composable
+private fun contactActionLabel(action: ContactCardAction?, default: ContactButtonAction): String =
+    when (action) {
+        null -> stringResource(default.labelRes)
+        is ContactCardAction.Phone -> stringResource(ContactButtonAction.CALL.labelRes)
+        is ContactCardAction.Sms -> stringResource(ContactButtonAction.SMS.labelRes)
+        is ContactCardAction.Email -> stringResource(ContactButtonAction.EMAIL.labelRes)
+        is ContactCardAction.WhatsAppCall -> stringResource(ContactButtonAction.WHATSAPP_CALL.labelRes)
+        is ContactCardAction.WhatsAppMessage -> stringResource(ContactButtonAction.WHATSAPP_MESSAGE.labelRes)
+        is ContactCardAction.WhatsAppVideoCall -> stringResource(ContactButtonAction.WHATSAPP_VIDEO_CALL.labelRes)
+        is ContactCardAction.TelegramCall -> stringResource(ContactButtonAction.TELEGRAM_CALL.labelRes)
+        is ContactCardAction.TelegramMessage -> stringResource(ContactButtonAction.TELEGRAM_MESSAGE.labelRes)
+        is ContactCardAction.TelegramVideoCall -> stringResource(ContactButtonAction.TELEGRAM_VIDEO_CALL.labelRes)
+        is ContactCardAction.SignalCall -> stringResource(ContactButtonAction.SIGNAL_CALL.labelRes)
+        is ContactCardAction.SignalMessage -> stringResource(ContactButtonAction.SIGNAL_MESSAGE.labelRes)
+        is ContactCardAction.SignalVideoCall -> stringResource(ContactButtonAction.SIGNAL_VIDEO_CALL.labelRes)
+        is ContactCardAction.GoogleMeet -> stringResource(ContactButtonAction.GOOGLE_MEET.labelRes)
+        is ContactCardAction.VideoCall -> stringResource(R.string.contacts_action_button_video_call)
+        is ContactCardAction.ViewInContactsApp -> stringResource(R.string.contact_method_view_in_contacts_label)
+        is ContactCardAction.CustomApp -> action.displayLabel.ifBlank { stringResource(R.string.contact_method_fallback_label) }
+    }
+
+@Composable
 private fun ContactActionIconForButton(
-        action: com.tk.quicksearch.search.contacts.models.ContactCardAction,
+        action: ContactCardAction,
         enabled: Boolean,
 ) {
         val tint = if (enabled) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant
@@ -442,7 +469,7 @@ private fun ContactActionIconForButton(
 
         when (action) {
                 // Calls -> Phone Icon
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.Phone -> {
+                is ContactCardAction.Phone -> {
                         Icon(
                                 imageVector = MaterialSymbols.Call, // Explicit request for phone icon
                                 contentDescription = null,
@@ -450,14 +477,14 @@ private fun ContactActionIconForButton(
                                 modifier = modifier,
                         )
                 }
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppCall -> {
+                is ContactCardAction.WhatsAppCall -> {
                         AppVoiceCallIcon(
                                 logoPainterRes = R.drawable.whatsapp_call,
                                 size = ContactUiConstants.ACTION_ICON_SIZE.dp,
                                 enabled = enabled,
                         )
                 }
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppVideoCall -> {
+                is ContactCardAction.WhatsAppVideoCall -> {
                         Icon(
                                 painter = painterResource(id = R.drawable.whatsapp_video_call),
                                 contentDescription = null,
@@ -465,14 +492,14 @@ private fun ContactActionIconForButton(
                                 modifier = modifier,
                         )
                 }
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramCall -> {
+                is ContactCardAction.TelegramCall -> {
                         AppVoiceCallIcon(
                                 logoPainterRes = R.drawable.telegram_call,
                                 size = ContactUiConstants.ACTION_ICON_SIZE.dp,
                                 enabled = enabled,
                         )
                 }
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramVideoCall -> {
+                is ContactCardAction.TelegramVideoCall -> {
                         Icon(
                                 painter = painterResource(id = R.drawable.telegram_video_call),
                                 contentDescription = null,
@@ -482,7 +509,7 @@ private fun ContactActionIconForButton(
                 }
 
                 // Messaging / Meet -> App Icon
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.Sms -> {
+                is ContactCardAction.Sms -> {
                         Icon(
                                 imageVector = MaterialSymbols.Sms,
                                 contentDescription = null,
@@ -490,7 +517,7 @@ private fun ContactActionIconForButton(
                                 modifier = smsModifier,
                         )
                 }
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppMessage -> {
+                is ContactCardAction.WhatsAppMessage -> {
                         Icon(
                                 painter = painterResource(id = R.drawable.whatsapp),
                                 contentDescription = null,
@@ -498,7 +525,7 @@ private fun ContactActionIconForButton(
                                 modifier = modifier,
                         )
                 }
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramMessage -> {
+                is ContactCardAction.TelegramMessage -> {
                         Icon(
                                 painter = painterResource(id = R.drawable.telegram),
                                 contentDescription = null,
@@ -506,7 +533,7 @@ private fun ContactActionIconForButton(
                                 modifier = modifier,
                         )
                 }
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalVideoCall -> {
+                is ContactCardAction.SignalVideoCall -> {
                         Icon(
                                 painter = painterResource(id = R.drawable.signal_video_call),
                                 contentDescription = null,
@@ -514,14 +541,14 @@ private fun ContactActionIconForButton(
                                 modifier = modifier,
                         )
                 }
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalCall -> {
+                is ContactCardAction.SignalCall -> {
                         AppVoiceCallIcon(
                                 logoPainterRes = R.drawable.signal_call,
                                 size = ContactUiConstants.ACTION_ICON_SIZE.dp,
                                 enabled = enabled,
                         )
                 }
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalMessage -> {
+                is ContactCardAction.SignalMessage -> {
                         Icon(
                                 painter = painterResource(id = R.drawable.signal),
                                 contentDescription = null,
@@ -529,7 +556,7 @@ private fun ContactActionIconForButton(
                                 modifier = Modifier.size(DesignTokens.SignalMessageIconSize),
                         )
                 }
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.GoogleMeet -> {
+                is ContactCardAction.GoogleMeet -> {
                         Icon(
                                 painter = painterResource(id = R.drawable.google_meet),
                                 contentDescription = null,
@@ -537,7 +564,7 @@ private fun ContactActionIconForButton(
                                 modifier = modifier,
                         )
                 }
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.Email -> {
+                is ContactCardAction.Email -> {
                         Icon(
                                 imageVector = MaterialSymbols.Email,
                                 contentDescription = null,
@@ -545,21 +572,21 @@ private fun ContactActionIconForButton(
                                 modifier = modifier,
                         )
                 }
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.VideoCall -> {
+                is ContactCardAction.VideoCall -> {
                         AppPackageIcon(
                                 packageName = action.packageName,
                                 modifier = modifier,
                                 enabled = enabled,
                         )
                 }
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.CustomApp -> {
+                is ContactCardAction.CustomApp -> {
                         AppPackageIcon(
                                 packageName = action.packageName,
                                 modifier = modifier,
                                 enabled = enabled,
                         )
                 }
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.ViewInContactsApp -> {
+                is ContactCardAction.ViewInContactsApp -> {
                         Icon(
                                 imageVector = MaterialSymbols.Person,
                                 contentDescription = null,

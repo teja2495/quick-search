@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.calendar
 
+import androidx.compose.ui.semantics.Role
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
@@ -38,7 +39,6 @@ import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
-import com.tk.quicksearch.search.searchScreen.components.ExpandButton
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
 import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
@@ -46,14 +46,12 @@ import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonDivider
 import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
-import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
 import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.delay
 import com.tk.quicksearch.shared.util.hapticConfirm
@@ -291,13 +289,13 @@ internal fun CalendarEventRow(
                 .heightIn(min = ROW_MIN_HEIGHT_DP.dp)
                 .topPredictedRowContainer(isTopPredicted = isPredicted)
                 .combinedClickable(
+                    role = Role.Button,
                     onClick = {
                         hapticConfirm(rowView)()
                         onClick(event)
                     },
                     onLongClick = { showMenu = true },
                 )
-                .topPredictedRowContentPadding()
                 .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
@@ -316,7 +314,7 @@ internal fun CalendarEventRow(
         )
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing),
         ) {
             val recurrenceLabel = calendarRecurrenceLabel(recurrenceRule = event.recurrenceRule)
             Text(

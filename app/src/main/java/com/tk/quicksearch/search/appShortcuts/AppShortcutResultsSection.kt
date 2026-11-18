@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.appShortcuts
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import com.tk.quicksearch.shared.ui.theme.AppShapes
@@ -24,7 +25,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -78,7 +78,6 @@ import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
-import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
 import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -338,6 +337,7 @@ internal fun AppShortcutRow(
                                 .heightIn(min = ROW_MIN_HEIGHT.dp)
                                 .topPredictedRowContainer(isTopPredicted = isPredicted)
                                 .combinedClickable(
+                                        role = Role.Button,
                                         onClick = {
                                                 hapticConfirm(view)()
                                                 onShortcutClick(shortcut)
@@ -349,7 +349,6 @@ internal fun AppShortcutRow(
                                                                 null
                                                         },
                                 )
-                                .topPredictedRowContentPadding()
                                 .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                 verticalAlignment = Alignment.CenterVertically,
@@ -676,7 +675,7 @@ private fun AppShortcutDropdownMenu(
                         add(AppShortcutMenuItem(
                                 textResId = if (appLabel != null) R.string.action_uninstall_named else R.string.action_uninstall_app,
                                 textArg = appLabel,
-                                icon = { Icon(imageVector = MaterialSymbols.Delete, contentDescription = null) },
+                                icon = { Icon(imageVector = MaterialSymbols.DeleteOutline, contentDescription = null) },
                                 onClick = {
                                         onDismissRequest()
                                         AppLockGate.runAfterUnlock(context, shortcut.packageName, shortcut.appLabel) {

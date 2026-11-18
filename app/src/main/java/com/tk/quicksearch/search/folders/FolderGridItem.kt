@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.folders
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.AnimatedContent
@@ -179,6 +180,7 @@ internal fun FolderGridItem(
                 Modifier
             } else {
                 Modifier.combinedClickable(
+                        role = Role.Button,
                         interactionSource = interactionSource,
                         indication = ripple(color = homeTextColor()),
                         onClick = {
@@ -306,7 +308,7 @@ private fun FolderOptionsDropdown(
         }
         AppDropdownMenuItem(
                 text = stringResource(R.string.dialog_delete),
-                icon = MaterialSymbols.Delete,
+                icon = MaterialSymbols.DeleteOutline,
                 onClick = {
                     onDismiss()
                     onDelete()

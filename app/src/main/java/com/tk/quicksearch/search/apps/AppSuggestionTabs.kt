@@ -23,7 +23,7 @@ import com.tk.quicksearch.shared.util.hapticToggle
 import androidx.compose.ui.platform.LocalView
 
 private val TabStripOpticalShift = 2.dp
-private val SuggestionTabHeight = 36.dp
+private val SuggestionTabHeight = DesignTokens.MinTouchTarget
 
 /** Every enabled suggestion category stays reachable; long translations scroll without truncation. */
 @OptIn(ExperimentalMaterial3Api::class)

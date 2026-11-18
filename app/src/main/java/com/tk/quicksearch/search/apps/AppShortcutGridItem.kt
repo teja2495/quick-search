@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.apps
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -169,6 +170,7 @@ internal fun AppShortcutGridItem(
                 Modifier
             } else {
                 Modifier.combinedClickable(
+                        role = Role.Button,
                         interactionSource = interactionSource,
                         indication = ripple(color = homeTextColor()),
                         onClick = {

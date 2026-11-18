@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
@@ -126,7 +125,6 @@ internal fun ScreenTimeResultCard(
                             Text(
                                 text = formatScreenTime(state.durationMillis),
                                 style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 maxLines = 1,
                             )
@@ -230,8 +228,7 @@ private fun ScreenTimeAppUsageRow(
         ) {
             Text(
                 text = app.appName,
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

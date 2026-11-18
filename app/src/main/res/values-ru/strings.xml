@@ -263,6 +263,7 @@
 <string name="desc_navigate_back">Назад</string>
 <string name="desc_navigate_forward">Вперед</string>
 <string name="desc_open_settings">Открыть настройки Quick Search</string>
+<string name="desc_open_device_settings">Открыть настройки устройства</string>
 <string name="desc_selected">Выбрано</string>
 <string name="desc_voice_search_icon">Запустить голосовой поиск</string>
 
@@ -883,7 +884,7 @@
 <string name="custom_info_send_notification">Отправить уведомление</string>
 <string name="custom_info_preview">Предпросмотр</string>
 <string name="custom_info_saved">Сохранено</string>
-<string name="custom_info_delete_confirm_title">Удалить %1$s?</string>
+<string name="dialog_delete_item_title">Удалить %1$s?</string>
 <string name="custom_info_delete_confirm_message">Эта информация и её расписание будут удалены безвозвратно.</string>
 <string name="settings_at_a_glance_desc">Полезная информация, которая появляется на главном экране в нужное время</string>
 <string name="settings_at_a_glance_alarms_title">Будильники</string>

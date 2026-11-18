@@ -269,6 +269,7 @@
     <string name="desc_navigate_back">Terug navigeren</string>
     <string name="desc_navigate_forward">Vooruit navigeren</string>
     <string name="desc_open_settings">Instellingen openen</string>
+    <string name="desc_open_device_settings">Apparaatinstellingen openen</string>
     <string name="desc_selected">Geselecteerd</string>
     <string name="desc_voice_search_icon">Spraakgestuurd zoeken starten</string>
 
@@ -894,7 +895,7 @@
     <string name="custom_info_send_notification">Melding sturen</string>
     <string name="custom_info_preview">Voorbeeld</string>
     <string name="custom_info_saved">Opgeslagen</string>
-    <string name="custom_info_delete_confirm_title">%1$s verwijderen?</string>
+    <string name="dialog_delete_item_title">%1$s verwijderen?</string>
     <string name="custom_info_delete_confirm_message">Deze aangepaste info en de planning ervan worden permanent verwijderd.</string>
     <string name="settings_at_a_glance_desc">Nuttige informatie die op het juiste moment op je startscherm verschijnt</string>
     <string name="settings_at_a_glance_alarms_title">Wekkers</string>

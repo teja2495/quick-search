@@ -160,7 +160,7 @@ private fun PaletteSwatch(
         ) {
             // The accent color the palette applies to buttons, toggles and highlights.
             Box(
-                modifier = Modifier.size(18.dp).clip(AppShapes.full).background(accentColor),
+                modifier = Modifier.size(DesignTokens.IconSizeSmall).clip(AppShapes.full).background(accentColor),
                 contentAlignment = Alignment.Center,
             ) {
                 if (isSelected) {
@@ -168,7 +168,7 @@ private fun PaletteSwatch(
                         imageVector = MaterialSymbols.Check,
                         contentDescription = null,
                         tint = onAccentColor,
-                        modifier = Modifier.size(12.dp),
+                        modifier = Modifier.size(DesignTokens.EditBadgeIconSize),
                     )
                 }
             }

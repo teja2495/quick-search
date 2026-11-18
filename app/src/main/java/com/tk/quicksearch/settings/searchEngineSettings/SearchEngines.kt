@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.searchEngineSettings
 
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -69,7 +71,7 @@ fun SearchEngines(
             text = stringResource(R.string.settings_app_shortcuts_filter_search_engines),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding),
+            modifier = modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding).semantics { heading() },
         )
 
         if (hasEnabledEngines) {

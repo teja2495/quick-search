@@ -1,5 +1,6 @@
 package com.tk.quicksearch.tools.aiSearch
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,7 +40,6 @@ import com.tk.quicksearch.search.searchScreen.shared.InformationCard
 import com.tk.quicksearch.search.searchScreen.shared.InformationCardCopyAction
 import com.tk.quicksearch.search.searchScreen.shared.InformationCardFooter
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
-import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 internal val AiResultCardMinHeight = 175.dp
@@ -237,6 +236,7 @@ internal fun AiProviderAttributionRow(
                         .heightIn(min = 48.dp)
                         .clip(AppShapes.small)
                         .combinedClickable(
+                                role = Role.Button,
                                 onClick = onClick,
                                 onLongClick = onLongClick,
                         )

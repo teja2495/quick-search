@@ -1,7 +1,12 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.layout.RowScope
+import com.tk.quicksearch.shared.ui.components.AppButtonSize
+import com.tk.quicksearch.shared.ui.components.AppButtonTone
+import com.tk.quicksearch.shared.ui.components.AppOutlinedButton
+import com.tk.quicksearch.shared.ui.components.AppButton
 import com.tk.quicksearch.shared.ui.components.AppIconButton
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -17,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -97,6 +101,7 @@ internal fun GlanceStatusRow(
     onClick: (() -> Unit)?,
     onLongClick: (() -> Unit)? = null,
     titleStyle: TextStyle = MaterialTheme.typography.bodyLarge,
+    titleColor: Color = MaterialTheme.colorScheme.onSurface,
     titleMaxLines: Int = 1,
     subtitle: String? = null,
     subtitleStyle: TextStyle = MaterialTheme.typography.bodyMedium,
@@ -121,20 +126,20 @@ internal fun GlanceStatusRow(
         Row(
             modifier =
                 Modifier.weight(1f).then(
-                    if (onClick != null) Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick) else Modifier,
+                    if (onClick != null) Modifier.combinedClickable(role = Role.Button, onClick = onClick, onLongClick = onLongClick) else Modifier,
                 ),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(modifier = Modifier.size(24.dp), contentAlignment = Alignment.Center) { icon() }
+            Box(modifier = Modifier.size(DesignTokens.IconSize), contentAlignment = Alignment.Center) { icon() }
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing),
             ) {
                 Text(
                     text = title,
                     style = titleStyle,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = titleColor,
                     maxLines = titleMaxLines,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -209,26 +214,24 @@ internal fun GlanceActionChip(
     icon: ImageVector? = null,
     colors: GlancePillColors? = null,
 ) {
-    Surface(
-        onClick = onClick,
-        shape = AppShapes.full,
-        color = colors?.container ?: Color.Transparent,
-        contentColor = colors?.content ?: MaterialTheme.colorScheme.onSurface,
-        border = if (colors == null) BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant) else null,
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingSmall),
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (icon != null) Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(16.dp))
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
+    val content: @Composable RowScope.() -> Unit = {
+        Text(text = label, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    }
+    if (colors != null) {
+        AppButton(
+            onClick = onClick,
+            tone = AppButtonTone.Custom(colors.container, colors.content),
+            size = AppButtonSize.ExtraSmall,
+            icon = icon,
+            content = content,
+        )
+    } else {
+        AppOutlinedButton(
+            onClick = onClick,
+            tone = AppButtonTone.Custom(MaterialTheme.colorScheme.onSurface),
+            size = AppButtonSize.ExtraSmall,
+            icon = icon,
+            content = content,
+        )
     }
 }

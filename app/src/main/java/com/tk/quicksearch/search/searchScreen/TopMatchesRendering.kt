@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Spacer
@@ -67,7 +68,6 @@ import com.tk.quicksearch.search.other.ScreenTimeResultCard
 import com.tk.quicksearch.search.core.ScreenTimeState
 import com.tk.quicksearch.search.searchScreen.components.predictedSubmitHighlight
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
-import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
 import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.search.searchScreen.shared.LocalCardlessStackSpacing
@@ -593,6 +593,7 @@ private fun TopMatchAppRow(
                     .heightIn(min = APP_ROW_MIN_HEIGHT.dp)
                     .topPredictedRowContainer(isTopPredicted = isPredicted)
                     .combinedClickable(
+                        role = Role.Button,
                         onClick = {
                             if (!showOptions) {
                                 hapticConfirm(view)()
@@ -601,7 +602,6 @@ private fun TopMatchAppRow(
                         },
                         onLongClick = if (app.isArchived) null else ({ showOptions = true }),
                     )
-                    .topPredictedRowContentPadding()
                     .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             verticalAlignment = Alignment.CenterVertically,

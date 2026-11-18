@@ -263,6 +263,7 @@
     <string name="desc_navigate_back">Zurück navigieren</string>
     <string name="desc_navigate_forward">Vorwärts navigieren</string>
     <string name="desc_open_settings">Quick Search-Einstellungen öffnen</string>
+    <string name="desc_open_device_settings">Geräteeinstellungen öffnen</string>
     <string name="desc_selected">Ausgewählt</string>
     <string name="desc_voice_search_icon">Sprachsuche starten</string>
 
@@ -861,7 +862,7 @@
     <string name="custom_info_send_notification">Benachrichtigung senden</string>
     <string name="custom_info_preview">Vorschau</string>
     <string name="custom_info_saved">Gespeichert</string>
-    <string name="custom_info_delete_confirm_title">%1$s löschen?</string>
+    <string name="dialog_delete_item_title">%1$s löschen?</string>
     <string name="custom_info_delete_confirm_message">Diese eigene Info und ihr Zeitplan werden dauerhaft gelöscht.</string>
     <string name="settings_at_a_glance_desc">Nützliche Infos, die zur passenden Zeit auf deinem Startbildschirm erscheinen</string>
     <string name="settings_at_a_glance_alarms_title">Wecker</string>

@@ -263,6 +263,7 @@
     <string name="desc_navigate_back">पीछे जाएं</string>
     <string name="desc_navigate_forward">आगे जाएं</string>
     <string name="desc_open_settings">Quick Search सेटिंग्स खोलें</string>
+    <string name="desc_open_device_settings">डिवाइस सेटिंग खोलें</string>
     <string name="desc_selected">चयनित</string>
     <string name="desc_voice_search_icon">वॉइस खोज शुरू करें</string>
 
@@ -861,7 +862,7 @@
     <string name="custom_info_send_notification">सूचना भेजें</string>
     <string name="custom_info_preview">पूर्वावलोकन</string>
     <string name="custom_info_saved">सहेजा गया</string>
-    <string name="custom_info_delete_confirm_title">%1$s हटाएं?</string>
+    <string name="dialog_delete_item_title">%1$s हटाएं?</string>
     <string name="custom_info_delete_confirm_message">यह कस्टम जानकारी और इसका शेड्यूल स्थायी रूप से हटा दिया जाएगा।</string>
     <string name="settings_at_a_glance_desc">उपयोगी जानकारी जो सही समय पर आपकी होम स्क्रीन पर दिखती है</string>
     <string name="settings_at_a_glance_alarms_title">अलार्म</string>

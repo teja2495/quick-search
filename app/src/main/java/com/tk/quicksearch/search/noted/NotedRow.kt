@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.noted
 
+import androidx.compose.ui.semantics.Role
 import android.text.format.DateFormat
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -36,7 +37,6 @@ import com.tk.quicksearch.search.models.NotedItem
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
-import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
@@ -83,13 +83,13 @@ internal fun NotedRow(
                 .heightIn(min = ROW_MIN_HEIGHT_DP.dp)
                 .topPredictedRowContainer(isTopPredicted = isPredicted)
                 .combinedClickable(
+                    role = Role.Button,
                     onClick = {
                         hapticConfirm(rowView)()
                         onClick(item)
                     },
                     onLongClick = if (hasMenu) ({ showMenu = true }) else null,
                 )
-                .topPredictedRowContentPadding()
                 .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,

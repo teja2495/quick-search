@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.folders
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -47,7 +48,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
@@ -68,12 +68,7 @@ private val PopupBottomPadding = 24.dp
 // Covers the opened space and everything below it, down to the popup's bottom edge.
 private val RemoveZoneHeight = RemoveZoneSpace + GridBottomPadding + PopupBottomPadding
 private const val RemoveZoneFadeMillis = AppMotion.DurationExit
-private const val RemoveZoneGlowAlpha = 0.16f
-private const val RemoveZoneHoveredGlowAlpha = 0.32f
-private const val NameHintAlpha = 0.28f
-private const val UnsetSwatchAlpha = 0.6f
 private val ColorSwatchSize = 24.dp
-private val ColorSwatchTouchSize = 40.dp
 // Muted pastel hues, so the unset swatch hints at color without shouting.
 private val UnsetSwatchHues =
         listOf(0f, 60f, 120f, 180f, 240f, 300f, 0f).map { Color.hsv(it, 0.3f, 0.85f) }
@@ -216,10 +211,9 @@ private fun FolderNameField(
                                 text = stringResource(R.string.folder_name_placeholder),
                                 style =
                                         textStyle.copy(
-                                                fontWeight = FontWeight.Normal,
                                                 color =
                                                         MaterialTheme.colorScheme.onSurface
-                                                                .copy(alpha = NameHintAlpha),
+                                                                .copy(alpha = AppColors.ContentSecondaryAlpha),
                                         ),
                         )
                     }
@@ -238,9 +232,9 @@ private fun FolderColorSwatch(
     val description = stringResource(R.string.folder_color_title)
     Box(
             modifier =
-                    Modifier.size(ColorSwatchTouchSize)
+                    Modifier.size(DesignTokens.MinTouchTarget)
                             .clip(AppShapes.full)
-                            .clickable(onClick = onClick)
+                            .clickable(role = Role.Button, onClick = onClick)
                             .semantics { contentDescription = description },
             contentAlignment = Alignment.Center,
     ) {
@@ -254,7 +248,7 @@ private fun FolderColorSwatch(
                                         } else {
                                             Brush.sweepGradient(UnsetSwatchHues)
                                         },
-                                        alpha = if (color != null) 1f else UnsetSwatchAlpha,
+                                        alpha = if (color != null) 1f else AppColors.ContentSecondaryAlpha,
                                 )
                                 .border(
                                         width = 1.dp,
@@ -283,7 +277,7 @@ private fun FolderRemoveZone(
     val glowAlpha by
             animateFloatAsState(
                     targetValue =
-                            if (state.isHovered) RemoveZoneHoveredGlowAlpha else RemoveZoneGlowAlpha,
+                            if (state.isHovered) AppColors.TintEmphasisAlpha else AppColors.TintTonalAlpha,
                     label = "folderRemoveZoneGlow",
             )
     val errorColor = MaterialTheme.colorScheme.error
@@ -303,7 +297,6 @@ private fun FolderRemoveZone(
         Text(
                 text = stringResource(R.string.folder_remove_from_folder),
                 style = MaterialTheme.typography.labelLarge,
-                fontWeight = if (state.isHovered) FontWeight.SemiBold else FontWeight.Medium,
                 color = errorColor,
         )
     }

@@ -2,7 +2,6 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 
 import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ButtonDefaults
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
@@ -565,9 +564,9 @@ fun AtAGlanceSettingsSection(
     itemToDelete?.let { item ->
         AppAlertDialog(
             onDismissRequest = { itemToDelete = null },
-            icon = { Icon(MaterialSymbols.Delete, contentDescription = null) },
+            icon = { Icon(MaterialSymbols.DeleteOutline, contentDescription = null) },
             iconContentColor = MaterialTheme.colorScheme.error,
-            title = { Text(stringResource(R.string.custom_info_delete_confirm_title, item.title)) },
+            title = { Text(stringResource(R.string.dialog_delete_item_title, item.title)) },
             text = { Text(stringResource(R.string.custom_info_delete_confirm_message)) },
             confirmButton = {
                 AppTextButton(
@@ -663,7 +662,7 @@ private fun CustomInfoActions(
         )
         TonalButton(
             text = stringResource(R.string.dialog_delete),
-            icon = MaterialSymbols.Delete,
+            icon = MaterialSymbols.DeleteOutline,
             onClick = onDelete,
             tone = AppButtonTone.Error,
             small = true,

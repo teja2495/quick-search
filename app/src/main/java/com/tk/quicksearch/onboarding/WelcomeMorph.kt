@@ -1,5 +1,7 @@
 package com.tk.quicksearch.onboarding
 
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animate
@@ -524,6 +526,7 @@ private fun TravellingSearchBar(
                         .measuredAtWidth(centered = true) { state.origin?.width ?: 0f }
                         .graphicsLayer { alpha = (1f - state.travel * 2.5f).coerceIn(0f, 1f) },
             )
+            val hintSlideSign = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1f else 1f
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier =
@@ -534,7 +537,7 @@ private fun TravellingSearchBar(
                         .graphicsLayer {
                             val a = ((state.travel - 0.4f) / 0.6f).coerceIn(0f, 1f)
                             alpha = a * (1f - state.handoff)
-                            translationX = -hintSlidePx * (1f - a)
+                            translationX = -hintSlidePx * (1f - a) * hintSlideSign
                         },
             ) {
                 Icon(

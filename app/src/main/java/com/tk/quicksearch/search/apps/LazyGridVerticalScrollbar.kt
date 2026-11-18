@@ -42,7 +42,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 
-internal val LazyGridScrollbarTouchWidth = DesignTokens.SpacingLarge
+internal val LazyGridScrollbarTouchWidth = DesignTokens.MinTouchTarget
 private val ThumbWidth = DesignTokens.SpacingXSmall
 private val DraggedThumbWidth = 6.dp
 private const val ThumbHideDelayMillis = 1200L
@@ -117,7 +117,6 @@ internal fun LazyGridVerticalScrollbar(
                     modifier
                             .fillMaxHeight()
                             .width(LazyGridScrollbarTouchWidth)
-                            .padding(end = ThumbEndInset)
                             .pointerInput(state) {
                                 detectTapGestures { offset ->
                                     val snapshot = currentMetrics.value ?: return@detectTapGestures
@@ -192,6 +191,7 @@ internal fun LazyGridVerticalScrollbar(
                                     val fraction = dragFraction ?: resolved.scrollFraction
                                     IntOffset(0, (maxOffsetPx * fraction).roundToInt())
                                 }
+                                .padding(end = ThumbEndInset)
                                 .alpha(thumbAlpha)
                                 .width(thumbWidth)
                                 .height(with(density) { thumbHeightPx.toDp() })

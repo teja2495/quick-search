@@ -61,6 +61,7 @@ fun EditCustomSearchEngineDialog(
     onDelete: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    var showDeleteConfirm by remember(customEngine.id) { mutableStateOf(false) }
     val context = LocalContext.current
     var nameInput by remember(customEngine.id) {
         mutableStateOf(
@@ -145,9 +146,9 @@ fun EditCustomSearchEngineDialog(
                 Text(
                     text = stringResource(R.string.settings_edit_search_engine_dialog_title),
                 )
-                AppIconButton(onClick = onDelete, tooltip = stringResource(R.string.dialog_delete)) {
+                AppIconButton(onClick = { showDeleteConfirm = true }, tooltip = stringResource(R.string.dialog_delete)) {
                     Icon(
-                        imageVector = MaterialSymbols.Delete,
+                        imageVector = MaterialSymbols.DeleteOutline,
                         contentDescription = stringResource(R.string.dialog_delete),
                         tint = MaterialTheme.colorScheme.error,
                     )
@@ -263,7 +264,6 @@ fun EditCustomSearchEngineDialog(
                     availableBrowsers = availableBrowsers,
                     selectedPackage = selectedBrowserPackage,
                     onSelect = { selectedBrowserPackage = it },
-                    onExpand = { coroutineScope.launch { scrollState.animateScrollTo(Int.MAX_VALUE) } },
                 )
             }
         },
@@ -285,4 +285,18 @@ fun EditCustomSearchEngineDialog(
             }
         },
     )
+
+    if (showDeleteConfirm) {
+        AppAlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text(stringResource(R.string.dialog_delete_item_title, customEngine.name)) },
+            confirmLabel = stringResource(R.string.dialog_delete),
+            onConfirm = {
+                showDeleteConfirm = false
+                onDelete()
+            },
+            dismissLabel = stringResource(R.string.dialog_cancel),
+            destructive = true,
+        )
+    }
 }

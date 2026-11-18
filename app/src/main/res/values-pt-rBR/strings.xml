@@ -263,6 +263,7 @@
     <string name="desc_navigate_back">Voltar</string>
     <string name="desc_navigate_forward">Avançar</string>
     <string name="desc_open_settings">Abrir configurações do Quick Search</string>
+    <string name="desc_open_device_settings">Abrir configurações do dispositivo</string>
     <string name="desc_selected">Selecionado</string>
     <string name="desc_voice_search_icon">Iniciar pesquisa por voz</string>
 
@@ -861,7 +862,7 @@
     <string name="custom_info_send_notification">Enviar notificação</string>
     <string name="custom_info_preview">Visualizar</string>
     <string name="custom_info_saved">Salvo</string>
-    <string name="custom_info_delete_confirm_title">Excluir %1$s?</string>
+    <string name="dialog_delete_item_title">Excluir %1$s?</string>
     <string name="custom_info_delete_confirm_message">Estas informações personalizadas e seu agendamento serão excluídos permanentemente.</string>
     <string name="settings_at_a_glance_desc">Informações úteis que aparecem na tela inicial nos momentos certos</string>
     <string name="settings_at_a_glance_alarms_title">Alarmes</string>

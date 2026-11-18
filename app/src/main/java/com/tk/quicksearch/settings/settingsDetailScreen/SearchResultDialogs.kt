@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -46,7 +45,6 @@ import com.tk.quicksearch.search.core.ItemPriorityConfig
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
@@ -411,10 +409,8 @@ fun SearchResultsSettingsSection(
             onSetSectionAlias = callbacks.onSetSearchSectionAlias,
             appsSubtitle = stringResource(R.string.settings_manage_apps_desc),
             onAppsClick = onNavigateToAppManagement,
-            onAppsClickNoRipple = true,
             appShortcutsSubtitle = stringResource(R.string.settings_manage_shortcuts_desc),
             onAppShortcutsClick = onNavigateToAppShortcuts,
-            onAppShortcutsClickNoRipple = true,
             contactsSubtitle =
                 if (hasContactPermission) {
                     stringResource(R.string.settings_manage_calls_texts_contacts_desc)
@@ -422,7 +418,6 @@ fun SearchResultsSettingsSection(
                     stringResource(R.string.permission_required_title)
                 },
             onContactsClick = if (hasContactPermission) onNavigateToCallsTexts else null,
-            onContactsClickNoRipple = hasContactPermission,
             filesSubtitle =
                 if (hasFilePermission) {
                     stringResource(R.string.settings_manage_files_desc)
@@ -430,10 +425,8 @@ fun SearchResultsSettingsSection(
                     stringResource(R.string.permission_required_title)
                 },
             onFilesClick = if (hasFilePermission) onNavigateToFiles else null,
-            onFilesClickNoRipple = hasFilePermission,
             deviceSettingsSubtitle = stringResource(R.string.settings_view_all_desc),
             onDeviceSettingsClick = onNavigateToDeviceSettings,
-            onDeviceSettingsClickNoRipple = true,
             appSettingsSubtitle = stringResource(R.string.settings_app_settings_desc),
             calendarSubtitle =
                 if (hasCalendarPermission) {
@@ -447,10 +440,8 @@ fun SearchResultsSettingsSection(
                 } else {
                     null
                 },
-            onCalendarClickNoRipple = hasCalendarPermission,
             notesSubtitle = stringResource(R.string.settings_notes_view_all_desc),
             onNotesClick = onNavigateToNotes,
-            onNotesClickNoRipple = true,
             remindersSubtitle = stringResource(R.string.settings_reminders_view_all_desc),
             onRemindersClick = onNavigateToReminders,
             bookmarksSubtitle = stringResource(R.string.settings_bookmarks_view_all_desc),

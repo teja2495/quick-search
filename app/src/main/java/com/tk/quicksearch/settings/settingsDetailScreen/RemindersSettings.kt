@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.clickable
@@ -207,7 +208,7 @@ fun RemindersSettingsSection(
                 Row(
                     modifier =
                         Modifier.fillMaxWidth()
-                            .clickable(onClick = requestMissingPermission)
+                            .clickable(role = Role.Button, onClick = requestMissingPermission)
                             .padding(
                                 horizontal = DesignTokens.SpacingLarge,
                                 vertical = DesignTokens.SpacingLarge,
@@ -358,8 +359,8 @@ private fun ReminderManagementRow(
     Row(
         modifier =
             Modifier.fillMaxWidth()
-                .alpha(if (isPast) 0.65f else 1f)
-                .clickable(onClick = onClick)
+                .alpha(if (isPast) AppColors.ContentHighAlpha else 1f)
+                .clickable(role = Role.Button, onClick = onClick)
                 .padding(
                     horizontal = DesignTokens.SpacingLarge,
                     vertical = DesignTokens.SpacingLarge,
@@ -389,7 +390,7 @@ private fun ReminderManagementRow(
             isPast ->
                 AppIconButton(onClick = onDelete, tooltip = stringResource(R.string.dialog_delete)) {
                     Icon(
-                        imageVector = MaterialSymbols.Delete,
+                        imageVector = MaterialSymbols.DeleteOutline,
                         contentDescription = stringResource(R.string.dialog_delete),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -415,7 +416,7 @@ private fun NotedTaskManagementRow(
     Row(
         modifier =
             Modifier.fillMaxWidth()
-                .clickable(onClick = onClick)
+                .clickable(role = Role.Button, onClick = onClick)
                 .padding(
                     horizontal = DesignTokens.SpacingLarge,
                     vertical = DesignTokens.SpacingLarge,

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -56,7 +57,7 @@ fun CalendarEventInstancesDrawer(
             )?.let { recurrenceText ->
                 Text(
                     text = recurrenceText,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier =
                         Modifier.padding(
@@ -101,7 +102,7 @@ private fun CalendarEventInstanceDrawerRow(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick)
+                .clickable(role = Role.Button, onClick = onClick)
                 .padding(
                     horizontal = DesignTokens.CardHorizontalPadding,
                     vertical = DesignTokens.CardVerticalPadding,

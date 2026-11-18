@@ -30,7 +30,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
@@ -159,7 +158,7 @@ fun FileInfoDialog(
                         )
                         Text(
                                 text = title,
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                                style = MaterialTheme.typography.headlineSmall,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 maxLines = 3,
                                 overflow = TextOverflow.Ellipsis,
@@ -234,7 +233,7 @@ private fun FileInfoSection(
                 imageVector = icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 2.dp).size(20.dp),
+                modifier = Modifier.padding(top = DesignTokens.SpacingXSmall).size(DesignTokens.IconSizeSmall),
         )
         Column {
             Text(

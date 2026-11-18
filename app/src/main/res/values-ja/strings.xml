@@ -264,6 +264,7 @@
     <string name="desc_navigate_back">戻る</string>
     <string name="desc_navigate_forward">進む</string>
     <string name="desc_open_settings">Quick Searchの設定を開く</string>
+    <string name="desc_open_device_settings">端末の設定を開く</string>
     <string name="desc_selected">選択中</string>
     <string name="desc_voice_search_icon">音声検索を開始</string>
 
@@ -868,7 +869,7 @@
     <string name="custom_info_send_notification">通知を送信</string>
     <string name="custom_info_preview">プレビュー</string>
     <string name="custom_info_saved">保存しました</string>
-    <string name="custom_info_delete_confirm_title">%1$sを削除しますか？</string>
+    <string name="dialog_delete_item_title">%1$sを削除しますか？</string>
     <string name="custom_info_delete_confirm_message">このカスタム情報とそのスケジュールは完全に削除されます。</string>
     <string name="settings_at_a_glance_desc">適切なタイミングでホーム画面に表示される便利な情報</string>
     <string name="settings_at_a_glance_alarms_title">アラーム</string>

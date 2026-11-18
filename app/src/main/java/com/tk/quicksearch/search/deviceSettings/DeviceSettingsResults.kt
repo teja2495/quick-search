@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.deviceSettings
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
 import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
@@ -18,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -44,11 +44,9 @@ import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonDivider
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
-import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
 import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
 
@@ -232,6 +230,7 @@ internal fun SettingResultRow(
                                 .heightIn(min = ROW_MIN_HEIGHT.dp)
                                 .topPredictedRowContainer(isTopPredicted = isPredicted)
                                 .combinedClickable(
+                                        role = Role.Button,
                                         onClick = {
                                                 hapticConfirm(view)()
                                                 onClick(shortcut)
@@ -243,7 +242,6 @@ internal fun SettingResultRow(
                                                                 null
                                                         },
                                 )
-                                .topPredictedRowContentPadding()
                                 .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                 verticalAlignment = Alignment.CenterVertically,

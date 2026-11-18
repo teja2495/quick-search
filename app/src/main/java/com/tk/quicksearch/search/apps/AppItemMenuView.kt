@@ -19,8 +19,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -398,7 +396,7 @@ fun AppItemDropdownMenu(
         if (showUninstall) {
             add(ItemMenuRow(
                 label = stringResource(R.string.action_uninstall_app),
-                icon = { Icon(imageVector = MaterialSymbols.Delete, contentDescription = null) },
+                icon = { Icon(imageVector = MaterialSymbols.DeleteOutline, contentDescription = null) },
                 onClick = { onDismiss(); onUninstallClick() },
                 destructive = true,
             ))

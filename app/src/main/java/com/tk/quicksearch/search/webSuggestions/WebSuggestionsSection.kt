@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.webSuggestions
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import androidx.compose.foundation.BorderStroke
@@ -158,7 +159,7 @@ private fun WebSuggestionItem(
         modifier =
             modifier
                 .clip(shape)
-                .clickable(onClick = onClick)
+                .clickable(role = Role.Button, onClick = onClick)
                 .padding(
                     start = SUGGESTION_ICON_START_PADDING.dp,
                     end = SUGGESTION_TEXT_END_PADDING.dp,

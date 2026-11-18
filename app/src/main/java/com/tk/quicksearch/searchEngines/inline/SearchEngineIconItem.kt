@@ -1,11 +1,11 @@
 package com.tk.quicksearch.searchEngines.inline
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -103,6 +103,7 @@ fun SearchEngineIconItem(
                     },
                 )
                 .combinedClickable(
+                    role = Role.Button,
                     onClick = {
                         hapticConfirm(view)()
                         onSearchEngineClick(query(), engine)

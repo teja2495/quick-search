@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.appSettings
 
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.clickable
 import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
 import com.tk.quicksearch.shared.ui.components.AppSwitch
@@ -13,7 +15,6 @@ import com.tk.quicksearch.settings.appearanceSettings.homeTextColorTitleRes
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,8 +26,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ripple
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwitchDefaults
@@ -48,7 +47,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
-import com.tk.quicksearch.search.contacts.components.ContactUiConstants
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
@@ -56,7 +54,6 @@ import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonDivider
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
-import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
 import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -248,27 +245,26 @@ internal fun AppSettingResultRow(
             setting.description
         }
 
+    val rowActionModifier =
+        when {
+            setting.isNavigateAction || setting.isNavigationToggle ->
+                Modifier.clickable(enabled = !isBlockedByLauncher, role = Role.Button) {
+                    hapticConfirm(view)()
+                    onClick(setting)
+                }
+            !isAppsPerRowSetting && !isAppResultRowsSetting && !setting.hasInlineControl ->
+                Modifier.toggleable(value = checked, enabled = !isBlockedByLauncher, role = Role.Switch) { enabled ->
+                    hapticToggle(view)()
+                    onToggle(setting, enabled)
+                }
+            else -> Modifier
+        }
     val rowModifier =
         Modifier.fillMaxWidth()
             .heightIn(min = ROW_MIN_HEIGHT.dp)
             .topPredictedRowContainer(isTopPredicted = isPredicted)
-            .topPredictedRowContentPadding()
             .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingLarge))
-            .combinedClickable(
-                interactionSource = null,
-                indication = ripple(),
-                enabled = !isBlockedByLauncher,
-                onClick = {
-                    if (setting.isNavigateAction || setting.isNavigationToggle) {
-                        hapticConfirm(view)()
-                        onClick(setting)
-                    } else if (!isAppsPerRowSetting && !isAppResultRowsSetting && !setting.hasInlineControl) {
-                        hapticToggle(view)()
-                        onToggle(setting, !checked)
-                    }
-                },
-                role = if (setting.isToggleAction && !setting.isNavigationToggle && !isAppsPerRowSetting && !isAppResultRowsSetting && !setting.hasInlineControl) Role.Switch else null,
-            )
+            .then(rowActionModifier)
 
     Row(
         modifier = rowModifier,
@@ -290,7 +286,7 @@ internal fun AppSettingResultRow(
 
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing),
         ) {
             Text(
                 text =

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -389,7 +390,7 @@ private fun SearchOptionsNavigationRow(item: SettingsCardItem) {
         title = item.title,
         description = item.description,
         leading = { SettingsIconBadge(item) },
-        modifier = Modifier.clickable(onClick = item.actionOnPress),
+        modifier = Modifier.clickable(role = Role.Button, onClick = item.actionOnPress),
     )
 }
 
@@ -505,7 +506,7 @@ internal fun PinnedNotificationItemsDialog(
                                             action.displayLabel(),
                                         )) {
                                     Icon(
-                                        imageVector = MaterialSymbols.Delete,
+                                        imageVector = MaterialSymbols.DeleteOutline,
                                         contentDescription = stringResource(
                                             R.string.notification_pinned_items_remove,
                                             action.displayLabel(),
@@ -545,6 +546,6 @@ private fun AppSuggestionTabsPickerRow(
         title = stringResource(R.string.app_suggestions_enabled_tabs_picker_hint),
         description = stringResource(R.string.settings_app_language_desc, enabledTabsSummary),
         leading = { TonalIconBadge(icon = MaterialSymbols.Reorder) },
-        modifier = Modifier.clickable(onClick = onClick),
+        modifier = Modifier.clickable(role = Role.Button, onClick = onClick),
     )
 }

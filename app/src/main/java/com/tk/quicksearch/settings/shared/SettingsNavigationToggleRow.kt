@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.shared
 
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -55,7 +56,6 @@ fun SettingsNavigationToggleRow(
     isBeta: Boolean = false,
     tagLabel: String? = null,
     onRowClick: (() -> Unit)? = null,
-    noRippleOnRowClick: Boolean = false,
     subtitleContent: (@Composable () -> Unit)? = null,
 ) {
     val view = LocalView.current
@@ -68,12 +68,13 @@ fun SettingsNavigationToggleRow(
         modifier =
             modifier
                 .fillMaxWidth()
-                .alpha(if (enabled) 1f else 0.55f)
+                .alpha(if (enabled) 1f else AppColors.DisabledContentAlpha)
                 .let { rowModifier ->
                     if (onRowClick != null && enabled) {
                         rowModifier.clickable(
+                            role = Role.Button,
                             interactionSource = rowInteractionSource,
-                            indication = if (noRippleOnRowClick) null else rowIndication,
+                            indication = rowIndication,
                             onClick = onRowClick,
                         )
                     } else {
@@ -141,7 +142,7 @@ fun SettingsNavigationToggleRow(
 
         if (onRowClick != null) {
             Row(
-                modifier = Modifier.offset(x = 8.dp),
+                modifier = Modifier.offset(x = DesignTokens.SpacingSmall),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(

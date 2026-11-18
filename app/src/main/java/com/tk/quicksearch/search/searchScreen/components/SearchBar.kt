@@ -1,5 +1,8 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import com.tk.quicksearch.R
+import androidx.compose.ui.res.stringResource
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.insetCardBackdrop
@@ -15,11 +18,9 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
@@ -31,7 +32,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.Dp
-import androidx.compose.material3.ripple
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -663,12 +663,9 @@ internal fun PersistentSearchBar(
                         },
                         label = "search_bar_leading_icon",
                     ) { currentIconState ->
-                        Box(
-                            modifier = Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = ripple(bounded = false),
-                                onClick = { showSectionMenu = true },
-                            ),
+                        AppIconButton(
+                            onClick = { showSectionMenu = true },
+                            tooltip = stringResource(R.string.search_section_menu_title),
                         ) {
                             SearchBarLeadingIcon(
                                 iconState = currentIconState,

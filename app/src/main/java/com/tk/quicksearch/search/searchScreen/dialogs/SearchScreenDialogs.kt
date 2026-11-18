@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.dialogs
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.Intent
 import android.net.Uri
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import com.tk.quicksearch.shared.ui.components.AppBottomPopup
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -238,6 +238,7 @@ private fun ReleaseNotesExpanderRow(
             .fillMaxWidth()
             .clip(AppShapes.small)
             .clickable(
+                role = Role.Button,
                 interactionSource = remember { MutableInteractionSource() },
                 indication = ripple(),
                 onClick = onClick,
@@ -271,6 +272,7 @@ private fun ReleaseNotesNavigationRow(
             .fillMaxWidth()
             .clip(AppShapes.small)
             .clickable(
+                role = Role.Button,
                 interactionSource = remember { MutableInteractionSource() },
                 indication = ripple(),
                 onClick = onClick,

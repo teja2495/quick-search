@@ -262,6 +262,7 @@
 <string name="desc_navigate_back">Geri git</string>
 <string name="desc_navigate_forward">İleri git</string>
 <string name="desc_open_settings">Quick Search ayarlarını aç</string>
+<string name="desc_open_device_settings">Cihaz ayarlarını aç</string>
 <string name="desc_selected">Seçildi</string>
 <string name="desc_voice_search_icon">Sesli aramayı başlat</string>
 
@@ -860,7 +861,7 @@
 <string name="custom_info_send_notification">Bildirim gönder</string>
 <string name="custom_info_preview">Önizle</string>
 <string name="custom_info_saved">Kaydedildi</string>
-<string name="custom_info_delete_confirm_title">%1$s silinsin mi?</string>
+<string name="dialog_delete_item_title">%1$s silinsin mi?</string>
 <string name="custom_info_delete_confirm_message">Bu özel bilgi ve zamanlaması kalıcı olarak silinecek.</string>
 <string name="settings_at_a_glance_desc">Ana ekranınızda doğru zamanda görünen faydalı bilgiler</string>
 <string name="settings_at_a_glance_alarms_title">Alarmlar</string>

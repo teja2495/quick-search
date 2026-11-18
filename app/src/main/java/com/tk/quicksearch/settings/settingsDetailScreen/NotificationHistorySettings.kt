@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import androidx.compose.material3.IconButtonDefaults
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.AppShapes
@@ -27,7 +29,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.ui.draw.rotate
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -40,7 +41,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
@@ -287,6 +287,7 @@ private fun NotificationHistoryRow(
             modifier =
                 Modifier.fillMaxWidth()
                     .combinedClickable(
+                        role = Role.Button,
                         onClick = onClick,
                         onLongClick = {
                             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -304,7 +305,7 @@ private fun NotificationHistoryRow(
 
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -358,7 +359,7 @@ private fun NotificationHistoryRow(
                 if (entry.text.isNotBlank()) {
                     Text(
                         text = entry.text,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = if (expanded) Int.MAX_VALUE else COLLAPSED_TEXT_MAX_LINES,
                         modifier = Modifier.animateContentSize(),
@@ -448,7 +449,7 @@ private fun SwipeToDeleteContainer(
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
-                            imageVector = MaterialSymbols.Delete,
+                            imageVector = MaterialSymbols.DeleteOutline,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onError,
                         )
@@ -549,21 +550,17 @@ private fun NotificationHistoryAppFilterDialog(
                     modifier = Modifier.weight(1f),
                 )
                 if (hasEntries) {
-                    Surface(
+                    AppIconButton(
                         onClick = { showClearAllConfirmation = true },
-                        shape = AppShapes.full,
-                        color = MaterialTheme.colorScheme.error.copy(alpha = AppColors.TintLightAlpha),
-                        contentColor = MaterialTheme.colorScheme.error,
+                        tooltip = stringResource(R.string.settings_action_clear_all),
+                        colors =
+                            IconButtonDefaults.iconButtonColors(
+                                contentColor = MaterialTheme.colorScheme.error,
+                            ),
                     ) {
                         Icon(
-                            imageVector = MaterialSymbols.Delete,
+                            imageVector = MaterialSymbols.DeleteOutline,
                             contentDescription = stringResource(R.string.settings_action_clear_all),
-                            modifier =
-                                Modifier
-                                    .padding(
-                                        horizontal = DesignTokens.SpacingMedium,
-                                        vertical = DesignTokens.SpacingXSmall,
-                                    ).size(20.dp),
                         )
                     }
                 }
@@ -611,7 +608,7 @@ private fun NotificationHistoryAppFilterItem(
     onClick: () -> Unit,
 ) {
     val iconResult = rememberAppIcon(packageName = packageName)
-    val contentAlpha = if (checked) 1f else 0.4f
+    val contentAlpha = if (checked) 1f else AppColors.ContentFaintAlpha
     Column(
         modifier =
             Modifier.fillMaxWidth()

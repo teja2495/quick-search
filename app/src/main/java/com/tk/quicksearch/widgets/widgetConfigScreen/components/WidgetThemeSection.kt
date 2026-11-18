@@ -1,5 +1,11 @@
 package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.selection.selectable
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -8,7 +14,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -39,9 +44,7 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.widgets.utils.BorderColorOption
-import com.tk.quicksearch.widgets.utils.WidgetConfigConstants
 import com.tk.quicksearch.widgets.utils.WidgetPreferences
-import com.tk.quicksearch.widgets.utils.WidgetTheme
 
 @Composable
 fun WidgetThemeSection(
@@ -143,7 +146,7 @@ fun WidgetThemeSection(
                 },
             )
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().selectableGroup(),
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
                 themeOptions.forEach { option ->
@@ -195,10 +198,10 @@ fun WidgetThemeSection(
                     label = stringResource(R.string.common_custom),
                     icon = {
                         Icon(
-                            imageVector = MaterialSymbols.Palette,
+                            imageVector = MaterialSymbols.PaletteOutlined,
                             contentDescription = null,
                             tint = AppColors.Accent,
-                            modifier = Modifier.size(18.dp),
+                            modifier = Modifier.size(DesignTokens.IconSizeSmall),
                         )
                     },
                 )
@@ -277,7 +280,7 @@ private fun ThemeColorOptionChip(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         Box(
             modifier =
@@ -296,14 +299,15 @@ private fun ThemeColorOptionChip(
                         width = if (selected) 2.dp else 1.dp,
                         color = if (selected) AppColors.Accent else MaterialTheme.colorScheme.outlineVariant,
                         shape = AppShapes.large,
-                    ).clickable(onClick = onClick),
+                    ).selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
+                    .semantics { contentDescription = label },
             contentAlignment = Alignment.Center,
         ) {
             if (selected) {
                 Box(
                     modifier =
                         Modifier
-                            .size(24.dp)
+                            .size(DesignTokens.IconSize)
                             .clip(AppShapes.full)
                             .background(AppColors.Accent),
                     contentAlignment = Alignment.Center,
@@ -323,6 +327,7 @@ private fun ThemeColorOptionChip(
             text = label,
             style = MaterialTheme.typography.labelSmall,
             color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.clearAndSetSemantics {},
         )
     }
 }

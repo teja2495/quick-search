@@ -1,5 +1,6 @@
 package com.tk.quicksearch.customInfo
 
+import com.tk.quicksearch.shared.ui.components.AppButtonSize
 import android.Manifest
 import android.content.Context
 import android.os.Build
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -366,7 +366,8 @@ private fun CustomInfoEditor(
                 AppButton(
                     onClick = { onSave(draft) },
                     enabled = canSave,
-                    modifier = Modifier.fillMaxWidth().padding(DesignTokens.ContentHorizontalPadding).height(56.dp),
+                    size = AppButtonSize.Medium,
+                    modifier = Modifier.fillMaxWidth().padding(DesignTokens.ContentHorizontalPadding),
                 ) {
                     Text(stringResource(R.string.dialog_save))
                 }

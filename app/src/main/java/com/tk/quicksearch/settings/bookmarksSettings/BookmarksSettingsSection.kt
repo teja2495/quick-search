@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.bookmarksSettings
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppShapes
@@ -191,7 +192,7 @@ fun BookmarksSettingsSection(
                                         val deleted =
                                             withContext(Dispatchers.IO) { repository.deleteForUndo(bookmark.bookmarkId) }
                                                 ?: return@launch
-                                        undoSnackbar.show(deletedMessage, MaterialSymbols.Delete) {
+                                        undoSnackbar.show(deletedMessage, MaterialSymbols.DeleteOutline) {
                                             scope.launch(Dispatchers.IO) { repository.restore(deleted) }
                                         }
                                     }
@@ -273,7 +274,7 @@ private fun BookmarkImportRow(
     SegmentedTileRow(
         title = stringResource(R.string.bookmarks_import_title),
         description = stringResource(R.string.bookmarks_import_desc),
-        modifier = Modifier.clickable(enabled = !isImporting, onClick = onClick),
+        modifier = Modifier.clickable(role = Role.Button, enabled = !isImporting, onClick = onClick),
         leading = {
             if (isImporting) {
                 Box(modifier = Modifier.size(DesignTokens.Spacing40), contentAlignment = Alignment.Center) {
@@ -299,7 +300,7 @@ private fun BookmarkManagementRow(
     Row(
         modifier =
             Modifier.fillMaxWidth()
-                .clickable(onClick = onClick)
+                .clickable(role = Role.Button, onClick = onClick)
                 .padding(horizontal = DesignTokens.SpacingLarge, vertical = DesignTokens.SpacingLarge),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),

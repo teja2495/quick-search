@@ -92,7 +92,7 @@ fun EditAmazonDomainDialog(
                 Text(
                     text = stringResource(R.string.dialog_edit_amazon_domain_message),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 AppOutlinedTextField(
                     value = editingDomain,

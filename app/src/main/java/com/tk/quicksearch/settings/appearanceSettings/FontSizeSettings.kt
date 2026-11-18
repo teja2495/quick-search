@@ -1,12 +1,12 @@
 package com.tk.quicksearch.settings.appearanceSettings
 
+import com.tk.quicksearch.shared.ui.components.SliderWithValue
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -120,16 +120,24 @@ private fun FontSizeSlider(
             )
         }
 
-        Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = DesignTokens.SpacingXSmall),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-        ) {
-            Text(
-                    text = "A",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-            )
+        SliderWithValue(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = DesignTokens.SpacingXSmall),
+            valueSpacing = DesignTokens.SpacingMedium,
+            valueLabel = {
+                Text(
+                        text = "A",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                )
+            },
+            leadingLabel = {
+                Text(
+                        text = "A",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                )
+            },
+        ) { sliderModifier ->
             Slider(
                     value = sliderValue,
                     onValueChange = { value ->
@@ -148,12 +156,7 @@ private fun FontSizeSlider(
                     },
                     valueRange = 0f..FONT_SIZE_STEPS.lastIndex.toFloat(),
                     steps = FONT_SIZE_STEPS.size - 2,
-                    modifier = Modifier.weight(1f),
-            )
-            Text(
-                    text = "A",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = sliderModifier,
             )
         }
     }

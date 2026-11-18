@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
@@ -42,7 +43,6 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
-import com.tk.quicksearch.settings.shared.SettingsIconBadge
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
@@ -272,7 +272,7 @@ private fun AddCustomProviderTile(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 },
-                modifier = Modifier.clickable { isExpanded = !isExpanded },
+                modifier = Modifier.clickable(role = Role.Button) { isExpanded = !isExpanded },
             )
             AnimatedVisibility(
                 visible = isExpanded,

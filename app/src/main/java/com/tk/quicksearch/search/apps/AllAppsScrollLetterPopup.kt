@@ -29,7 +29,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -39,7 +38,6 @@ import java.util.Locale
 import kotlin.math.roundToInt
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 
-internal val AllAppsDialogSeekEdgeNudge = DesignTokens.SpacingMedium
 private val LetterPopupSize = 80.dp
 private val LetterPopupPointerWidth = 14.dp
 private val LetterPopupPointerHeight = 22.dp
@@ -110,7 +108,6 @@ internal fun AllAppsScrollLetterPopup(
                             text = resolvedLetter.toString(),
                             color = letterColor,
                             style = MaterialTheme.typography.displaySmall,
-                            fontWeight = FontWeight.Bold,
                     )
                 }
                 ScrollbarPointer(

@@ -263,6 +263,7 @@
     <string name="desc_navigate_back">Πλοήγηση πίσω</string>
     <string name="desc_navigate_forward">Πλοήγηση εμπρός</string>
     <string name="desc_open_settings">Άνοιγμα ρυθμίσεων Quick Search</string>
+    <string name="desc_open_device_settings">Άνοιγμα ρυθμίσεων συσκευής</string>
     <string name="desc_selected">Επιλέχθηκε</string>
     <string name="desc_voice_search_icon">Έναρξη φωνητικής αναζήτησης</string>
 
@@ -861,7 +862,7 @@
     <string name="custom_info_send_notification">Αποστολή ειδοποίησης</string>
     <string name="custom_info_preview">Προεπισκόπηση</string>
     <string name="custom_info_saved">Αποθηκεύτηκε</string>
-    <string name="custom_info_delete_confirm_title">Διαγραφή %1$s;</string>
+    <string name="dialog_delete_item_title">Διαγραφή %1$s;</string>
     <string name="custom_info_delete_confirm_message">Αυτές οι προσαρμοσμένες πληροφορίες και το πρόγραμμά τους θα διαγραφούν μόνιμα.</string>
     <string name="settings_at_a_glance_desc">Χρήσιμες πληροφορίες που εμφανίζονται στην αρχική σας οθόνη τη σωστή στιγμή</string>
     <string name="settings_at_a_glance_alarms_title">Ξυπνητήρια</string>

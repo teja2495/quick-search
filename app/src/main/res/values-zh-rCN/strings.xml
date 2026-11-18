@@ -263,6 +263,7 @@
     <string name="desc_navigate_back">返回上一页</string>
     <string name="desc_navigate_forward">前进至下一页</string>
     <string name="desc_open_settings">打开 Quick Search 设置</string>
+    <string name="desc_open_device_settings">打开设备设置</string>
     <string name="desc_selected">已选中</string>
     <string name="desc_voice_search_icon">启动语音搜索</string>
 
@@ -850,7 +851,7 @@
     <string name="custom_info_send_notification">发送通知</string>
     <string name="custom_info_preview">预览</string>
     <string name="custom_info_saved">已保存</string>
-    <string name="custom_info_delete_confirm_title">删除 %1$s 吗？</string>
+    <string name="dialog_delete_item_title">删除 %1$s 吗？</string>
     <string name="custom_info_delete_confirm_message">此自定义信息及其计划将被永久删除。</string>
     <string name="settings_at_a_glance_desc">在合适的时间出现在主屏幕上的实用信息</string>
     <string name="settings_at_a_glance_alarms_title">闹钟</string>

@@ -1,8 +1,10 @@
 package com.tk.quicksearch.settings.shared
 
+import com.tk.quicksearch.shared.ui.components.AppIconButton
+import androidx.compose.material3.minimumInteractiveComponentSize
+import androidx.compose.foundation.layout.Box
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.AppShapes
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
@@ -17,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -31,7 +32,7 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 /**
  * A compact alias chip that sits under a row's title without competing with it (24dp, labelMedium,
  * 8dp corners, no border, a soft accent tonal fill so it reads as tappable). With [onClearClick] it
- * shows a set alias: the code and a remove button. Without it, an action such as "Setup Alias". The
+ * shows a set alias alongside a separate remove button. Without it, an action such as "Setup Alias". The
  * accent follows custom and wallpaper accents.
  */
 @Composable
@@ -42,7 +43,6 @@ fun AliasPill(
     leadingIcon: ImageVector? = null,
     onClearClick: (() -> Unit)? = null,
 ) {
-    val isSet = onClearClick != null
     val containerColor = AppColors.AccentTintLight
     val labelColor = MaterialTheme.colorScheme.onSurface
     val content: @Composable () -> Unit = {
@@ -50,10 +50,7 @@ fun AliasPill(
             modifier =
                 Modifier
                     .height(AliasChipHeight)
-                    .padding(
-                        start = AliasChipStartPadding,
-                        end = if (isSet) 4.dp else 8.dp,
-                    ),
+                    .padding(horizontal = DesignTokens.SpacingSmall),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
         ) {
@@ -72,44 +69,33 @@ fun AliasPill(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            if (onClearClick != null) {
-                Icon(
-                    imageVector = MaterialSymbols.Close,
-                    contentDescription = stringResource(R.string.action_remove),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier =
-                        Modifier
-                            .clip(AppShapes.full)
-                            .clickable(onClick = onClearClick)
-                            .padding(2.dp)
-                            .size(AliasChipIconSize),
-                )
-            }
+
         }
     }
 
-    // A clickable Surface pads itself to a 48dp touch height, which would add 12dp above and below
-    // the 24dp chip and inflate every row that shows one. The row around it is the larger target.
-    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         if (onClick != null) {
-            Surface(
-                onClick = onClick,
-                modifier = modifier,
-                shape = AppShapes.small,
-                color = containerColor,
-                content = content,
-            )
+            // Reserve the touch target around the compact alias surface.
+            Box(modifier = Modifier.minimumInteractiveComponentSize(), contentAlignment = Alignment.Center) {
+                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+                    Surface(onClick = onClick, shape = AppShapes.small, color = containerColor, content = content)
+                }
+            }
         } else {
-            Surface(
-                modifier = modifier,
-                shape = AppShapes.small,
-                color = containerColor,
-                content = content,
-            )
+            Surface(shape = AppShapes.small, color = containerColor, content = content)
+        }
+        if (onClearClick != null) {
+            val removeLabel = stringResource(R.string.action_remove)
+            AppIconButton(onClick = onClearClick, tooltip = removeLabel) {
+                Icon(
+                    imageVector = MaterialSymbols.Close,
+                    contentDescription = removeLabel,
+                    modifier = Modifier.size(AliasChipIconSize),
+                )
+            }
         }
     }
 }
 
 private val AliasChipHeight = 24.dp
-private val AliasChipStartPadding = 6.dp
 private val AliasChipIconSize = DesignTokens.ButtonIconSizeExtraSmall

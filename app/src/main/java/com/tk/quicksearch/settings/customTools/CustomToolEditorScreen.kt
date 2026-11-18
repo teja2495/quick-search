@@ -1,18 +1,17 @@
 package com.tk.quicksearch.settings.customTools
 
+import com.tk.quicksearch.shared.ui.components.AppButtonSize
 import com.tk.quicksearch.settings.shared.settingsScrollClip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -43,7 +42,6 @@ import com.tk.quicksearch.settings.shared.rememberTavilyKeyState
 import com.tk.quicksearch.settings.settingsDetailScreen.AdvancedPayloadSettingsSection
 import com.tk.quicksearch.shared.ui.components.CardTextField
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.LlmTextModel
@@ -317,9 +315,9 @@ fun CustomToolEditorScreen(
                     }
                 },
                 enabled = canSave,
+                size = AppButtonSize.Medium,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
+                    .fillMaxWidth(),
             ) {
                 Text(text = stringResource(R.string.dialog_save))
             }

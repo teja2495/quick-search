@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.notes
 
+import com.tk.quicksearch.settings.NoteDeleteConfirmationDialog
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
 import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
@@ -45,11 +47,9 @@ import com.tk.quicksearch.search.searchScreen.components.ExpandButton
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonDivider
 import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
-import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
 import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.search.searchScreen.components.LocalSearchResultQuery
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
-import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
@@ -57,7 +57,6 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
 import com.tk.quicksearch.shared.util.hapticConfirm
-import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 @Composable
 fun NotesResultsSection(
@@ -223,13 +222,13 @@ internal fun NoteRow(
                 Modifier.fillMaxWidth()
                     .topPredictedRowContainer(isTopPredicted = isPredicted)
                     .combinedClickable(
+                        role = Role.Button,
                         onClick = {
                             hapticConfirm(rowView)()
                             onClick(note)
                         },
                         onLongClick = { showMenu = true },
                     )
-                    .topPredictedRowContentPadding()
                     .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             verticalAlignment = Alignment.Top,
@@ -350,7 +349,7 @@ internal fun NoteRow(
                 AppDropdownMenuDivider()
                 AppDropdownMenuItem(
                     text = stringResource(R.string.dialog_delete),
-                    icon = MaterialSymbols.Delete,
+                    icon = MaterialSymbols.DeleteOutline,
                     onClick = {
                         showMenu = false
                         showDeleteConfirm = true
@@ -361,29 +360,12 @@ internal fun NoteRow(
         }
 
         if (showDeleteConfirm) {
-            AppAlertDialog(
-                onDismissRequest = { showDeleteConfirm = false },
-                title = {
-                    Text(text = stringResource(R.string.notes_delete_confirm_title))
+            NoteDeleteConfirmationDialog(
+                onConfirm = {
+                    showDeleteConfirm = false
+                    onDelete(note)
                 },
-                text = {
-                    Text(text = stringResource(R.string.notes_delete_confirm_message))
-                },
-                confirmButton = {
-                    AppTextButton(
-                        onClick = {
-                            showDeleteConfirm = false
-                            onDelete(note)
-                        },
-                    ) {
-                        Text(text = stringResource(R.string.dialog_delete))
-                    }
-                },
-                dismissButton = {
-                    AppTextButton(onClick = { showDeleteConfirm = false }) {
-                        Text(text = stringResource(R.string.dialog_cancel))
-                    }
-                },
+                onDismiss = { showDeleteConfirm = false },
             )
         }
     }

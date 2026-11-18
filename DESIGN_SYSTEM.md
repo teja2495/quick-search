@@ -35,8 +35,8 @@ feature, screen, or component starts from the Material 3 guideline for that patt
 
 ## Rules
 
-- **Spacing and sizes:** `DesignTokens`, on the 4dp grid. Add a token when a value is reused
-  across files.
+- **Spacing and sizes:** `DesignTokens`, on the 4dp grid. Use `MinTouchTarget` for a 48dp
+  interactive area and `TextColumnSpacing` between primary and supporting text.
 - **Colors:** `AppColors` when a token exists, otherwise `MaterialTheme.colorScheme`. Fade colors
   with the alpha scale (`Content*Alpha`, `Tint*Alpha`, `DisabledContentAlpha`), not literals, and
   tint with the accent tint scale, not `Accent.copy(alpha = …)`.
@@ -59,8 +59,8 @@ feature, screen, or component starts from the Material 3 guideline for that patt
   snackbar on the visible screen. Keep `Toast` only where no app UI is on screen (widgets, Quick
   Settings tiles, trampoline activities, the accessibility service).
 - **Touch targets:** keep Material's 48dp minimum. Don't provide
-  `LocalMinimumInteractiveComponentSize provides Dp.Unspecified` unless a larger parent row is the
-  touch target (`SettingsNestedCheckbox`, `AliasPill`), and say so in a comment.
+  `LocalMinimumInteractiveComponentSize provides Dp.Unspecified` unless the layout already
+  reserves the touch area (`SettingsNestedCheckbox`, `AliasPill`), and say so in a comment.
 - **Type weight:** take weight from the type scale. Override `fontWeight` only to emphasize text
   one step above its style (a featured value, a bold name in a sentence), never to restate the
   style's own weight. Don't override `letterSpacing` or `lineHeight`.
@@ -189,6 +189,9 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
   footer, contact number copy) have no tap action to give feedback for. In the overlay, tapping the
   scrim dismisses it (the exit animation is the feedback), and the card swallows taps on its empty
   space so they don't reach the scrim.
+- **Contact row actions.** A tap opens the current contact action and a long press opens its
+  action chooser. The two icon buttons use `combinedClickable` with a 48dp target and label
+  because `AppIconButton` uses long press for its tooltip.
 - **PDF paper.** `FilePreviewDialog` draws PDF pages on `Color.White` in every theme. Pages render
   with a transparent background, and the white is the page itself, not an app surface.
 - **Icon shadows.** App icons and search engine icons over a light wallpaper, and the All Apps
@@ -307,7 +310,7 @@ settings and add a property in sorted order.
 | `ConnectedChoiceGroup`, `ChoiceOption`, `ChoiceTile` (`ConnectedChoiceGroup.kt`) | Connected button group (single select) | Single choices in settings and app-setting results. The selected option fills with `Accent` and morphs fully round. Labels share the row and shrink down to 11sp before wrapping; they never ellipsize. `ChoiceTile` is a segmented tile with a `titleMedium` heading over a full-width group |
 | `SegmentedGroup`, `SegmentedTile`, `SegmentedTileRow`, `SegmentedToggleTile`, `SegmentedTileContent`, `AppSwitch`, `TonalIconBadge`, `TonalIconBadgeContainer` (`SegmentedList.kt`) | Segmented list | The default layout for settings pages, dialogs that list items, widget config screens, onboarding, and drawers. Each row is its own tile, with 28dp outer corners, 4dp inner corners, and 2dp gaps; inner corners round to 16dp while pressed. Rows lead with a 40dp `TonalIconBadge`. Inside a tile, `LocalSegmentedItemModifier` and `LocalInSegmentedTile` adjust nested rows |
 | `ExpandableSegmentedGroup` | Expandable list | A `SegmentedGroup` that collapses to its title row (`titleMedium` heading, rotating chevron) |
-| `Settings*Row`, `SettingsSegmentNavigationRow`, `SettingsIconBadge`, `BooleanSettingTile`, `SettingsNestedCheckbox`, `SettingsRemoveButton`, `AliasPill` (`settings/shared/`) | List items | Settings toggle, navigation, and sub-option rows. `BooleanSettingTile` binds a registered boolean preference to the same command that searchable Settings uses |
+| `SettingsToggleRow`, `SettingsNavigationToggleRow`, `SettingsSegmentNavigationRow`, `SettingsIconBadge`, `BooleanSettingTile`, `SettingsNestedCheckbox`, `SettingsRemoveButton`, `AliasPill` (`settings/shared/`) | List items | Settings toggle, navigation, and sub-option rows. `BooleanSettingTile` binds a registered boolean preference to the same command that searchable Settings uses |
 | `AppTopAppBar` | Top app bar (small) | Full-screen page headers (Settings and its detail pages, widget config screens): back button, `titleLarge` heading, and `actions`. `navigationIcon` and `navigationContentDescription` swap the back arrow (a close icon for config screens that cancel); `windowInsets` is zero by default, and screens that draw under the status bar pass `TopAppBarDefaults.windowInsets`. The container is transparent over the page background, and there is no on-scroll fill because the page clips its scrolling content below the bar |
 | `AppIconButton`, `AppIconButtonStyle` | Icon button (standard, filled, tonal) with plain tooltip | Every icon-only action. `style` picks `Standard` (default), `Filled`, or `Tonal`; `colors` overrides the style's colors. `tooltip` is shown on long-press or hover. `modifier` goes on the button; parent-data modifiers (`align`, `weight`) go in `anchorModifier`, because the tooltip anchor wraps the button |
 | `AppAlertDialog` | Dialog | Alerts and confirmations on `surfaceContainerHigh`. Pass `confirmLabel`/`onConfirm` and an optional `dismissLabel`; set `destructive = true` for an error-tinted confirm |
@@ -326,7 +329,7 @@ settings and add a property in sorted order.
 | `AppFloatingActionButton`, `AppExtendedFloatingActionButton`, `AppFabTone` (`AppFloatingActionButton.kt`) | FAB, extended FAB | 56dp page-bottom actions with a 24dp icon, fully round and squaring on press. `AppFabTone.Primary` (`Accent`) for the main action, `Tonal` (`FloatingTonalContainer`) for a secondary one, `Error` for destructive. The extended FAB takes a label and an `enabled` flag (fades to `DisabledContentAlpha`); the caller sets its width. Don't call Material FABs directly |
 | `AppFilterChip`, `AppFilterChipStyle` (`AppFilterChip.kt`) | Filter chip | Filter and multi-select chips. Selected fills with `Accent`; `Outlined` (default) has a `SettingsDivider` outline, `Tonal` uses `AccentTintTonal` for chips on a tonal surface. `showSelectedCheck` adds the multi-select check. Over a wallpaper, pass the wallpaper-aware label and border colors |
 | `PickerFieldButton` | Text field (read-only) | Outlined field that opens a date, time, or repeat picker |
-| `SliderWithValue` | Slider | A value beside or above a slider; the caller owns range, ticks, and saving |
+| `SliderWithValue` | Slider | A value beside or above a slider, with an optional leading label for endpoint scales. The caller owns range, ticks, and saving |
 | `TipBanner` | Card | Dismissible tips with optional links and an action |
 | `PredictiveBackPreviewHandler`, `PredictiveBackSlideHandler`, `PreserveHostKeyboardStateEffect` | Predictive back | Predictive back animations for nested pages, and keeping the host's keyboard state while a popup is open |
 | `AppVoiceCallIcon` | — | App logo plus phone icon for call actions |

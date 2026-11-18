@@ -4,7 +4,6 @@ import com.tk.quicksearch.shared.ui.components.AppSwitch
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.tk.quicksearch.settings.shared.SettingsIconBadge
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import androidx.compose.foundation.clickable
@@ -127,6 +126,7 @@ fun PermissionItem(
             modifier
                 .fillMaxWidth()
                 .clickable(
+                    role = Role.Button,
                     enabled = isNavigationItem || grantedClick != null,
                     onClick = grantedClick ?: onNavigationClick,
                 )
@@ -215,7 +215,7 @@ private fun SegmentedPermissionItem(
         else -> null
     }
     val interactionModifier = if (onClick != null) {
-        Modifier.clickable(onClick = onClick)
+        Modifier.clickable(role = Role.Button, onClick = onClick)
     } else if (!granted) {
         Modifier.toggleable(value = false, role = Role.Switch) {
             hapticToggle(view)()

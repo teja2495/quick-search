@@ -1,11 +1,11 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.TonalIconBadgeContainer
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.provider.ContactsContract
 import android.provider.OpenableColumns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.ui.draw.clip
@@ -25,7 +25,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -199,14 +198,7 @@ private fun TriggerItemRow(
         title = item.word,
         description = item.itemName.takeIf { it.isNotBlank() },
         leading = {
-            Box(
-                modifier = Modifier.size(DesignTokens.Spacing40)
-                    .clip(AppShapes.full)
-                    .background(AppColors.AccentTintTonal),
-                contentAlignment = Alignment.Center,
-            ) {
-                TriggerItemIcon(item)
-            }
+            TonalIconBadgeContainer { TriggerItemIcon(item) }
         },
         trailing = {
             SettingsRemoveButton(onClick = onRemove)

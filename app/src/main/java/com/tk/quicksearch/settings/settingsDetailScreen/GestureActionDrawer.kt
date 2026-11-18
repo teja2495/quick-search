@@ -106,7 +106,7 @@ private fun GestureOptionRow(
                 {
                     AppIconButton(onClick = option.onDelete, tooltip = stringResource(R.string.action_remove)) {
                         Icon(
-                            imageVector = MaterialSymbols.Delete,
+                            imageVector = MaterialSymbols.DeleteOutline,
                             contentDescription = stringResource(R.string.action_remove),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

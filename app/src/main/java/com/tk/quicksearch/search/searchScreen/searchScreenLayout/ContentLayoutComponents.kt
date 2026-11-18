@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
@@ -37,7 +38,6 @@ import com.tk.quicksearch.search.contacts.models.ContactButtonAction
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
-import com.tk.quicksearch.search.searchHistory.RecentSearchItem
 import com.tk.quicksearch.search.searchHistory.SearchHistorySection
 import com.tk.quicksearch.search.searchHistory.SearchHistoryTab
 import com.tk.quicksearch.search.files.FileTypeFilterChips
@@ -187,6 +187,7 @@ internal fun UnifiedPinnedItemsBlock(
             isExpanded = isExpanded,
             showWallpaperBackground = showWallpaperBackground,
             modifier = modifier.clickable(
+                role = Role.Button,
                 interactionSource = interactionSource,
                 indication = ripple(),
                 onClick = toggleExpanded,

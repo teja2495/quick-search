@@ -1,32 +1,19 @@
 package com.tk.quicksearch.settings.searchEngineSettings.dialogs
 
-import com.tk.quicksearch.shared.ui.theme.AppMotion
-import com.tk.quicksearch.shared.ui.theme.AppShapes
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.background
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.graphics.Color
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,20 +23,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.BrowserApp
 import com.tk.quicksearch.searchEngines.IN_APP_BROWSER_PACKAGE
+import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
+import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRow
+import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRowSpacing
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /**
- * A styled browser picker shown inside Add/Edit custom search engine dialogs.
+ * Browser picker shown inside Add/Edit custom search engine dialogs: an outlined field showing
+ * the chosen browser that opens an [AppPickerDrawer] list, like the bookmark editor's field.
  *
- * Renders a compact selector row that expands into a list of available browsers.
  * [selectedPackage] == null means "Default browser". Custom search engines select the
  * in-app browser by default.
  */
@@ -59,7 +47,6 @@ fun BrowserPickerField(
     selectedPackage: String?,
     onSelect: (String?) -> Unit,
     modifier: Modifier = Modifier,
-    onExpand: () -> Unit = {},
 ) {
     val inAppBrowser =
         BrowserApp(
@@ -73,151 +60,74 @@ fun BrowserPickerField(
             availableBrowsers + inAppBrowser
         }
 
-    var expanded by remember { mutableStateOf(false) }
-    val chevronAngle by animateFloatAsState(
-        targetValue = if (expanded) 180f else 0f,
-        animationSpec = tween(durationMillis = AppMotion.DurationShort, easing = AppMotion.EmphasizedEasing),
-        label = "chevron",
-    )
-
+    var showPicker by remember { mutableStateOf(false) }
+    val fieldLabel = stringResource(R.string.settings_search_engine_browser_label)
     val defaultLabel = stringResource(R.string.settings_search_engine_browser_default)
     val selectedLabel = browserOptions.firstOrNull { it.packageName == selectedPackage }?.label ?: defaultLabel
 
-    val accentColor = AppColors.Accent
-    val onSurface = MaterialTheme.colorScheme.onSurface
-    val onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant
-    val shape = AppShapes.small
-    val expandedShape = AppShapes.stacked(top = DesignTokens.CornerSmall, bottom = DesignTokens.CornerNone)
-    val listShape = AppShapes.stacked(top = DesignTokens.CornerNone, bottom = DesignTokens.CornerSmall)
-
-    Column(modifier = modifier.fillMaxWidth()) {
-        // ── Selector row ─────────────────────────────────────────────────────
-        Row(
-            modifier = Modifier
+    Row(
+        modifier =
+            modifier
                 .fillMaxWidth()
-                .clip(if (expanded) expandedShape else shape)
+                .clip(OutlinedTextFieldDefaults.shape)
                 .border(
-                    width = if (expanded) 1.dp else 0.5.dp,
-                    color = if (expanded) accentColor else accentColor.copy(alpha = AppColors.TintEmphasisAlpha),
-                    shape = if (expanded) expandedShape else shape,
+                    DesignTokens.BorderWidth,
+                    MaterialTheme.colorScheme.outline,
+                    OutlinedTextFieldDefaults.shape,
                 )
-                .clickable {
-                    expanded = !expanded
-                    if (expanded) onExpand()
-                }
-                .padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingMedium),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-        ) {
-            Icon(
-                imageVector = MaterialSymbols.Language,
-                contentDescription = null,
-                tint = if (expanded) accentColor else onSurfaceVariant,
-                modifier = Modifier.size(16.dp),
+                .clickable(role = Role.DropdownList, onClick = { showPicker = true })
+                .padding(horizontal = DesignTokens.SpacingLarge, vertical = DesignTokens.SpacingMedium),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+    ) {
+        Icon(
+            imageVector = MaterialSymbols.Language,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(DesignTokens.IconSizeSmall),
+        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = fieldLabel,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.settings_search_engine_browser_label),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = if (expanded) accentColor else onSurfaceVariant,
-                )
-                Text(
-                    text = selectedLabel,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = onSurface,
-                )
-            }
-            Icon(
-                imageVector = MaterialSymbols.UnfoldMore,
-                contentDescription = null,
-                tint = if (expanded) accentColor else onSurfaceVariant,
-                modifier = Modifier
-                    .size(DesignTokens.ButtonIconSizeSmall)
-                    .rotate(chevronAngle),
+            Text(
+                text = selectedLabel,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
+        Icon(
+            imageVector = MaterialSymbols.UnfoldMore,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(DesignTokens.IconSizeSmall),
+        )
+    }
 
-        // ── Dropdown list ─────────────────────────────────────────────────────
-        AnimatedVisibility(
-            visible = expanded,
-            enter = expandVertically(tween(AppMotion.DurationShort, easing = AppMotion.EmphasizedDecelerateEasing)) + fadeIn(tween(AppMotion.DurationShort, easing = AppMotion.EmphasizedDecelerateEasing)),
-            exit = shrinkVertically(tween(AppMotion.DurationShort, easing = AppMotion.EmphasizedAccelerateEasing)) + fadeOut(tween(AppMotion.DurationShort, easing = AppMotion.EmphasizedAccelerateEasing)),
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 200.dp)
-                    .clip(listShape)
-                    .background(accentColor.copy(alpha = AppColors.TintFaintAlpha))
-                    .border(
-                        width = 1.dp,
-                        color = accentColor.copy(alpha = AppColors.TintEmphasisAlpha),
-                        shape = listShape,
-                    )
-                    .verticalScroll(rememberScrollState()),
+    if (showPicker) {
+        AppPickerDrawer(
+            title = fieldLabel,
+            onDismiss = { showPicker = false },
+        ) { dismiss ->
+            val options = listOf<Pair<String?, String>>(null to defaultLabel) +
+                browserOptions.map { it.packageName to it.label }
+            LazyColumn(
+                modifier = Modifier.selectableGroup(),
+                verticalArrangement = Arrangement.spacedBy(AppPickerDrawerRowSpacing),
             ) {
-                // Default browser option
-                BrowserOptionRow(
-                    label = defaultLabel,
-                    isSelected = selectedPackage == null,
-                    onClick = {
-                        onSelect(null)
-                        expanded = false
-                    },
-                )
-
-                browserOptions.forEach { browser ->
-                    HorizontalDivider(
-                        color = accentColor.copy(alpha = AppColors.TintLightAlpha),
-                        thickness = DesignTokens.DividerThickness,
-                    )
-                    BrowserOptionRow(
-                        label = browser.label,
-                        isSelected = browser.packageName == selectedPackage,
+                items(options, key = { it.first ?: "" }) { (packageName, label) ->
+                    AppPickerDrawerRow(
+                        title = label,
+                        selected = packageName == selectedPackage,
                         onClick = {
-                            onSelect(browser.packageName)
-                            expanded = false
+                            onSelect(packageName)
+                            dismiss()
                         },
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun BrowserOptionRow(
-    label: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-) {
-    val accentColor = AppColors.Accent
-    val onSurface = MaterialTheme.colorScheme.onSurface
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .background(if (isSelected) accentColor.copy(alpha = AppColors.TintLightAlpha) else Color.Transparent)
-            .padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingMedium),
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(DesignTokens.SpacingSmall)
-                    .clip(AppShapes.full)
-                    .background(
-                        if (isSelected) accentColor else accentColor.copy(alpha = AppColors.TintStrongAlpha)
-                    ),
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (isSelected) accentColor else onSurface,
-            )
         }
     }
 }

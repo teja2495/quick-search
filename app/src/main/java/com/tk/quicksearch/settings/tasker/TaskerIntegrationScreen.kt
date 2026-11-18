@@ -1,5 +1,8 @@
 package com.tk.quicksearch.settings.tasker
 
+import com.tk.quicksearch.shared.ui.components.AppAlertDialog
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -54,6 +57,7 @@ fun TaskerIntegrationScreen(
     var alias by rememberSaveable { mutableStateOf("") }
     var name by rememberSaveable { mutableStateOf("") }
     var action by rememberSaveable { mutableStateOf("") }
+    var pendingDeleteId by rememberSaveable { mutableStateOf<String?>(null) }
     val normalizedAlias = normalizeShortcutCodeInput(alias)
     val aliasConflict = hasExactAliasConflict(alias, existingAliases)
     val actionValid = action.isNotBlank() && action.none(Char::isWhitespace)
@@ -70,10 +74,11 @@ fun TaskerIntegrationScreen(
                     stringResource(R.string.tasker_add_intent_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.semantics { heading() },
                 )
                 Text(
                     stringResource(R.string.tasker_add_intent_description),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 AppOutlinedTextField(
@@ -150,23 +155,23 @@ fun TaskerIntegrationScreen(
                         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)) {
                             Text(
                                 tool.name,
-                                style = MaterialTheme.typography.titleMedium,
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface,
                             )
                             Text(
                                 stringResource(R.string.tasker_saved_alias, existingAliases[tool.id].orEmpty()),
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                             Text(
                                 tool.broadcastAction,
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
-                        AppIconButton(onClick = { onDelete(tool.id) }, tooltip = stringResource(R.string.tasker_delete_intent)) {
+                        AppIconButton(onClick = { pendingDeleteId = tool.id }, tooltip = stringResource(R.string.tasker_delete_intent)) {
                             Icon(
-                                MaterialSymbols.Delete,
+                                MaterialSymbols.DeleteOutline,
                                 contentDescription = stringResource(R.string.tasker_delete_intent),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -175,6 +180,20 @@ fun TaskerIntegrationScreen(
                 }
             }
         }
+    }
+
+    tools.firstOrNull { it.id == pendingDeleteId }?.let { tool ->
+        AppAlertDialog(
+            onDismissRequest = { pendingDeleteId = null },
+            title = { Text(stringResource(R.string.dialog_delete_item_title, tool.name)) },
+            confirmLabel = stringResource(R.string.dialog_delete),
+            onConfirm = {
+                pendingDeleteId = null
+                onDelete(tool.id)
+            },
+            dismissLabel = stringResource(R.string.dialog_cancel),
+            destructive = true,
+        )
     }
 }
 

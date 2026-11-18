@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -57,7 +56,7 @@ fun OpenSourceTrustCard(modifier: Modifier = Modifier) {
         modifier =
             modifier
                 .clip(shape)
-                .background(accent.copy(alpha = if (isDark) 0.12f else 0.1f))
+                .background(accent.copy(alpha = if (isDark) AppColors.TintLightAlpha else AppColors.TintSubtleAlpha))
                 .clickable(role = Role.Button, onClick = openSource)
                 .padding(horizontal = DesignTokens.SpacingLarge, vertical = DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,

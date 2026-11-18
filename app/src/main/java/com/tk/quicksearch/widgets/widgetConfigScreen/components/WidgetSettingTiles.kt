@@ -1,14 +1,14 @@
 package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.tk.quicksearch.shared.ui.components.AppButtonSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,7 +29,6 @@ import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
 import com.tk.quicksearch.shared.ui.theme.floatingActionShape
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.components.AppButton
 
@@ -56,7 +55,7 @@ fun WidgetSettingTile(
                             text = title,
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(horizontal = WidgetTileTextInset),
+                            modifier = Modifier.padding(horizontal = WidgetTileTextInset).semantics { heading() },
                         )
                     }
                     if (description != null) {
@@ -99,7 +98,7 @@ internal fun WidgetColorChoiceGroup(
         ChoiceOption(
             value = WIDGET_CUSTOM_COLOR_CHOICE,
             label = stringResource(R.string.common_custom),
-            icon = if (customColor == null) MaterialSymbols.Palette else null,
+            icon = if (customColor == null) MaterialSymbols.PaletteOutlined else null,
             swatch = customColor,
         )
     ConnectedChoiceGroup(

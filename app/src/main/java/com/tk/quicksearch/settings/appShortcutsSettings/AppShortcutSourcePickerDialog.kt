@@ -1,20 +1,21 @@
 package com.tk.quicksearch.settings.appShortcutsSettings
 
+import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,10 +26,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 private val ShortcutSourceIconSize = 44.dp
 
@@ -38,54 +37,32 @@ fun AppShortcutSourcePickerDialog(
     onDismiss: () -> Unit,
     onSourceSelected: (AppShortcutSource) -> Unit,
 ) {
-    AppAlertDialog(
-        modifier = Modifier.fillMaxWidth(0.94f),
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-        onDismissRequest = onDismiss,
-        title = { Text(text = stringResource(R.string.settings_app_shortcuts_add_dialog_title)) },
-        text = {
-            if (sources.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.settings_app_shortcuts_create_not_supported),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            } else {
-                val sourceRows = sources.chunked(4)
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(360.dp)
-                            .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-                ) {
-                    sourceRows.forEach { rowItems ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
-                        ) {
-                            rowItems.forEach { source ->
-                                ShortcutSourceGridItem(
-                                    source = source,
-                                    onClick = { onSourceSelected(source) },
-                                    modifier = Modifier.weight(1f),
-                                )
-                            }
-                            repeat(4 - rowItems.size) {
-                                Spacer(modifier = Modifier.weight(1f))
-                            }
-                        }
-                    }
+    AppPickerDrawer(
+        title = stringResource(R.string.settings_app_shortcuts_add_dialog_title),
+        onDismiss = onDismiss,
+    ) {
+        if (sources.isEmpty()) {
+            Text(
+                text = stringResource(R.string.settings_app_shortcuts_create_not_supported),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+            ) {
+                items(sources, key = { "${it.packageName}/${it.className}:${it.sourceType}" }) { source ->
+                    ShortcutSourceGridItem(
+                        source = source,
+                        onClick = { onSourceSelected(source) },
+                    )
                 }
             }
-        },
-        confirmButton = {},
-        dismissButton = {
-            AppTextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.dialog_cancel))
-            }
-        },
-    )
+        }
+    }
 }
 
 @Composable
@@ -97,7 +74,8 @@ private fun ShortcutSourceGridItem(
     Column(
         modifier =
             modifier
-                .clickable(onClick = onClick)
+                .clip(AppShapes.medium)
+                .clickable(role = Role.Button, onClick = onClick)
                 .padding(vertical = DesignTokens.SpacingSmall, horizontal = DesignTokens.SpacingXSmall),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
@@ -107,7 +85,7 @@ private fun ShortcutSourceGridItem(
         if (iconBitmap != null) {
             Image(
                 bitmap = iconBitmap,
-                contentDescription = source.label,
+                contentDescription = null,
                 modifier = Modifier.size(ShortcutSourceIconSize),
                 contentScale = ContentScale.Fit,
             )

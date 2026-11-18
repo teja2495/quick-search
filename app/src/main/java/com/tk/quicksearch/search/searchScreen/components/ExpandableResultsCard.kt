@@ -137,7 +137,3 @@ internal fun Modifier.topPredictedRowContainer(
 @Composable
 internal fun resultRowVerticalPadding(base: Dp): Dp =
     if (LocalSearchCardLayoutEnabled.current) base else base / 2
-
-internal fun Modifier.topPredictedRowContentPadding(
-): Modifier =
-    this

@@ -78,7 +78,7 @@ fun SettingsToggleRow(
     showNavigationChevron: Boolean = false,
     trailingAction: (@Composable () -> Unit)? = null,
     leadingIcon: ImageVector? = null,
-    titleTextStyle: TextStyle = MaterialTheme.typography.titleMedium,
+    titleTextStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     horizontalPadding: Dp = DesignTokens.SpacingXXLarge,
     leadingIconSize: Dp = DesignTokens.IconSizeSmall,
     isFirstItem: Boolean = false,
@@ -116,6 +116,7 @@ fun SettingsToggleRow(
                     .then(
                         if (onRowClick != null) {
                             Modifier.clickable(
+                                role = Role.Button,
                                 enabled = enabled || onDisabledClick != null,
                                 onClick = {
                                     if (enabled) {
@@ -135,7 +136,7 @@ fun SettingsToggleRow(
                                     onValueChange = onToggle,
                                 )
                             } else if (onDisabledClick != null) {
-                                Modifier.clickable(onClick = onDisabledClick)
+                                Modifier.clickable(role = Role.Button, onClick = onDisabledClick)
                             } else {
                                 Modifier
                             }
@@ -177,7 +178,7 @@ fun SettingsToggleRow(
                             if (enabled) {
                                 MaterialTheme.colorScheme.onSurface
                             } else {
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.ContentMutedAlpha)
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.DisabledContentAlpha)
                             },
                     )
                 }
@@ -191,7 +192,7 @@ fun SettingsToggleRow(
                                 if (enabled) {
                                     MaterialTheme.colorScheme.onSurfaceVariant
                                 } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentSecondaryAlpha)
+                                    MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.DisabledContentAlpha)
                                 },
                         )
                     }
@@ -225,7 +226,7 @@ fun SettingsToggleRow(
                                 if (enabled) {
                                     MaterialTheme.colorScheme.onSurfaceVariant
                                 } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentSecondaryAlpha)
+                                    MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.DisabledContentAlpha)
                                 },
                         )
                     }
@@ -236,7 +237,7 @@ fun SettingsToggleRow(
 
             if (showNavigationChevron && onRowClick != null && enabled) {
                 Row(
-                    modifier = Modifier.offset(x = 8.dp),
+                    modifier = Modifier.offset(x = DesignTokens.SpacingSmall),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(

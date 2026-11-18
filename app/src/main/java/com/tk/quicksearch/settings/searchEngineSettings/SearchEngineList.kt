@@ -1,5 +1,11 @@
 package com.tk.quicksearch.settings.searchEngineSettings
 
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.ui.draw.clip
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
@@ -254,6 +260,7 @@ fun SearchEngineListCard(
         if (disabledEngines.isNotEmpty()) {
             val disabledHeaderModifier =
                 Modifier.clip(AppShapes.small).clickable(
+                    role = Role.Button,
                     interactionSource = remember { MutableInteractionSource() },
                     indication = ripple(),
                 ) {
@@ -289,6 +296,7 @@ fun SearchEngineListCard(
                         text = stringResource(collapsedHeaderTextRes),
                         style = MaterialTheme.typography.titleSmall,
                         color = AppColors.Accent,
+                        modifier = Modifier.semantics { heading() },
                     )
                     Icon(
                         imageVector = MaterialSymbols.ExpandLess,
@@ -426,18 +434,36 @@ private fun SearchEngineRowContent(
     val engineInfo = (engine as? SearchTarget.Engine)?.engine
     val engineName = engine.getDisplayName()
     var showMenu by remember { mutableStateOf(false) }
+    val hasMoveMenu = onMoveToTop != null || onMoveToBottom != null
+    val openMoveMenu: (() -> Unit)? = if (hasMoveMenu) ({ showMenu = true }) else null
+    val moveUpLabel = stringResource(R.string.settings_action_move_up)
+    val moveDownLabel = stringResource(R.string.settings_action_move_down)
+    val rowClick = onCustomEngineClick ?: openMoveMenu
 
     Row(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .then(
-                    if (onCustomEngineClick != null) {
-                        Modifier.clickable(onClick = onCustomEngineClick)
+                    // Tap edits a custom engine; otherwise it opens the move menu. Long-press always
+                    // opens the move menu, so reordering works without the drag handle.
+                    if (rowClick != null) {
+                        Modifier.combinedClickable(
+                            role = Role.Button,
+                            onClick = rowClick,
+                            onLongClick = if (onCustomEngineClick != null) openMoveMenu else null,
+                        )
                     } else {
                         Modifier
                     },
                 )
+                .semantics {
+                    customActions =
+                        listOfNotNull(
+                            onMoveToTop?.let { move -> CustomAccessibilityAction(moveUpLabel) { move(); true } },
+                            onMoveToBottom?.let { move -> CustomAccessibilityAction(moveDownLabel) { move(); true } },
+                        )
+                }
                 .padding(
                     horizontal = SegmentedTileContentPadding,
                     vertical = DesignTokens.SpacingMedium,
@@ -469,7 +495,7 @@ private fun SearchEngineRowContent(
         ) {
             Text(
                 text = engineName,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
             )
             if (onShortcutCodeChange != null) {
@@ -502,7 +528,7 @@ private fun SearchEngineRowContent(
             }
         }
 
-        if (onMoveToTop != null || onMoveToBottom != null) {
+        if (hasMoveMenu) {
             Box {
                 AppDropdownMenu(
                     expanded = showMenu,
@@ -582,7 +608,7 @@ private fun AmazonDomainLink(
             text = amazonDomain ?: stringResource(R.string.settings_amazon_domain_default),
             style = MaterialTheme.typography.bodyMedium,
             color = AppColors.LinkColor,
-            modifier = Modifier.clickable { showDialog = true },
+            modifier = Modifier.clickable(role = Role.Button) { showDialog = true },
         )
     }
 }

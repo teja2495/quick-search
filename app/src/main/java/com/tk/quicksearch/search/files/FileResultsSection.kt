@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.files
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
@@ -10,7 +11,6 @@ import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import android.os.Build
-import android.os.SystemClock
 import android.util.Size
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -30,11 +30,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -58,7 +56,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.intentHelpers.FileIntents
 import com.tk.quicksearch.search.core.LocalItemCustomizationRemover
 import com.tk.quicksearch.search.contacts.components.ContactUiConstants
@@ -73,21 +70,12 @@ import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonDivider
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
-import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
 import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.search.utils.FileUtils
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.LocalAppTheme
 import com.tk.quicksearch.shared.util.hapticConfirm
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 
 // ============================================================================
@@ -647,6 +635,7 @@ internal fun FileResultRow(
                         Modifier.fillMaxWidth()
                                 .topPredictedRowContainer(isTopPredicted = isPredicted)
                                 .combinedClickable(
+                                        role = Role.Button,
                                         onClick = {
                                             hapticConfirm(view)()
                                             onClick(deviceFile)
@@ -658,7 +647,6 @@ internal fun FileResultRow(
                                                             null
                                                         },
                                 )
-                                .topPredictedRowContentPadding()
                                 .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
         ) {
             Row(

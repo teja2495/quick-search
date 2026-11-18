@@ -1,13 +1,10 @@
 package com.tk.quicksearch.settings.appearanceSettings
 
+import androidx.compose.foundation.selection.selectableGroup
+import com.tk.quicksearch.shared.ui.components.SliderWithValue
 import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.shared.ui.theme.AppShapes
-import android.graphics.PixelFormat
-import android.graphics.PorterDuff
 import android.os.Build
-import android.view.SurfaceHolder
-import android.view.SurfaceView
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,7 +14,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,7 +21,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -45,20 +40,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import com.tk.quicksearch.R
 import com.tk.quicksearch.app.HomeActivity
-import com.tk.quicksearch.search.core.AccentColorMode
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.AppTheme
@@ -69,15 +59,11 @@ import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
 import com.tk.quicksearch.shared.ui.components.ExpandableSegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.search.data.preferences.UiPreferences
-import com.tk.quicksearch.shared.permissions.PermissionHelper
-import com.tk.quicksearch.search.searchScreen.AppThemeColors
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
-import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.hapticToggle
-import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetColorPickerDialog
 import kotlin.math.roundToInt
 
 @Composable
@@ -187,7 +173,7 @@ fun AppThemeCard(
         SegmentedTile(index = index++, count = count) {
             SegmentedTileContent {
                     Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().selectableGroup(),
                             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                     ) {
                         themeOptions.forEach { option ->
@@ -202,7 +188,9 @@ fun AppThemeCard(
                                     modifier =
                                             Modifier.weight(1f)
                                                     // No ripple: the tile's selection outline and the live theme change are the feedback.
-                                                    .clickable(
+                                                    .selectable(
+                                                            selected = showSelection,
+                                                            role = Role.RadioButton,
                                                             interactionSource = interactionSource,
                                                             indication = null,
                                                     ) {
@@ -286,17 +274,26 @@ fun AppThemeCard(
                     }
 
                     if (isThemeSourceSelected && !deviceThemeEnabled) {
-                        Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-                        ) {
-                            Icon(
-                                    imageVector = MaterialSymbols.LightMode,
-                                    contentDescription =
-                                            stringResource(R.string.settings_overlay_theme_tone_lighter),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
+                        SliderWithValue(
+                            modifier = Modifier.fillMaxWidth(),
+                            valueSpacing = DesignTokens.SpacingMedium,
+                            valueLabel = {
+                                Icon(
+                                        imageVector = MaterialSymbols.DarkMode,
+                                        contentDescription =
+                                                stringResource(R.string.settings_overlay_theme_tone_darker),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            },
+                            leadingLabel = {
+                                Icon(
+                                        imageVector = MaterialSymbols.LightMode,
+                                        contentDescription =
+                                                stringResource(R.string.settings_overlay_theme_tone_lighter),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            },
+                        ) { sliderModifier ->
                             Slider(
                                     value = overlayThemeIntensity,
                                     onValueChange = { value ->
@@ -316,13 +313,7 @@ fun AppThemeCard(
                                     },
                                     valueRange = minIntensity..maxIntensity,
                                     steps = intensitySteps,
-                                    modifier = Modifier.weight(1f),
-                            )
-                            Icon(
-                                    imageVector = MaterialSymbols.DarkMode,
-                                    contentDescription =
-                                            stringResource(R.string.settings_overlay_theme_tone_darker),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = sliderModifier,
                             )
                         }
                     }
@@ -347,7 +338,6 @@ fun AppThemeCard(
                         subtitle = stringResource(R.string.settings_amoled_theme_desc),
                         checked = amoledThemeEnabled,
                         onCheckedChange = onAmoledThemeToggle,
-                        extraVerticalPadding = (-4).dp,
                         isLastItem = !showThemedIconsToggle,
                         showDivider = showThemedIconsToggle,
                 )
@@ -360,7 +350,6 @@ fun AppThemeCard(
                         subtitle = stringResource(R.string.settings_themed_icons_desc),
                         checked = themedIconsEnabled,
                         onCheckedChange = onThemedIconsToggle,
-                        extraVerticalPadding = (-4).dp,
                         isLastItem = true,
                         showDivider = false,
                 )
@@ -392,7 +381,7 @@ internal fun OverlaySourceBox(
                         Modifier.fillMaxWidth()
                                 .height(52.dp)
                                 .clip(AppShapes.medium)
-                                .clickable(onClick = onClick)
+                                .clickable(role = Role.Button, onClick = onClick)
                                 .then(
                                         if (!enabled) {
                                             Modifier.alpha(AppColors.DisabledContentAlpha)

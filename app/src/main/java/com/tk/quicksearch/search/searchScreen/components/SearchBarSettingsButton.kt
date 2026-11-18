@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import androidx.compose.ui.semantics.Role
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
@@ -101,8 +102,11 @@ internal fun SearchBarSettingsButton(
                     },
                 ).clip(shape)
                 .background(background)
+                // Not AppIconButton: long-press opens device settings, which a tooltip would block.
                 .combinedClickable(
                     hapticFeedbackEnabled = false,
+                    role = Role.Button,
+                    onLongClickLabel = stringResource(R.string.desc_open_device_settings),
                     onLongClick = {
                         hapticStrong(view)()
                         openDeviceSettings(context)

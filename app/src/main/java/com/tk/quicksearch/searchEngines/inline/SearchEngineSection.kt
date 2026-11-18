@@ -1,5 +1,7 @@
 package com.tk.quicksearch.searchEngines.inline
 
+import androidx.compose.ui.semantics.Role
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.AnimatedVisibility
@@ -7,7 +9,6 @@ import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -25,8 +26,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items as rowItems
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -34,26 +33,20 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -304,6 +297,7 @@ private fun SearchEngineContent(
                 .then(
                     if (singleEngine != null) {
                         Modifier.combinedClickable(
+                            role = Role.Button,
                             onClick = {
                                 hapticConfirm(view)()
                                 onSearchEngineClick(query, singleEngine)
@@ -330,7 +324,10 @@ private fun SearchEngineContent(
                 onOverlayExpandClick = onOverlayExpandClick,
                 isOverlayExpanded = isOverlayExpanded,
             )
-            Spacer(modifier = Modifier.width(SearchEngineSectionConstants.SEARCH_ICON_SPACING))
+            // The 48dp icon button already pads the chevron; only the bare icon needs a gap.
+            if (onOverlayExpandClick == null) {
+                Spacer(modifier = Modifier.width(SearchEngineSectionConstants.SEARCH_ICON_SPACING))
+            }
         }
 
         ScrollableEngineIcons(
@@ -383,6 +380,7 @@ private fun CompactToolActionContent(
                 Modifier
                     .fillMaxWidth()
                     .combinedClickable(
+                        role = Role.Button,
                         onClick = {
                             hapticConfirm(view)()
                             onClick()
@@ -442,21 +440,19 @@ private fun OverlayExpandChevron(
         } else {
             stringResource(R.string.desc_expand)
         }
-    Icon(
-        imageVector = imageVector,
-        contentDescription = contentDescription,
-        modifier =
-            Modifier
-                .size(SearchEngineSectionConstants.SEARCH_ICON_SIZE)
-                .then(
-                    if (onOverlayExpandClick != null) {
-                        Modifier.clickable(onClick = onOverlayExpandClick)
-                    } else {
-                        Modifier
-                    },
-                ),
-        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
+    val icon: @Composable () -> Unit = {
+        Icon(
+            imageVector = imageVector,
+            contentDescription = contentDescription,
+            modifier = Modifier.size(SearchEngineSectionConstants.SEARCH_ICON_SIZE),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+    if (onOverlayExpandClick != null) {
+        AppIconButton(onClick = onOverlayExpandClick, tooltip = contentDescription, content = icon)
+    } else {
+        icon()
+    }
 }
 
 /** Scrollable row of search engine icons. Calculates item width to fit 7 items per visible row on phones. */

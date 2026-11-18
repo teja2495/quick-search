@@ -1,17 +1,16 @@
 package com.tk.quicksearch.shared.ui.components
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
-import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -45,7 +44,6 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
  * @param actionIcon Optional trailing action icon
  * @param actionContentDescription Content description for the trailing action icon
  * @param onActionClick Callback when the trailing action icon is clicked
- * @param showContentRipple Whether tapping the content area shows a ripple
  * @param modifier Modifier to be applied to the banner
  * @param textStyle Text style to use (defaults to bodyMedium)
  */
@@ -61,7 +59,6 @@ fun TipBanner(
     actionContentDescription: String? = null,
     onActionClick: (() -> Unit)? = null,
     showDismissButton: Boolean = true,
-    showContentRipple: Boolean = true,
     modifier: Modifier = Modifier,
     textStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyMedium,
 ) {
@@ -103,14 +100,8 @@ fun TipBanner(
                                 detectTapGestures(onLongPress = { onContentLongClick.invoke() })
                             }
                         } else mod
-                    if (onContentClick != null && !showContentRipple) {
-                        withLongClick.clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = onContentClick,
-                        )
-                    } else if (onContentClick != null) {
-                        withLongClick.clickable(onClick = onContentClick)
+                    if (onContentClick != null) {
+                        withLongClick.clickable(role = Role.Button, onClick = onContentClick)
                     } else {
                         withLongClick
                     }

@@ -1,5 +1,9 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppFabTone
 import com.tk.quicksearch.shared.ui.components.AppExtendedFloatingActionButton
 import com.tk.quicksearch.shared.ui.theme.AppShapes
@@ -18,7 +22,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,10 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.Lifecycle
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -47,7 +48,6 @@ import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.notes.NotesTextUtils
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
-import com.tk.quicksearch.settings.shared.SettingsIconBadge
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -80,7 +80,7 @@ fun NotesSettingsBottomBar(
             AppExtendedFloatingActionButton(
                 onClick = onDeleteSelected,
                 text = stringResource(R.string.dialog_delete),
-                icon = MaterialSymbols.Delete,
+                icon = MaterialSymbols.DeleteOutline,
                 modifier = Modifier.fillMaxWidth(),
                 tone = AppFabTone.Error,
                 enabled = deleteEnabled,
@@ -242,9 +242,11 @@ private fun NoteListRow(
 ) {
     val contentModifier =
         if (selectionMode) {
-            Modifier.combinedClickable(onClick = onToggleSelected, onLongClick = onLongPress)
+            Modifier
+                .combinedClickable(role = Role.Checkbox, onClick = onToggleSelected, onLongClick = onLongPress)
+                .semantics { toggleableState = ToggleableState(isSelected) }
         } else {
-            Modifier.combinedClickable(onClick = onOpen, onLongClick = onLongPress)
+            Modifier.combinedClickable(role = Role.Button, onClick = onOpen, onLongClick = onLongPress)
         }
     androidx.compose.foundation.layout.Row(
         modifier =
@@ -279,7 +281,7 @@ private fun NoteListRow(
                 }
             Text(
                 text = if (note.title.isBlank()) stringResource(R.string.notes_untitled) else note.title,
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

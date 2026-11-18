@@ -23,7 +23,6 @@ import androidx.compose.material3.Checkbox
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.TonalButton
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.layout.onSizeChanged
@@ -379,7 +378,7 @@ fun AppManagementSettingsSection(
                             R.string.settings_app_uninstall_selected_format,
                             selectedCount,
                         ),
-                    icon = MaterialSymbols.Delete,
+                    icon = MaterialSymbols.DeleteOutline,
                     modifier =
                         Modifier
                             .align(Alignment.BottomCenter)

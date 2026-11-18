@@ -1,5 +1,6 @@
 package com.tk.quicksearch.searchEngines.inline
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -176,6 +176,7 @@ private fun EvenlySpacedEngineItem(
                         }
                     },
                 ).combinedClickable(
+                    role = Role.Button,
                     onClick = {
                         hapticConfirm(view)()
                         onSearchEngineClick(query(), engine)

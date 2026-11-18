@@ -25,7 +25,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.Role
-import com.tk.quicksearch.settings.shared.SettingsIconBadge
 import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import com.tk.quicksearch.shared.ui.components.AppSwitch
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -145,7 +144,7 @@ internal fun NotchLaunchOptionRow(modifier: Modifier = Modifier) {
                     },
                 )
             } else {
-                Modifier.clickable(onClick = requestAccessibility)
+                Modifier.clickable(role = Role.Button, onClick = requestAccessibility)
             },
         ),
         leading = { TonalIconBadge(MaterialSymbols.Swipe) },

@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -24,7 +23,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -97,7 +95,6 @@ private val PauseDurationsMinutes = listOf(5, 15, 30)
  * Opacity of the words around the usage numbers. Held well below the emphasised values so the
  * "9 min / 9 opens" pair carries the line and the connective text stays in the background.
  */
-private const val UsageSupportingAlpha = 0.55f
 
 /**
  * Corner radius of the usage pill. `RoundedCornerShape` clamps the radius to half the height, so
@@ -313,7 +310,7 @@ fun SpeedBumpOverlay(
                                 contentDescription = null,
                                 tint =
                                     MaterialTheme.colorScheme.onSurfaceVariant
-                                        .copy(alpha = UsageSupportingAlpha),
+                                        .copy(alpha = AppColors.ContentSecondaryAlpha),
                                 modifier = Modifier.size(16.dp),
                             )
                             Text(
@@ -330,7 +327,7 @@ fun SpeedBumpOverlay(
                                 style = MaterialTheme.typography.labelLarge,
                                 color =
                                     MaterialTheme.colorScheme.onSurfaceVariant
-                                        .copy(alpha = UsageSupportingAlpha),
+                                        .copy(alpha = AppColors.ContentSecondaryAlpha),
                                 textAlign = TextAlign.Center,
                             )
                         }

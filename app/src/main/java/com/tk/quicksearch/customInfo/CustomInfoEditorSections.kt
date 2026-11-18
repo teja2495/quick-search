@@ -1,5 +1,7 @@
 package com.tk.quicksearch.customInfo
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
+import androidx.compose.animation.core.tween
 import android.text.format.DateUtils
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -196,7 +198,7 @@ internal fun CustomInfoSavedIndicator(savedCount: Int) {
         delay(SAVED_INDICATOR_MS)
         visible = false
     }
-    AnimatedVisibility(visible = visible, enter = fadeIn(), exit = fadeOut()) {
+    AnimatedVisibility(visible = visible, enter = fadeIn(tween(AppMotion.DurationShort, easing = AppMotion.EmphasizedDecelerateEasing)), exit = fadeOut(tween(AppMotion.DurationExit, easing = AppMotion.EmphasizedAccelerateEasing))) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 MaterialSymbols.Check,

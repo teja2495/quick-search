@@ -35,7 +35,7 @@ internal fun noteEditorHeaderActions(
     return {
         AppIconButton(onClick = onDeleteClick, tooltip = stringResource(R.string.notes_delete_note_desc)) {
             Icon(
-                imageVector = MaterialSymbols.Delete,
+                imageVector = MaterialSymbols.DeleteOutline,
                 contentDescription = stringResource(R.string.notes_delete_note_desc),
                 tint = MaterialTheme.colorScheme.onSurface,
             )

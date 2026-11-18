@@ -356,7 +356,7 @@ internal fun timerActionIcon(title: String): ImageVector? =
         "resume", "start", "play", "continue" -> MaterialSymbols.PlayArrow
         "reset", "restart" -> MaterialSymbols.RestartAlt
         "stop" -> MaterialSymbols.Stop
-        "delete", "remove" -> MaterialSymbols.Delete
+        "delete", "remove" -> MaterialSymbols.DeleteOutline
         "lap" -> MaterialSymbols.Flag
         "dismiss", "cancel" -> MaterialSymbols.Close
         else -> null

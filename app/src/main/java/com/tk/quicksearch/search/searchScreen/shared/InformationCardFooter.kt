@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.shared
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,7 +33,6 @@ import kotlinx.coroutines.delay
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 
 /** Tonal step of the footer band over the card container (works on frosted and overlay cards). */
-private const val FooterTonalAlpha = 0.06f
 private val FooterMinHeight = 48.dp
 private val FooterActionIconSize = 20.dp
 private const val CopyConfirmationMillis = 1500L
@@ -50,7 +50,7 @@ fun InformationCardFooter(
 ) {
     val bandColor =
         if (LocalSearchCardLayoutEnabled.current) {
-            MaterialTheme.colorScheme.onSurface.copy(alpha = FooterTonalAlpha)
+            MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintFaintAlpha)
         } else {
             androidx.compose.ui.graphics.Color.Transparent
         }

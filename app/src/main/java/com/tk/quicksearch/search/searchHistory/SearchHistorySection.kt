@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchHistory
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import androidx.activity.compose.BackHandler
@@ -71,7 +72,6 @@ import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 internal const val QUERY_ROW_ICON_SIZE = 40
 internal const val AI_QUERY_ROW_ICON_SIZE = 34
@@ -489,22 +489,13 @@ private fun ClearAllHistoryConfirmationDialog(
             Text(
                 text = stringResource(R.string.dialog_clear_all_history_message),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         },
-        confirmButton = {
-            AppTextButton(onClick = onConfirm) {
-                Text(
-                    text = stringResource(R.string.action_clear_all_history),
-                    color = MaterialTheme.colorScheme.error.copy(alpha = AppColors.ContentStrongAlpha),
-                )
-            }
-        },
-        dismissButton = {
-            AppTextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.dialog_cancel))
-            }
-        },
+        confirmLabel = stringResource(R.string.action_clear_all_history),
+        onConfirm = onConfirm,
+        dismissLabel = stringResource(R.string.dialog_cancel),
+        destructive = true,
     )
 }
 
@@ -523,6 +514,7 @@ private fun ClearAllHistoryRow(
                 .heightIn(min = (QUERY_ROW_ICON_SIZE + QUERY_ROW_VERTICAL_PADDING * 2).dp)
                 .clip(AppShapes.card)
                 .combinedClickable(
+                    role = Role.Button,
                     interactionSource = interactionSource,
                     indication = ripple(),
                     onClick = onClick,
@@ -534,7 +526,7 @@ private fun ClearAllHistoryRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            imageVector = MaterialSymbols.Delete,
+            imageVector = MaterialSymbols.DeleteOutline,
             contentDescription = null,
             tint = clearColor,
             modifier = Modifier.size(DesignTokens.IconSizeSmall),
@@ -566,6 +558,7 @@ internal fun RecentQueryRow(
                 .fillMaxWidth()
                 .clip(AppShapes.card)
                 .combinedClickable(
+                    role = Role.Button,
                     interactionSource = interactionSource,
                     indication = ripple(),
                     onClick = onClick,

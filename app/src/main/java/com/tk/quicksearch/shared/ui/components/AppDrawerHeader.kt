@@ -1,5 +1,7 @@
 package com.tk.quicksearch.shared.ui.components
 
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -29,7 +31,7 @@ internal fun AppDrawerHeader(
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         leadingContent?.invoke()
-        Box(modifier = Modifier.weight(1f)) {
+        Box(modifier = Modifier.weight(1f).semantics(mergeDescendants = true) { heading() }) {
             ProvideTextStyle(MaterialTheme.typography.titleLarge) {
                 title()
             }

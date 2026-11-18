@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import com.tk.quicksearch.shared.ui.theme.AppShapes
@@ -126,7 +127,7 @@ fun AiProviderSettingsSection(
                         modifier =
                                 Modifier.fillMaxWidth().then(
                                         if (!supportsInstructions) {
-                                                Modifier.clickable {
+                                                Modifier.clickable(role = Role.Button) {
                                                         AppMessages.show(context, context.getString(
                                                                                 R.string
                                                                                         .settings_direct_search_personal_context_unsupported
@@ -275,7 +276,7 @@ private fun PersonalContextCard(
         onValueChange: (String) -> Unit,
         enabled: Boolean,
 ) {
-        val textAlpha = if (enabled) 1f else DisabledContentAlpha
+        val textAlpha = if (enabled) 1f else AppColors.DisabledContentAlpha
         // Focusable only after a touch lands on it, so initial or restored focus never parks a
         // caret here when the screen opens; it locks again once focus leaves.
         var focusUnlockedByTouch by remember { mutableStateOf(false) }
@@ -362,7 +363,6 @@ private fun PersonalContextCard(
 }
 
 private val PersonalContextCardMinHeight = 164.dp
-private const val DisabledContentAlpha = 0.38f
 
 private fun isValidJsonObject(value: String): Boolean =
         runCatching { JSONObject(value) }.isSuccess

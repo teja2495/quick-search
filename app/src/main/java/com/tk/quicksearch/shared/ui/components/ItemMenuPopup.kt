@@ -493,6 +493,7 @@ private fun ItemMenuButton(
                 }
         } else {
             Modifier.combinedClickable(
+                role = Role.Button,
                 onClick = button.onClick,
                 onLongClick = button.onLongClick?.let { onLongClick ->
                     {

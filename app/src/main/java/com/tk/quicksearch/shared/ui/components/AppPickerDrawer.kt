@@ -1,9 +1,11 @@
 package com.tk.quicksearch.shared.ui.components
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -15,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
@@ -213,7 +214,8 @@ private fun AppPickerDrawerSearchField(
 
 /**
  * One option in an [AppPickerDrawer]. When [selected], the row is tinted with the accent color
- * and shows a filled check, unless a [trailing] slot replaces it.
+ * and shows a filled check, unless a [trailing] slot replaces it. A null [selected] means the row
+ * is an action without selection state.
  */
 @Composable
 fun AppPickerDrawerRow(
@@ -223,7 +225,7 @@ fun AppPickerDrawerRow(
     subtitle: String? = null,
     supportingContent: (@Composable () -> Unit)? = null,
     leading: (@Composable () -> Unit)? = null,
-    selected: Boolean = false,
+    selected: Boolean? = null,
     trailing: (@Composable () -> Unit)? = null,
     enabled: Boolean = true,
     titleMaxLines: Int = Int.MAX_VALUE,
@@ -234,8 +236,14 @@ fun AppPickerDrawerRow(
                 .fillMaxWidth()
                 .heightIn(min = AppPickerDrawerRowMinHeight)
                 .clip(AppPickerDrawerRowShape)
-                .background(appPickerDrawerItemBackground(selected))
-                .clickable(enabled = enabled, onClick = onClick)
+                .background(appPickerDrawerItemBackground(selected == true))
+                .then(
+                    if (selected == null) {
+                        Modifier.clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+                    } else {
+                        Modifier.selectable(selected = selected, enabled = enabled, role = Role.RadioButton, onClick = onClick)
+                    },
+                )
                 .padding(
                     vertical = DesignTokens.SpacingMedium,
                     horizontal = DesignTokens.SpacingMedium,
@@ -268,7 +276,7 @@ fun AppPickerDrawerRow(
         }
         when {
             trailing != null -> trailing()
-            selected -> AppPickerDrawerSelectedCheck()
+            selected == true -> AppPickerDrawerSelectedCheck(contentDescription = null)
         }
     }
 }
@@ -282,10 +290,10 @@ fun appPickerDrawerItemBackground(
 
 /** Accent check that marks the selected option in an [AppPickerDrawer]. */
 @Composable
-fun AppPickerDrawerSelectedCheck() {
+fun AppPickerDrawerSelectedCheck(contentDescription: String? = stringResource(R.string.desc_selected)) {
     Icon(
         imageVector = MaterialSymbols.Check,
-        contentDescription = stringResource(R.string.desc_selected),
+        contentDescription = contentDescription,
         tint = AppColors.Accent,
         modifier = Modifier.size(SELECTED_CHECK_SIZE),
     )

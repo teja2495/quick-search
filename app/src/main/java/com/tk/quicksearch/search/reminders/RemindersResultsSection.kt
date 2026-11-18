@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.reminders
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
 import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
@@ -52,7 +53,6 @@ import com.tk.quicksearch.search.searchScreen.components.ExpandButtonDivider
 import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
-import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
 import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
@@ -196,13 +196,13 @@ internal fun ReminderRow(
                 .heightIn(min = ROW_MIN_HEIGHT_DP.dp)
                 .topPredictedRowContainer(isTopPredicted = isPredicted)
                 .combinedClickable(
+                    role = Role.Button,
                     onClick = {
                         hapticConfirm(rowView)()
                         if (notedItem != null) NotedLauncher.open(context, notedItem) else onClick(reminder)
                     },
                     onLongClick = { showMenu = true },
                 )
-                .topPredictedRowContentPadding()
                 .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
@@ -219,7 +219,7 @@ internal fun ReminderRow(
         }
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing),
         ) {
             Text(
                 text = rememberQueryHighlightedText(reminder.title),
@@ -290,7 +290,7 @@ internal fun ReminderRow(
                     }
                     addItem(
                         R.string.dialog_delete,
-                        { Icon(imageVector = MaterialSymbols.Delete, contentDescription = null) },
+                        { Icon(imageVector = MaterialSymbols.DeleteOutline, contentDescription = null) },
                     ) { onDelete(reminder) }
                 }
 

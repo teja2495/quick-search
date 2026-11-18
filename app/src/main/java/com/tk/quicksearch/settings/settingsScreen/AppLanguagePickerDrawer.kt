@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -86,7 +87,7 @@ private fun LanguageTile(
                 .background(
                     appPickerDrawerItemBackground(
                         selected = selected,
-                        unselected = MaterialTheme.colorScheme.onSurface.copy(alpha = UNSELECTED_TILE_ALPHA),
+                        unselected = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintFaintAlpha),
                     ),
                 ).selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
                 .padding(DesignTokens.SpacingMedium),
@@ -142,4 +143,3 @@ private fun deviceLanguageLabel(): String? {
 
 private val LanguageTileSpacing = DesignTokens.SpacingSmall
 private const val TALL_SCRIPT_HEADROOM_SP = 14f
-private const val UNSELECTED_TILE_ALPHA = 0.05f

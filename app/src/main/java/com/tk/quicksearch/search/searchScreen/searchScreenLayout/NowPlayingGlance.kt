@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
@@ -19,7 +21,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -77,7 +78,6 @@ private val NowPlayingControlButtonSize = 44.dp
 private val NowPlayingControlIconSize = DesignTokens.IconSizeSmall
 private val NowPlayingProminentCircleSize = 32.dp
 private val NowPlayingProminentCircleBorder = 1.dp
-private const val NowPlayingProminentCircleBorderAlpha = 0.35f
 private val NowPlayingPlayPauseCircleSize = NowPlayingProminentCircleSize
 private val NowPlayingPlayPauseIconSize = NowPlayingControlIconSize
 private val NowPlayingDismissButtonSize = 28.dp
@@ -358,7 +358,7 @@ internal fun NowPlayingRow(
             modifier =
                 Modifier
                     .clip(AppShapes.small)
-                    .clickable(onClick = glance.open),
+                    .clickable(role = Role.Button, onClick = glance.open),
         ) {
             NowPlayingAlbumArt(glance)
         }
@@ -370,7 +370,7 @@ internal fun NowPlayingRow(
                     modifier =
                         Modifier
                             .weight(1f)
-                            .clickable(onClick = glance.open)
+                            .clickable(role = Role.Button, onClick = glance.open)
                             .basicMarquee(),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -562,7 +562,7 @@ private fun NowPlayingSkipButton(
                         .size(NowPlayingProminentCircleSize)
                         .border(
                             NowPlayingProminentCircleBorder,
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = NowPlayingProminentCircleBorderAlpha),
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.ContentFaintAlpha),
                             AppShapes.full,
                         ),
                 contentAlignment = Alignment.Center,

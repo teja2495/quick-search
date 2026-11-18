@@ -1,5 +1,8 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.Role
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -157,6 +160,7 @@ internal fun HomeSectionHeaderRow(
                 text = title,
                 style = MaterialTheme.typography.titleSmall,
                 color = homeTextColor(),
+                modifier = Modifier.semantics { heading() },
             )
         }
         if (isExpanded != null) {
@@ -199,7 +203,7 @@ internal fun HomeSectionTitle(
             text = title,
             style = MaterialTheme.typography.titleSmall,
             color = homeTextColor(),
-            modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge).then(modifier),
+            modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge).then(modifier).semantics { heading() },
         )
     } else {
         HomeSectionHeaderRow(
@@ -258,6 +262,7 @@ internal fun HomePinnedSection(
         val compactHeader = !LocalSearchCardLayoutEnabled.current
         val headerGestures =
             Modifier.combinedClickable(
+                role = Role.Button,
                 interactionSource = interactionSource,
                 indication = ripple(),
                 onClick = {

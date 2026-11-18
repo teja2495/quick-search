@@ -1,5 +1,7 @@
 package com.tk.quicksearch.onboarding
 
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -37,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
@@ -206,9 +207,9 @@ fun ImportSettingsScreen(
                                         ImportScreenState.Error -> stringResource(R.string.setup_import_error_title)
                                     },
                                     style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     textAlign = TextAlign.Center,
+                                    modifier = Modifier.semantics { heading() },
                                 )
                                 val subtitleText = when (state) {
                                     ImportScreenState.Idle -> if (singlePreFoundFile != null) {

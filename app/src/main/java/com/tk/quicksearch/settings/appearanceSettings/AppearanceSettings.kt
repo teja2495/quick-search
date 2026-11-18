@@ -1,12 +1,14 @@
 package com.tk.quicksearch.settings.appearanceSettings
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
+import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import com.tk.quicksearch.search.data.preferences.SwipeDirection
 import com.tk.quicksearch.search.data.preferences.actionKey
 import android.content.Context
 import android.os.Build
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,7 +18,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -37,11 +38,8 @@ import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.settings.settingsDetailScreen.PriorityReorderDialog
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
-import com.tk.quicksearch.settings.shared.SettingsCardItem
-import com.tk.quicksearch.settings.shared.SettingsNavigationRow
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.settings.searchEngineSettings.SearchEngineAppearanceCard
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /** Complete appearance settings section with all appearance-related components and dialogs. */
@@ -325,19 +323,21 @@ fun AppearanceSettingsSection(
                 )
             }
             if (!unifiedPinnedItemsEnabled) {
-                SegmentedTile(index = index++, count = pinnedCount) {
-                    SettingsNavigationRow(
-                            item =
-                                    SettingsCardItem(
-                                            title = stringResource(R.string.settings_pinned_sections_order_title),
-                                            description = stringResource(R.string.settings_pinned_sections_order_desc),
-                                            actionOnPress = { showPinnedSectionOrderDialog = true },
-                                    ),
-                            contentPadding =
-                                    PaddingValues(
-                                            horizontal = DesignTokens.SpacingXLarge,
-                                            vertical = DesignTokens.SpacingLarge,
-                                    ),
+                SegmentedTile(
+                    index = index++,
+                    count = pinnedCount,
+                    onClick = { showPinnedSectionOrderDialog = true },
+                ) {
+                    SegmentedTileRow(
+                        title = stringResource(R.string.settings_pinned_sections_order_title),
+                        description = stringResource(R.string.settings_pinned_sections_order_desc),
+                        trailing = {
+                            Icon(
+                                imageVector = MaterialSymbols.ChevronRight,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        },
                     )
                 }
             }

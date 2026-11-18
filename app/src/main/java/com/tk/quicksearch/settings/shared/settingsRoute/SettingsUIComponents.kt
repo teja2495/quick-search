@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.shared.settingsRoute
 
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -28,33 +30,25 @@ fun SectionSettingsSection(
     onSetSectionAlias: ((String, String) -> Unit)? = null,
     appsSubtitle: String? = null,
     onAppsClick: (() -> Unit)? = null,
-    onAppsClickNoRipple: Boolean = false,
     appShortcutsSubtitle: String? = null,
     onAppShortcutsClick: (() -> Unit)? = null,
-    onAppShortcutsClickNoRipple: Boolean = false,
     contactsSubtitle: String? = null,
     onContactsClick: (() -> Unit)? = null,
-    onContactsClickNoRipple: Boolean = false,
     filesSubtitle: String? = null,
     onFilesClick: (() -> Unit)? = null,
-    onFilesClickNoRipple: Boolean = false,
     deviceSettingsSubtitle: String? = null,
     onDeviceSettingsClick: (() -> Unit)? = null,
-    onDeviceSettingsClickNoRipple: Boolean = false,
     calendarSubtitle: String? = null,
     calendarTagLabel: String? = null,
     onCalendarClick: (() -> Unit)? = null,
-    onCalendarClickNoRipple: Boolean = false,
     notesSubtitle: String? = null,
     onNotesClick: (() -> Unit)? = null,
-    onNotesClickNoRipple: Boolean = false,
     remindersSubtitle: String? = null,
     onRemindersClick: (() -> Unit)? = null,
     bookmarksSubtitle: String? = null,
     onBookmarksClick: (() -> Unit)? = null,
     appSettingsSubtitle: String? = null,
     onAppSettingsClick: (() -> Unit)? = null,
-    onAppSettingsClickNoRipple: Boolean = false,
     sectionsWithHiddenAlias: Set<SearchSection> = emptySet(),
     modifier: Modifier = Modifier,
     showTitle: Boolean = true,
@@ -64,7 +58,7 @@ fun SectionSettingsSection(
             text = stringResource(R.string.settings_search_results_title),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding),
+            modifier = modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding).semantics { heading() },
         )
     }
 
@@ -119,20 +113,6 @@ fun SectionSettingsSection(
                             isBookmarksRow -> onBookmarksClick
                             isAppSettingsRow -> onAppSettingsClick
                             else -> null
-                        },
-                    noRippleOnRowClick =
-                        when {
-                            isAppsRow -> onAppsClickNoRipple
-                            isAppShortcutsRow -> onAppShortcutsClickNoRipple
-                            isContactsRow -> onContactsClickNoRipple
-                            isFilesRow -> onFilesClickNoRipple
-                            isDeviceSettingsRow -> onDeviceSettingsClickNoRipple
-                            isCalendarRow -> onCalendarClickNoRipple
-                            isNotesRow -> onNotesClickNoRipple
-                            isRemindersRow -> onRemindersClick != null
-                            isBookmarksRow -> onBookmarksClick != null
-                            isAppSettingsRow -> onAppSettingsClickNoRipple
-                            else -> false
                         },
                     subtitleContent =
                         if (showAliasForSection && onSetSectionAlias != null) {

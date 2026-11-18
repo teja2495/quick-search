@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,11 +28,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.searchScreen.frostedCardBackground
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
@@ -41,7 +37,6 @@ import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
 import com.tk.quicksearch.shared.ui.theme.floatingActionShape
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.LocalAppTheme
 import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 private const val EXPAND_ICON_SIZE = 18
@@ -196,13 +191,9 @@ private fun ExpandCollapseButtonContent(
         Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
         Text(
             text = text,
-            style = monochromeAwareStyle(MaterialTheme.typography.labelLarge),
+            style = MaterialTheme.typography.labelLarge,
             color = contentColor,
             maxLines = 1,
         )
     }
 }
-
-@Composable
-private fun monochromeAwareStyle(style: TextStyle): TextStyle =
-    if (LocalAppTheme.current == AppTheme.MONOCHROME) style.copy(fontWeight = FontWeight.SemiBold) else style

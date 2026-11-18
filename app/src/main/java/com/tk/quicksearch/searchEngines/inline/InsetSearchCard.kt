@@ -180,10 +180,9 @@ internal fun Modifier.attachBelowBottomSearchBar(
     }
 
 /** How far the accent glow spills past the card's edge. */
-private val InsetCardGlowExtent = 10.dp
+private val InsetCardGlowExtent = DesignTokens.SpacingMedium
 
 /** Glow opacity right at the card's edge, eased out to nothing at [InsetCardGlowExtent]. */
-private const val InsetCardGlowPeakAlpha = 0.06f
 
 /** Concentric strokes that approximate the blur; enough that no single ring reads as a line. */
 private const val InsetCardGlowSteps = 20
@@ -191,11 +190,10 @@ private const val InsetCardGlowSteps = 20
 /** Glow opacity [distance] (0 at the edge, 1 at the extent) away from the card. */
 private fun insetCardGlowAlphaAt(distance: Float): Float {
     val remaining = 1f - distance
-    return InsetCardGlowPeakAlpha * remaining * remaining
+    return AppColors.TintFaintAlpha * remaining * remaining
 }
 
 /** Hairline between the search bar and the engine row (or AI follow-up input). */
-private const val InsetCardDividerAlpha = 0.08f
 
 /**
  * A soft halo in the border color outside [shape] that separates the card (or the standalone search bar) from
@@ -266,7 +264,7 @@ internal fun InsetSearchCard(
             HorizontalDivider(
                 modifier = Modifier.padding(horizontal = dividerInset),
                 thickness = DividerDefaults.Thickness,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = InsetCardDividerAlpha),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintSubtleAlpha),
             )
             content()
             LocalSearchEngineAreaFooter.current?.invoke(this)

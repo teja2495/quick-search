@@ -41,6 +41,9 @@ object DesignTokens {
     /** Major layout spacing - 48dp */
     val Spacing48 = 48.dp
 
+    /** Minimum touch target for any tappable element (Material 3 accessibility) - 48dp */
+    val MinTouchTarget = 48.dp
+
     // ============================================================================
     // SEMANTIC SPACING
     // ============================================================================

@@ -4,7 +4,6 @@ import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -25,13 +24,9 @@ import androidx.compose.material3.ripple
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,13 +37,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.appSettings.AppSettingResult
@@ -68,12 +60,7 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.notes.NotesTextUtils
 import com.tk.quicksearch.search.data.appShortcutRepository.SearchTargetShortcutMode
-import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
-import com.tk.quicksearch.search.searchScreen.components.CollapseButton
-import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
-import com.tk.quicksearch.search.searchScreen.components.ExpandButton
 import com.tk.quicksearch.searchEngines.SearchTargetQueryShortcutActivity
-import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -328,6 +315,7 @@ private fun RecentNoteRow(
                 .fillMaxWidth()
                 .clip(AppShapes.card)
                 .combinedClickable(
+                    role = Role.Button,
                     interactionSource = interactionSource,
                     indication = ripple(),
                     onClick = onClick,

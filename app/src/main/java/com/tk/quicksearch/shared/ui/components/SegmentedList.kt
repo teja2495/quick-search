@@ -1,5 +1,7 @@
 package com.tk.quicksearch.shared.ui.components
 
+import androidx.compose.animation.core.tween
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -153,7 +155,7 @@ fun SegmentedTile(
                 .background(containerColor, shape)
                 .then(
                     if (onClick != null) {
-                        Modifier.clickable(interactionSource = interactionSource, indication = androidx.compose.material3.ripple(), onClick = onClick)
+                        Modifier.clickable(role = Role.Button, interactionSource = interactionSource, indication = androidx.compose.material3.ripple(), onClick = onClick)
                     } else {
                         Modifier
                     },
@@ -250,8 +252,8 @@ fun SegmentedTileRow(
             if (description != null) {
                 AnimatedVisibility(
                     visible = descriptionVisible,
-                    enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut(),
+                    enter = expandVertically(AppMotion.fastSpatial()) + fadeIn(tween(AppMotion.DurationShort, easing = AppMotion.EmphasizedDecelerateEasing)),
+                    exit = shrinkVertically(AppMotion.fastSpatial()) + fadeOut(tween(AppMotion.DurationExit, easing = AppMotion.EmphasizedAccelerateEasing)),
                 ) {
                     Text(
                         text = description,

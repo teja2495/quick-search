@@ -125,13 +125,7 @@ internal fun AliasCodeDisplay(
             AliasPill(
                 text =
                     buildAnnotatedString {
-                        append(
-                            if (isCustomEngine) {
-                                stringResource(R.string.settings_edit_label)
-                            } else {
-                                addAliasLabel ?: stringResource(R.string.settings_add_alias)
-                            },
-                        )
+                        append(addAliasLabel ?: stringResource(R.string.settings_add_alias))
                     },
                 leadingIcon = MaterialSymbols.Bolt,
                 onClick = if (allowAliasDialog) ({ showDialog = true }) else null,

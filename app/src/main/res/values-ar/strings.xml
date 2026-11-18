@@ -264,6 +264,7 @@
     <string name="desc_navigate_back">رجوع</string>
     <string name="desc_navigate_forward">الانتقال للأمام</string>
     <string name="desc_open_settings">فتح إعدادات Quick Search</string>
+    <string name="desc_open_device_settings">فتح إعدادات الجهاز</string>
     <string name="desc_selected">تم التحديد</string>
     <string name="desc_voice_search_icon">بدء البحث الصوتي</string>
 
@@ -906,7 +907,7 @@
     <string name="custom_info_send_notification">إرسال إشعار</string>
     <string name="custom_info_preview">معاينة</string>
     <string name="custom_info_saved">تم الحفظ</string>
-    <string name="custom_info_delete_confirm_title">هل تريد حذف %1$s؟</string>
+    <string name="dialog_delete_item_title">هل تريد حذف %1$s؟</string>
     <string name="custom_info_delete_confirm_message">سيتم حذف هذه المعلومات المخصصة وجدولها نهائياً.</string>
     <string name="settings_at_a_glance_desc">معلومات مفيدة تظهر على شاشتك الرئيسية في الأوقات المناسبة</string>
     <string name="settings_at_a_glance_alarms_title">المنبهات</string>

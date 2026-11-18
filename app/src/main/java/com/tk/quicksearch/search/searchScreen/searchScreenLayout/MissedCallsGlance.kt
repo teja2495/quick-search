@@ -1,10 +1,16 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
+import com.tk.quicksearch.shared.ui.components.AppButtonSize
+import com.tk.quicksearch.shared.ui.components.AppButtonTone
+import com.tk.quicksearch.shared.ui.components.AppOutlinedButton
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import android.content.Context
 import android.content.Intent
 import android.provider.CallLog
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,16 +22,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
@@ -35,7 +38,6 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.sendFromUserTap
 import java.text.NumberFormat
-import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 /**
  * One summary row for missed call notifications, [calls] newest first. It names the callers, with
@@ -72,7 +74,7 @@ internal fun MissedCallsRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(
-            modifier = Modifier.weight(1f).clickable { openCallHistory(context, calls.first()) },
+            modifier = Modifier.weight(1f).clickable(role = Role.Button) { openCallHistory(context, calls.first()) },
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
         ) {
             Row(
@@ -164,29 +166,21 @@ private fun MissedCallAppChip(
     call: MissedCallNotification,
     onClick: () -> Unit,
 ) {
-    Surface(
+    AppOutlinedButton(
         onClick = onClick,
-        shape = AppShapes.full,
-        color = Color.Transparent,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        tone = AppButtonTone.Custom(MaterialTheme.colorScheme.onSurface),
+        size = AppButtonSize.ExtraSmall,
+        contentPadding = PaddingValues(start = DesignTokens.SpacingSmall, end = DesignTokens.SpacingMedium),
     ) {
-        Row(
-            modifier = Modifier.padding(start = DesignTokens.SpacingSmall, end = DesignTokens.SpacingMedium, top = DesignTokens.SpacingXSmall, bottom = DesignTokens.SpacingXSmall),
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(modifier = Modifier.size(16.dp), contentAlignment = Alignment.Center) {
-                NotificationAppIcon(call.packageName)
-            }
-            Text(
-                text = rememberAppLabel(call.packageName),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+        Box(modifier = Modifier.size(DesignTokens.ButtonIconSizeExtraSmall), contentAlignment = Alignment.Center) {
+            NotificationAppIcon(call.packageName)
         }
+        Spacer(Modifier.width(DesignTokens.SpacingSmall))
+        Text(
+            text = rememberAppLabel(call.packageName),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -132,7 +133,7 @@ internal fun SectionPermissionResultCard(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .clickable(onClick = onActionClick)
+                    .clickable(role = Role.Button, onClick = onActionClick)
                     .heightIn(min = 52.dp)
                     .padding(
                         horizontal = DesignTokens.SpacingLarge,
@@ -153,7 +154,7 @@ internal fun SectionPermissionResultCard(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(

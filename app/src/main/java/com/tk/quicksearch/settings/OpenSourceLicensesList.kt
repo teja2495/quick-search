@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings
 
+import androidx.compose.ui.semantics.Role
 import android.content.Intent
 import android.content.res.Resources
 import android.net.Uri
@@ -82,7 +83,7 @@ internal fun OpenSourceLicensesList(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .clickable { onSelectedEntryChange(entry) }
+                            .clickable(role = Role.Button) { onSelectedEntryChange(entry) }
                             .padding(
                                 horizontal = DesignTokens.SpacingLarge,
                                 vertical = DesignTokens.SpacingMedium,
@@ -126,7 +127,7 @@ internal fun OpenSourceLicensesList(
             )
         Text(
             text = selectedEntry.title,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
         Text(

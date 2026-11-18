@@ -1,5 +1,7 @@
 package com.tk.quicksearch.widgetsPanel
 
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.shared.ui.components.AppButtonTone
@@ -40,7 +42,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconToggleButton
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
@@ -122,7 +123,7 @@ internal fun WidgetsPanelHeader(
             text = stringResource(R.string.widgets_panel_title),
             style = MaterialTheme.typography.headlineSmall,
             color = foreground,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).semantics { heading() },
         )
         if (!inEditMode && layoutLocked != null) {
             WidgetLayoutLockButton(
@@ -199,7 +200,7 @@ private fun WidgetLayoutLockButton(
         ) {
             Icon(
                 imageVector = if (locked) MaterialSymbols.Lock else MaterialSymbols.LockOpen,
-                contentDescription = lockLabel,
+                contentDescription = tooltip,
                 modifier = Modifier.size(DesignTokens.IconSize),
             )
         }

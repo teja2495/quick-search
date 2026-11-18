@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.apps.privateSpace
 
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -78,7 +80,7 @@ private fun PrivateSpaceHeader(
             text = stringResource(R.string.all_apps_private_space),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).semantics { heading() },
         )
         AppTextButton(onClick = { onLockedChange(!isLocked) }) {
             Text(

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -69,7 +70,7 @@ internal fun ContactButtonsSettings(
         }
         SegmentedTile(index = 2, count = 3) {
             Column {
-                Box(modifier = Modifier.clickable { pickingPrimaryButton = false }) {
+                Box(modifier = Modifier.clickable(role = Role.Button) { pickingPrimaryButton = false }) {
                     ContactButtonPickerRow(
                         label = stringResource(R.string.settings_contact_second_button_title),
                         action = secondaryContactButton,

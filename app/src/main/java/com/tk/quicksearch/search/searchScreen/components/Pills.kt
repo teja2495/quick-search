@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.ui.graphics.RectangleShape
@@ -344,7 +345,7 @@ internal fun OverlayExpandPill(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = modifier.clickable(onClick = onClick),
+        modifier = modifier.clickable(role = Role.Button, onClick = onClick),
         shape = AppShapes.full,
         color = AppColors.OverlayMedium,
         tonalElevation = DesignTokens.ElevationLevel0,
@@ -428,7 +429,7 @@ internal fun NumberKeyboardOperatorPills(
             operators.forEach { operator ->
                 Surface(
                     modifier =
-                        Modifier.weight(1f).clickable { onOperatorClick(operator) },
+                        Modifier.weight(1f).clickable(role = Role.Button) { onOperatorClick(operator) },
                     shape = AppShapes.full,
                     color = operatorChipColor,
                     border = BorderStroke(DesignTokens.KeyboardPillBorderStrokeWidth, operatorChipBorderColor),

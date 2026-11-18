@@ -2,7 +2,6 @@ package com.tk.quicksearch.widgets.widgetConfigScreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -138,7 +137,6 @@ fun WidgetConfigScreen(
                         icon = MaterialSymbols.Info,
                         onContentClick = { NotificationDotsPermission.openNotificationListenerSettings(context) },
                         showDismissButton = false,
-                        showContentRipple = false,
                     )
                 }
                 if (

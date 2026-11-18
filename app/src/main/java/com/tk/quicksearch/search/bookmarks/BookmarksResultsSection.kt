@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.bookmarks
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
@@ -17,9 +18,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -52,10 +51,8 @@ import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
-import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
 import kotlinx.coroutines.Dispatchers
@@ -165,11 +162,10 @@ internal fun BookmarkRow(
             Modifier.fillMaxWidth()
                 .heightIn(min = ROW_MIN_HEIGHT_DP.dp)
                 .topPredictedRowContainer(isTopPredicted = isPredicted)
-                .clickable {
+                .clickable(role = Role.Button) {
                     hapticConfirm(rowView)()
                     onClick(bookmark)
                 }
-                .topPredictedRowContentPadding()
                 .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
@@ -177,7 +173,7 @@ internal fun BookmarkRow(
         BookmarkFavicon(bookmark = bookmark, modifier = Modifier.padding(start = DesignTokens.ResultIconStartInset))
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing),
         ) {
             Text(
                 text = rememberQueryHighlightedText(bookmark.name),

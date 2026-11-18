@@ -127,7 +127,7 @@ fun BorderColorChoiceSegmentedButtonRow(
                 ChoiceOption(
                     BorderColorOption.CUSTOM,
                     stringResource(R.string.common_custom),
-                    icon = if (customColor == null) MaterialSymbols.Palette else null,
+                    icon = if (customColor == null) MaterialSymbols.PaletteOutlined else null,
                     swatch = customColor,
                 ),
         selected = selectedOption,

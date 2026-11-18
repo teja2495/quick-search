@@ -78,6 +78,7 @@ fun EditCustomShortcutDialog(
     onSave: (String, String?, String?) -> Unit,
     onDelete: () -> Unit,
 ) {
+    var showDeleteConfirm by remember(shortcut) { mutableStateOf(false) }
     val context = LocalContext.current
     var shortcutName by remember(shortcut) {
         mutableStateOf(
@@ -131,9 +132,9 @@ fun EditCustomShortcutDialog(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(text = stringResource(R.string.settings_app_shortcuts_edit_dialog_title))
-                AppIconButton(onClick = onDelete, tooltip = stringResource(R.string.settings_app_shortcuts_delete_action)) {
+                AppIconButton(onClick = { showDeleteConfirm = true }, tooltip = stringResource(R.string.settings_app_shortcuts_delete_action)) {
                     Icon(
-                        imageVector = MaterialSymbols.Delete,
+                        imageVector = MaterialSymbols.DeleteOutline,
                         contentDescription = stringResource(R.string.settings_app_shortcuts_delete_action),
                         tint = MaterialTheme.colorScheme.error,
                     )
@@ -146,66 +147,11 @@ fun EditCustomShortcutDialog(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                 ) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .size(DesignTokens.Spacing48)
-                                .clip(AppShapes.medium)
-                                .clickable { pickIconLauncher.launch(arrayOf("image/*")) },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        when {
-                            iconBitmap != null -> {
-                                Image(
-                                    bitmap = iconBitmap,
-                                    contentDescription = trimmedName,
-                                    modifier =
-                                        Modifier
-                                            .size(32.dp)
-                                            .offset(y = 2.dp),
-                                    contentScale = ContentScale.Fit,
-                                )
-                            }
-                            appIconResult.bitmap != null -> {
-                                Image(
-                                    bitmap = appIconResult.bitmap,
-                                    contentDescription = trimmedName,
-                                    modifier =
-                                        Modifier
-                                            .size(32.dp)
-                                            .offset(y = 2.dp),
-                                    contentScale = ContentScale.Fit,
-                                )
-                            }
-                            else -> {
-                                Icon(
-                                    imageVector = MaterialSymbols.Public,
-                                    contentDescription = trimmedName,
-                                    modifier =
-                                        Modifier
-                                            .size(28.dp)
-                                            .offset(y = 2.dp),
-                                )
-                            }
-                        }
-                        Box(
-                            modifier =
-                                Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .offset(x = (-4).dp, y = (-6).dp)
-                                    .size(16.dp)
-                                    .clip(AppShapes.full)
-                                    .background(MaterialTheme.colorScheme.surface),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                imageVector = MaterialSymbols.Edit,
-                                contentDescription = stringResource(R.string.settings_edit_label),
-                                modifier = Modifier.size(DesignTokens.EditBadgeIconSize),
-                                tint = MaterialTheme.colorScheme.primary,
-                            )
-                        }
-                    }
+                    ShortcutIconPicker(
+                        iconBitmap = iconBitmap ?: appIconResult.bitmap,
+                        contentDescription = trimmedName,
+                        onClick = { pickIconLauncher.launch(arrayOf("image/*")) },
+                    )
                     AppOutlinedTextField(
                         value = shortcutName,
                         onValueChange = { shortcutName = it },
@@ -258,6 +204,20 @@ fun EditCustomShortcutDialog(
             }
         },
     )
+
+    if (showDeleteConfirm) {
+        AppAlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text(stringResource(R.string.dialog_delete_item_title, shortcutDisplayName(shortcut))) },
+            confirmLabel = stringResource(R.string.dialog_delete),
+            onConfirm = {
+                showDeleteConfirm = false
+                onDelete()
+            },
+            dismissLabel = stringResource(R.string.dialog_cancel),
+            destructive = true,
+        )
+    }
 }
 
 private enum class EditableShortcutValueKind {
@@ -328,7 +288,7 @@ fun AppShortcutCardHeader(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onToggleExpanded)
+                .clickable(role = Role.Button, onClick = onToggleExpanded)
                 .padding(
                     horizontal = DesignTokens.SpacingLarge,
                     vertical = DesignTokens.SpacingLarge,
@@ -460,6 +420,7 @@ fun ShortcutToggleRow(
                 Modifier
                     .weight(1f)
                     .clickable(
+                        role = Role.Button,
                         interactionSource = interactionSource,
                         indication = ripple(),
                         onClick = onShortcutNameClick,

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.appShortcutsSettings
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.graphics.BitmapFactory
 import android.util.Base64
@@ -66,7 +67,7 @@ fun ShortcutSourceRow(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick)
+                .clickable(role = Role.Button, onClick = onClick)
                 .padding(
                     horizontal = DesignTokens.SpacingLarge,
                     vertical = DesignTokens.SpacingLarge,
@@ -131,7 +132,7 @@ fun SearchTargetShortcutSourceRow(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick)
+                .clickable(role = Role.Button, onClick = onClick)
                 .padding(
                     horizontal = DesignTokens.SpacingLarge,
                     vertical = DesignTokens.SpacingLarge,
@@ -177,7 +178,7 @@ fun AppDeepLinkSourceRow(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick)
+                .clickable(role = Role.Button, onClick = onClick)
                 .padding(
                     horizontal = DesignTokens.SpacingLarge,
                     vertical = DesignTokens.SpacingLarge,
@@ -297,66 +298,11 @@ fun AddAppDeepLinkDialog(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                 ) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .size(DesignTokens.Spacing48)
-                                .clip(AppShapes.medium)
-                                .clickable { pickIconLauncher.launch(arrayOf("image/*")) },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        when {
-                            iconBitmap != null -> {
-                                Image(
-                                    bitmap = iconBitmap,
-                                    contentDescription = appLabel,
-                                    modifier =
-                                        Modifier
-                                            .size(32.dp)
-                                            .offset(y = 2.dp),
-                                    contentScale = ContentScale.Fit,
-                                )
-                            }
-                            appIconResult.bitmap != null -> {
-                                Image(
-                                    bitmap = appIconResult.bitmap,
-                                    contentDescription = appLabel,
-                                    modifier =
-                                        Modifier
-                                            .size(32.dp)
-                                            .offset(y = 2.dp),
-                                    contentScale = ContentScale.Fit,
-                                )
-                            }
-                            else -> {
-                                Icon(
-                                    imageVector = MaterialSymbols.Public,
-                                    contentDescription = appLabel,
-                                    modifier =
-                                        Modifier
-                                            .size(28.dp)
-                                            .offset(y = 2.dp),
-                                )
-                            }
-                        }
-                        Box(
-                            modifier =
-                                Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .offset(x = (-4).dp, y = (-6).dp)
-                                    .size(16.dp)
-                                    .clip(AppShapes.full)
-                                    .background(MaterialTheme.colorScheme.surface),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                imageVector = MaterialSymbols.Edit,
-                                contentDescription = stringResource(R.string.settings_edit_label),
-                                modifier = Modifier.size(DesignTokens.EditBadgeIconSize),
-                                tint = MaterialTheme.colorScheme.primary,
-                            )
-                        }
-                    }
+                    ShortcutIconPicker(
+                        iconBitmap = iconBitmap ?: appIconResult.bitmap,
+                        contentDescription = appLabel,
+                        onClick = { pickIconLauncher.launch(arrayOf("image/*")) },
+                    )
                     AppOutlinedTextField(
                         value = shortcutName,
                         onValueChange = { shortcutName = it },

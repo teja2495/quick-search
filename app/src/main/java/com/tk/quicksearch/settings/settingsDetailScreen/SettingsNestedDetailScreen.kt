@@ -3,7 +3,6 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.components.AppFabTone
 import com.tk.quicksearch.shared.ui.components.AppFloatingActionButton
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import com.tk.quicksearch.reminders.ReminderEditorRequests
 import androidx.compose.runtime.collectAsState
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryAccess
@@ -235,7 +234,7 @@ internal fun SettingsNestedDetailScreen(
                                         callbacks.onBack()
                                     }, tooltip = stringResource(R.string.settings_custom_tool_delete_button)) {
                                         Icon(
-                                            imageVector = MaterialSymbols.Delete,
+                                            imageVector = MaterialSymbols.DeleteOutline,
                                             contentDescription = stringResource(R.string.settings_custom_tool_delete_button),
                                             tint = MaterialTheme.colorScheme.onSurface,
                                         )
@@ -456,7 +455,7 @@ internal fun SettingsNestedDetailScreen(
         if (detailType == SettingsDetailType.EXCLUDED_ITEMS) {
             AppFloatingActionButton(
                 onClick = { showClearAllConfirmation = true },
-                icon = MaterialSymbols.Delete,
+                icon = MaterialSymbols.DeleteOutline,
                 contentDescription = stringResource(R.string.settings_action_clear_all),
                 modifier =
                     Modifier

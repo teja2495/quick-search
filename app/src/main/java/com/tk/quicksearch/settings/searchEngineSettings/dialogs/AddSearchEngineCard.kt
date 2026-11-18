@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.searchEngineSettings.dialogs
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import android.graphics.BitmapFactory
@@ -25,7 +26,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -238,7 +238,7 @@ private fun AddSearchEngineForm(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             },
-            modifier = Modifier.clickable { isExpanded = !isExpanded },
+            modifier = Modifier.clickable(role = Role.Button) { isExpanded = !isExpanded },
         )
         AnimatedVisibility(
             visible = isExpanded,
@@ -300,7 +300,7 @@ private fun AddSearchEngineForm(
                                         Modifier
                                             .weight(1f)
                                             .offset(y = (-2).dp)
-                                            .clickable { isEditingName = true },
+                                            .clickable(role = Role.Button) { isEditingName = true },
                                 )
                             }
                         }
@@ -405,7 +405,6 @@ private fun AddSearchEngineForm(
                             availableBrowsers = availableBrowsers,
                             selectedPackage = selectedBrowserPackage,
                             onSelect = { selectedBrowserPackage = it },
-                            onExpand = { coroutineScope.launch { scrollState.animateScrollTo(Int.MAX_VALUE) } },
                         )
                     }
                 }

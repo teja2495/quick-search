@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.bookmarksSettings
 
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -84,7 +86,7 @@ internal fun BookmarkBrowserField(
                 .fillMaxWidth()
                 .clip(OutlinedTextFieldDefaults.shape)
                 .border(1.dp, MaterialTheme.colorScheme.outline, OutlinedTextFieldDefaults.shape)
-                .clickable(onClick = onClick)
+                .clickable(role = Role.Button, onClick = onClick)
                 .padding(horizontal = DesignTokens.SpacingLarge, vertical = DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
@@ -176,7 +178,7 @@ private fun BookmarkBrowserRows(
 ) {
     val browsers = bookmarkBrowserOptions(availableBrowsers)
     LazyColumn(
-        modifier = modifier,
+        modifier = modifier.selectableGroup(),
         verticalArrangement = Arrangement.spacedBy(AppPickerDrawerRowSpacing),
     ) {
         items(browsers, key = BrowserApp::packageName) { browser ->

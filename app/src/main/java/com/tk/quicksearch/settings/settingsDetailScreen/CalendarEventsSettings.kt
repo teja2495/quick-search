@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppFabTone
 import com.tk.quicksearch.shared.ui.components.AppExtendedFloatingActionButton
 import com.tk.quicksearch.shared.ui.components.AppFloatingActionButton
@@ -7,20 +8,16 @@ import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.CalendarContract
-import android.text.format.DateFormat
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
@@ -31,18 +28,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -62,11 +51,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -91,15 +76,10 @@ import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
 import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
-import com.tk.quicksearch.settings.shared.SettingsIconBadge
 import com.tk.quicksearch.settings.shared.SettingsCardItem
 import com.tk.quicksearch.settings.shared.SettingsManagementSearchBar
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import java.text.SimpleDateFormat
-import java.time.Instant
-import java.time.ZoneId
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -526,8 +506,8 @@ private fun CalendarEventManagementRow(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .alpha(if (isHidden) 0.45f else if (isPast) 0.65f else 1f)
-                    .combinedClickable(onClick = onClick, onLongClick = { showMenu = true })
+                    .alpha(if (isHidden) AppColors.ContentMutedAlpha else if (isPast) AppColors.ContentHighAlpha else 1f)
+                    .combinedClickable(role = Role.Button, onClick = onClick, onLongClick = { showMenu = true })
                     .padding(
                         horizontal = DesignTokens.SpacingLarge,
                         vertical = DesignTokens.SpacingLarge,

@@ -205,7 +205,7 @@ private fun ReminderFormDialog(
             if (onDelete != null) {
                 AppIconButton(onClick = onDelete, tooltip = stringResource(R.string.reminder_delete)) {
                     Icon(
-                        imageVector = MaterialSymbols.Delete,
+                        imageVector = MaterialSymbols.DeleteOutline,
                         contentDescription = stringResource(R.string.reminder_delete),
                         tint = MaterialTheme.colorScheme.error,
                     )

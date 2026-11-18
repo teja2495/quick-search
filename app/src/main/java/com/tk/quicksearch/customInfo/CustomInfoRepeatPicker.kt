@@ -1,30 +1,25 @@
 package com.tk.quicksearch.customInfo
 
+import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRow
+import androidx.compose.foundation.selection.selectableGroup
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
@@ -156,15 +151,12 @@ internal fun CustomRepeatDialog(
                     modifier = Modifier.fillMaxWidth(),
                     shape = AppShapes.extraSmall,
                 )
-                CustomInfoRepeatUnit.entries.forEach { option ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth().clickable { unit = option }.padding(vertical = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        RadioButton(selected = unit == option, onClick = { unit = option })
-                        Text(
-                            text = everyIntervalLabel(option, interval ?: 1),
-                            style = MaterialTheme.typography.bodyLarge,
+                Column(modifier = Modifier.selectableGroup()) {
+                    CustomInfoRepeatUnit.entries.forEach { option ->
+                        AppPickerDrawerRow(
+                            title = everyIntervalLabel(option, interval ?: 1),
+                            selected = unit == option,
+                            onClick = { unit = option },
                         )
                     }
                 }

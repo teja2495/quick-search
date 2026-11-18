@@ -263,6 +263,7 @@
     <string name="desc_navigate_back">వెనుకకు వెళ్ళు</string>
     <string name="desc_navigate_forward">ముందుకు వెళ్ళు</string>
     <string name="desc_open_settings">Quick Search సెట్టింగ్‌లను తెరువు</string>
+    <string name="desc_open_device_settings">పరికర సెట్టింగ్‌లను తెరవండి</string>
     <string name="desc_selected">ఎంచుకోబడింది</string>
     <string name="desc_voice_search_icon">వాయిస్ శోధనను ప్రారంభించు</string>
 
@@ -861,7 +862,7 @@
     <string name="custom_info_send_notification">నోటిఫికేషన్ పంపండి</string>
     <string name="custom_info_preview">ప్రివ్యూ</string>
     <string name="custom_info_saved">సేవ్ చేయబడింది</string>
-    <string name="custom_info_delete_confirm_title">%1$sను తొలగించాలా?</string>
+    <string name="dialog_delete_item_title">%1$sను తొలగించాలా?</string>
     <string name="custom_info_delete_confirm_message">ఈ అనుకూల సమాచారం మరియు దాని షెడ్యూల్ శాశ్వతంగా తొలగించబడతాయి.</string>
     <string name="settings_at_a_glance_desc">సరైన సమయంలో మీ హోమ్ స్క్రీన్‌లో కనిపించే ఉపయోగకరమైన సమాచారం</string>
     <string name="settings_at_a_glance_alarms_title">అలారాలు</string>

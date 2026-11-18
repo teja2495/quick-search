@@ -18,6 +18,7 @@ internal fun SliderWithValue(
     headerLabel: (@Composable () -> Unit)? = null,
     headerModifier: Modifier = Modifier,
     valueSpacing: Dp = 0.dp,
+    leadingLabel: (@Composable () -> Unit)? = null,
     slider: @Composable (Modifier) -> Unit,
 ) {
     if (headerLabel == null) {
@@ -26,6 +27,7 @@ internal fun SliderWithValue(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(valueSpacing),
         ) {
+            leadingLabel?.invoke()
             slider(Modifier.weight(1f))
             valueLabel()
         }

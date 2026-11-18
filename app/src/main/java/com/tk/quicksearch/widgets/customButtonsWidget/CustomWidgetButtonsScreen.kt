@@ -1,9 +1,7 @@
 package com.tk.quicksearch.widgets.customButtonsWidget
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.theme.AppShapes
-import android.content.Context
-import android.graphics.Bitmap
-import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.graphics.drawable.toBitmap
@@ -26,20 +24,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import com.tk.quicksearch.shared.ui.components.AppBottomSheet
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,38 +46,22 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.annotation.StringRes
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetSettingTile
-import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
-import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.appShortcutRepository.loadAppIconBase64
 import com.tk.quicksearch.search.data.appShortcutRepository.rememberShortcutIcon
-import com.tk.quicksearch.search.deviceSettings.DeviceSetting
-import com.tk.quicksearch.search.models.AppInfo
-import com.tk.quicksearch.search.models.ContactInfo
-import com.tk.quicksearch.search.models.DeviceFile
-import com.tk.quicksearch.search.models.NoteInfo
-import com.tk.quicksearch.media.MediaCommand
 import androidx.compose.ui.graphics.toArgb
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -97,7 +74,6 @@ import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetColorPicke
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
 
 @Composable
 fun CustomWidgetButtonsSection(
@@ -260,6 +236,7 @@ private fun CustomButtonsRow(
                                     .height(slotSize)
                                     .clip(slotShape)
                                     .combinedClickable(
+                                        role = Role.Button,
                                         onClick = { onSlotClick(index) },
                                         onLongClick =
                                             if (action != null) {
@@ -387,6 +364,7 @@ private fun CustomButtonsRow(
                                 },
                             ).clip(slotShape)
                             .combinedClickable(
+                                role = Role.Button,
                                 onClick = { onSlotClick(index) },
                                 onLongClick =
                                     if (action != null) {

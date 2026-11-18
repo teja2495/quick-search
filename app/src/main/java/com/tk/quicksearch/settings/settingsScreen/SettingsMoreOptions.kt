@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsScreen
 
+import androidx.compose.ui.semantics.Role
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
@@ -20,7 +21,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ButtonDefaults
 import com.tk.quicksearch.shared.ui.components.AppTopAppBar
@@ -39,7 +39,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.style.TextAlign
 import com.tk.quicksearch.BuildConfig
@@ -265,7 +264,7 @@ internal fun BackupRestoreRow(
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
             ) {
                 TonalIconBadge(icon = MaterialSymbols.History)
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing)) {
                     Text(
                         text = stringResource(R.string.settings_backup_restore_title),
                         style = MaterialTheme.typography.titleMedium,
@@ -428,7 +427,6 @@ fun SettingsVersionDisplay(
                 Text(
                     text = appName,
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.height(DesignTokens.SpacingXSmall))
@@ -452,7 +450,7 @@ fun SettingsVersionDisplay(
                         .weight(1f)
                         .clip(creditShape)
                         .background(tileColor, creditShape)
-                        .clickable(onClick = onDeveloperClick)
+                        .clickable(role = Role.Button, onClick = onDeveloperClick)
                         .padding(start = DesignTokens.SpacingXLarge, end = DesignTokens.SpacingLarge),
             ) {
                 Column(modifier = Modifier.weight(1f)) {
@@ -472,7 +470,7 @@ fun SettingsVersionDisplay(
                     contentAlignment = Alignment.Center,
                     modifier =
                         Modifier
-                            .size(40.dp)
+                            .size(DesignTokens.Spacing40)
                             .background(MaterialTheme.colorScheme.secondaryContainer, AppShapes.cookie4),
                 ) {
                     Icon(

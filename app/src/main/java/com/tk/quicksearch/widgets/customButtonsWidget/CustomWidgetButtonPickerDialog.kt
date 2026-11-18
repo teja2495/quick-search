@@ -5,11 +5,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.graphics.drawable.toBitmap
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
@@ -23,10 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,16 +33,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.zIndex
 import androidx.annotation.StringRes
 import androidx.compose.foundation.lazy.LazyRow
@@ -61,7 +52,6 @@ import com.tk.quicksearch.shared.ui.components.AppPickerDrawerSearch
 import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchUiState
-import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.appShortcutRepository.loadAppIconBase64
 import com.tk.quicksearch.search.data.appShortcutRepository.rememberShortcutIcon
@@ -70,22 +60,15 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.searchEngines.loadCustomIconAsBase64
-import com.tk.quicksearch.widgets.utils.WidgetPreferences
 import com.tk.quicksearch.widgets.utils.WidgetConfigConstants
-import com.tk.quicksearch.widgets.utils.WidgetButtonSlotConfig
-import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetColorPickerDialog
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
-import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 @Composable
 fun CustomWidgetButtonPickerDialog(

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.apps
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.search.apps.swipeGestures.appSwipeGestures
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -13,10 +14,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -33,13 +31,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.notificationDots.AppNotificationDot
 import com.tk.quicksearch.search.apps.notificationDots.hasNotificationDot
 import com.tk.quicksearch.search.apps.privateSpace.privateSpaceItems
@@ -110,11 +106,7 @@ internal fun AllAppsDrawer(
                     modifier =
                             Modifier
                                     .fillMaxWidth()
-                                    .padding(
-                                            end =
-                                                    (LazyGridScrollbarTouchWidth - AllAppsDialogSeekEdgeNudge)
-                                                            .coerceAtLeast(DesignTokens.SpacingSmall),
-                                    ),
+                                    .padding(end = LazyGridScrollbarTouchWidth),
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                     verticalArrangement = Arrangement.spacedBy(AllAppsDialogRowSpacing),
             ) {
@@ -192,10 +184,7 @@ internal fun AllAppsDrawer(
             )
             LazyGridVerticalScrollbar(
                     state = gridState,
-                    modifier =
-                            Modifier
-                                    .align(Alignment.CenterEnd)
-                                    .offset(x = AllAppsDialogSeekEdgeNudge),
+                    modifier = Modifier.align(Alignment.CenterEnd),
                     onDragFractionChange = { scrollbarDragFraction = it },
             )
         }
@@ -241,6 +230,7 @@ internal fun AllAppsDialogGridItem(
                         Modifier
                                 .fillMaxWidth()
                                 .combinedClickable(
+                                        role = Role.Button,
                                         onClick = {
                                             hapticConfirm(view)()
                                             onClick()

@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import androidx.compose.material3.minimumInteractiveComponentSize
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import android.text.format.DateFormat
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -16,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -263,7 +264,7 @@ internal fun rememberUpcomingRemindersGlance(enabled: Boolean): UpcomingReminder
         },
         delete = { reminder ->
             act(
-                reminder, deletedMessage, MaterialSymbols.Delete,
+                reminder, deletedMessage, MaterialSymbols.DeleteOutline,
                 readBefore = { getPinnedReminderOrder() },
                 action = { deleteReminder(reminder.reminderId) },
                 undo = { pinnedOrder -> restore(reminder, pinnedOrder) },
@@ -372,6 +373,7 @@ internal fun UpcomingReminderRow(
     ) {
         Row(
             modifier = Modifier.weight(1f).combinedClickable(
+                role = Role.Button,
                 enabled = !isPendingDone,
                 onClick = onClick,
                 onLongClick = { showMenu = true },
@@ -385,7 +387,7 @@ internal fun UpcomingReminderRow(
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(DesignTokens.IconSize),
             )
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing)) {
                 Text(
                     text = reminder.title,
                     style = MaterialTheme.typography.bodyLarge,
@@ -455,7 +457,7 @@ internal fun UpcomingReminderRow(
                     AppDropdownMenuDivider()
                     AppDropdownMenuItem(
                         text = stringResource(R.string.dialog_delete),
-                        icon = MaterialSymbols.Delete,
+                        icon = MaterialSymbols.DeleteOutline,
                         onClick = {
                             showMenu = false
                             onDelete()
@@ -482,6 +484,7 @@ internal fun UpcomingReminderRow(
                     Modifier
                         // Overrides TextButton's 40dp default minimum height so the pill stays compact.
                         .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                        .minimumInteractiveComponentSize()
                         .height(UndoPillHeight)
                         .drawWithContent {
                             drawContent()
@@ -490,7 +493,7 @@ internal fun UpcomingReminderRow(
             ) {
                 Text(
                     text = stringResource(R.string.action_undo),
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelLarge,
                     color = AppColors.Accent,
                 )
             }

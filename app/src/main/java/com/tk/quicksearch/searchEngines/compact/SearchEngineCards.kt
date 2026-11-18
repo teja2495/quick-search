@@ -1,5 +1,6 @@
 package com.tk.quicksearch.searchEngines.compact
 
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.combinedClickable
@@ -22,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppIconShape
@@ -155,6 +155,7 @@ fun SearchEngineCard(
                     opaqueCardTopResultBorder = true,
                 )
                 .combinedClickable(
+                    role = Role.Button,
                     onClick = {
                         hapticConfirm(view)()
                         onClick()
@@ -190,7 +191,6 @@ fun SearchEngineCard(
                 text = stringResource(actionLabelResId, targetName),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f),
             )
 
@@ -236,6 +236,7 @@ private fun SearchTargetCard(
                     opaqueCardTopResultBorder = true,
                 )
                 .combinedClickable(
+                    role = Role.Button,
                     onClick = {
                         hapticConfirm(view)()
                         onClick()
@@ -275,7 +276,6 @@ private fun SearchTargetCard(
                     ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -297,7 +297,7 @@ private fun CustomizeSearchEnginesCard(
             modifier
                 .fillMaxWidth()
                 .clip(SearchResultCardDefaults.shape)
-                .clickable {
+                .clickable(role = Role.Button) {
                     hapticConfirm(view)()
                     onClick()
                 },
@@ -328,7 +328,6 @@ private fun CustomizeSearchEnginesCard(
                 text = stringResource(R.string.customize_search_engines),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f),
             )
         }

@@ -81,11 +81,9 @@ private fun ToolExampleChip(text: String) {
         modifier =
             Modifier
                 .background(
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = ToolExampleChipFillAlpha),
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintSubtleAlpha),
                     AppShapes.small,
                 )
                 .padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingSmall),
     )
 }
-
-private const val ToolExampleChipFillAlpha = 0.08f

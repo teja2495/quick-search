@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgetsPanel
 
+import androidx.compose.animation.core.tween
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.graphics.drawable.Drawable
@@ -27,7 +28,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -289,8 +289,8 @@ private fun WidgetPickerAppGroup(
         }
         AnimatedVisibility(
             visible = isExpanded,
-            enter = expandVertically(animationSpec = AppMotion.defaultSpatial()) + fadeIn(),
-            exit = shrinkVertically(animationSpec = AppMotion.defaultSpatial()) + fadeOut(),
+            enter = expandVertically(animationSpec = AppMotion.defaultSpatial()) + fadeIn(tween(AppMotion.DurationShort, easing = AppMotion.EmphasizedDecelerateEasing)),
+            exit = shrinkVertically(animationSpec = AppMotion.defaultSpatial()) + fadeOut(tween(AppMotion.DurationExit, easing = AppMotion.EmphasizedAccelerateEasing)),
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap)) {
                 app.widgets.forEachIndexed { index, provider ->
@@ -425,7 +425,7 @@ private fun WidgetPickerRow(
             ) {
                 Text(
                     text = pickerProvider.label,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,

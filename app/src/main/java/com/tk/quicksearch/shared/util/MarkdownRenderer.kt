@@ -1,5 +1,6 @@
 package com.tk.quicksearch.shared.util
 
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -197,7 +198,7 @@ internal fun RenderMarkdownDocument(
                                         start = ((section.level - SECTION_HEADING_LEVEL) * 12)
                                             .coerceAtLeast(0)
                                             .dp,
-                                    ).clickable {
+                                    ).clickable(role = Role.Button) {
                                         if (scrollState != null) {
                                             val headingTop = headingTopInWindow[section.blockIndex]
                                             if (headingTop != null) {

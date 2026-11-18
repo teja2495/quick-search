@@ -83,7 +83,7 @@ private fun TrustPointLine(
                     } else {
                         Modifier
                     },
-                ).heightIn(min = DesignTokens.Spacing28),
+                ).heightIn(min = if (onClick != null) DesignTokens.MinTouchTarget else DesignTokens.Spacing28),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {

@@ -264,6 +264,7 @@
     <string name="desc_navigate_back">Navigate back</string>
     <string name="desc_navigate_forward">Navigate forward</string>
     <string name="desc_open_settings">Open Quick Search settings</string>
+    <string name="desc_open_device_settings">Open device settings</string>
     <string name="desc_selected">Selected</string>
     <string name="desc_voice_search_icon">Start voice search</string>
 
@@ -885,7 +886,7 @@
     <string name="custom_info_send_notification">Send Notification</string>
     <string name="custom_info_preview">Preview</string>
     <string name="custom_info_saved">Saved</string>
-    <string name="custom_info_delete_confirm_title">Delete %1$s?</string>
+    <string name="dialog_delete_item_title">Delete %1$s?</string>
     <string name="custom_info_delete_confirm_message">This custom info and its schedule will be permanently deleted.</string>
     <string name="settings_at_a_glance_desc">Useful information that appears on your home screen at relevant times</string>
     <string name="settings_at_a_glance_alarms_title">Alarms</string>

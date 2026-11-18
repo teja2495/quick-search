@@ -107,7 +107,7 @@ fun TriggerDialog(
                 Text(
                     text = stringResource(R.string.dialog_trigger_message, itemName),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
                 Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))

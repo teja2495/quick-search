@@ -1,5 +1,8 @@
 package com.tk.quicksearch.overlay
 
+import com.tk.quicksearch.R
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.LocalPinnedGlanceOnly
@@ -52,7 +55,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -118,7 +120,8 @@ fun OverlayRoot(
         var canPlayEnterAnimation by remember(animationToken) { mutableStateOf(false) }
 
         // Handle closing with animation
-        val handleClose = { isVisible = false }
+        val closeLabel = stringResource(R.string.common_close)
+    val handleClose = { isVisible = false }
 
         // Call onCloseRequested immediately when isVisible becomes false
         val exitAnimationDuration = OVERLAY_EXIT_ANIMATION_MS
@@ -179,6 +182,8 @@ fun OverlayRoot(
                                         // Tapping the scrim outside the card dismisses the overlay; the
                                         // dismiss animation is the feedback, so a full-screen ripple is skipped.
                                         .clickable(
+                                                role = Role.Button,
+                                                onClickLabel = closeLabel,
                                                 interactionSource =
                                                         remember { MutableInteractionSource() },
                                                 indication = null,

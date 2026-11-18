@@ -264,6 +264,7 @@
     <string name="desc_navigate_back">Kembali</string>
     <string name="desc_navigate_forward">Maju</string>
     <string name="desc_open_settings">Buka pengaturan Quick Search</string>
+    <string name="desc_open_device_settings">Buka setelan perangkat</string>
     <string name="desc_selected">Dipilih</string>
     <string name="desc_voice_search_icon">Mulai pencarian suara</string>
 
@@ -865,7 +866,7 @@
     <string name="custom_info_send_notification">Kirim notifikasi</string>
     <string name="custom_info_preview">Pratinjau</string>
     <string name="custom_info_saved">Disimpan</string>
-    <string name="custom_info_delete_confirm_title">Hapus %1$s?</string>
+    <string name="dialog_delete_item_title">Hapus %1$s?</string>
     <string name="custom_info_delete_confirm_message">Info kustom ini dan jadwalnya akan dihapus secara permanen.</string>
     <string name="settings_at_a_glance_desc">Informasi berguna yang muncul di layar utama pada waktu yang tepat</string>
     <string name="settings_at_a_glance_alarms_title">Alarm</string>

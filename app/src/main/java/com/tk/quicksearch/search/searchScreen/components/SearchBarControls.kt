@@ -1,5 +1,8 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.AnimatedContent
@@ -11,8 +14,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,68 +21,38 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
-import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
 import com.tk.quicksearch.tools.inlineSearch.SearchToolType
@@ -91,8 +62,6 @@ import com.tk.quicksearch.searchEngines.shared.SearchTargetIcon
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.app.startup.StartupTrace
-import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.util.hapticStrong
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -377,8 +346,11 @@ internal fun SearchBarTrailingIcon(
                         Modifier
                             .size(DesignTokens.Spacing48)
                             .clip(AppShapes.full)
+                            // Not AppIconButton: long-press opens device settings, which a tooltip would block.
                             .combinedClickable(
                                 hapticFeedbackEnabled = false,
+                                role = Role.Button,
+                                onLongClickLabel = stringResource(R.string.desc_open_device_settings),
                                 onLongClick = {
                                     hapticStrong(view)()
                                     openDeviceSettings(context)
@@ -412,6 +384,8 @@ internal fun androidx.compose.foundation.layout.BoxScope.SearchBarAliasMorphText
         if (text != null) {
             val progress = progress.coerceIn(0f, 1f)
             val scale = 1f - ((1f - AliasIconMorphEndScale) * progress)
+            // graphicsLayer translation is absolute, so travel toward the leading icon in either direction.
+            val travelSign = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1f else 1f
             Text(
                 text = text,
                 style = MaterialTheme.typography.titleMedium,
@@ -421,7 +395,7 @@ internal fun androidx.compose.foundation.layout.BoxScope.SearchBarAliasMorphText
                         .align(Alignment.CenterStart)
                         .padding(start = AliasMorphTextStartPadding)
                         .graphicsLayer {
-                            translationX = -horizontalTravelPx * progress
+                            translationX = -horizontalTravelPx * progress * travelSign
                             translationY = -verticalTravelPx * progress
                             scaleX = scale
                             scaleY = scale

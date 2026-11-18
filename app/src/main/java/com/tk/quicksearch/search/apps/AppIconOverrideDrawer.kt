@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.apps
 
+import com.tk.quicksearch.shared.ui.components.AppFilterChip
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.app.Application
 import android.content.pm.PackageManager
@@ -33,7 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -139,24 +139,10 @@ fun AppIconOverrideDrawer(
                         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                     ) {
                         iconPacks.forEach { iconPack ->
-                            val selected = iconPack.packageName == selectedPackPackage
-                            Text(
-                                text = iconPack.label,
-                                modifier =
-                                    Modifier
-                                        .clickable { selectedPackPackage = iconPack.packageName }
-                                        .padding(
-                                            horizontal = DesignTokens.SpacingMedium,
-                                            vertical = DesignTokens.SpacingXSmall,
-                                        ),
-                                color =
-                                    MaterialTheme.colorScheme.onSurface.copy(
-                                        alpha = if (selected) 1f else 0.34f,
-                                    ),
-                                style =
-                                    if (selected) MaterialTheme.typography.labelMedium
-                                    else MaterialTheme.typography.labelSmall,
-                                maxLines = 1,
+                            AppFilterChip(
+                                selected = iconPack.packageName == selectedPackPackage,
+                                onClick = { selectedPackPackage = iconPack.packageName },
+                                label = iconPack.label,
                             )
                         }
                     }

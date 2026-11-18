@@ -1,7 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
 import com.tk.quicksearch.shared.ui.components.AppMessages
-import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import android.app.AlarmManager
 import android.content.BroadcastReceiver
@@ -12,16 +11,12 @@ import android.text.format.DateFormat
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -31,7 +26,6 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -53,8 +47,6 @@ import java.util.Date
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-
-private val UpcomingAlarmDismissSize = 28.dp
 
 /**
  * The next clock-app alarm shown in the home At a Glance card, with its row actions. [isTomorrow]
@@ -206,35 +198,14 @@ internal fun UpcomingAlarmRow(glance: UpcomingAlarmGlance) {
     val showFailure = { AppMessages.show(context, failureMessage) }
     var showMenu by remember { mutableStateOf(false) }
 
-    Row(
-        modifier = Modifier.fillMaxWidth().heightIn(min = DesignTokens.GlanceRowMinHeight).padding(
-            start = DesignTokens.GlanceRowHorizontalPadding,
-            top = DesignTokens.SpacingMedium,
-            bottom = DesignTokens.SpacingMedium,
-        ),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Row(
-            modifier = Modifier.weight(1f).combinedClickable(
-                onClick = { if (!glance.open()) showFailure() },
-                onLongClick = { if (glance.appLabel != null) showMenu = true },
-            ),
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            UpcomingAlarmAppIcon(glance.creatorPackage)
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Text(
-                    text = scheduleLabel,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+    GlanceStatusRow(
+        icon = { UpcomingAlarmAppIcon(glance.creatorPackage) },
+        title = title,
+        onClick = { if (!glance.open()) showFailure() },
+        onLongClick = { if (glance.appLabel != null) showMenu = true },
+        subtitle = scheduleLabel,
+        onDismiss = glance.dismiss,
+        belowText = {
             AppDropdownMenu(
                 expanded = showMenu,
                 onDismissRequest = { showMenu = false },
@@ -248,20 +219,8 @@ internal fun UpcomingAlarmRow(glance: UpcomingAlarmGlance) {
                     },
                 )
             }
-        }
-        AppIconButton(
-            onClick = glance.dismiss,
-            modifier = Modifier.size(UpcomingAlarmDismissSize),
-            tooltip = stringResource(R.string.common_close),
-        ) {
-            Icon(
-                imageVector = MaterialSymbols.Close,
-                contentDescription = stringResource(R.string.common_close),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(16.dp),
-            )
-        }
-    }
+        },
+    )
 }
 
 /** The clock app's icon, or the generic alarm icon when its package is unknown or still loading. */
@@ -273,7 +232,7 @@ private fun UpcomingAlarmAppIcon(packageName: String?) {
         Image(
             bitmap = appIcon,
             contentDescription = null,
-            modifier = Modifier.size(24.dp),
+            modifier = Modifier.size(DesignTokens.IconSize),
         )
     } else {
         Icon(

@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
@@ -30,7 +32,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -124,10 +125,9 @@ private fun SectionMenuGrid(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = stringResource(R.string.search_section_menu_title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.weight(1f).padding(start = DesignTokens.SpacingXSmall),
+                modifier = Modifier.weight(1f).padding(start = DesignTokens.SpacingXSmall).semantics { heading() },
             )
             AppIconButton(onClick = onDismiss, tooltip = stringResource(R.string.dialog_cancel)) {
                 Icon(
