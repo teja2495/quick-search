@@ -48,6 +48,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -192,7 +193,7 @@ private fun WidgetLayoutLockButton(
         FilledTonalIconToggleButton(
             checked = locked,
             onCheckedChange = onCheckedChange,
-            modifier = Modifier.size(DesignTokens.Spacing40),
+            modifier = Modifier.minimumInteractiveComponentSize().size(DesignTokens.Spacing40),
             colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
                 containerColor = actionColors.containerColor,
                 contentColor = actionColors.contentColor,

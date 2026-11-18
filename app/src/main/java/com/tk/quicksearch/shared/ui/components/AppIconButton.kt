@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -115,11 +116,13 @@ private fun StyledIconButton(
     interactionSource: MutableInteractionSource?,
     content: @Composable () -> Unit,
 ) {
+    // Reserve touch space outside caller-supplied visual sizes, including 28dp and 40dp buttons.
+    val touchTarget = Modifier.minimumInteractiveComponentSize().then(modifier)
     when (style) {
         AppIconButtonStyle.Standard ->
             IconButton(
                 onClick = onClick,
-                modifier = modifier,
+                modifier = touchTarget,
                 enabled = enabled,
                 colors = colors ?: IconButtonDefaults.iconButtonColors(),
                 interactionSource = interactionSource,
@@ -128,7 +131,7 @@ private fun StyledIconButton(
         AppIconButtonStyle.Filled ->
             FilledIconButton(
                 onClick = onClick,
-                modifier = modifier,
+                modifier = touchTarget,
                 enabled = enabled,
                 colors = colors ?: IconButtonDefaults.filledIconButtonColors(),
                 interactionSource = interactionSource,
@@ -137,7 +140,7 @@ private fun StyledIconButton(
         AppIconButtonStyle.Tonal ->
             FilledTonalIconButton(
                 onClick = onClick,
-                modifier = modifier,
+                modifier = touchTarget,
                 enabled = enabled,
                 colors = colors ?: IconButtonDefaults.filledTonalIconButtonColors(),
                 interactionSource = interactionSource,

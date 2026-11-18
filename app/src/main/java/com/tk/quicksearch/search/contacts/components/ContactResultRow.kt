@@ -4,6 +4,8 @@ import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -289,7 +291,9 @@ internal fun ContactAvatar(
                                 .then(
                                         if (onClick != null) {
                                                 // Keeps the press ripple inside the circle.
-                                                Modifier.clip(AppShapes.full).clickable(role = Role.Button, onClick = onClick)
+                                                Modifier.clip(AppShapes.full)
+                                                    .clickable(role = Role.Button, onClick = onClick)
+                                                    .semantics { contentDescription = displayName }
                                         } else {
                                                 Modifier
                                         },

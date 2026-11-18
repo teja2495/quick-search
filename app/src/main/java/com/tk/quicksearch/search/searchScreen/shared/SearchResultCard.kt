@@ -21,6 +21,8 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -112,12 +114,17 @@ object SearchResultCardDefaults {
                 showWallpaperBackground = showWallpaperBackground,
                 overlayContainerColor = overlayContainerColor,
             )
-        // Over a frosted wallpaper ([frostedCardBackground]) the scrim can be lighter and still
-        // keep text readable, so the blur shows through.
-        val frosted =
-            showWallpaperBackground && overlayContainerColor == null &&
-                LocalFrostedCardSource.current?.isActive == true
-        return if (frosted) base.copy(alpha = base.alpha * FrostedResultCardScrimFactor) else base
+        val frost = LocalFrostedCardSource.current
+        if (!showWallpaperBackground || overlayContainerColor != null || frost?.isActive != true) {
+            return base
+        }
+        val tint = frost.tint
+        val foreground = MaterialTheme.colorScheme.onSurfaceVariant
+        val isDarkTheme = LocalAppIsDarkTheme.current
+        return remember(base, tint, foreground, isDarkTheme) {
+            val worstWallpaper = tint.compositeOver(if (isDarkTheme) Color.White else Color.Black)
+            readableFrostedScrim(base, foreground, worstWallpaper, isDarkTheme)
+        }
     }
 
     /**
@@ -131,6 +138,30 @@ object SearchResultCardDefaults {
     ): Color =
         overlayDividerColor
             ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant
+}
+
+/** Keeps the lightest usable scrim even over a fully white or black custom image. */
+private fun readableFrostedScrim(
+    scrim: Color,
+    foreground: Color,
+    wallpaper: Color,
+    isDarkTheme: Boolean,
+): Color {
+    val foregroundLuminance = foreground.luminance() + 0.05f
+    fun hasContrast(alpha: Float): Boolean {
+        val backgroundLuminance = scrim.copy(alpha = alpha).compositeOver(wallpaper).luminance() + 0.05f
+        val contrast = if (isDarkTheme) foregroundLuminance / backgroundLuminance else backgroundLuminance / foregroundLuminance
+        return contrast >= 4.5f
+    }
+
+    var low = scrim.alpha * FrostedResultCardScrimFactor
+    if (hasContrast(low)) return scrim.copy(alpha = low)
+    var high = 1f
+    repeat(8) {
+        val mid = (low + high) / 2f
+        if (hasContrast(mid)) high = mid else low = mid
+    }
+    return scrim.copy(alpha = high)
 }
 
 /**

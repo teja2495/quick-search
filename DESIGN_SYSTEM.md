@@ -161,9 +161,10 @@ tiles, permission cards, and the widgets panel cards show a blurred copy of the 
 them (`searchScreen/FrostedCardBackdrop.kt`). The search background bakes one small blurred bitmap
 when the wallpaper or blur setting changes. `Modifier.frostedCardBackground(shape)` draws the
 matching region under the card, and `SearchResultCardDefaults.containerColor` lowers the scrim by
-`FrostedResultCardScrimFactor` while frost is active. A new Home or result surface that draws its
-own container adds the modifier before its background. There is no frost over the system
-wallpaper, because Android draws it and the app has no copy.
+`FrostedResultCardScrimFactor` while frost is active. It strengthens the scrim when needed for
+4.5:1 supporting-text contrast over the lightest or darkest possible tinted image. A new Home
+or result surface that draws its own container adds the modifier before its background. There
+is no frost over the system wallpaper, because Android draws it and the app has no copy.
 
 The search bar and bottom chrome (`insetCardBackdrop` / `insetCardBackground`) are solid by
 default, flattened onto `surfaceContainer` (black for AMOLED). The "Blurred Background" toggle in

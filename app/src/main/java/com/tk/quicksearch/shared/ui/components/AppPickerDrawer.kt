@@ -1,6 +1,8 @@
 package com.tk.quicksearch.shared.ui.components
 
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -161,20 +163,19 @@ private fun AppPickerDrawerSearchField(
     search: AppPickerDrawerSearch,
     focusRequester: FocusRequester,
 ) {
+    val searchLabel = search.placeholder ?: stringResource(R.string.common_search)
     OutlinedTextField(
         value = search.query,
         onValueChange = search.onQueryChange,
-        modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+        modifier = Modifier.fillMaxWidth().focusRequester(focusRequester).semantics {
+            contentDescription = searchLabel
+        },
         shape = if (search.onSubmit != null) AppShapes.large else AppShapes.full,
         leadingIcon = {
-            if (search.onSubmit != null) {
-                Icon(imageVector = MaterialSymbols.Add, contentDescription = null)
-            } else {
-                Icon(
-                    imageVector = MaterialSymbols.Search,
-                    contentDescription = stringResource(R.string.common_search),
-                )
-            }
+            Icon(
+                imageVector = if (search.onSubmit != null) MaterialSymbols.Add else MaterialSymbols.Search,
+                contentDescription = null,
+            )
         },
         trailingIcon = {
             if (search.query.text.isNotBlank()) {
@@ -203,12 +204,7 @@ private fun AppPickerDrawerSearchField(
         keyboardActions =
             search.onSubmit?.let { submit -> KeyboardActions(onDone = { submit(search.query.text) }) }
                 ?: KeyboardActions.Default,
-        colors =
-            dialogTextFieldColors().copy(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent,
-            ),
+        colors = dialogTextFieldColors(unfocusedIndicatorColor = Color.Transparent),
     )
 }
 

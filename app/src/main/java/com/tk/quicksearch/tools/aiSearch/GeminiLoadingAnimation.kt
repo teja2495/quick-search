@@ -10,6 +10,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.progressSemantics
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -59,7 +60,7 @@ fun GeminiLoadingAnimation(
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
 ) {
     Row(
-        modifier = modifier.fillMaxWidth().padding(vertical = DesignTokens.SpacingMedium),
+        modifier = modifier.fillMaxWidth().progressSemantics().padding(vertical = DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {

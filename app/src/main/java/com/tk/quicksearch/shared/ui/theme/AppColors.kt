@@ -270,12 +270,12 @@ object AppColors {
     /** Primary text color used in result rows when the wallpaper background is active. */
     val WallpaperTextPrimary: Color
         @Composable
-        get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
+        get() = MaterialTheme.colorScheme.onSurface
 
     /** Secondary/icon color used in result rows when the wallpaper background is active. */
     val WallpaperTextSecondary: Color
         @Composable
-        get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+        get() = MaterialTheme.colorScheme.onSurfaceVariant
 
     /** Folder tile backdrop over a wallpaper/custom image (scrim that keeps the preview icons legible). */
     val FolderWallpaperBackdrop: Color

@@ -120,16 +120,20 @@ fun PermissionItem(
     contentPadding: PaddingValues = PaddingValues(DesignTokens.SpacingXLarge),
 ) {
     val view = LocalView.current
-    val grantedClick = onGrantedClick?.takeIf { !isNavigationItem && permissionState.isGranted }
+    val interactionModifier = when {
+        isNavigationItem -> Modifier.clickable(role = Role.Button, onClick = onNavigationClick)
+        !permissionState.isGranted -> Modifier.toggleable(value = false, role = Role.Switch) {
+            hapticToggle(view)()
+            onToggleChange(true)
+        }
+        onGrantedClick != null -> Modifier.clickable(role = Role.Button, onClick = onGrantedClick)
+        else -> Modifier
+    }
     Row(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clickable(
-                    role = Role.Button,
-                    enabled = isNavigationItem || grantedClick != null,
-                    onClick = grantedClick ?: onNavigationClick,
-                )
+                .then(interactionModifier)
                 .padding(contentPadding),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -144,6 +148,7 @@ fun PermissionItem(
             ) {
                 Text(
                     text = title,
+                    modifier = Modifier.weight(1f, fill = false),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
@@ -185,16 +190,7 @@ fun PermissionItem(
         } else {
             AppSwitch(
                 checked = false,
-                onCheckedChange = { newValue ->
-                    hapticToggle(view)()
-                    if (newValue) {
-                        // User wants to enable - request permission
-                        onToggleChange(true)
-                    } else if (!isMandatory) {
-                        // User wants to disable optional permission (just update UI state)
-                        onToggleChange(false)
-                    }
-                },
+                onCheckedChange = null,
                 modifier = Modifier.padding(start = DesignTokens.SpacingLarge),
             )
         }

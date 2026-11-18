@@ -24,6 +24,10 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,6 +56,8 @@ fun IconPackPickerDialog(
         onResetAllIcons: () -> Unit,
         onDismiss: () -> Unit,
 ) {
+    var showResetConfirmation by rememberSaveable { mutableStateOf(false) }
+    val resetLabel = stringResource(R.string.settings_icon_pack_reset_all_icons)
     AppAlertDialog(
             onDismissRequest = onDismiss,
             title = {
@@ -138,16 +144,27 @@ fun IconPackPickerDialog(
             },
             dismissButton = {
                 AppTextButton(
-                        onClick = {
-                            onResetAllIcons()
-                            onDismiss()
-                        },
+                        onClick = { showResetConfirmation = true },
                         tone = AppButtonTone.Neutral,
                 ) {
-                    Text(stringResource(R.string.settings_icon_pack_reset_all_icons))
+                    Text(resetLabel)
                 }
             },
     )
+    if (showResetConfirmation) {
+        AppAlertDialog(
+            onDismissRequest = { showResetConfirmation = false },
+            title = { Text(resetLabel) },
+            confirmLabel = stringResource(R.string.dialog_reset),
+            dismissLabel = stringResource(R.string.dialog_cancel),
+            destructive = true,
+            onConfirm = {
+                showResetConfirmation = false
+                onResetAllIcons()
+                onDismiss()
+            },
+        )
+    }
 }
 
 /** Whether to mask icons the pack lacks: a row that toggles as a whole, with the expressive switch. */

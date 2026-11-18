@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -36,6 +37,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -70,7 +72,7 @@ private const val QuickActionTranslucentAlpha = 0.5f
 
 /**
  * Material 3 Expressive extra-small button for the search screen's quick actions (Number Keyboard,
- * Call, Set Alarm, Start Timer, Reminder, All Apps): 32dp tall, fully round corners that square to
+ * Call, Set Alarm, Start Timer, Reminder, All Apps): 32dp minimum visual height, round corners that square to
  * 8dp on press on the expressive fast spatial spring. Filled tonal
  * (`secondaryContainer`/`onSecondaryContainer`); the search quick actions draw the container 50%
  * transparent, while All Apps keeps it opaque. Content padding is symmetric so the icon and
@@ -88,7 +90,7 @@ private fun QuickActionButton(
     val interactionSource = remember { MutableInteractionSource() }
     val labelStyle = MaterialTheme.typography.labelLarge
     Surface(
-        modifier = modifier.height(DesignTokens.ButtonHeightExtraSmall),
+        modifier = modifier.minimumInteractiveComponentSize().heightIn(min = DesignTokens.ButtonHeightExtraSmall),
         onClick = onClick,
         interactionSource = interactionSource,
         shape = pressMorphButtonShape(interactionSource, DesignTokens.ButtonHeightExtraSmall, DesignTokens.ButtonPressedCornerSmall),

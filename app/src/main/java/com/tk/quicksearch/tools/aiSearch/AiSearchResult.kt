@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -168,7 +167,7 @@ private fun QuickSearchHelpContactButton(
         onClick = {
             FeedbackUtils.launchFeedbackEmail(context, QuickSearchHelp.stripAlias(question))
         },
-        modifier = modifier.height(DesignTokens.ButtonHeightExtraSmall),
+        modifier = modifier,
         tone = AppButtonTone.Secondary,
         size = AppButtonSize.ExtraSmall,
         icon = MaterialSymbols.MailOutline,

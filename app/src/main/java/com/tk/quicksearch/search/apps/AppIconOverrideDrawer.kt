@@ -37,6 +37,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -96,6 +98,7 @@ fun AppIconOverrideDrawer(
         }
     }
     val selectedPack = iconPacks.firstOrNull { it.packageName == selectedPackPackage }
+    val searchLabel = stringResource(R.string.icon_picker_search)
 
     AppBottomPopup(
         onDismiss = onDismiss,
@@ -119,17 +122,17 @@ fun AppIconOverrideDrawer(
                     OutlinedTextField(
                         value = query,
                         onValueChange = { query = it },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().semantics { contentDescription = searchLabel },
                         singleLine = true,
                         leadingIcon = { Icon(MaterialSymbols.Search, contentDescription = null) },
-                        placeholder = { Text(stringResource(R.string.icon_picker_search)) },
+                        placeholder = { Text(searchLabel) },
                         shape = AppShapes.full,
                         colors =
                             TextFieldDefaults.colors(
                                 focusedContainerColor = iconContainerColor,
                                 unfocusedContainerColor = iconContainerColor,
                                 disabledContainerColor = iconContainerColor,
-                                focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                                focusedIndicatorColor = AppColors.Accent,
                                 unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
                                 disabledIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
                             ),

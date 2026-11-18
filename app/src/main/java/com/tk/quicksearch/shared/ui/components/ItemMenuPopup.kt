@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
@@ -245,9 +244,9 @@ fun ItemMenuLongPressDropdown(
         offset = DpOffset(x = 0.dp, y = 8.dp),
         containerColor = AppDropdownMenuDefaults.itemMenuContainerColor,
     ) {
-        DropdownMenuItem(
-            text = { Text(text = option.label) },
-            leadingIcon = { Icon(imageVector = option.icon, contentDescription = null) },
+        AppDropdownMenuItem(
+            text = option.label,
+            icon = option.icon,
             onClick = {
                 onDismiss()
                 option.onClick()

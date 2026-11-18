@@ -11,6 +11,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -236,6 +237,7 @@ private fun ReleaseNotesExpanderRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .heightIn(min = DesignTokens.MinTouchTarget)
             .clip(AppShapes.small)
             .clickable(
                 role = Role.Button,
@@ -244,11 +246,12 @@ private fun ReleaseNotesExpanderRow(
                 onClick = onClick,
             )
             .padding(top = DesignTokens.SpacingMedium, bottom = bottomPadding),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = label,
+            modifier = Modifier.weight(1f),
             style = style,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -270,6 +273,7 @@ private fun ReleaseNotesNavigationRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .heightIn(min = DesignTokens.MinTouchTarget)
             .clip(AppShapes.small)
             .clickable(
                 role = Role.Button,
@@ -278,11 +282,12 @@ private fun ReleaseNotesNavigationRow(
                 onClick = onClick,
             )
             .padding(vertical = DesignTokens.SpacingMedium),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = label,
+            modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,

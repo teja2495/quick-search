@@ -28,9 +28,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.common.AddToHomeHandler
@@ -207,9 +209,10 @@ internal fun ContactActionsPopup(
 
     val dialogBackground = AppColors.DialogBackground
     val numberSwipeThresholdPx = with(LocalDensity.current) { NUMBER_SWIPE_THRESHOLD.toPx() }
+    val numberSwipeDirection = if (LocalLayoutDirection.current == LayoutDirection.Ltr) 1 else -1
     val switchNumberOnSwipe =
         if (reorderedPhoneNumbers.size > 1) {
-            Modifier.pointerInput(reorderedPhoneNumbers) {
+            Modifier.pointerInput(reorderedPhoneNumbers, numberSwipeDirection) {
                 var dragAmount = 0f
                 detectHorizontalDragGestures(
                     onDragStart = { dragAmount = 0f },
@@ -224,7 +227,7 @@ internal fun ContactActionsPopup(
                     },
                     onHorizontalDrag = { change, amount ->
                         change.consume()
-                        dragAmount += amount
+                        dragAmount += amount * numberSwipeDirection
                     },
                 )
             }
@@ -233,7 +236,7 @@ internal fun ContactActionsPopup(
         }
     AppBottomPopup(
         onDismiss = onDismiss,
-        // Swiping left or right anywhere on the popup switches between the contact's numbers.
+        // Swiping anywhere on the popup switches between the contact's numbers in reading order.
         modifier = switchNumberOnSwipe,
         animateSizeChanges = true,
         contentCardColor = dialogBackground,
