@@ -61,6 +61,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
@@ -304,6 +306,7 @@ internal fun BoxScope.QuickNoteEditOverlay(
                 )
             }
         }
+        WidgetEditBadgeScrim()
         WidgetActionButton(
             icon = MaterialSymbols.Close,
             contentDescription = stringResource(R.string.action_remove),
@@ -311,9 +314,7 @@ internal fun BoxScope.QuickNoteEditOverlay(
             background = MaterialTheme.colorScheme.error,
             onClick = onRemove,
             modifier =
-                Modifier
-                    .align(Alignment.TopEnd)
-                    .offset(x = WidgetActionButtonCornerOffset, y = -WidgetActionButtonCornerOffset),
+                Modifier.align(Alignment.TopEnd),
         )
     }
 }
@@ -501,8 +502,8 @@ internal fun BoxScope.WidgetEditOverlay(
 }
 
 /**
- * Edit badges grouped at the widget's top-end corner, ordered Home, Settings, Remove. Unavailable
- * actions are omitted so the remaining badges stay packed against the corner.
+ * Edit badges along the widget's top edge: Add to Home alone at the top-start corner, then Settings
+ * and Remove packed at the top-end corner. Unavailable actions are omitted.
  */
 @Composable
 internal fun BoxScope.WidgetEditActionButtons(
@@ -510,22 +511,26 @@ internal fun BoxScope.WidgetEditActionButtons(
     onConfigure: (() -> Unit)?,
     onPinToHome: (() -> Unit)? = null,
 ) {
+    WidgetEditBadgeScrim()
+    onPinToHome?.let { onClick ->
+        WidgetActionButton(
+            icon = MaterialSymbols.Home,
+            contentDescription = stringResource(R.string.action_add_to_home),
+            tint = MaterialTheme.colorScheme.onPrimary,
+            background = MaterialTheme.colorScheme.primary,
+            onClick = onClick,
+            modifier = Modifier.align(Alignment.TopStart),
+        )
+    }
     Row(
-        modifier =
-            Modifier
-                .align(Alignment.TopEnd)
-                .offset(x = WidgetActionButtonCornerOffset, y = -WidgetActionButtonCornerOffset),
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+        modifier = Modifier.align(Alignment.TopEnd),
+        // Each badge lays out at its 48dp touch target, so pull them together until the visible
+        // badges sit SpacingSmall apart; their touch targets overlap slightly at the seams.
+        horizontalArrangement =
+            Arrangement.spacedBy(
+                DesignTokens.SpacingSmall - (DesignTokens.MinTouchTarget - WidgetActionButtonSize),
+            ),
     ) {
-        onPinToHome?.let { onClick ->
-            WidgetActionButton(
-                icon = MaterialSymbols.Home,
-                contentDescription = stringResource(R.string.action_add_to_home),
-                tint = MaterialTheme.colorScheme.onPrimary,
-                background = MaterialTheme.colorScheme.primary,
-                onClick = onClick,
-            )
-        }
         onConfigure?.let { onClick ->
             WidgetActionButton(
                 icon = MaterialSymbols.Settings,
@@ -543,6 +548,28 @@ internal fun BoxScope.WidgetEditActionButtons(
             onClick = onRemove,
         )
     }
+}
+
+/**
+ * Dark band fading down from the widget's top edge, behind the edit badges, so they stay legible
+ * over any widget content. Clipped to the card shape.
+ */
+@Composable
+internal fun BoxScope.WidgetEditBadgeScrim() {
+    val scrim = MaterialTheme.colorScheme.scrim
+    Box(
+        modifier =
+            Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .height(WidgetEditBadgeScrimHeight)
+                .clip(AppShapes.widgetPanelCard)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(scrim.copy(alpha = AppColors.ContentSecondaryAlpha), Color.Transparent),
+                    ),
+                ),
+    )
 }
 
 /**
@@ -634,9 +661,14 @@ internal fun EdgeResizeHandle(
             WidgetResizeVisualLong to WidgetResizeVisualShort
         }
 
+    // Center the touch target on the border line, where the pill is drawn, so touches on the
+    // pill's outer half (and just outside the widget) still grab the handle instead of falling
+    // through to the page swipe or the tap that ends editing.
+    val edgeOffset = WidgetResizeEdgeHitShort / 2
     Box(
         modifier =
             modifier
+                .offset(x = edgeOffset * edge.xSign, y = edgeOffset * edge.ySign)
                 .size(width = hitWidth, height = hitHeight)
                 .pointerInput(edge, horizontalSign) {
                     var totalX = 0f
@@ -681,13 +713,9 @@ internal fun EdgeResizeHandle(
                 },
         contentAlignment = Alignment.Center,
     ) {
-        // Shift the pill from the hit area's center onto the border line so it sits on the edge
-        // instead of covering widget content.
-        val edgeOffset = WidgetResizeEdgeHitShort / 2
         Box(
             modifier =
                 Modifier
-                    .offset(x = edgeOffset * edge.xSign, y = edgeOffset * edge.ySign)
                     .size(width = visualWidth, height = visualHeight)
                     .border(
                         width = WidgetEditRingWidth,

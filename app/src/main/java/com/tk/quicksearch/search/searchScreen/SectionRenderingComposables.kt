@@ -192,10 +192,12 @@ private fun renderAppsSection(
             )
         }
         // Flat layout: the grid gets the same edge-to-edge divider below it as every other home item.
+        // Card layout: search results get a little extra room above and below so the icons don't
+        // crowd the result cards; the Home suggestions keep their spacing.
         Box(
             modifier =
                 if (LocalSearchCardLayoutEnabled.current) {
-                    Modifier
+                    if (appsParams.isSearching) Modifier.padding(vertical = DesignTokens.SpacingXSmall) else Modifier
                 } else {
                     Modifier.fillMaxWidth().compactBottomDivider(appsParams.showWallpaperBackground)
                 },

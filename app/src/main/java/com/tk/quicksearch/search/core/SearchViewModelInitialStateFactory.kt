@@ -321,6 +321,11 @@ internal object SearchViewModelInitialStateFactory {
                 appIconSizeStep =
                     startupSnapshot?.appIconSizeStep
                         ?: startupPreferencesReader.getAppIconSizeStep(),
+                // Without this the first frame lays the grid out at the default column count, then
+                // every tile slides into place once the saved count loads.
+                phoneAppGridColumns =
+                    startupSnapshot?.phoneAppGridColumns
+                        ?: startupPreferencesReader.getPhoneAppGridColumns(),
                 appIconShape = startupPreferencesReader.getAppIconShape(),
                 themedIconsEnabled = startupPreferencesReader.isThemedIconsEnabled(),
                 deviceThemeEnabled = startupPreferencesReader.isDeviceThemeEnabled(),

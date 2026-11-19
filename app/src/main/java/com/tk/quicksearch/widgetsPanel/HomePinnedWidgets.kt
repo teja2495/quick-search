@@ -402,12 +402,12 @@ internal fun HomePinnedWidgetItem(
         val animatedHeight by animateDpAsState(height, HomeWidgetLayoutMotion, label = "homeWidgetHeight")
 
         // Home clips its content at its side edges. A selected widget touching an edge shrinks
-        // just enough, away from that edge, for what overhangs its border there to stay visible:
-        // the resize pill on the start side, the Remove badge on the end side. One uniform factor
-        // keeps the widget content undistorted; widgets clear of both edges keep their size.
+        // just enough, away from that edge, for its overhanging resize pill to stay visible. One
+        // uniform factor keeps the widget content undistorted; widgets clear of both edges keep
+        // their size.
         val startInset = if (home.column == 0) WidgetResizeVisualShort / 2 else 0.dp
         val endInset =
-            if (home.column + home.columnSpan >= WIDGET_PANEL_GRID_COLUMNS) WidgetActionButtonCornerOffset else 0.dp
+            if (home.column + home.columnSpan >= WIDGET_PANEL_GRID_COLUMNS) WidgetResizeVisualShort / 2 else 0.dp
         val horizontalInset = startInset + endInset
         val editScale by animateFloatAsState(
             targetValue =

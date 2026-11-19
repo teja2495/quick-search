@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -598,8 +599,12 @@ internal fun AppGrid(
                 }
             }
         } else {
+            // The rounding slack trimmed from each tile would otherwise collect on the right, so
+            // half of it goes on the left to center full rows; short rows stay start-aligned.
+            val rowLeftover =
+                    maxWidth - rowItemWidth * columns - horizontalSpacing * (columns - 1)
             FlowRow(
-                    modifier = gridModifier,
+                    modifier = gridModifier.padding(start = (rowLeftover / 2).coerceAtLeast(0.dp)),
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                     verticalArrangement = Arrangement.spacedBy(AppGridRowSpacing),
                     maxItemsInEachRow = columns,

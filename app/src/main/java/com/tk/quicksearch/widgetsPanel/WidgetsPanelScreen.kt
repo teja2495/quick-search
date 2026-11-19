@@ -96,9 +96,9 @@ internal val WidgetResizeVisualShort = 8.dp
 internal val WidgetActionButtonSize = 30.dp
 internal val WidgetEditRingWidth = 2.dp
 
-// Centers action buttons on the 45° point of the 20dp card-corner arc
-// (20dp × (1 − 1/√2) ≈ 6dp in from each edge, minus the 15dp button radius).
-internal val WidgetActionButtonCornerOffset = DesignTokens.SpacingSmall
+// Edit badges sit inside the widget: each 48dp touch target is flush with the corner, which puts
+// the 30dp badge 9dp in from the top and side edges, over a scrim band (WidgetEditBadgeScrim).
+internal val WidgetEditBadgeScrimHeight = DesignTokens.MinTouchTarget + DesignTokens.SpacingSmall
 internal val WidgetEditBorderWidth = 1.dp
 
 // How far edit badges and resize handles can extend past a widget's top edge: the badge's 9dp
