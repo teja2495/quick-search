@@ -282,8 +282,7 @@ internal fun WidgetContent(
             modifier =
                 GlanceModifier
                     .fillMaxSize()
-                    .padding(start = outerHorizontalPadding, end = outerHorizontalPadding)
-                    .clickable(actionStartActivity(launchIntent)),
+                    .padding(start = outerHorizontalPadding, end = outerHorizontalPadding),
             contentAlignment = Alignment.Center,
         ) {
             if (iconAlignLeft) {
@@ -298,6 +297,7 @@ internal fun WidgetContent(
                     cornerRadius = cornerRadius,
                     contentHorizontalPadding = contentHorizontalPadding,
                     contentAlignment = Alignment.Center,
+                    onClick = actionStartActivity(launchIntent),
                 ) {
                     if (showLabel) {
                         Box(
@@ -349,6 +349,7 @@ internal fun WidgetContent(
                     cornerRadius = cornerRadius,
                     contentHorizontalPadding = contentHorizontalPadding,
                     contentAlignment = Alignment.Center,
+                    onClick = actionStartActivity(launchIntent),
                 ) {
                     Row(
                         modifier = GlanceModifier.fillMaxWidth().padding(end = actionsWidth),
@@ -483,8 +484,12 @@ private fun WidgetBarContainer(
     cornerRadius: Dp,
     contentHorizontalPadding: Dp,
     contentAlignment: Alignment,
+    onClick: Action? = null,
     content: @Composable () -> Unit,
 ) {
+    // The tap target is the bar itself, clipped to its corners, so the press ripple covers only
+    // the bar and not the widget's empty space around it.
+    val clickModifier = onClick?.let { GlanceModifier.clickable(it) } ?: GlanceModifier
     if (useDefaultBackground || backgroundBitmap != null) {
         Box(
             modifier =
@@ -497,7 +502,9 @@ private fun WidgetBarContainer(
                         } else {
                             ImageProvider(backgroundBitmap!!)
                         },
-                    ).padding(horizontal = contentHorizontalPadding),
+                    ).cornerRadius(cornerRadius)
+                    .then(clickModifier)
+                    .padding(horizontal = contentHorizontalPadding),
             contentAlignment = contentAlignment,
         ) {
             content()
@@ -514,6 +521,7 @@ private fun WidgetBarContainer(
                 .height(barHeight)
                 .background(borderColorProvider ?: backgroundColorProvider)
                 .cornerRadius(cornerRadius)
+                .then(clickModifier)
                 .padding(safeBorderWidth),
         contentAlignment = Alignment.Center,
     ) {

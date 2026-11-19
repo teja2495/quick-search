@@ -196,6 +196,10 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
   footer, contact number copy) have no tap action to give feedback for. In the overlay, tapping the
   scrim dismisses it (the exit animation is the feedback), and the card swallows taps on its empty
   space so they don't reach the scrim.
+- **Background picker bento.** Appearance > Background (`BackgroundSourceTile.kt`) lays out the
+  sources as a bento grid instead of equal tiles: the wallpaper preview is the large tile, Custom
+  sits above a short Theme bar, and Custom takes the large slot when there is no wallpaper source.
+  Each label sits below its tile, and the selection check is centered on the preview.
 - **Contact row actions.** A tap opens the current contact action and a long press opens its
   action chooser. The two icon buttons use `combinedClickable` with a 48dp target and label
   because `AppIconButton` uses long press for its tooltip.

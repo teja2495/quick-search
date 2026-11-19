@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.TextAutoSize
@@ -53,6 +54,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -176,10 +178,6 @@ fun WallpaperCard(
             modifier = modifier,
             firstTileContent = {
 
-            Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-            ) {
                 // The gradient of whichever theme is selected (Default or a Colorful palette).
                 val themePreviewColors =
                         if (deviceThemeEnabled) {
@@ -196,8 +194,11 @@ fun WallpaperCard(
                                     amoledPreviewActive = amoledThemeEnabled && isDarkMode,
                             )
                         }
-                OverlaySourceBox(
-                        modifier = Modifier.weight(THEME_SOURCE_TILE_WEIGHT),
+                val themeTile: @Composable (Modifier, Dp?) -> Unit = { tileModifier, tileHeight ->
+                BackgroundSourceTile(
+                        tileHeight = tileHeight,
+                        hasImage = true,
+                        modifier = tileModifier,
                         selected = isThemeSourceSelected,
                         onClick = {
                             if (!isThemeSourceSelected) {
@@ -209,15 +210,15 @@ fun WallpaperCard(
                 ) {
                     Box(modifier = Modifier.fillMaxSize().background(Brush.linearGradient(themePreviewColors)))
                 }
+                }
 
-                if (!shouldHideSystemWallpaperSource) {
-                    OverlaySourceBox(
-                            modifier = Modifier.weight(1f),
+                val wallpaperTile: @Composable (Modifier) -> Unit = { tileModifier ->
+                    BackgroundSourceTile(
+                            modifier = tileModifier,
                             selected = isWallpaperSourceSelected,
-                            enabled = true,
-                            hasImage = wallpaperPreviewBitmap != null,
+                            hasImage = canDisplaySystemWallpaper && !isLiveWallpaperUnsupported,
                             onClick = {
-                                if (isWallpaperSourceSelected) return@OverlaySourceBox
+                                if (isWallpaperSourceSelected) return@BackgroundSourceTile
                                 hapticToggle(view)()
                                 if (isLiveWallpaperUnsupported) {
                                     AppMessages.show(context, context.getString(
@@ -332,13 +333,11 @@ fun WallpaperCard(
                     }
                 }
 
-                OverlaySourceBox(
-                        modifier = Modifier.weight(1f),
+                val customTile: @Composable (Modifier) -> Unit = { tileModifier ->
+                BackgroundSourceTile(
+                        modifier = tileModifier,
                         selected = isCustomSourceSelected,
-                        enabled = true,
                         hasImage = customPreviewBitmap != null,
-                        // Top-start, opposite the edit and remove buttons in the top-end corner.
-                        selectedIndicatorInCorner = customPreviewBitmap != null,
                         onClick = {
                             hapticToggle(view)()
                             if (customPreviewBitmap != null) {
@@ -448,7 +447,28 @@ fun WallpaperCard(
                         )
                     }
                 }
-            }
+                }
+
+                // Bento layout: the wallpaper is the large tile, with Custom above a short Theme
+                // tile beside it. Without a wallpaper source, Custom takes the large slot.
+                Row(
+                        modifier = Modifier.fillMaxWidth().height(SOURCE_GRID_HEIGHT),
+                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+                ) {
+                    if (!shouldHideSystemWallpaperSource) {
+                        wallpaperTile(Modifier.weight(HERO_SOURCE_TILE_WEIGHT).fillMaxHeight())
+                        Column(
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
+                                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+                        ) {
+                            customTile(Modifier.fillMaxWidth().weight(1f))
+                            themeTile(Modifier.fillMaxWidth(), THEME_SOURCE_TILE_HEIGHT)
+                        }
+                    } else {
+                        customTile(Modifier.weight(HERO_SOURCE_TILE_WEIGHT).fillMaxHeight())
+                        themeTile(Modifier.weight(1f).fillMaxHeight(), null)
+                    }
+                }
 
             if (isWallpaperSourceSelected || isCustomSourceSelected) {
                 Spacer(modifier = Modifier.height(DesignTokens.SpacingXSmall))
@@ -602,5 +622,7 @@ private fun clearWallpaperPreviewSurface(holder: SurfaceHolder) {
     }
 }
 
-/** The Theme tile is narrower than the Wallpaper and Custom tiles beside it. */
-private const val THEME_SOURCE_TILE_WEIGHT = 0.7f
+/** Bento grid of background sources: a large hero tile beside Custom stacked over a short Theme tile. */
+private val SOURCE_GRID_HEIGHT = 168.dp
+private val THEME_SOURCE_TILE_HEIGHT = 48.dp
+private const val HERO_SOURCE_TILE_WEIGHT = 1.4f
