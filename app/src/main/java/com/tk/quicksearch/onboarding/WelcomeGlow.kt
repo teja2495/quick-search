@@ -16,7 +16,6 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -43,9 +42,9 @@ internal fun rememberGlowFrameTick(): () -> Long {
     return { tick }
 }
 
-/** The search field palette without its white tail, closed into a loop for the sweep. */
+/** The search field palette, closed into a loop for the sweep. */
 private val GlowColors: IntArray by lazy {
-    val colors = AppColors.SearchFieldGooglePalette.filter { it != Color.White }
+    val colors = AppColors.SearchFieldGooglePalette
     IntArray(colors.size + 1) { colors[it % colors.size].toArgb() }
 }
 

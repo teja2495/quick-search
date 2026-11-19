@@ -114,6 +114,7 @@ fun ImportSettingsScreen(
             OnboardingHeader(
                 title = stringResource(R.string.setup_import_title),
                 topPadding = DesignTokens.SpacingMedium,
+                modifier = Modifier.welcomeExitItem(),
             )
 
             Spacer(modifier = Modifier.height(DesignTokens.OnboardingCompactSpacing))
@@ -296,6 +297,7 @@ fun ImportSettingsScreen(
                     onClick = if (imported) onImportSuccess else onSkip,
                     outlined = !imported,
                     enabled = screenState != ImportScreenState.Importing,
+                    finishesSetup = imported,
                 )
             }
 

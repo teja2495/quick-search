@@ -11,6 +11,11 @@ import com.tk.quicksearch.shared.ui.theme.AppMotion
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/** The whole welcome sweep, scan and fade, is over in this long. */
+private const val SweepTotalMs = 3000
+
+private const val SweepScanMs = SweepTotalMs - AppMotion.DurationMicro - AppMotion.DurationGlowFade
+
 /** Animated values of the search bar's welcome border sweep, read during draw. */
 @Stable
 internal class SearchBarBorderSweep(
@@ -31,8 +36,8 @@ internal class SearchBarBorderSweep(
 }
 
 /**
- * Welcome animation: when [play], the gradient scans across the border once, ending on its white
- * tail, then the glow fades out while the resting border fades in and [onCompleted] runs.
+ * Welcome animation: when [play], the gradient scans across the border once, ending on its
+ * accent tail, then the glow fades out while the resting border fades in and [onCompleted] runs.
  * Otherwise the resting border shows, fading back in when the query is not empty.
  */
 @Composable
@@ -50,10 +55,10 @@ internal fun rememberSearchBarBorderSweep(
 
             sweep.progressAnim.animateTo(
                 targetValue = 1f,
-                animationSpec = tween(AppMotion.DurationLong, easing = LinearEasing),
+                animationSpec = tween(SweepScanMs, easing = LinearEasing),
             )
 
-            // The white end of the gradient holds the glow; the border is not snapped to opaque here.
+            // The end of the gradient holds the glow; the border is not snapped to opaque here.
             delay(AppMotion.DurationMicro.toLong())
 
             launch {
@@ -72,8 +77,11 @@ internal fun rememberSearchBarBorderSweep(
             delay(AppMotion.DurationGlowFade.toLong())
             onCompleted?.invoke()
         } else if (queryIsEmpty) {
+            // A sweep cut short must not leave its glow frozen on the border.
+            sweep.glowAlphaAnim.snapTo(0f)
             sweep.borderAlphaAnim.snapTo(1f)
         } else {
+            launch { sweep.glowAlphaAnim.animateTo(0f, tween(AppMotion.DurationGlowFade, easing = AppMotion.EmphasizedDecelerateEasing)) }
             sweep.borderAlphaAnim.animateTo(
                 targetValue = 1f,
                 animationSpec = tween(durationMillis = AppMotion.DurationGlowFade, easing = AppMotion.EmphasizedDecelerateEasing),

@@ -424,19 +424,6 @@ object AppColors {
             Color(0xFF00BCD4),
             Color(0xFF03A9F4),
             Color(0xFF4285F4),
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
         )
 
     val ThemeFallbackGradientScrimColors: List<Color>

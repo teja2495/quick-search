@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -92,8 +93,8 @@ private const val ContentFadeTravel = 0.3f
 private const val HandoffMs = AppMotion.DurationExit
 private const val GlowFadeMs = AppMotion.DurationGlowFade
 
-/** How long the landed search bar keeps glowing. Real time: not slowed by [WelcomeMorphSlowMotion]. */
-private const val GlowHoldMs = 3000L
+/** How long the landed search bar keeps glowing before it fades, done by 3s. Real time: not slowed by [WelcomeMorphSlowMotion]. */
+private const val GlowHoldMs = 3000L - AppMotion.DurationGlowFade
 private const val PressedScale = 0.95f
 private val BarCorner = DesignTokens.Spacing28
 
@@ -144,6 +145,9 @@ class WelcomeMorphState {
 
     /** The search bar's bounds when the last welcome finished, so a replay aims exactly. */
     internal var landedTarget: Rect? = null
+
+    /** True when the search bar sits at the bottom, so the bar stays low instead of rising to the top. */
+    internal var barAtBottom = false
     internal var originLabel = ""
     internal var originColor = Color.Unspecified
     internal var originContentColor = Color.Unspecified
@@ -298,6 +302,13 @@ fun welcomeMorphHoldsKeyboard(): Boolean {
     return LocalWelcomeMorph.current?.phase == WelcomeMorphPhase.Exiting
 }
 
+/** Tells the welcome whether the search bar is at the bottom, so it lands there rather than at the top. */
+@Composable
+fun ReportWelcomeBarPlacement(atBottom: Boolean) {
+    val state = LocalWelcomeMorph.current ?: return
+    SideEffect { state.barAtBottom = atBottom }
+}
+
 /** True while the welcome animates, when the keyboard is on its way and needs no "Open Keyboard" pill. */
 @Composable
 fun welcomeMorphRunning(): Boolean {
@@ -385,8 +396,10 @@ fun WelcomeMorphOverlay(
         if (phase != WelcomeMorphPhase.Exiting) return@LaunchedEffect
         val origin = state.origin
         state.exitLine = safeTopPx + predictedGapPx
+        // A bottom search bar is already where the button is: aim there until it reports itself.
         state.predicted =
-            state.landedTarget ?: origin?.let {
+            state.landedTarget?.takeUnless { state.barAtBottom } ?: origin?.let {
+                if (state.barAtBottom) return@let it
                 val top = safeTopPx + predictedGapPx
                 Rect(it.left, top, it.right, top + it.height)
             }

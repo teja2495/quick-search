@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
+import com.tk.quicksearch.onboarding.ReportWelcomeBarPlacement
 import com.tk.quicksearch.onboarding.welcomeMorphHoldsKeyboard
 import com.tk.quicksearch.onboarding.welcomeMorphRunning
 import androidx.compose.foundation.layout.Arrangement
@@ -297,6 +298,7 @@ internal fun SearchScreenContent(
     val shouldShowNumberKeyboardOperators =
             isImeVisible && (manuallySwitchedToNumberKeyboard || isCalculatorMode)
     val showBottomSearchBar = showSearchField && state.bottomSearchBarEnabled
+    ReportWelcomeBarPlacement(atBottom = showBottomSearchBar)
     val barStyle =
             if (SearchBarStyle.hasFixedShape(state.bottomSearchBarEnabled, state.isSearchEngineCompactMode)) {
                 state.searchBarStyle.withFixedShape()

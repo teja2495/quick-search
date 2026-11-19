@@ -94,6 +94,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
 private const val AliasIconMorphDurationMs = AppMotion.DurationStandard
+
+/** Accent stops after the palette, so the welcome sweep comes to rest on the accent. */
+private const val SweepAccentTailStops = 14
 private const val LeadingIconEnterDurationMs = AppMotion.DurationShort
 private const val LeadingIconExitDurationMs = AppMotion.DurationQuick
 private const val LeadingIconEnterDelayMs = 40
@@ -435,8 +438,8 @@ internal fun PersistentSearchBar(
             queryIsEmpty = query.isEmpty(),
             onCompleted = onWelcomeAnimationCompleted,
         )
-    // Palettes are centralized in AppColors to keep color tokens out of feature files.
-    val activeColors = AppColors.SearchFieldGooglePalette
+    // Palettes are centralized in AppColors; the sweep settles on the accent, the resting border's color.
+    val activeColors = remember(accentColor) { AppColors.SearchFieldGooglePalette + List(SweepAccentTailStops) { accentColor } }
     val aliasMorphHorizontalTravelPx = with(density) { AliasMorphHorizontalTravel.toPx() }
     val aliasMorphVerticalTravelPx = with(density) { AliasMorphVerticalTravel.toPx() }
 
@@ -472,7 +475,7 @@ internal fun PersistentSearchBar(
 
                         val gradientWidth = size.width * DesignTokens.SearchFieldGradientWidthMultiplier
 
-                        // Slides the brush left so the border ends on the gradient's white tail.
+                        // Slides the brush left so the border ends on the gradient's accent tail.
                         val xOffset =
                             -(borderSweep.progress * size.width * DesignTokens.SearchFieldGradientTravelMultiplier)
 
