@@ -77,6 +77,7 @@
     <string name="action_manage_all_apps">Gestionar todas las apps</string>
     <string name="action_app_shortcuts_settings">Ajustes de accesos directos</string>
     <string name="action_files_settings">Ajustes de archivos</string>
+    <string name="action_at_a_glance_settings">Ajustes de De un vistazo</string>
     <string name="action_contacts_settings">Ajustes de contactos</string>
     <string name="action_lock_app">Bloquear</string>
     <string name="action_unlock_app">Desbloquear</string>

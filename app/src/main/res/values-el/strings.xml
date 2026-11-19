@@ -77,6 +77,7 @@
     <string name="action_manage_all_apps">Διαχείριση όλων των εφαρμογών</string>
     <string name="action_app_shortcuts_settings">Ρυθμίσεις συντομεύσεων εφαρμογών</string>
     <string name="action_files_settings">Ρυθμίσεις αρχείων</string>
+    <string name="action_at_a_glance_settings">Ρυθμίσεις «Με μια ματιά»</string>
     <string name="action_contacts_settings">Ρυθμίσεις επαφών</string>
     <string name="action_lock_app">Κλείδωμα</string>
     <string name="action_unlock_app">Ξεκλείδωμα</string>

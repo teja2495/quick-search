@@ -1,7 +1,17 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance
 
 import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.onLongClick
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.runtime.mutableStateOf
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
 import com.tk.quicksearch.shared.ui.components.AppButtonSize
 import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import com.tk.quicksearch.shared.ui.components.AppOutlinedButton
@@ -107,9 +117,13 @@ internal fun glanceNeutralPillColors() =
 internal fun GlanceStatusRow(
     icon: @Composable () -> Unit,
     title: String,
-    /** Null leaves the row without a tap target. */
+    /** Null leaves the row without a tap target; long press still opens its menu. */
     onClick: (() -> Unit)?,
-    onLongClick: (() -> Unit)? = null,
+    /**
+     * The row's own long-press options, given a callback that closes the menu. The menu always
+     * ends with the At a Glance settings item.
+     */
+    menuItems: (@Composable ColumnScope.(closeMenu: () -> Unit) -> Unit)? = null,
     titleStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     titleColor: Color = MaterialTheme.colorScheme.onSurface,
     titleMaxLines: Int = 1,
@@ -124,6 +138,11 @@ internal fun GlanceStatusRow(
     trailing: (@Composable () -> Unit)? = null,
 ) {
     val verticalPadding = glanceRowVerticalPadding()
+    val openSettings = rememberOpenAtAGlanceSettings()
+    var showMenu by remember { mutableStateOf(false) }
+    val hasMenu = menuItems != null || openSettings != null
+    val showOptionsLabel = stringResource(R.string.desc_show_options)
+    val haptics = LocalHapticFeedback.current
     Row(
         modifier =
             Modifier.fillMaxWidth().heightIn(min = glanceRowMinHeight(GlanceRowMinHeight)).padding(
@@ -137,7 +156,32 @@ internal fun GlanceStatusRow(
         Row(
             modifier =
                 Modifier.weight(1f).then(
-                    if (onClick != null) Modifier.combinedClickable(role = Role.Button, onClick = onClick, onLongClickLabel = stringResource(R.string.desc_show_options), onLongClick = onLongClick) else Modifier,
+                    when {
+                        onClick != null ->
+                            Modifier.combinedClickable(
+                                role = Role.Button,
+                                onClick = onClick,
+                                onLongClickLabel = showOptionsLabel,
+                                onLongClick = if (hasMenu) ({ showMenu = true }) else null,
+                            )
+                        // No tap action, so no ripple on tap: only the long press opens the menu.
+                        hasMenu ->
+                            Modifier
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onLongPress = {
+                                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            showMenu = true
+                                        },
+                                    )
+                                }.semantics {
+                                    onLongClick(label = showOptionsLabel) {
+                                        showMenu = true
+                                        true
+                                    }
+                                }
+                        else -> Modifier
+                    },
                 ),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             verticalAlignment = Alignment.CenterVertically,
@@ -190,6 +234,19 @@ internal fun GlanceStatusRow(
                         color = pillColors.content,
                         maxLines = 1,
                     )
+                }
+            }
+            if (hasMenu) {
+                AppDropdownMenu(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false },
+                ) {
+                    val closeMenu = { showMenu = false }
+                    menuItems?.invoke(this, closeMenu)
+                    if (openSettings != null) {
+                        if (menuItems != null) AppDropdownMenuDivider()
+                        AtAGlanceSettingsMenuItem(openSettings = openSettings, closeMenu = closeMenu)
+                    }
                 }
             }
         }

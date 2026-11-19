@@ -76,6 +76,7 @@
     <string name="action_manage_all_apps">Gestisci tutte le app</string>
     <string name="action_app_shortcuts_settings">Impostazioni scorciatoie app</string>
     <string name="action_files_settings">Impostazioni file</string>
+    <string name="action_at_a_glance_settings">Impostazioni In breve</string>
     <string name="action_contacts_settings">Impostazioni contatti</string>
     <string name="action_lock_app">Blocca</string>
     <string name="action_unlock_app">Sblocca</string>

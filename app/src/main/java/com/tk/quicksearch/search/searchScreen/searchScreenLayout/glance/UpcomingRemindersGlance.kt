@@ -318,6 +318,7 @@ internal fun UpcomingReminderRow(
 ) {
     val context = LocalContext.current
     var showMenu by remember { mutableStateOf(false) }
+    val openGlanceSettings = rememberOpenAtAGlanceSettings()
     // Keep a timed reminder at its due time in a brief "Now" state before it becomes overdue.
     // This also avoids showing "1 minute ago" during the first minute after it is due.
     val elapsedSinceDueMillis = nowMillis - reminder.dueMillis
@@ -465,6 +466,10 @@ internal fun UpcomingReminderRow(
                             onDelete()
                         },
                     )
+                }
+                if (openGlanceSettings != null) {
+                    AppDropdownMenuDivider()
+                    AtAGlanceSettingsMenuItem(openSettings = openGlanceSettings, closeMenu = { showMenu = false })
                 }
             }
         }

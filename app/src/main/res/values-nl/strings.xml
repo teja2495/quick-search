@@ -79,6 +79,7 @@
     <string name="action_manage_all_apps">Alle apps beheren</string>
     <string name="action_app_shortcuts_settings">Instellingen app-snelkoppelingen</string>
     <string name="action_files_settings">Bestandsinstellingen</string>
+    <string name="action_at_a_glance_settings">Instellingen In één oogopslag</string>
     <string name="action_contacts_settings">Contactinstellingen</string>
     <string name="action_lock_app">Vergrendelen</string>
     <string name="action_unlock_app">Ontgrendelen</string>

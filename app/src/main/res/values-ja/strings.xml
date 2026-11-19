@@ -76,6 +76,7 @@
     <string name="action_manage_all_apps">すべてのアプリを管理</string>
     <string name="action_app_shortcuts_settings">アプリのショートカット設定</string>
     <string name="action_files_settings">ファイル設定</string>
+    <string name="action_at_a_glance_settings">ひと目で確認の設定</string>
     <string name="action_contacts_settings">連絡先設定</string>
     <string name="action_lock_app">ロック</string>
     <string name="action_unlock_app">ロック解除</string>

@@ -177,8 +177,9 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
 ### Other deliberate deviations
 
 - **App suggestion tabs.** These scrollable Material tabs are transparent over the Home
-  background. The selected label uses heavier type in place of a bottom indicator, and all
-  labels use the Home foreground color.
+  background. The selected label uses heavier type in place of a bottom indicator. Labels use
+  the Home foreground color, dimmed to `ContentHighAlpha` when unselected. The tabs are 36dp tall, below the 48dp touch target,
+  because users mostly switch categories by swiping the pager rather than tapping a tab.
 - **Search-style fields.** The search bar (`SearchBar.kt`), `SettingsManagementSearchBar`, and the
   icon search in `AppIconOverrideDrawer` build on Material text fields directly so they can own
   their container, shape, and focus behavior.

@@ -76,6 +76,7 @@
 <string name="action_manage_all_apps">Tüm uygulamaları yönet</string>
 <string name="action_app_shortcuts_settings">Uygulama kısayolu ayarları</string>
 <string name="action_files_settings">Dosya ayarları</string>
+<string name="action_at_a_glance_settings">Bir Bakışta ayarları</string>
 <string name="action_contacts_settings">Kişi ayarları</string>
     <string name="action_lock_app">Kilitle</string>
     <string name="action_unlock_app">Kilidi aç</string>

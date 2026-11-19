@@ -39,7 +39,6 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.calendar.calendarRelativeTimeLabel
 import com.tk.quicksearch.search.data.UpcomingAlarmRepository
-import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -196,30 +195,25 @@ internal fun UpcomingAlarmRow(glance: UpcomingAlarmGlance) {
     val title = stringResource(R.string.home_upcoming_alarm)
     val failureMessage = stringResource(R.string.common_error_unable_to_open, title)
     val showFailure = { AppMessages.show(context, failureMessage) }
-    var showMenu by remember { mutableStateOf(false) }
-
     GlanceStatusRow(
         icon = { UpcomingAlarmAppIcon(glance.creatorPackage) },
         title = title,
         onClick = { if (!glance.open()) showFailure() },
-        onLongClick = { if (glance.appLabel != null) showMenu = true },
         subtitle = scheduleLabel,
         onDismiss = glance.dismiss,
-        belowText = {
-            AppDropdownMenu(
-                expanded = showMenu,
-                onDismissRequest = { showMenu = false },
-            ) {
-                AppDropdownMenuItem(
-                    text = stringResource(R.string.home_upcoming_alarm_hide_app, glance.appLabel.orEmpty()),
-                    icon = MaterialSymbols.VisibilityOff,
-                    onClick = {
-                        showMenu = false
-                        glance.hideAlarmsFromApp()
-                    },
-                )
-            }
-        },
+        menuItems =
+            glance.appLabel?.let { appLabel ->
+                { closeMenu ->
+                    AppDropdownMenuItem(
+                        text = stringResource(R.string.home_upcoming_alarm_hide_app, appLabel),
+                        icon = MaterialSymbols.VisibilityOff,
+                        onClick = {
+                            closeMenu()
+                            glance.hideAlarmsFromApp()
+                        },
+                    )
+                }
+            },
     )
 }
 

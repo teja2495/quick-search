@@ -22,13 +22,16 @@ import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.homeTextColor
 import com.tk.quicksearch.shared.util.hapticToggle
 
 private val TabStripOpticalShift = 2.dp
-private val SuggestionTabHeight = DesignTokens.MinTouchTarget
+// Deliberately below the 48dp touch target: tabs are mostly switched by swiping the pager,
+// so a tighter strip is worth the smaller tap area.
+private val SuggestionTabHeight = 36.dp
 
 /** Every enabled suggestion category stays reachable; long translations scroll without truncation. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,7 +70,7 @@ internal fun AppSuggestionTabStrip(
                 },
                 modifier = Modifier.heightIn(min = SuggestionTabHeight),
                 selectedContentColor = tabColor,
-                unselectedContentColor = tabColor,
+                unselectedContentColor = tabColor.copy(alpha = AppColors.ContentHighAlpha),
             ) {
                 SuggestionTabLabel(title = tab.title, selected = index == selected)
             }

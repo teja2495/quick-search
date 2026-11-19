@@ -77,6 +77,7 @@
     <string name="action_manage_all_apps">管理所有应用</string>
     <string name="action_app_shortcuts_settings">应用快捷方式设置</string>
     <string name="action_files_settings">文件设置</string>
+    <string name="action_at_a_glance_settings">一览设置</string>
     <string name="action_contacts_settings">联系人设置</string>
     <string name="action_lock_app">锁定</string>
     <string name="action_unlock_app">解锁</string>

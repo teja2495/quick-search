@@ -14,7 +14,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -338,6 +339,8 @@ internal fun NowPlayingRow(
     glance: NowPlayingGlance,
     onDismiss: () -> Unit = glance.dismiss,
 ) {
+    val openGlanceSettings = rememberOpenAtAGlanceSettings()
+    var showMenu by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier.fillMaxWidth().padding(
             horizontal = NowPlayingRowStartPadding,
@@ -347,7 +350,12 @@ internal fun NowPlayingRow(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Row(
                 modifier = Modifier.weight(1f).clip(AppShapes.small)
-                    .clickable(role = Role.Button, onClick = glance.open),
+                    .combinedClickable(
+                        role = Role.Button,
+                        onClick = glance.open,
+                        onLongClickLabel = stringResource(R.string.desc_show_options),
+                        onLongClick = openGlanceSettings?.let { { showMenu = true } },
+                    ),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             ) {
@@ -359,6 +367,11 @@ internal fun NowPlayingRow(
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                 )
+                if (openGlanceSettings != null) {
+                    AppDropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+                        AtAGlanceSettingsMenuItem(openSettings = openGlanceSettings, closeMenu = { showMenu = false })
+                    }
+                }
             }
             AppIconButton(onClick = onDismiss, tooltip = stringResource(R.string.common_close)) {
                 Icon(

@@ -1,11 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance
 
-import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.layout.wrapContentSize
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.HomeSectionTitle
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.rememberHomeAppearedContentKeys
-import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
-import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerVerticalPadding
 import androidx.compose.animation.AnimatedVisibility
@@ -14,7 +10,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,12 +36,12 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.layout.layout
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.HomeSectionContentSpacing
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
 import com.tk.quicksearch.reminders.ReminderEditorRequests
-import com.tk.quicksearch.search.appSettings.LocalOpenAppSettingDestination
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -364,29 +359,28 @@ private fun rememberAnimatedGlanceRows(items: List<AtAGlanceItem>): List<Animate
     return merged
 }
 
-/** Tapping the title opens the At a Glance settings. */
+/**
+ * The At a Glance section title. It is not tappable; long-pressing any At a Glance row offers its
+ * settings instead. Every home column it sits in spaces its children by [HomeSectionContentSpacing],
+ * so in the card layout it gives back the difference to the tighter gap other section titles keep
+ * above their cards.
+ */
 @Composable
 internal fun AtAGlanceTitle(showWallpaperBackground: Boolean) {
-    val openAppSettingDestination = LocalOpenAppSettingDestination.current
+    val trimBelow =
+        if (LocalSearchCardLayoutEnabled.current) {
+            HomeSectionContentSpacing - DesignTokens.SpacingSmall
+        } else {
+            0.dp
+        }
     HomeSectionTitle(
         title = stringResource(R.string.settings_at_a_glance_title),
         showWallpaperBackground = showWallpaperBackground,
         modifier =
-            if (openAppSettingDestination == null) {
-                Modifier
-            } else {
-                Modifier.clickable(role = Role.Button) {
-                    openAppSettingDestination.invoke(AppSettingsTarget.Page(SettingsDetailType.AT_A_GLANCE))
-                }.then(
-                    if (LocalSearchCardLayoutEnabled.current) {
-                        Modifier.sizeIn(
-                            minWidth = DesignTokens.MinTouchTarget,
-                            minHeight = DesignTokens.MinTouchTarget,
-                        ).wrapContentSize(Alignment.CenterStart)
-                    } else {
-                        Modifier
-                    },
-                )
+            Modifier.layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                val trim = trimBelow.roundToPx().coerceIn(0, placeable.height)
+                layout(placeable.width, placeable.height - trim) { placeable.place(0, 0) }
             },
     )
 }

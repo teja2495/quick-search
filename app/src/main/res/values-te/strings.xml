@@ -77,6 +77,7 @@
     <string name="action_manage_all_apps">అన్ని యాప్‌లను నిర్వహించండి</string>
     <string name="action_app_shortcuts_settings">యాప్ షార్ట్‌కట్ సెట్టింగ్‌లు</string>
     <string name="action_files_settings">ఫైల్ సెట్టింగ్‌లు</string>
+    <string name="action_at_a_glance_settings">ఒక్క చూపులో సెట్టింగ్‌లు</string>
     <string name="action_contacts_settings">కాంటాక్ట్ సెట్టింగ్‌లు</string>
     <string name="action_lock_app">లాక్ చేయండి</string>
     <string name="action_unlock_app">అన్‌లాక్ చేయండి</string>

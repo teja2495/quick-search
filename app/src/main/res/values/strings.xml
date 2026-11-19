@@ -76,6 +76,7 @@
     <string name="action_manage_all_apps">Manage all Apps</string>
     <string name="action_app_shortcuts_settings">App shortcuts settings</string>
     <string name="action_files_settings">Files settings</string>
+    <string name="action_at_a_glance_settings">At a Glance settings</string>
     <string name="action_contacts_settings">Contacts settings</string>
     <string name="action_lock_app">Lock</string>
     <string name="action_unlock_app">Unlock</string>

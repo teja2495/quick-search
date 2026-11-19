@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.rememberOpenAtAGlanceSettings
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
@@ -355,12 +356,14 @@ internal fun CalendarEventRow(
             }
         }
 
+        val openGlanceSettings = if (showDoneOnlyMenu) rememberOpenAtAGlanceSettings() else null
         AppDropdownMenu(
             expanded = showMenu,
             onDismissRequest = { showMenu = false },
         ) {
             val menuItems = if (showDoneOnlyMenu) {
-                listOf(
+                // Today's events on Home are At a Glance rows, so their menu ends like the others.
+                listOfNotNull(
                     CalendarMenuItem(
                         textResId = R.string.dialog_done,
                         icon = { Icon(imageVector = MaterialSymbols.Check, contentDescription = null) },
@@ -369,6 +372,16 @@ internal fun CalendarEventRow(
                             onArchive(event)
                         },
                     ),
+                    openGlanceSettings?.let { openSettings ->
+                        CalendarMenuItem(
+                            textResId = R.string.action_at_a_glance_settings,
+                            icon = { Icon(imageVector = MaterialSymbols.Settings, contentDescription = null) },
+                            onClick = {
+                                showMenu = false
+                                openSettings()
+                            },
+                        )
+                    },
                 )
             } else {
                 buildList {

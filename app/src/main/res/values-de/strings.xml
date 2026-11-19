@@ -77,6 +77,7 @@
     <string name="action_manage_all_apps">Alle Apps verwalten</string>
     <string name="action_app_shortcuts_settings">Einstellungen für App-Verknüpfungen</string>
     <string name="action_files_settings">Dateieinstellungen</string>
+    <string name="action_at_a_glance_settings">Auf-einen-Blick-Einstellungen</string>
     <string name="action_contacts_settings">Kontakteinstellungen</string>
     <string name="action_lock_app">Sperren</string>
     <string name="action_unlock_app">Entsperren</string>

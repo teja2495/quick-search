@@ -24,9 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.ColumnScope
-import com.tk.quicksearch.searchEngines.inline.SearchEngineSectionConstants
 import com.tk.quicksearch.searchEngines.inline.compactTopDividerColor
 import com.tk.quicksearch.search.searchScreen.components.NumberKeyboardOperatorRowTopPadding
+import com.tk.quicksearch.searchEngines.inline.SearchEngineSectionConstants
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.foundation.layout.Column
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -142,9 +142,10 @@ internal fun SearchScreenBottomChrome(
         }
     }
 
-    val quickActionPills: @Composable (androidx.compose.ui.unit.Dp, androidx.compose.ui.unit.Dp) -> Unit = {
+    val quickActionPills: @Composable (androidx.compose.ui.unit.Dp, androidx.compose.ui.unit.Dp, androidx.compose.ui.unit.Dp) -> Unit = {
         topPadding,
         bottomPadding,
+        topOverlap,
     ->
         SearchQuickActionPills(
             query = state.query,
@@ -157,6 +158,7 @@ internal fun SearchScreenBottomChrome(
             onQuickActionCompleted = onQuickActionCompleted,
             topPadding = topPadding,
             bottomPadding = bottomPadding,
+            topOverlap = topOverlap,
         )
     }
 
@@ -191,12 +193,15 @@ internal fun SearchScreenBottomChrome(
         }
     }
     // Hosted pills sit right under the engine row, whose own bottom padding is the gap above them.
+    // The pills use a tighter gap on both sides, so they pull up into part of that padding; the
+    // engine row keeps its full padding whenever no pills are showing.
     val hostedQuickActionPills: (@Composable ColumnScope.() -> Unit)? =
             if (engineAreaHostsPills) {
                 {
                     quickActionPills(
                             0.dp,
-                            pillsBottomPadding(SearchEngineSectionConstants.VERTICAL_PADDING),
+                            pillsBottomPadding(DesignTokens.SpacingSmall),
+                            SearchEngineSectionConstants.VERTICAL_PADDING - DesignTokens.SpacingSmall,
                     )
                 }
             } else {
@@ -227,6 +232,7 @@ internal fun SearchScreenBottomChrome(
                     quickActionPills(
                             DesignTokens.SpacingMedium,
                             pillsBottomPadding(DesignTokens.SpacingMedium),
+                            0.dp,
                     )
                 }
             }

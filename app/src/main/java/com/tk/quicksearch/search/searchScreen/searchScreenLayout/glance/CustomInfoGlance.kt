@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.customInfo.CustomInfoItem
 import com.tk.quicksearch.customInfo.CustomInfoRepository
 import com.tk.quicksearch.customInfo.CustomInfoScheduler
@@ -120,13 +121,20 @@ internal fun CustomInfoRow(
                 Icon(MaterialSymbols.AutoAwesome, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             },
             title = item.title,
-            onClick = {},
-            // Android 13+ confirms copies itself; older versions get a toast.
-            onLongClick = {
-                val copied = copySensitiveText(context, copyLabel, item.answer, sensitive = false)
-                if (copied && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                    AppMessages.show(context, copiedMessage)
-                }
+            onClick = null,
+            menuItems = { closeMenu ->
+                AppDropdownMenuItem(
+                    text = copyLabel,
+                    icon = MaterialSymbols.ContentCopy,
+                    onClick = {
+                        closeMenu()
+                        // Android 13+ confirms copies itself; older versions get a toast.
+                        val copied = copySensitiveText(context, copyLabel, item.answer, sensitive = false)
+                        if (copied && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                            AppMessages.show(context, copiedMessage)
+                        }
+                    },
+                )
             },
             onDismiss = onDismiss,
             belowText = {

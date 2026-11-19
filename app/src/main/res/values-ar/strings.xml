@@ -78,6 +78,7 @@
     <string name="action_manage_all_apps">إدارة كل التطبيقات</string>
     <string name="action_app_shortcuts_settings">إعدادات اختصارات التطبيقات</string>
     <string name="action_files_settings">إعدادات الملفات</string>
+    <string name="action_at_a_glance_settings">إعدادات نظرة سريعة</string>
     <string name="action_contacts_settings">إعدادات جهات الاتصال</string>
     <string name="action_lock_app">قفل</string>
     <string name="action_unlock_app">إلغاء القفل</string>

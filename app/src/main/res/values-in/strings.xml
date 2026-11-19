@@ -76,6 +76,7 @@
     <string name="action_manage_all_apps">Kelola Semua Aplikasi</string>
     <string name="action_app_shortcuts_settings">Pengaturan pintasan aplikasi</string>
     <string name="action_files_settings">Pengaturan file</string>
+    <string name="action_at_a_glance_settings">Pengaturan Sekilas</string>
     <string name="action_contacts_settings">Pengaturan kontak</string>
     <string name="action_lock_app">Kunci</string>
     <string name="action_unlock_app">Buka Kunci</string>

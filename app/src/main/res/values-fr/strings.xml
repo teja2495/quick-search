@@ -77,6 +77,7 @@
 <string name="action_manage_all_apps">Gérer toutes les applis</string>
 <string name="action_app_shortcuts_settings">Paramètres des raccourcis d\'applis</string>
 <string name="action_files_settings">Paramètres des fichiers</string>
+<string name="action_at_a_glance_settings">Paramètres En un coup d\'œil</string>
 <string name="action_contacts_settings">Paramètres des contacts</string>
     <string name="action_lock_app">Verrouiller</string>
     <string name="action_unlock_app">Déverrouiller</string>
