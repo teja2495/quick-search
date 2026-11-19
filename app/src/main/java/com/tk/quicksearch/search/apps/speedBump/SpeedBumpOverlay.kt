@@ -86,6 +86,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.sin
 import com.tk.quicksearch.shared.ui.components.PreserveHostKeyboardStateEffect
+import com.tk.quicksearch.shared.ui.components.ReportOpenPopupEffect
 import com.tk.quicksearch.shared.ui.components.AppButton
 import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
@@ -197,6 +198,7 @@ fun SpeedBumpOverlay(
         )
 
     PreserveHostKeyboardStateEffect()
+    ReportOpenPopupEffect()
 
     Dialog(
         onDismissRequest = onCancel,

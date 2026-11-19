@@ -180,6 +180,10 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
   background. The selected label uses heavier type in place of a bottom indicator. Labels use
   the Home foreground color, dimmed to `ContentHighAlpha` when unselected. The tabs are 36dp tall, below the 48dp touch target,
   because users mostly switch categories by swiping the pager rather than tapping a tab.
+  Three tabs show at a time, each at least a third of the strip wide (a longer title widens its
+  tab rather than being cut off), and
+  the selected tab is always scrolled to the center; one empty slot pads each end so the first
+  and last tabs can reach it.
 - **Search-style fields.** The search bar (`SearchBar.kt`), `SettingsManagementSearchBar`, and the
   icon search in `AppIconOverrideDrawer` build on Material text fields directly so they can own
   their container, shape, and focus behavior.

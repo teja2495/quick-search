@@ -105,6 +105,7 @@ fun AppBottomPopup(
     val coroutineScope = rememberCoroutineScope()
     val dismissThresholdPx = with(LocalDensity.current) { 150.dp.toPx() }
     PreserveHostKeyboardStateEffect()
+    ReportOpenPopupEffect()
 
     Dialog(
         onDismissRequest = onDismiss,

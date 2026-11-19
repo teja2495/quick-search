@@ -69,6 +69,7 @@ fun AppAlertDialog(
     properties: DialogProperties = DialogProperties(),
 ) {
     PreserveHostKeyboardStateEffect()
+    ReportOpenPopupEffect()
     AlertDialog(
         onDismissRequest = onDismissRequest,
         confirmButton = confirmButton,

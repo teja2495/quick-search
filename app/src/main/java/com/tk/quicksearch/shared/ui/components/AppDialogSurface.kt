@@ -17,6 +17,7 @@ fun AppDialogSurface(
     content: @Composable () -> Unit,
 ) {
     PreserveHostKeyboardStateEffect()
+    ReportOpenPopupEffect()
     Dialog(onDismissRequest = onDismissRequest, properties = properties) {
         Surface(
             modifier = modifier,

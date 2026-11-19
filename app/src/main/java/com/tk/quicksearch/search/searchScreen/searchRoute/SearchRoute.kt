@@ -1,6 +1,8 @@
 package com.tk.quicksearch.search.searchScreen.searchRoute
 
 import com.tk.quicksearch.shared.ui.components.AppMessages
+import com.tk.quicksearch.shared.ui.components.LocalOpenPopupTracker
+import com.tk.quicksearch.shared.ui.components.OpenPopupTracker
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import com.tk.quicksearch.search.searchScreen.LocalPinnedGlanceOnly
@@ -377,6 +379,7 @@ fun SearchRoute(
         )
     }
 
+    val openPopupTracker = remember { OpenPopupTracker() }
     Box(modifier = containerModifier) {
         CompositionLocalProvider(
             LocalHomeHorizontalSwipeHandler provides handleHomeHorizontalSwipe,
@@ -389,6 +392,7 @@ fun SearchRoute(
             LocalPopupOverlayContent provides popupUndoSnackbar,
             LocalShowUndoSnackbar provides undoActions.showUndoSnackbarWithIcon,
             LocalUndoSnackbarAnchor provides undoActions.snackbarAnchor,
+            LocalOpenPopupTracker provides openPopupTracker,
         ) {
             SearchScreenComposable(
                 modifier =
@@ -737,7 +741,8 @@ fun SearchRoute(
             )
         }
 
-        SearchRouteOverlays(
+        // The route's own dialogs count as popups over Home too.
+        CompositionLocalProvider(LocalOpenPopupTracker provides openPopupTracker) { SearchRouteOverlays(
             viewModel = viewModel,
             uiState = uiState,
             showPermissionSettingsDialog = showPermissionSettingsDialog,
@@ -785,6 +790,6 @@ fun SearchRoute(
                 com.tk.quicksearch.search.core.intentHelpers.FileIntents.shareFile(context, file)
             },
             appSettingActions = settingActions,
-        )
+        ) }
     }
 }

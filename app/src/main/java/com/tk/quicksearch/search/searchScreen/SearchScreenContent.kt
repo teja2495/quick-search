@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import com.tk.quicksearch.search.searchScreen.components.SearchBarWithSettingsButton
+import com.tk.quicksearch.shared.ui.components.LocalOpenPopupTracker
 import com.tk.quicksearch.shared.ui.components.undoSnackbarAvoidArea
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
@@ -322,7 +323,8 @@ internal fun SearchScreenContent(
                     canShowOpenKeyboardPill &&
                     hasClosedStartupKeyboardAfterLaunch &&
                     !state.restoreSearchKeyboard &&
-                    !isSearchHistoryExpanded && !welcomeMorphRunning()
+                    !isSearchHistoryExpanded && !welcomeMorphRunning() &&
+                    LocalOpenPopupTracker.current?.hasOpenPopup != true
 
     LaunchedEffect(shouldShowOpenKeyboardAction) {
         if (!shouldShowOpenKeyboardAction) {

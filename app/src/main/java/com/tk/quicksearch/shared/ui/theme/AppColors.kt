@@ -151,16 +151,17 @@ object AppColors {
 
     /**
      * Tint for long-press menu option icons whose setting is active (pinned, trigger set, SpeedBump
-     * on, …). Uses the theme accent in every theme mode, strengthening it toward the surface
-     * foreground (lighter in dark mode, darker in light mode) only as far as needed to reach 4.5:1
-     * against every neutral popup surface.
+     * on, …). Uses the theme accent, or in monochrome the same blue as [LinkColor] since a grey
+     * accent wouldn't read as "active". It is strengthened toward the surface foreground (lighter
+     * in dark mode, darker in light mode) only as far as needed to reach 4.5:1 against every
+     * neutral popup surface.
      */
     val ItemMenuActiveIconTint: Color
         @Composable
         get() {
             val scheme = MaterialTheme.colorScheme
             return contrastingItemMenuAccent(
-                accent = Accent,
+                accent = LinkColor,
                 foreground = scheme.onSurface,
                 backgrounds = listOf(
                     scheme.surfaceContainerLow,

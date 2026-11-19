@@ -21,6 +21,7 @@ fun AppDatePickerDialog(
     onConfirm: () -> Unit,
     confirmLabel: String = stringResource(R.string.dialog_save),
 ) {
+    ReportOpenPopupEffect()
     DatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {

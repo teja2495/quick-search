@@ -77,6 +77,7 @@ fun AppDropdownMenu(
     focusable: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    ReportOpenPopupEffect(expanded)
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest,

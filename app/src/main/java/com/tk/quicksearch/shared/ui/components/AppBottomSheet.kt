@@ -86,6 +86,7 @@ fun AppBottomSheet(
         currentOnDismissStarted?.invoke()
     }
 
+    ReportOpenPopupEffect()
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
