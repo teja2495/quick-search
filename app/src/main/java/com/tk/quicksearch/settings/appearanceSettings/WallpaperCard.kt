@@ -490,6 +490,7 @@ fun WallpaperCard(
                         },
                 ) { sliderModifier ->
                     Slider(
+                            colors = AppColors.sliderColors(),
                             value = wallpaperAlphaDisplayValue,
                             onValueChange = { value ->
                                 val step = (value * 9).roundToInt().coerceIn(0, 9)
@@ -525,6 +526,7 @@ fun WallpaperCard(
                             },
                     ) { sliderModifier ->
                         Slider(
+                                colors = AppColors.sliderColors(),
                                 value = wallpaperBlurRadius,
                                 onValueChange = { value ->
                                     val step =

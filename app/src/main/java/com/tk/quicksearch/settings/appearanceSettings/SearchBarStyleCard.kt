@@ -495,6 +495,7 @@ private fun SliderSetting(
             },
         ) { sliderModifier ->
             Slider(
+                colors = AppColors.sliderColors(),
                 value = value,
                 onValueChange = onValueChange,
                 onValueChangeFinished = onValueChangeFinished,

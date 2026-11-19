@@ -191,6 +191,7 @@ internal fun SliderRow(
         },
     ) { sliderModifier ->
         Slider(
+            colors = AppColors.sliderColors(),
             value = value,
             onValueChange = { rawValue ->
                 val v = if (!showTicks && steps > 0 && span > 0) {

@@ -295,6 +295,7 @@ fun AppThemeCard(
                             },
                         ) { sliderModifier ->
                             Slider(
+                                    colors = AppColors.sliderColors(),
                                     value = overlayThemeIntensity,
                                     onValueChange = { value ->
                                         val step =

@@ -3,6 +3,8 @@ package com.tk.quicksearch.shared.ui.theme
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SliderColors
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -72,6 +74,21 @@ object AppColors {
     val FloatingTonalContainer: Color
         @Composable
         get() = AccentTintStrong.compositeOver(MaterialTheme.colorScheme.surfaceContainerHigh)
+
+    /**
+     * Slider colours. Monochrome's `secondaryContainer` (the M3 inactive-track role) is a near-match
+     * for card surfaces, so Mono draws the inactive track and ticks from `onSurface` instead.
+     */
+    @Composable
+    fun sliderColors(): SliderColors =
+        if (LocalAppTheme.current == AppTheme.MONOCHROME) {
+            SliderDefaults.colors(
+                inactiveTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = TintStrongAlpha),
+                inactiveTickColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        } else {
+            SliderDefaults.colors()
+        }
 
     // Tint opacities, also for tonal fills of other roles (error, content colour).
     const val TintFaintAlpha = 0.05f

@@ -17,6 +17,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.settings.shared.SettingsToggleSliderDetails
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /** Keeps the switch beside its label and gives the count slider the tile's full width. */
@@ -53,6 +54,7 @@ internal fun SearchResultsSliderToggle(
                 },
             ) { sliderModifier ->
                 Slider(
+                    colors = AppColors.sliderColors(),
                     value = sliderDetails.value,
                     onValueChange = sliderDetails.onValueChange,
                     valueRange = sliderDetails.valueRange,

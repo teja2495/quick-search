@@ -209,6 +209,7 @@ fun SettingsToggleRow(
                         },
                     ) { sliderModifier ->
                         Slider(
+                            colors = AppColors.sliderColors(),
                             value = sliderDetails.value,
                             onValueChange = sliderDetails.onValueChange,
                             valueRange = sliderDetails.valueRange,

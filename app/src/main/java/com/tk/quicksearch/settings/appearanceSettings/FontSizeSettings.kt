@@ -139,6 +139,7 @@ private fun FontSizeSlider(
             },
         ) { sliderModifier ->
             Slider(
+                    colors = AppColors.sliderColors(),
                     value = sliderValue,
                     onValueChange = { value ->
                         val index = value.roundToInt().coerceIn(0, FONT_SIZE_STEPS.lastIndex)
