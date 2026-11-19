@@ -156,7 +156,7 @@ internal fun ApiKeyTile(
                             Text(
                                 text = stringResource(R.string.settings_gemini_api_key_paste_hint),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = AppColors.Accent,
+                                color = AppColors.LinkColor,
                             )
                     }
                 }

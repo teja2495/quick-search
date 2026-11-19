@@ -41,6 +41,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
+import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
@@ -51,6 +52,7 @@ import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
 import com.tk.quicksearch.shared.ui.components.TonalButton
 import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.readText
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
@@ -306,6 +308,7 @@ private fun AddCustomProviderTile(
                         TonalButton(
                             text = stringResource(R.string.settings_gemini_api_key_paste_hint),
                             icon = MaterialSymbols.Key,
+                            tone = AppButtonTone.Custom(AppColors.LinkColor),
                             enabled = !isSaving,
                             onClick = ::pasteKeyFromClipboard,
                             modifier = Modifier.fillMaxWidth(),
