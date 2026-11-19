@@ -159,6 +159,13 @@ internal fun AppSettingsCatalogBuilder.addToggleAndInlineSettings(context: Conte
         keywords = listOf("badge", "notification", "dot", "unread"),
     )
     addToggle(
+        id = "app_toggle_app_lock_outside_quick_search",
+        titleRes = R.string.app_lock_outside_quick_search_title,
+        descriptionRes = R.string.app_lock_outside_quick_search_desc,
+        toggleKey = AppSettingsToggleKey.APP_LOCK_OUTSIDE_QUICK_SEARCH,
+        keywords = listOf("app lock", "lock", "biometric", "fingerprint", "privacy", "launcher"),
+    )
+    addToggle(
         id = "app_toggle_speed_bump_outside_quick_search",
         titleRes = R.string.speed_bump_outside_quick_search_title,
         descriptionRes = R.string.speed_bump_outside_quick_search_desc,

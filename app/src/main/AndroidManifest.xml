@@ -698,6 +698,16 @@
             android:taskAffinity="${applicationId}.speedbump"
             android:theme="@style/Theme.QuickSearch" />
 
+        <!-- Unlock screen for locked apps opened outside Quick Search; started by the
+             accessibility service in its own task above the app. -->
+        <activity
+            android:name=".search.apps.appLock.AppLockActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:taskAffinity="${applicationId}.applock"
+            android:theme="@style/Theme.QuickSearch" />
+
         <activity
             android:name=".pinnedNotifications.PinnedNotificationChoiceActivity"
             android:exported="false"

@@ -17,11 +17,13 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.edgeGesture.EdgeGestureOverlay
 import com.tk.quicksearch.floatingButton.FloatingButtonOverlay
 import com.tk.quicksearch.notchGesture.NotchGestureOverlay
+import com.tk.quicksearch.search.apps.appLock.AppLockLaunchWatcher
 import com.tk.quicksearch.search.apps.speedBump.SpeedBumpLaunchWatcher
 
 /**
  * Hosts the Home double-tap lock action, the system-wide edge swipe handle, the floating button and
- * the notch tap target, and spots bumped apps opened outside Quick Search for SpeedBump.
+ * the notch tap target, and spots bumped or locked apps opened outside Quick Search for SpeedBump
+ * and App Lock.
  */
 class LockScreenAccessibilityService : AccessibilityService() {
     private var edgeGestureOverlay: EdgeGestureOverlay? = null
@@ -32,12 +34,12 @@ class LockScreenAccessibilityService : AccessibilityService() {
         instance = this
         // Each feature starts on its own: if one throws, the others keep working and the service
         // stays connected. A crash here would leave the system toggle on with nothing running.
-        runFeature("SpeedBump") {
-            // Window events are only read by SpeedBump outside Quick Search, so subscribe only while
-            // it has work; otherwise the XML's subscription would wake the app on every screen change.
-            SpeedBumpLaunchWatcher.attach(this, ::updateWindowEventSubscription)
-            updateWindowEventSubscription(SpeedBumpLaunchWatcher.isActive)
-        }
+        // Window events are only read by SpeedBump and App Lock outside Quick Search, so subscribe
+        // only while one has work; otherwise the XML's subscription would wake the app on every
+        // screen change.
+        runFeature("SpeedBump") { SpeedBumpLaunchWatcher.attach(this) { updateWindowEventSubscription() } }
+        runFeature("App Lock") { AppLockLaunchWatcher.attach(this) { updateWindowEventSubscription() } }
+        updateWindowEventSubscription()
         runFeature("edge gesture") {
             edgeGestureOverlay =
                 EdgeGestureOverlay(this).also { overlay ->
@@ -73,11 +75,20 @@ class LockScreenAccessibilityService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            runFeature("SpeedBump") { SpeedBumpLaunchWatcher.onWindowStateChanged(event) }
+            // A locked app is unlocked before its SpeedBump pause; the pause follows once the app
+            // comes forward again.
+            val unlockStarted =
+                runCatching { AppLockLaunchWatcher.onWindowStateChanged(event) }
+                    .onFailure { error -> Log.e(TAG, "App Lock failed", error) }
+                    .getOrDefault(false)
+            if (!unlockStarted) {
+                runFeature("SpeedBump") { SpeedBumpLaunchWatcher.onWindowStateChanged(event) }
+            }
         }
     }
 
-    private fun updateWindowEventSubscription(active: Boolean) {
+    private fun updateWindowEventSubscription() {
+        val active = SpeedBumpLaunchWatcher.isActive || AppLockLaunchWatcher.isActive
         val eventTypes = if (active) AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED else 0
         runCatching { serviceInfo = serviceInfo?.apply { this.eventTypes = eventTypes } }
     }
@@ -86,6 +97,7 @@ class LockScreenAccessibilityService : AccessibilityService() {
 
     override fun onDestroy() {
         SpeedBumpLaunchWatcher.detach()
+        AppLockLaunchWatcher.detach()
         edgeGestureOverlay?.detach()
         edgeGestureOverlay = null
         floatingButtonOverlay?.detach()

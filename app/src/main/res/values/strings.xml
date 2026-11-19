@@ -149,10 +149,10 @@
     <string name="settings_gesture_view_all_apps">View All Apps</string>
     <string name="settings_gesture_lock_screen">Lock Screen</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">Requires Accessibility Permission</string>
-    <string name="accessibility_lock_screen_service_description">Allows Quick Search to lock the screen from the Home double-tap gesture, respond to notch taps, open from an edge swipe or a floating button in any app, and show SpeedBump for apps opened outside Quick Search. It only checks which app is open and does not read screen content.</string>
+    <string name="accessibility_lock_screen_service_description">Allows Quick Search to lock the screen from the Home double-tap gesture, respond to notch taps, open from an edge swipe or a floating button in any app, and show SpeedBump or ask to unlock for apps opened outside Quick Search. It only checks which app is open and does not read screen content.</string>
     <string name="accessibility_service_stopped_hint">Android stopped Quick Search\'s accessibility service. Turn it off and on again in Accessibility settings.</string>
     <string name="accessibility_permission_disclaimer_title">Accessibility Permission Disclaimer</string>
-    <string name="accessibility_lock_screen_disclosure_message">Quick Search uses Accessibility to:\n\n• Enable double-tap to lock screen gesture.\n• Open Quick Search using edge swipe gestures.\n• Open Quick Search using floating button.\n• Run actions when you tap the notch.\n• Show SpeedBump when an app with SpeedBump is opened outside Quick Search. For this, it only checks which app is open.\n\nIt does not read, collect, store, or share your screen content or other personal data.</string>
+    <string name="accessibility_lock_screen_disclosure_message">Quick Search uses Accessibility to:\n\n• Enable double-tap to lock screen gesture.\n• Open Quick Search using edge swipe gestures.\n• Open Quick Search using floating button.\n• Run actions when you tap the notch.\n• Show SpeedBump or ask to unlock when an app with SpeedBump or App Lock is opened outside Quick Search. For this, it only checks which app is open.\n\nIt does not read, collect, store, or share your screen content or other personal data.</string>
     <string name="settings_gesture_none">None</string>
     <string name="settings_gesture_custom">Custom (Apps, Files etc.)</string>
     <string name="settings_keyboard_gestures_title">Keyboard Gestures</string>
@@ -1428,6 +1428,8 @@
     <string name="speed_bump_pause_menu_title">Pause SpeedBump for %1$s</string>
     <string name="speed_bump_outside_quick_search_title">Extend SpeedBump</string>
     <string name="speed_bump_outside_quick_search_desc">Apply SpeedBump when apps are opened outside Quick Search</string>
+    <string name="app_lock_outside_quick_search_title">Extend App Lock</string>
+    <string name="app_lock_outside_quick_search_desc">Ask to unlock when locked apps are opened outside Quick Search</string>
     <string name="home_upcoming_alarm">Upcoming Alarm</string>
     <string name="home_upcoming_alarm_hide_app">Hide alarms from %1$s</string>
     <string name="home_low_battery_saver_off">Tap to turn on Battery Saver</string>

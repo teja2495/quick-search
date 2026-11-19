@@ -169,6 +169,7 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                 AppSettingsToggleKey.WEATHER -> setWeatherEnabled(command.enabled)
                 // Need a permission and live outside SearchUiState; see SearchRouteSettingActions.
                 AppSettingsToggleKey.APP_NOTIFICATIONS,
+                AppSettingsToggleKey.APP_LOCK_OUTSIDE_QUICK_SEARCH,
                 AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH,
                 -> Unit
                 AppSettingsToggleKey.APPS_PER_ROW,
@@ -280,6 +281,7 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.WEATHER -> weatherEnabled && hasApiKey
         // Read by rememberAppSettingToggleChecked, which follows their own stores.
         AppSettingsToggleKey.APP_NOTIFICATIONS,
+        AppSettingsToggleKey.APP_LOCK_OUTSIDE_QUICK_SEARCH,
         AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH,
         -> false
         AppSettingsToggleKey.APPS_PER_ROW,

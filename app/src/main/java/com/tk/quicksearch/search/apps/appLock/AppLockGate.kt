@@ -71,8 +71,11 @@ object AppLockGate {
             context.getString(R.string.app_lock_prompt_unlock, appName?.takeIf { it.isNotBlank() } ?: appLabel(context, packageName)),
             BiometricManager.Authenticators.BIOMETRIC_WEAK,
             onCancelled,
-            action,
-        )
+        ) {
+            // Already unlocked here, so Extend App Lock shouldn't ask again as the app opens.
+            AppLockLaunchWatcher.allowLaunchFromQuickSearch(packageName)
+            action()
+        }
     }
 
     /** Like [runAfterUnlock] for actions that may open any of [packageNames]; one prompt covers them. */

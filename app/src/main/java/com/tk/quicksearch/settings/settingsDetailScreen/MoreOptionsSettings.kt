@@ -13,6 +13,9 @@ import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.BuildConfig
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.appSettings.AppSettingsToggleKey
+import com.tk.quicksearch.search.apps.appLock.AppLockAccessibilityDisclosureHost
+import com.tk.quicksearch.search.apps.appLock.AppLockOutsideQuickSearchToggleState
+import com.tk.quicksearch.search.apps.appLock.rememberAppLockOutsideQuickSearchToggleState
 import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotsCheckedChange
 import com.tk.quicksearch.search.apps.speedBump.SpeedBumpAccessibilityDisclosureHost
 import com.tk.quicksearch.search.apps.speedBump.SpeedBumpOutsideQuickSearchToggleState
@@ -47,11 +50,13 @@ fun MoreOptionsSettings(
         }
     val speedBumpToggle = rememberSpeedBumpOutsideQuickSearchToggleState()
     SpeedBumpAccessibilityDisclosureHost(speedBumpToggle)
+    val appLockToggle = rememberAppLockOutsideQuickSearchToggleState()
+    AppLockAccessibilityDisclosureHost(appLockToggle)
     val isMoreOptionEnabled: (AppSettingsToggleKey) -> Boolean = { key ->
-        if (key == AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH) {
-            speedBumpToggle.isOn
-        } else {
-            isToggleEnabled(key)
+        when (key) {
+            AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH -> speedBumpToggle.isOn
+            AppSettingsToggleKey.APP_LOCK_OUTSIDE_QUICK_SEARCH -> appLockToggle.isOn
+            else -> isToggleEnabled(key)
         }
     }
     val appToggleItems =
@@ -62,6 +67,13 @@ fun MoreOptionsSettings(
                 subtitleRes = R.string.notification_dots_toggle_desc,
                 leadingIcon = MaterialSymbols.Notifications,
             ),
+            // App Lock only works while Quick Search is the default launcher.
+            ToggleItem(
+                key = AppSettingsToggleKey.APP_LOCK_OUTSIDE_QUICK_SEARCH,
+                titleRes = R.string.app_lock_outside_quick_search_title,
+                subtitleRes = R.string.app_lock_outside_quick_search_desc,
+                leadingIcon = MaterialSymbols.Lock,
+            ).takeIf { isDefaultLauncher },
             ToggleItem(
                 key = AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH,
                 titleRes = R.string.speed_bump_outside_quick_search_title,
@@ -150,6 +162,7 @@ fun MoreOptionsSettings(
             onApplySettingsCommand = onApplySettingsCommand,
             onNotificationDotsCheckedChange = onNotificationDotsCheckedChange,
             speedBumpToggle = speedBumpToggle,
+            appLockToggle = appLockToggle,
         )
         Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
         MoreOptionsToggleGroup(
@@ -159,6 +172,7 @@ fun MoreOptionsSettings(
             onApplySettingsCommand = onApplySettingsCommand,
             onNotificationDotsCheckedChange = onNotificationDotsCheckedChange,
             speedBumpToggle = speedBumpToggle,
+            appLockToggle = appLockToggle,
         )
         if (BuildConfig.NOTED_INTEGRATION) {
             NotedIntegrationSettingCard(modifier = Modifier.padding(top = DesignTokens.SpacingLarge))
@@ -174,6 +188,7 @@ private fun MoreOptionsToggleGroup(
     onApplySettingsCommand: (SettingsCommand) -> Unit,
     onNotificationDotsCheckedChange: (Boolean) -> Unit,
     speedBumpToggle: SpeedBumpOutsideQuickSearchToggleState,
+    appLockToggle: AppLockOutsideQuickSearchToggleState,
 ) {
     SegmentedGroup(
         modifier = Modifier.fillMaxWidth(),
@@ -185,6 +200,9 @@ private fun MoreOptionsToggleGroup(
                     stringResource(R.string.settings_overlay_mode_desc_launcher_blocked)
                 item.key == AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH &&
                     !speedBumpToggle.hasAccessibility ->
+                    stringResource(R.string.settings_notch_accessibility_needed)
+                item.key == AppSettingsToggleKey.APP_LOCK_OUTSIDE_QUICK_SEARCH &&
+                    !appLockToggle.hasAccessibility ->
                     stringResource(R.string.settings_notch_accessibility_needed)
                 else -> stringResource(item.subtitleRes)
             }
@@ -198,6 +216,8 @@ private fun MoreOptionsToggleGroup(
                         onNotificationDotsCheckedChange(enabled)
                     } else if (item.key == AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH) {
                         speedBumpToggle.setEnabled(enabled)
+                    } else if (item.key == AppSettingsToggleKey.APP_LOCK_OUTSIDE_QUICK_SEARCH) {
+                        appLockToggle.setEnabled(enabled)
                     } else {
                         onApplySettingsCommand(
                             SettingsCommand.Toggle(

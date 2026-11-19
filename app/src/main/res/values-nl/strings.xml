@@ -152,10 +152,10 @@
     <string name="settings_gesture_view_all_apps">Alle apps bekijken</string>
     <string name="settings_gesture_lock_screen">Scherm vergrendelen</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">Vereist toegankelijkheidsmachtiging</string>
-    <string name="accessibility_lock_screen_service_description">Hiermee kan Quick Search het scherm vergrendelen via het dubbeltik-gebaar op het startscherm, reageren op tikken op de notch, openen met een veeg vanaf de rand of een zwevende knop in elke app, en SpeedBump tonen voor apps die buiten Quick Search worden geopend. Het controleert alleen welke app open is en leest geen scherminhoud.</string>
+    <string name="accessibility_lock_screen_service_description">Hiermee kan Quick Search het scherm vergrendelen via het dubbeltik-gebaar op het startscherm, reageren op tikken op de notch, openen met een veeg vanaf de rand of een zwevende knop in elke app, en SpeedBump tonen of om ontgrendeling vragen voor apps die buiten Quick Search worden geopend. Het controleert alleen welke app open is en leest geen scherminhoud.</string>
     <string name="accessibility_service_stopped_hint">Android heeft de toegankelijkheidsservice van Quick Search gestopt. Zet deze uit en weer aan in de toegankelijkheidsinstellingen.</string>
     <string name="accessibility_permission_disclaimer_title">Disclaimer toegankelijkheidsmachtiging</string>
-    <string name="accessibility_lock_screen_disclosure_message">Quick Search gebruikt Toegankelijkheid om:\n\n• de dubbeltikbeweging om het scherm te vergrendelen in te schakelen.\n• Quick Search te openen met veegbewegingen vanaf de rand.\n• Quick Search te openen met de zwevende knop.\n• acties uit te voeren wanneer je op de notch tikt.\n• SpeedBump te tonen wanneer een app met SpeedBump buiten Quick Search wordt geopend. Daarvoor controleert het alleen welke app open is.\n\nHet leest, verzamelt, bewaart of deelt je scherminhoud of andere persoonlijke gegevens niet.</string>
+    <string name="accessibility_lock_screen_disclosure_message">Quick Search gebruikt Toegankelijkheid om:\n\n• de dubbeltikbeweging om het scherm te vergrendelen in te schakelen.\n• Quick Search te openen met veegbewegingen vanaf de rand.\n• Quick Search te openen met de zwevende knop.\n• acties uit te voeren wanneer je op de notch tikt.\n• SpeedBump te tonen of om ontgrendeling te vragen wanneer een app met SpeedBump of app-vergrendeling buiten Quick Search wordt geopend. Daarvoor controleert het alleen welke app open is.\n\nHet leest, verzamelt, bewaart of deelt je scherminhoud of andere persoonlijke gegevens niet.</string>
     <string name="settings_gesture_none">Geen</string>
     <string name="settings_gesture_custom">Aangepast (Apps, bestanden enz.)</string>
     <string name="settings_keyboard_gestures_title">Toetsenbordgebaren</string>
@@ -1424,6 +1424,8 @@ Gebruik {time} om de huidige datum en tijd in de prompt op te nemen.</string>
     <string name="speed_bump_pause_menu_title">SpeedBump pauzeren voor %1$s</string>
     <string name="speed_bump_outside_quick_search_title">SpeedBump uitbreiden</string>
     <string name="speed_bump_outside_quick_search_desc">SpeedBump toepassen wanneer apps buiten Quick Search worden geopend</string>
+    <string name="app_lock_outside_quick_search_title">App-vergrendeling uitbreiden</string>
+    <string name="app_lock_outside_quick_search_desc">Om ontgrendeling vragen wanneer vergrendelde apps buiten Quick Search worden geopend</string>
     <string name="home_upcoming_alarm">Aankomende wekker</string>
     <string name="home_upcoming_alarm_hide_app">Wekkers van %1$s verbergen</string>
     <string name="home_low_battery_saver_off">Tik om Batterijbesparing aan te zetten</string>
