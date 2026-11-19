@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
+import com.tk.quicksearch.shared.ui.components.AppSelectableDropdownMenuItem
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -244,10 +244,9 @@ fun AppManagementSettingsSection(
                 ) {
                     availableSortOptions.forEachIndexed { index, option ->
                         if (index > 0) AppDropdownMenuDivider()
-                        AppDropdownMenuItem(
+                        AppSelectableDropdownMenuItem(
                             text = stringResource(option.labelResId),
-                            icon = if (option == selectedSortOption) MaterialSymbols.Check else null,
-                            iconTint = AppColors.Accent,
+                            selected = option == selectedSortOption,
                             onClick = {
                                 selectedSortOption = option
                                 isSortMenuExpanded = false

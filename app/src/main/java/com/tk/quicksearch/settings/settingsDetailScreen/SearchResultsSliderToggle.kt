@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
+import com.tk.quicksearch.shared.ui.components.AppSlider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -53,8 +53,7 @@ internal fun SearchResultsSliderToggle(
                     )
                 },
             ) { sliderModifier ->
-                Slider(
-                    colors = AppColors.sliderColors(),
+                AppSlider(
                     value = sliderDetails.value,
                     onValueChange = sliderDetails.onValueChange,
                     valueRange = sliderDetails.valueRange,

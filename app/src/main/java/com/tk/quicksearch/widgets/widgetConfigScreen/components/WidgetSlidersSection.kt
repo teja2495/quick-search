@@ -3,7 +3,7 @@ package com.tk.quicksearch.widgets.widgetConfigScreen.components
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
+import com.tk.quicksearch.shared.ui.components.AppSlider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -190,8 +190,7 @@ internal fun SliderRow(
             )
         },
     ) { sliderModifier ->
-        Slider(
-            colors = AppColors.sliderColors(),
+        AppSlider(
             value = value,
             onValueChange = { rawValue ->
                 val v = if (!showTicks && steps > 0 && span > 0) {

@@ -1,5 +1,10 @@
 package com.tk.quicksearch.settings.aiSettings
 
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
@@ -277,6 +282,17 @@ private fun PersonalContextCard(
         enabled: Boolean,
 ) {
         val textAlpha = if (enabled) 1f else AppColors.DisabledContentAlpha
+        val textState = rememberTextFieldState(value)
+        val currentValue by rememberUpdatedState(value)
+        val currentOnValueChange by rememberUpdatedState(onValueChange)
+        LaunchedEffect(value) {
+                if (textState.text.toString() != value) textState.setTextAndPlaceCursorAtEnd(value)
+        }
+        LaunchedEffect(textState) {
+                snapshotFlow { textState.text.toString() }.collect { text ->
+                        if (text != currentValue) currentOnValueChange(text)
+                }
+        }
         // Focusable only after a touch lands on it, so initial or restored focus never parks a
         // caret here when the screen opens; it locks again once focus leaves.
         var focusUnlockedByTouch by remember { mutableStateOf(false) }
@@ -314,8 +330,7 @@ private fun PersonalContextCard(
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = textAlpha),
                         )
                         BasicTextField(
-                                value = value,
-                                onValueChange = onValueChange,
+                                state = textState,
                                 enabled = enabled,
                                 modifier =
                                         Modifier.fillMaxWidth()
@@ -333,15 +348,14 @@ private fun PersonalContextCard(
                                                         isFieldFocused = state.isFocused
                                                         if (!state.isFocused) focusUnlockedByTouch = false
                                                 },
-                                minLines = 3,
-                                maxLines = 8,
+                                lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = 3, maxHeightInLines = 8),
                                 textStyle =
                                         MaterialTheme.typography.bodyLarge.copy(
                                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = textAlpha),
                                         ),
                                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                                decorationBox = { inner ->
-                                        if (value.isEmpty()) {
+                                decorator = { inner ->
+                                        if (textState.text.isEmpty()) {
                                                 Text(
                                                         text =
                                                                 stringResource(

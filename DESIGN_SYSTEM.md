@@ -208,10 +208,11 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
 - **Icon shadows.** App icons and search engine icons over a light wallpaper, and the All Apps
   letter bubble, cast a shadow at a Material elevation level. A tonal surface can't separate a bare
   icon from an arbitrary wallpaper.
-- **Loading.** Material 3 Expressive's `LoadingIndicator` isn't public in the material3 version
-  in use, so AI answers use `GeminiLoadingAnimation` (the same morphing shapes, built on
-  graphics-shapes) and other waits use `CircularProgressIndicator`. Switch area-filling waits to
-  `LoadingIndicator` once it is public.
+- **Loading.** Material 3 Expressive's `LoadingIndicator` is still experimental in material3
+  1.5, so information cards (AI answers, weather, dictionary, currency, world clock) use
+  `InformationCardLoadingAnimation` (the same morphing shapes, built on graphics-shapes) and other
+  waits use `CircularProgressIndicator`. Switch area-filling waits to `LoadingIndicator` once it is
+  stable.
 - **Small badges.** Edit/remove badges on wallpaper thumbnails (20dp) and the notification history
   chevron are smaller than 48dp. They are clickable with a button role, and Compose extends their
   hit area to the 48dp minimum touch target where space allows.
@@ -230,8 +231,9 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
   18, `CornerInlineInput` 24. Every other corner token and `AppShapes` derive from these. Use them
   through `AppShapes`.
 - **Press morphs and connected groups:** `ButtonPressedCornerSmall` 8, `ButtonPressedCornerMedium`
-  16, `SegmentPressedInnerCorner` 16, `ConnectedGroupGap` 2, `ConnectedGroupInnerCorner` 8,
-  `ConnectedGroupPressedInnerCorner` 4.
+  16, `SegmentPressedInnerCorner` 16, `ConnectedGroupGap` 2, `ConnectedGroupInnerCorner` 8 (both
+  match Material's connected button group tokens; the groups themselves read
+  `ButtonGroupDefaults`).
 - **Buttons:** `ButtonHeightExtraSmall` 32, `ButtonHeightSmall` 40, `FloatingActionHeight` 56,
   `TonalSettingsButtonHeight` 48, `ButtonIconSizeExtraSmall` 16, `ButtonIconSizeSmall` 18. Callers
   pick an `AppButtonSize` instead of reading these.
@@ -261,8 +263,8 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
   `engineHighlight`, `inlineInput`, `field`. Use `full` rather than `CircleShape`.
 - **Builders:** `corners(...)`, `segment(...)`, `connected(...)`, `stacked(...)`.
 - **Press morphs:** `pressMorphPillShape` (every button), `pressMorphShape`,
-  `pressMorphButtonShape`, `floatingActionShape`, `pressMorphSegmentShape`,
-  `connectedButtonShape`.
+  `pressMorphButtonShape`, `floatingActionShape`, `pressMorphSegmentShape`. Connected button
+  groups use Material's `ButtonGroupDefaults` connected shapes.
 - **Expressive polygons:** `AppPolygons` holds the Material 3 Expressive polygons (`softBurst`,
   `cookie9`, `pentagon`, `pill`, `sunny`, `cookie4`, `oval`) as `RoundedPolygon`s, plus
   `PolygonShape`. `AppShapes.cookie9`/`cookie4` use them.
@@ -314,8 +316,8 @@ settings and add a property in sorted order.
 | Component | Material 3 pattern | Use for |
 |---|---|---|
 | `AppButton`, `AppTonalButton`, `AppOutlinedButton`, `AppTextButton`, `TonalButton` (`AppButtons.kt`) | Buttons | Every button. Pick a `tone` (`AppButtonTone.Accent` default, `Secondary` inside result cards, `Error` for destructive, `Neutral` for de-emphasized, `Custom(color)` over wallpaper), a `size` (`AppButtonSize.ExtraSmall` 32dp, `Small` 40dp default, `Medium` 56dp), and an optional `icon`. The wrappers own shape (a pill that squares on press), colors, and padding. `TonalButton` is the 48dp tonal action inside a tile (Reset, Edit, Delete) |
-| `ConnectedButtonRow` (`ConnectedButtonGroup.kt`) | Connected button group | A row of related actions (not a choice). Declare buttons with `button(onClick, width, weight) { … }`; the row works out first and last, so conditional buttons need no position flags |
-| `ConnectedChoiceGroup`, `ChoiceOption`, `ChoiceTile` (`ConnectedChoiceGroup.kt`) | Connected button group (single select) | Single choices in settings and app-setting results. The selected option fills with `Accent` and morphs fully round. Labels use the Material type scale. Options stack vertically when they cannot fit side by side. `ChoiceTile` is a segmented tile with a `titleMedium` heading over a full-width group |
+| `ConnectedButtonRow` (`ConnectedButtonGroup.kt`) | Connected button group (Material `FilledTonalButton` + `ButtonGroupDefaults` shapes) | A row of related actions (not a choice). Declare buttons with `button(onClick, width, weight) { … }`; the row works out first and last, so conditional buttons need no position flags |
+| `ConnectedChoiceGroup`, `ChoiceOption`, `ChoiceTile` (`ConnectedChoiceGroup.kt`) | Connected button group (single select), Material `ToggleButton` | Single choices in settings and app-setting results. The selected option fills with `Accent` and morphs fully round. Labels use the Material type scale. Options stack vertically when they cannot fit side by side. `ChoiceTile` is a segmented tile with a `titleMedium` heading over a full-width group |
 | `SegmentedGroup`, `SegmentedTile`, `SegmentedTileRow`, `SegmentedToggleTile`, `SegmentedTileContent`, `AppSwitch`, `TonalIconBadge`, `TonalIconBadgeContainer` (`SegmentedList.kt`) | Segmented list | The default layout for settings pages, dialogs that list items, widget config screens, onboarding, and drawers. Each row is its own tile, with 28dp outer corners, 4dp inner corners, and 2dp gaps; inner corners round to 16dp while pressed. Rows lead with a 40dp `TonalIconBadge`. Inside a tile, `LocalSegmentedItemModifier` and `LocalInSegmentedTile` adjust nested rows |
 | `ExpandableSegmentedGroup` | Expandable list | A `SegmentedGroup` that collapses to its title row (`titleMedium` heading, rotating chevron) |
 | `PermissionsPageContent` (`shared/permissions/`) | Segmented list | The shared checklist and icon-free permission tiles for onboarding and Settings. Each page shows its applicable rows. |
@@ -330,17 +332,17 @@ settings and add a property in sorted order.
 | `AppDrawerHeader` | Sheet header | `titleLarge` drawer header with optional leading content and a 48dp close button |
 | `AppBottomPopup` | Bottom sheet (floating) | Bottom-anchored floating popup with the drawer header, 28dp corners, and a 640dp max width. `animateSizeChanges` animates height changes with the bottom anchored |
 | `ItemMenuPopup` | Menu (expressive) | Long-press action menus: tonal quick-action tiles, segmented option rows, and pill buttons on `surfaceContainerHighest`. Contact action popups reuse its tiles. Reflow options so gaps fall only at the end of the last row |
-| `AppDropdownMenu`, `AppDropdownMenuItem`, `AppDropdownMenuDivider`, `AppOverflowMenu` | Menu | Every three-dot and long-press dropdown: 28dp corners on `surfaceContainer`. `destructive = true` items must still confirm with `AppAlertDialog`. `AppDropdownMenuItem` takes an `icon: ImageVector` or a `leadingIcon` slot for custom leading content; don't use raw `DropdownMenuItem` |
+| `AppDropdownMenu`, `AppDropdownMenuItem`, `AppSelectableDropdownMenuItem`, `AppDropdownMenuDivider`, `AppOverflowMenu` | Menu | Every three-dot and long-press dropdown: 28dp corners on `surfaceContainer`. `destructive = true` items must still confirm with `AppAlertDialog`. `AppDropdownMenuItem` takes an `icon: ImageVector` or a `leadingIcon` slot for custom leading content. A single choice inside a menu (sort order) uses `AppSelectableDropdownMenuItem` (Material `SelectableDropdownMenuItem`: check, accent tint, radio semantics); don't use raw `DropdownMenuItem` |
 | `AppUndoSnackbarHost`, `AppUndoSnackbarPopup`, `rememberUndoSnackbarController()` | Snackbar | Undo after a removal. Put the host in a screen's root overlay; settings pages without one use the popup. It lifts above `Modifier.undoSnackbarAvoidArea()` so it never covers the bottom search bar. `showMessage` shows a message with no action |
 | `AppMessages`, `AppMessageSnackbarHost` (`AppMessages.kt`) | Snackbar | Brief feedback in place of a `Toast`. `AppMessages.show(context, text or @StringRes, long)` works from any thread and goes to the highest-priority host registered by a resumed screen, falling back to a `Toast` when none is. The search route and overlay register their undo snackbar with `AppMessages.HostEffect(controller, ScreenHostPriority)`; navigation's root and `WidgetConfigScaffold` (with `inScaffold = true`) hold an `AppMessageSnackbarHost` at fallback priority |
 | `AppDatePickerDialog` | Date picker dialog | Picking a date. Wraps Material's `DatePickerDialog` and `DatePicker` with `AppTextButton` confirm and cancel actions |
 | `AppInputChip` | Input chip | A removable entry the user added (excluded file extensions): pill shape, trailing close icon, and a `SettingsDivider` outline |
 | `AliasPill` (`settings/shared/`) | Input chip | A tonal alias chip. The label opens the editor and the trailing close button clears the alias. Both actions keep independent 48dp touch targets. |
-| `AppOutlinedTextField`, `dialogTextFieldColors()`, `CardTextField`, `cardTextFieldColors()` | Text fields | Every form input: outlined fields in dialogs, sheets, and settings forms (both `String` and `TextFieldValue` overloads take an optional label, placeholder, supporting text, icons, keyboard options, and a `shape`, `AppShapes.extraSmall` by default for strings); transparent fields with a visible focus indicator stacked as rows on a settings surface. Don't call Material `TextField` or `OutlinedTextField` directly; search-style fields are the exception below |
+| `AppOutlinedTextField`, `dialogTextFieldColors()`, `CardTextField`, `cardTextFieldColors()` | Text fields | Every form input: outlined fields in dialogs, sheets, and settings forms (`String`, `TextFieldValue`, and `TextFieldState` overloads take an optional label, placeholder, supporting text, icons, keyboard options, and a `shape`, `AppShapes.extraSmall` by default for strings; filter input with an `InputTransformation` such as `maxLengthTrim` and style it with an `OutputTransformation`, both on the `TextFieldState` overload, rather than a `VisualTransformation`); transparent fields with a visible focus indicator stacked as rows on a settings surface. Don't call Material `TextField` or `OutlinedTextField` directly; search-style fields are the exception below |
 | `AppFloatingActionButton`, `AppExtendedFloatingActionButton`, `AppFabTone` (`AppFloatingActionButton.kt`) | FAB, extended FAB | 56dp page-bottom actions with a 24dp icon, fully round and squaring on press. `AppFabTone.Primary` (`Accent`) for the main action, `Tonal` (`FloatingTonalContainer`) for a secondary one, `Error` for destructive. The extended FAB takes a label and an `enabled` flag (fades to `DisabledContentAlpha`); the caller sets its width. Don't call Material FABs directly |
 | `AppFilterChip`, `AppFilterChipStyle` (`AppFilterChip.kt`) | Filter chip | Filter and multi-select chips. Selected fills with `Accent`; `Outlined` (default) has a `SettingsDivider` outline, `Tonal` uses `AccentTintTonal` for chips on a tonal surface. `showSelectedCheck` adds the multi-select check. Over a wallpaper, pass the wallpaper-aware label and border colors |
 | `PickerFieldButton` | Text field (read-only) | Outlined field that opens a date, time, or repeat picker |
-| `SliderWithValue` | Slider | A value beside or above a slider, with an optional leading label for endpoint scales. The caller owns range, ticks, and saving. Pass `colors = AppColors.sliderColors()` to every `Slider` so the inactive track stays visible in Monochrome |
+| `AppSlider`, `SliderWithValue` | Slider | `AppSlider` is the app's slider, built on Material's `SliderState` overload. The caller owns the value and saves it from `onValueChange`, and colors default to `AppColors.sliderColors()` so the inactive track stays visible in Monochrome. Don't call Material `Slider` directly. `SliderWithValue` puts a value beside or above a slider, with an optional leading label for endpoint scales; the caller owns range, ticks, and saving |
 | `TipBanner` | Card | Dismissible tips with optional links and an action |
 | `PredictiveBackPreviewHandler`, `PredictiveBackSlideHandler`, `PreserveHostKeyboardStateEffect` | Predictive back | Predictive back animations for nested pages, and keeping the host's keyboard state while a popup is open |
 | `AppVoiceCallIcon` | — | App logo plus phone icon for call actions |
@@ -371,8 +373,8 @@ these rather than every screen:
    `MaterialTheme` calls in `Theme.kt` and read springs from `MaterialTheme.motionScheme`.
 4. **Typography:** `Type.kt` and both flavors' `DistributionTypography.kt`.
 5. **Components:** the wrappers in `shared/ui/components/`. `ConnectedButtonGroup.kt` and
-   `ConnectedChoiceGroup.kt` should switch to Material's `ButtonGroup`/`ToggleButton` once those
-   are public and stable.
+   `ConnectedChoiceGroup.kt` are built on Material's `FilledTonalButton`/`ToggleButton` with
+   `ButtonGroupDefaults` connected shapes.
 
 ## Keeping this file current
 

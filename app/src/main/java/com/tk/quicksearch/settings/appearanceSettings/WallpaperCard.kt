@@ -30,7 +30,7 @@ import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
+import com.tk.quicksearch.shared.ui.components.AppSlider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -489,8 +489,7 @@ fun WallpaperCard(
                                 )
                         },
                 ) { sliderModifier ->
-                    Slider(
-                            colors = AppColors.sliderColors(),
+                    AppSlider(
                             value = wallpaperAlphaDisplayValue,
                             onValueChange = { value ->
                                 val step = (value * 9).roundToInt().coerceIn(0, 9)
@@ -525,8 +524,7 @@ fun WallpaperCard(
                                     )
                             },
                     ) { sliderModifier ->
-                        Slider(
-                                colors = AppColors.sliderColors(),
+                        AppSlider(
                                 value = wallpaperBlurRadius,
                                 onValueChange = { value ->
                                     val step =

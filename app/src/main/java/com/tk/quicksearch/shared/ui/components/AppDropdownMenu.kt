@@ -14,6 +14,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.SelectableDropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /** A three-dot button anchored to a dropdown. Menu items can dismiss it when selected. */
@@ -184,5 +186,37 @@ fun AppDropdownMenuItem(
         leadingIcon = leadingIcon,
         enabled = enabled,
         colors = colors,
+    )
+}
+
+/**
+ * A single-choice row for [AppDropdownMenu], such as a sort order: Material's
+ * [SelectableDropdownMenuItem], with a check and an accent tint on the [selected] option and
+ * radio button semantics.
+ */
+@Composable
+fun AppSelectableDropdownMenuItem(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    SelectableDropdownMenuItem(
+        selected = selected,
+        onClick = onClick,
+        text = { Text(text = text) },
+        shapes = MenuDefaults.itemShapes(shape = AppShapes.large, selectedShape = AppShapes.large),
+        modifier = modifier
+            .padding(horizontal = DesignTokens.SpacingXSmall)
+            .heightIn(min = DesignTokens.ItemMenuRowHeight),
+        selectedLeadingIcon = { Icon(imageVector = MaterialSymbols.Check, contentDescription = null) },
+        enabled = enabled,
+        colors =
+            MenuDefaults.selectableItemColors(
+                selectedContainerColor = AppColors.AccentTintTonal,
+                selectedLeadingIconColor = AppColors.Accent,
+                selectedTextColor = MaterialTheme.colorScheme.onSurface,
+            ),
     )
 }

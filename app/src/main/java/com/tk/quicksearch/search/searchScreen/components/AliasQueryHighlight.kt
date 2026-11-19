@@ -4,25 +4,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.foundation.text.input.OutputTransformation
+import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.input.VisualTransformation
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.tools.aiSearch.QuickSearchHelp
 import java.util.Locale
 
 @Composable
-internal fun rememberAliasHighlightVisualTransformation(
+internal fun rememberAliasHighlightOutputTransformation(
     enabledTargets: List<SearchTarget>,
     shortcutCodes: Map<String, String>,
     shortcutEnabled: Map<String, Boolean>,
     triggerWords: Collection<String>,
     isSearchEngineAliasSuffixEnabled: Boolean,
     highlightColor: Color,
-): VisualTransformation {
+): OutputTransformation {
     val searchTargetIds =
         remember(enabledTargets) {
             enabledTargets.mapTo(mutableSetOf()) { it.getId() }
@@ -57,7 +55,7 @@ internal fun rememberAliasHighlightVisualTransformation(
                 .sortedByDescending { it.length }
         }
     return remember(activeAliases, activeSearchTargetAliases, isSearchEngineAliasSuffixEnabled, highlightColor) {
-        AliasHighlightVisualTransformation(
+        AliasHighlightOutputTransformation(
             prefixAliases = activeAliases,
             suffixAliases = activeSearchTargetAliases,
             highlightColor = highlightColor,
@@ -66,29 +64,17 @@ internal fun rememberAliasHighlightVisualTransformation(
     }
 }
 
+/** Colors the alias the query starts or ends with; the text and cursor are left as typed. */
 @Stable
-private class AliasHighlightVisualTransformation(
+private class AliasHighlightOutputTransformation(
     private val prefixAliases: List<String>,
     private val suffixAliases: List<String>,
     private val highlightColor: Color,
     private val highlightSuffixAlias: Boolean,
-) : VisualTransformation {
-    override fun filter(text: AnnotatedString): TransformedText {
-        val query = text.text
-        val highlightRange = resolveHighlightRange(query)
-        if (highlightRange == null) {
-            return TransformedText(text, OffsetMapping.Identity)
-        }
-        val transformed =
-            AnnotatedString.Builder(text)
-                .apply {
-                    addStyle(
-                        style = SpanStyle(color = highlightColor),
-                        start = highlightRange.first,
-                        end = highlightRange.last + 1,
-                    )
-                }.toAnnotatedString()
-        return TransformedText(transformed, OffsetMapping.Identity)
+) : OutputTransformation {
+    override fun TextFieldBuffer.transformOutput() {
+        val highlightRange = resolveHighlightRange(asCharSequence().toString()) ?: return
+        addStyle(SpanStyle(color = highlightColor), highlightRange.first, highlightRange.last + 1)
     }
 
     private fun resolveHighlightRange(query: String): IntRange? {

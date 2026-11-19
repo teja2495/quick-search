@@ -1,5 +1,10 @@
 package com.tk.quicksearch.customInfo
 
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.byValue
+import androidx.compose.foundation.text.input.maxLengthTrim
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRow
 import androidx.compose.foundation.selection.selectableGroup
 import com.tk.quicksearch.shared.ui.theme.AppShapes
@@ -125,6 +130,10 @@ internal fun CustomInfoRepeatRow(
     }
 }
 
+/** Digits only, at most three of them. */
+private val IntervalInputTransformation =
+    InputTransformation.byValue { _, proposed -> proposed.filter(Char::isDigit) }.maxLengthTrim(3)
+
 /** Every-N-units dialog; the reminder form uses it too. */
 @Composable
 internal fun CustomRepeatDialog(
@@ -132,9 +141,9 @@ internal fun CustomRepeatDialog(
     onDismiss: () -> Unit,
     onConfirm: (CustomInfoRepeat) -> Unit,
 ) {
-    var intervalText by remember { mutableStateOf((initial?.interval ?: 2).toString()) }
+    val intervalState = rememberTextFieldState((initial?.interval ?: 2).toString())
     var unit by remember { mutableStateOf(initial?.unit ?: CustomInfoRepeatUnit.DAY) }
-    val interval = intervalText.toIntOrNull()?.takeIf { it in 1..MAX_REPEAT_INTERVAL }
+    val interval = intervalState.text.toString().toIntOrNull()?.takeIf { it in 1..MAX_REPEAT_INTERVAL }
 
     AppAlertDialog(
         onDismissRequest = onDismiss,
@@ -142,10 +151,10 @@ internal fun CustomRepeatDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
                 AppOutlinedTextField(
-                    value = intervalText,
-                    onValueChange = { value -> intervalText = value.filter(Char::isDigit).take(3) },
+                    state = intervalState,
+                    inputTransformation = IntervalInputTransformation,
                     label = stringResource(R.string.custom_info_repeat_every),
-                    singleLine = true,
+                    lineLimits = TextFieldLineLimits.SingleLine,
                     isError = interval == null,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),

@@ -108,7 +108,7 @@ fun AiSearchResult(
                     ) {
                         when (aiSearchState.status) {
                             AiSearchStatus.Loading -> {
-                                GeminiLoadingAnimation()
+                                InformationCardLoadingAnimation()
                             }
                             AiSearchStatus.Success -> {
                                 if (aiSearchState.isQuickSearchHelp && aiSearchState.answer == null) {

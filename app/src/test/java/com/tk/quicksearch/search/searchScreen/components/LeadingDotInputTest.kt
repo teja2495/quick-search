@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -18,11 +18,18 @@ class LeadingDotInputTest {
 
     @Test
     fun removesInsertedSpaceAndShiftsCursor() {
-        val result =
-            TextFieldValue(text = ". mk", selection = TextRange(4))
-                .withoutAutoSpaceAfterLeadingDot(previousText = ".m")
-        assertEquals(".mk", result.text)
-        assertEquals(TextRange(3), result.selection)
+        val state = TextFieldState(".m", TextRange(2))
+        state.typed(". mk", cursor = 4)
+        assertEquals(".mk", state.text.toString())
+        assertEquals(TextRange(3), state.selection)
+    }
+
+    @Test
+    fun turnsLineBreaksIntoSpaces() {
+        val state = TextFieldState("", TextRange(0))
+        state.typed("a\nb\r\nc", cursor = 6)
+        assertEquals("a b  c", state.text.toString())
+        assertEquals(TextRange(6), state.selection)
     }
 
     @Test
@@ -31,5 +38,14 @@ class LeadingDotInputTest {
         assertFalse(hasAutoSpaceAfterLeadingDot(previousText = "a.", newText = "a. b"))
         assertFalse(hasAutoSpaceAfterLeadingDot(previousText = ". ", newText = ". m"))
         assertFalse(hasAutoSpaceAfterLeadingDot(previousText = "", newText = "a. b"))
+    }
+
+    /** Simulates an input edit: replaces the text, then runs the search field's input transformation. */
+    private fun TextFieldState.typed(text: String, cursor: Int) {
+        edit {
+            replace(0, length, text)
+            selection = TextRange(cursor)
+            with(SearchQueryInputTransformation) { transformInput() }
+        }
     }
 }

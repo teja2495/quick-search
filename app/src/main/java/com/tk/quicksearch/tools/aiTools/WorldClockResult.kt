@@ -15,7 +15,7 @@ import com.tk.quicksearch.search.core.WorldClockState
 import com.tk.quicksearch.search.core.WorldClockStatus
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
-import com.tk.quicksearch.tools.aiSearch.GeminiLoadingAnimation
+import com.tk.quicksearch.tools.aiSearch.InformationCardLoadingAnimation
 import com.tk.quicksearch.tools.aiSearch.GeminiResultCard
 
 @Composable
@@ -55,7 +55,7 @@ fun WorldClockResult(
             ) {
                 when (worldClockState.status) {
                     WorldClockStatus.Loading -> {
-                        GeminiLoadingAnimation()
+                        InformationCardLoadingAnimation()
                     }
                     WorldClockStatus.Success -> {
                         val line1 = worldClockState.worldClockText.orEmpty()

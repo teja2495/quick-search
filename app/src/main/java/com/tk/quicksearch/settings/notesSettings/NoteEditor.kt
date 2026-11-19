@@ -1,5 +1,11 @@
 package com.tk.quicksearch.settings.notesSettings
 
+import androidx.compose.foundation.text.input.TextFieldDecorator
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import com.tk.quicksearch.search.notes.NoteLinkOutputTransformation
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.Manifest
@@ -66,7 +72,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -96,30 +101,6 @@ private tailrec fun Context.findActivity(): Activity? =
         else -> null
     }
 
-private fun applyNoteLinkHighlighting(
-    value: TextFieldValue,
-    linkColor: Color,
-): TextFieldValue =
-    value.copy(
-        annotatedString =
-            NotesTextUtils.buildLinkHighlightedAnnotatedString(value.text, linkColor),
-    )
-
-/** [value] with links highlighted, rescanning only the lines edited since [previous]. */
-private fun updateNoteLinkHighlighting(
-    previous: TextFieldValue,
-    value: TextFieldValue,
-    linkColor: Color,
-): TextFieldValue =
-    value.copy(
-        annotatedString =
-            NotesTextUtils.updateLinkHighlightedAnnotatedString(
-                previous.annotatedString,
-                value.text,
-                linkColor,
-            ),
-    )
-
 private fun launchNoteLink(
     context: Context,
     url: String,
@@ -136,16 +117,14 @@ private fun launchNoteLink(
 
 @Composable
 private fun LinkStyledNoteTextField(
-    value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
+    state: TextFieldState,
+    linkHighlighter: NoteLinkOutputTransformation,
     modifier: Modifier = Modifier,
     textStyle: TextStyle,
     cursorBrush: Brush,
-    singleLine: Boolean,
-    maxLines: Int,
-    minLines: Int,
+    lineLimits: TextFieldLineLimits,
     onTextLayout: (TextLayoutResult) -> Unit,
-    decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit,
+    decorator: TextFieldDecorator,
     focusRequester: FocusRequester,
     density: Density,
     context: Context,
@@ -157,24 +136,19 @@ private fun LinkStyledNoteTextField(
 
     Box(modifier = modifier) {
         BasicTextField(
-            value = value,
-            onValueChange = onValueChange,
+            state = state,
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester)
                     .onFocusChanged { onFocusChanged(it.isFocused) }
-                    .pointerInput(value.text, textLayoutResult) {
+                    .pointerInput(state, textLayoutResult) {
                         detectTapGestures(
                             onTap = { tapOffset ->
                                 val layout = textLayoutResult ?: return@detectTapGestures
                                 focusRequester.requestFocus()
                                 val charOffset = layout.getOffsetForPosition(tapOffset)
-                                val url =
-                                    NotesTextUtils.linkUrlAtCharOffset(
-                                        value.annotatedString,
-                                        charOffset,
-                                    )
+                                val url = linkHighlighter.linkUrlAt(state.text.toString(), charOffset)
                                 if (url != null) {
                                     linkMenu =
                                         url to
@@ -183,9 +157,7 @@ private fun LinkStyledNoteTextField(
                                                 y = with(density) { tapOffset.y.toDp() },
                                             )
                                 } else {
-                                    onValueChange(
-                                        value.copy(selection = TextRange(charOffset, charOffset)),
-                                    )
+                                    state.edit { selection = TextRange(charOffset) }
                                 }
                             },
                         )
@@ -193,14 +165,15 @@ private fun LinkStyledNoteTextField(
             textStyle = textStyle,
             cursorBrush = cursorBrush,
             readOnly = readOnly,
-            singleLine = singleLine,
-            maxLines = maxLines,
-            minLines = minLines,
-            onTextLayout = { result ->
-                textLayoutResult = result
-                onTextLayout(result)
+            lineLimits = lineLimits,
+            outputTransformation = linkHighlighter,
+            onTextLayout = { getResult ->
+                getResult()?.let { result ->
+                    textLayoutResult = result
+                    onTextLayout(result)
+                }
             },
-            decorationBox = decorationBox,
+            decorator = decorator,
         )
 
         linkMenu?.let { (url, offset) ->
@@ -244,12 +217,12 @@ fun NoteEditor(
     val repository = remember(context) { NotesRepository(context) }
 
     var activeNoteId by rememberSaveable { mutableStateOf(-1L) }
-    var titleInput by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
-    var bodyInput by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
+    val titleState = rememberTextFieldState()
+    val bodyState = rememberTextFieldState()
+    val titleText = titleState.text.toString()
+    val bodyText = bodyState.text.toString()
+    val titleLinkHighlighter = remember(linkColor) { NoteLinkOutputTransformation(linkColor) }
+    val bodyLinkHighlighter = remember(linkColor) { NoteLinkOutputTransformation(linkColor) }
     var contentBaselineTitle by rememberSaveable { mutableStateOf<String?>(null) }
     var contentBaselineBody by rememberSaveable { mutableStateOf<String?>(null) }
     var isNewNoteEntry by rememberSaveable { mutableStateOf(false) }
@@ -277,22 +250,8 @@ fun NoteEditor(
                         context,
                         noteNotificationAction(context, note.noteId, note.title, note.markdownContent),
                     )
-                titleInput =
-                    applyNoteLinkHighlighting(
-                        TextFieldValue(
-                            text = note.title,
-                            selection = TextRange(note.title.length),
-                        ),
-                        linkColor,
-                    )
-                bodyInput =
-                    applyNoteLinkHighlighting(
-                        TextFieldValue(
-                            text = note.markdownContent,
-                            selection = TextRange(note.markdownContent.length),
-                        ),
-                        linkColor,
-                    )
+                titleState.setTextAndPlaceCursorAtEnd(note.title)
+                bodyState.setTextAndPlaceCursorAtEnd(note.markdownContent)
             } else {
                 isQuickNote = false
             }
@@ -301,14 +260,14 @@ fun NoteEditor(
             isQuickNote = false
             notificationPinRequested = pinToNotificationRequest
         }
-        contentBaselineTitle = titleInput.text
-        contentBaselineBody = bodyInput.text
+        contentBaselineTitle = titleState.text.toString()
+        contentBaselineBody = bodyState.text.toString()
         editorInitialized = true
     }
 
     val hasEdits =
         if (contentBaselineTitle != null && contentBaselineBody != null) {
-            titleInput.text != contentBaselineTitle || bodyInput.text != contentBaselineBody
+            titleText != contentBaselineTitle || bodyText != contentBaselineBody
         } else {
             false
         }
@@ -387,16 +346,14 @@ fun NoteEditor(
     }
 
     fun persistNote() {
-        val title = titleInput.text.trim()
-        val body = bodyInput.text
+        val title = titleState.text.toString().trim()
+        val body = bodyState.text.toString()
         onNotePersisted(writeNote(title, body), title, body)
     }
 
-    LaunchedEffect(hasEdits, titleInput.text, bodyInput.text) {
+    LaunchedEffect(hasEdits, titleText, bodyText) {
         if (!hasEdits) return@LaunchedEffect
         delay(450)
-        val titleText = titleInput.text
-        val bodyText = bodyInput.text
         val title = titleText.trim()
         // A newer keystroke restarts this effect; let a started write finish so its new note id is
         // kept, and the next save updates that note instead of creating another.
@@ -489,12 +446,8 @@ fun NoteEditor(
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                 ) {
                     LinkStyledNoteTextField(
-                        value = titleInput,
-                        onValueChange = {
-                            if (!isQuickNote) {
-                                titleInput = updateNoteLinkHighlighting(titleInput, it, linkColor)
-                            }
-                        },
+                        state = titleState,
+                        linkHighlighter = titleLinkHighlighter,
                         modifier =
                             Modifier
                                 .fillMaxWidth()
@@ -504,9 +457,7 @@ fun NoteEditor(
                                 color = MaterialTheme.colorScheme.onSurface,
                             ),
                         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                        singleLine = true,
-                        maxLines = 1,
-                        minLines = 1,
+                        lineLimits = TextFieldLineLimits.SingleLine,
                         focusRequester = titleFocusRequester,
                         density = density,
                         context = context,
@@ -515,8 +466,8 @@ fun NoteEditor(
                             if (isFocused) focusedEditorField = NOTE_EDITOR_TITLE_FIELD
                         },
                         onTextLayout = {},
-                        decorationBox = { inner ->
-                            if (titleInput.text.isBlank()) {
+                        decorator = { inner ->
+                            if (titleText.isBlank()) {
                                 Text(
                                     text = stringResource(R.string.notes_title_hint),
                                     style = MaterialTheme.typography.headlineSmall,
@@ -536,19 +487,17 @@ fun NoteEditor(
                     )
 
                     LinkStyledNoteTextField(
-                        value = bodyInput,
-                        onValueChange = { newValue ->
-                            bodyInput = updateNoteLinkHighlighting(bodyInput, newValue, linkColor)
-                        },
+                        state = bodyState,
+                        linkHighlighter = bodyLinkHighlighter,
                         modifier =
                             Modifier
                                 .fillMaxWidth()
                                 .bringIntoViewRequester(bodyBringIntoViewRequester),
                         onTextLayout = { layoutResult ->
                             val offset =
-                                bodyInput.selection.start.coerceIn(
+                                bodyState.selection.start.coerceIn(
                                     0,
-                                    bodyInput.text.length,
+                                    bodyState.text.length,
                                 )
                             val cursorRect = layoutResult.getCursorRect(offset)
                             scrollBodyToCaretScope.launch {
@@ -560,9 +509,7 @@ fun NoteEditor(
                                 color = MaterialTheme.colorScheme.onSurface,
                             ),
                         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                        singleLine = false,
-                        maxLines = Int.MAX_VALUE,
-                        minLines = 1,
+                        lineLimits = TextFieldLineLimits.MultiLine(),
                         focusRequester = bodyFocusRequester,
                         density = density,
                         context = context,
@@ -570,8 +517,8 @@ fun NoteEditor(
                         onFocusChanged = { isFocused ->
                             if (isFocused) focusedEditorField = NOTE_EDITOR_BODY_FIELD
                         },
-                        decorationBox = { inner ->
-                            if (bodyInput.text.isBlank()) {
+                        decorator = { inner ->
+                            if (bodyText.isBlank()) {
                                 Text(
                                     text = stringResource(R.string.notes_body_hint),
                                     style = MaterialTheme.typography.bodyLarge,

@@ -2,6 +2,11 @@ package com.tk.quicksearch.shared.ui.components
 
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.KeyboardActionHandler
+import androidx.compose.foundation.text.input.OutputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -11,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.VisualTransformation
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppShapes
@@ -38,7 +42,6 @@ fun AppOutlinedTextField(
     trailingIcon: (@Composable () -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
     OutlinedTextField(
         value = value,
@@ -57,7 +60,48 @@ fun AppOutlinedTextField(
         trailingIcon = trailingIcon,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
-        visualTransformation = visualTransformation,
+        colors = dialogTextFieldColors(),
+    )
+}
+
+/**
+ * Outlined form field backed by a [TextFieldState], for fields that filter input
+ * ([inputTransformation]) or style what's shown ([outputTransformation]) without changing the text.
+ */
+@Composable
+fun AppOutlinedTextField(
+    state: TextFieldState,
+    label: String?,
+    modifier: Modifier = Modifier,
+    lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
+    isError: Boolean = false,
+    readOnly: Boolean = false,
+    shape: Shape = AppShapes.extraSmall,
+    supportingText: (@Composable () -> Unit)? = null,
+    placeholder: (@Composable () -> Unit)? = null,
+    leadingIcon: (@Composable () -> Unit)? = null,
+    trailingIcon: (@Composable () -> Unit)? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    onKeyboardAction: KeyboardActionHandler? = null,
+    inputTransformation: InputTransformation? = null,
+    outputTransformation: OutputTransformation? = null,
+) {
+    OutlinedTextField(
+        state = state,
+        label = label?.let { { Text(it) } },
+        modifier = modifier,
+        lineLimits = lineLimits,
+        isError = isError,
+        readOnly = readOnly,
+        shape = shape,
+        supportingText = supportingText,
+        placeholder = placeholder,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
+        keyboardOptions = keyboardOptions,
+        onKeyboardAction = onKeyboardAction,
+        inputTransformation = inputTransformation,
+        outputTransformation = outputTransformation,
         colors = dialogTextFieldColors(),
     )
 }

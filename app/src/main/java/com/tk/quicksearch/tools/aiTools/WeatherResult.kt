@@ -14,7 +14,7 @@ import com.tk.quicksearch.search.core.WeatherState
 import com.tk.quicksearch.search.core.WeatherStatus
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
-import com.tk.quicksearch.tools.aiSearch.GeminiLoadingAnimation
+import com.tk.quicksearch.tools.aiSearch.InformationCardLoadingAnimation
 import com.tk.quicksearch.tools.aiSearch.GeminiResultCard
 
 @Composable
@@ -40,7 +40,7 @@ fun WeatherResult(
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
         ) {
             when (weatherState.status) {
-                WeatherStatus.Loading -> GeminiLoadingAnimation()
+                WeatherStatus.Loading -> InformationCardLoadingAnimation()
                 WeatherStatus.Success -> Text(
                     text = weatherState.summary.orEmpty(),
                     style = MaterialTheme.typography.bodyLarge,

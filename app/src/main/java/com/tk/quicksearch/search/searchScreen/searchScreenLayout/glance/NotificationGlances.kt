@@ -29,7 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -523,7 +523,8 @@ internal fun ProgressNotificationRow(notification: ProgressNotification) {
         },
         belowText = {
             if (fraction < MIN_VISIBLE_PROGRESS) return@GlanceStatusRow
-            LinearProgressIndicator(
+            // Wavy while the task runs: Material 3 Expressive's active progress style.
+            LinearWavyProgressIndicator(
                 progress = { fraction },
                 modifier = Modifier.fillMaxWidth().padding(top = DesignTokens.SpacingXSmall, end = DesignTokens.SpacingXSmall),
             )
@@ -558,10 +559,11 @@ private fun NavigationProgressRow(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
             ) {
-                LinearProgressIndicator(
+                // The flag marks the destination, so the bar draws no stop indicator.
+                LinearWavyProgressIndicator(
                     progress = { fraction },
                     modifier = Modifier.weight(1f),
-                    drawStopIndicator = {},
+                    stopSize = 0.dp,
                 )
                 Icon(
                     imageVector = MaterialSymbols.Flag,

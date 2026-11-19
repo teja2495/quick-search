@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.components
 
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldBuffer
 
 /**
  * Keyboards auto-insert a space after punctuation, turning a typed ".mkv" into ". mkv", which
@@ -16,26 +16,23 @@ internal fun hasAutoSpaceAfterLeadingDot(
         !previousText.startsWith(". ") &&
         (previousText.isEmpty() || previousText.startsWith("."))
 
-internal fun TextFieldValue.withoutAutoSpaceAfterLeadingDot(previousText: String): TextFieldValue {
-    if (!hasAutoSpaceAfterLeadingDot(previousText, text)) return this
-    fun shift(index: Int) = if (index > 1) index - 1 else index
-    return TextFieldValue(
-        text = text.removeRange(1, 2),
-        selection = TextRange(shift(selection.start), shift(selection.end)),
-        composition = composition?.let { TextRange(shift(it.start), shift(it.end)) },
-    )
-}
-
 /** Most lines the search field wraps to before it scrolls; it grows with the query up to this. */
 internal const val SearchFieldMaxLines = 3
 
 /**
- * The search field is multi-line only so long queries wrap; pasted line breaks become spaces. The
- * length is unchanged, so the selection stays valid.
+ * Cleans up what the user types into the search field. The field is multi-line only so long
+ * queries wrap, so pasted line breaks become spaces (same length, so the selection stays valid).
+ * A space the keyboard auto-inserts after a leading dot is removed; the buffer shifts the cursor.
+ * Programmatic edits (`TextFieldState.edit`) skip this.
  */
-internal fun TextFieldValue.withLineBreaksAsSpaces(): TextFieldValue =
-    if (text.any { it == '\n' || it == '\r' }) {
-        copy(text = text.replace('\n', ' ').replace('\r', ' '))
-    } else {
-        this
+internal object SearchQueryInputTransformation : InputTransformation {
+    override fun TextFieldBuffer.transformInput() {
+        for (index in 0 until length) {
+            val char = charAt(index)
+            if (char == '\n' || char == '\r') replace(index, index + 1, " ")
+        }
+        if (hasAutoSpaceAfterLeadingDot(originalText.toString(), asCharSequence().toString())) {
+            replace(1, 2, "")
+        }
     }
+}

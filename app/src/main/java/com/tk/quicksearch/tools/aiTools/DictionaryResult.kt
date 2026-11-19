@@ -22,7 +22,7 @@ import com.tk.quicksearch.search.core.DictionaryState
 import com.tk.quicksearch.search.core.DictionaryStatus
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.tools.aiSearch.GeminiLoadingAnimation
+import com.tk.quicksearch.tools.aiSearch.InformationCardLoadingAnimation
 import com.tk.quicksearch.tools.aiSearch.GeminiResultCard
 import com.tk.quicksearch.tools.aiSearch.ToolAttribution
 import java.util.Locale
@@ -58,7 +58,7 @@ fun DictionaryResult(
             ) {
                 when (dictionaryState.status) {
                     DictionaryStatus.Loading -> {
-                        GeminiLoadingAnimation()
+                        InformationCardLoadingAnimation()
                     }
                     DictionaryStatus.Success -> {
                         DictionaryEntryContent(dictionaryState)

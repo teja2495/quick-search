@@ -1,5 +1,9 @@
 package com.tk.quicksearch.widgets.worldClockWidget
 
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.maxLengthTrim
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import androidx.compose.foundation.background
@@ -203,7 +207,7 @@ private fun RenameLocationDialog(
 ) {
     val cityName = remember(location.zoneId) { WorldClockZones.cityName(location.zoneId) }
     val currentName = remember(location) { WorldClockZones.displayName(location) }
-    var text by rememberSaveable(location.zoneId) { mutableStateOf("") }
+    val textState = rememberSaveable(location.zoneId, saver = TextFieldState.Saver) { TextFieldState() }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     LaunchedEffect(Unit) {
@@ -215,10 +219,10 @@ private fun RenameLocationDialog(
         title = { Text(stringResource(R.string.widget_world_clock_edit_name)) },
         text = {
             AppOutlinedTextField(
-                value = text,
-                onValueChange = { text = it.take(WorldClockWidgetDefaults.LABEL_MAX_LENGTH) },
+                state = textState,
+                inputTransformation = InputTransformation.maxLengthTrim(WorldClockWidgetDefaults.LABEL_MAX_LENGTH),
                 placeholder = { Text(currentName) },
-                singleLine = true,
+                lineLimits = TextFieldLineLimits.SingleLine,
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
                 modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                 label = null,
@@ -228,7 +232,7 @@ private fun RenameLocationDialog(
         confirmButton = {
             AppTextButton(
                 onClick = {
-                    val name = text.trim()
+                    val name = textState.text.toString().trim()
                     onConfirm(
                         when {
                             name.isEmpty() -> location.label

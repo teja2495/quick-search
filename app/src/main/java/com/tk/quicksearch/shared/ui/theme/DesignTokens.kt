@@ -197,7 +197,7 @@ object DesignTokens {
     // ============================================================================
     // PRESS MORPH (Material 3 Expressive shape change on press)
     // ============================================================================
-    // Read through [AppShapes] helpers (pressMorphShape, connectedButtonShape, segment shapes).
+    // Read through [AppShapes] helpers (pressMorphShape, segment shapes).
 
     /** Corner a fully round extra-small/small button (32-40dp) squares to while pressed. */
     val ButtonPressedCornerSmall = CornerSmall
@@ -231,9 +231,6 @@ object DesignTokens {
 
     /** Corners between neighbouring buttons of a connected button group. */
     val ConnectedGroupInnerCorner = CornerSmall
-
-    /** Inner corners of a pressed button in a connected button group. */
-    val ConnectedGroupPressedInnerCorner = CornerExtraSmall
 
     /** Maximum width of floating action popups on tablets and landscape windows. */
     val ItemMenuMaxWidth = 640.dp

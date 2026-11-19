@@ -9,7 +9,9 @@ plugins {
 
 android {
     namespace = "com.tk.quicksearch"
-    compileSdk = 37
+    compileSdk {
+        version = release(37) { minorApiLevel = 1 }
+    }
 
     defaultConfig {
         applicationId = "com.tk.quicksearch"

@@ -54,7 +54,7 @@ import kotlin.math.max
  * Material 3's LoadingIndicator is still experimental.
  */
 @Composable
-fun GeminiLoadingAnimation(
+fun InformationCardLoadingAnimation(
     modifier: Modifier = Modifier,
     primaryColor: Color = MaterialTheme.colorScheme.primary,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,

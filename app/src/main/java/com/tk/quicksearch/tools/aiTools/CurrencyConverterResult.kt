@@ -29,7 +29,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.CurrencyConverterState
 import com.tk.quicksearch.search.core.CurrencyConverterStatus
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.tools.aiSearch.GeminiLoadingAnimation
+import com.tk.quicksearch.tools.aiSearch.InformationCardLoadingAnimation
 import com.tk.quicksearch.tools.aiSearch.GeminiResultCard
 import java.util.Currency
 import java.util.Locale
@@ -67,7 +67,7 @@ fun CurrencyConverterResult(
             ) {
                 when (currencyConverterState.status) {
                     CurrencyConverterStatus.Loading -> {
-                        GeminiLoadingAnimation()
+                        InformationCardLoadingAnimation()
                     }
                     CurrencyConverterStatus.Success -> {
                         val amount =

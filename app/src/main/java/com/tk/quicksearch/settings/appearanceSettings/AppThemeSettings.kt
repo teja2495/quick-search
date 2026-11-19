@@ -23,7 +23,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
+import com.tk.quicksearch.shared.ui.components.AppSlider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -294,8 +294,7 @@ fun AppThemeCard(
                                 )
                             },
                         ) { sliderModifier ->
-                            Slider(
-                                    colors = AppColors.sliderColors(),
+                            AppSlider(
                                     value = overlayThemeIntensity,
                                     onValueChange = { value ->
                                         val step =

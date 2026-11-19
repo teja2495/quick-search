@@ -17,7 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -61,7 +61,10 @@ fun AppBottomSheet(
     background: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.(dismiss: () -> Unit) -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
+        )
     val scope = rememberCoroutineScope()
     val currentOnDismissRequest by rememberUpdatedState(onDismissRequest)
     val currentOnFullyExpanded by rememberUpdatedState(onFullyExpanded)
@@ -106,7 +109,7 @@ fun AppBottomSheet(
         // With a background, the handle and the bottom inset move inside it so it covers them too.
         contentWindowInsets =
             if (background == null) {
-                { BottomSheetDefaults.windowInsets }
+                { BottomSheetDefaults.modalWindowInsets }
             } else {
                 { WindowInsets(0) }
             },
@@ -122,7 +125,7 @@ fun AppBottomSheet(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .windowInsetsPadding(BottomSheetDefaults.windowInsets),
+                                .windowInsetsPadding(BottomSheetDefaults.modalWindowInsets),
                     ) {
                         if (swipeToDismissEnabled) {
                             Box(modifier = Modifier.align(Alignment.CenterHorizontally)) { DragHandle() }

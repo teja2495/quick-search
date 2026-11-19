@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
+import com.tk.quicksearch.shared.ui.components.AppSlider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -138,8 +138,7 @@ private fun FontSizeSlider(
                 )
             },
         ) { sliderModifier ->
-            Slider(
-                    colors = AppColors.sliderColors(),
+            AppSlider(
                     value = sliderValue,
                     onValueChange = { value ->
                         val index = value.roundToInt().coerceIn(0, FONT_SIZE_STEPS.lastIndex)

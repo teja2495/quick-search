@@ -1,5 +1,8 @@
 package com.tk.quicksearch.widgetsPanel
 
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import com.tk.quicksearch.search.notes.NoteLinkOutputTransformation
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -32,12 +35,9 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.NotesRepository
-import com.tk.quicksearch.search.notes.NotesTextUtils
 import com.tk.quicksearch.search.searchScreen.LocalFrostedCardSource
 import com.tk.quicksearch.search.searchScreen.frostedCardBackground
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
@@ -80,9 +80,9 @@ internal fun CompactQuickNoteWidget(
     val currentOnDrag by rememberUpdatedState(onDrag)
     val currentOnDragEnd by rememberUpdatedState(onDragEnd)
     val linkColor = AppColors.LinkColor
-    var bodyInput by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
+    val bodyState = rememberTextFieldState()
+    val bodyText = bodyState.text.toString()
+    val linkHighlighter = remember(linkColor) { NoteLinkOutputTransformation(linkColor) }
     var baselineBody by rememberSaveable { mutableStateOf<String?>(null) }
     var quickNoteId by rememberSaveable { mutableStateOf(-1L) }
     var isFocused by rememberSaveable { mutableStateOf(false) }
@@ -102,34 +102,26 @@ internal fun CompactQuickNoteWidget(
     LaunchedEffect(Unit) {
         val note = withContext(quickNoteIoDispatcher) { repository.getOrCreateQuickNote() }
         quickNoteId = note.noteId
-        bodyInput =
-            TextFieldValue(
-                annotatedString =
-                    NotesTextUtils.buildLinkHighlightedAnnotatedString(
-                        note.markdownContent,
-                        linkColor,
-                    ),
-                selection = TextRange(note.markdownContent.length),
-            )
+        bodyState.setTextAndPlaceCursorAtEnd(note.markdownContent)
         baselineBody = note.markdownContent
     }
 
-    LaunchedEffect(quickNoteId, bodyInput.text, baselineBody) {
+    LaunchedEffect(quickNoteId, bodyText, baselineBody) {
         val id = quickNoteId
         val baseline = baselineBody ?: return@LaunchedEffect
-        if (id <= 0L || bodyInput.text == baseline) return@LaunchedEffect
+        if (id <= 0L || bodyText == baseline) return@LaunchedEffect
         delay(QUICK_NOTE_SAVE_DELAY_MS)
         withContext(quickNoteIoDispatcher) {
             repository.updateNote(
                 noteId = id,
                 title = context.getString(R.string.notes_quick_note_title),
-                markdownContent = bodyInput.text,
+                markdownContent = bodyText,
             )
         }
-        baselineBody = bodyInput.text
+        baselineBody = bodyText
     }
 
-    val currentBody by rememberUpdatedState(bodyInput.text)
+    val currentBody by rememberUpdatedState(bodyText)
     val currentBaseline by rememberUpdatedState(baselineBody)
     DisposableEffect(quickNoteId) {
         onDispose {
@@ -197,18 +189,8 @@ internal fun CompactQuickNoteWidget(
                 )
             }
             BasicTextField(
-                value = bodyInput,
-                onValueChange = {
-                    bodyInput =
-                        it.copy(
-                            annotatedString =
-                                NotesTextUtils.updateLinkHighlightedAnnotatedString(
-                                    bodyInput.annotatedString,
-                                    it.text,
-                                    linkColor,
-                                ),
-                        )
-                },
+                state = bodyState,
+                outputTransformation = linkHighlighter,
                 modifier =
                     Modifier
                         .fillMaxWidth()
@@ -228,8 +210,8 @@ internal fun CompactQuickNoteWidget(
                         color = MaterialTheme.colorScheme.onSurface,
                     ),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                decorationBox = { inner ->
-                    if (bodyInput.text.isBlank()) {
+                decorator = { inner ->
+                    if (bodyText.isBlank()) {
                         Text(
                             text = stringResource(R.string.notes_body_hint),
                             style = MaterialTheme.typography.bodyLarge,

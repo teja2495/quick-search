@@ -28,8 +28,11 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.foundation.text.input.setTextAndSelectAll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +48,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -75,7 +79,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.searchEngines.SearchEngine
@@ -206,8 +209,8 @@ internal fun PersistentSearchBar(
             detectedCustomToolId = detectedCustomToolId,
             detectedTaskerIntentId = detectedTaskerIntentId,
         )
-    val aliasVisualTransformation =
-        rememberAliasHighlightVisualTransformation(
+    val aliasOutputTransformation =
+        rememberAliasHighlightOutputTransformation(
             enabledTargets = enabledTargets,
             shortcutCodes = shortcutCodes,
             shortcutEnabled = shortcutEnabled,
@@ -237,11 +240,9 @@ internal fun PersistentSearchBar(
                 .toSet()
         }
 
-    // Local text field value maintains cursor position even when state query changes from voice
+    // Local text field state maintains cursor position even when state query changes from voice
     // input.
-    var textFieldValue by remember {
-        mutableStateOf(TextFieldValue(query, TextRange(query.length)))
-    }
+    val textFieldState = rememberTextFieldState(query, TextRange(query.length))
     var localInputAwaitingStateAck by remember { mutableStateOf<String?>(null) }
     var hasLaidOutSearchField by remember { mutableStateOf(false) }
     var showSectionMenu by remember { mutableStateOf(false) }
@@ -274,7 +275,7 @@ internal fun PersistentSearchBar(
     }
 
     LaunchedEffect(query, leadingIconState) {
-        val previousText = textFieldValue.text
+        val previousText = textFieldState.text.toString()
         // A consumed prefix alias shrinks the query to the typed text's suffix; apply it right away
         // instead of treating it as a stale state echo.
         val isConsumedAlias =
@@ -311,11 +312,7 @@ internal fun PersistentSearchBar(
                     aliasMorphText = consumedAlias
                 }
             }
-            textFieldValue =
-                textFieldValue.copy(
-                    text = query,
-                    selection = TextRange(query.length),
-                )
+            textFieldState.setTextAndPlaceCursorAtEnd(query)
         }
         previousLeadingIconState = leadingIconState
     }
@@ -331,9 +328,8 @@ internal fun PersistentSearchBar(
                     Lifecycle.Event.ON_STOP -> localInputAwaitingStateAck = null
                     Lifecycle.Event.ON_START -> {
                         localInputAwaitingStateAck = null
-                        if (textFieldValue.text != latestQuery) {
-                            textFieldValue =
-                                TextFieldValue(latestQuery, TextRange(latestQuery.length))
+                        if (textFieldState.text.toString() != latestQuery) {
+                            textFieldState.setTextAndPlaceCursorAtEnd(latestQuery)
                         }
                     }
                     else -> Unit
@@ -343,14 +339,25 @@ internal fun PersistentSearchBar(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+    // User edits reach the ViewModel from here. Programmatic syncs set the text to the current
+    // query, so they never echo back; selection-only changes don't change the text at all.
+    LaunchedEffect(textFieldState) {
+        var previousText = textFieldState.text.toString()
+        snapshotFlow { textFieldState.text.toString() }.collect { text ->
+            if (previousText.isEmpty() && text.isNotEmpty()) {
+                StartupTrace.mark("QS.Home.FirstInputAccepted")
+            }
+            previousText = text
+            if (text == latestQuery) return@collect
+            localInputAwaitingStateAck = text
+            onQueryChange(text)
+        }
+    }
+
     LaunchedEffect(selectRetainedQuery, query) {
         if (!selectRetainedQuery) return@LaunchedEffect
         if (query.isNotEmpty()) {
-            textFieldValue =
-                textFieldValue.copy(
-                    text = query,
-                    selection = TextRange(0, query.length),
-                )
+            textFieldState.setTextAndSelectAll(query)
         }
         onSelectRetainedQueryHandled()
     }
@@ -537,21 +544,9 @@ internal fun PersistentSearchBar(
                 .background(insetCardBackground(!opaqueBackground, searchBarBackground, anywhere = true)),
     ) {
         TextField(
-            value = textFieldValue,
-            onValueChange = { rawValue ->
-                val newValue =
-                    rawValue.withLineBreaksAsSpaces().withoutAutoSpaceAfterLeadingDot(textFieldValue.text)
-                if (textFieldValue.text.isEmpty() && newValue.text.isNotEmpty()) {
-                    StartupTrace.mark("QS.Home.FirstInputAccepted")
-                }
-                // Selection/composition-only changes never produce a query update, so marking them
-                // as awaiting ack would leave a stale ack that swallows a later external clear.
-                if (newValue.text != textFieldValue.text) {
-                    localInputAwaitingStateAck = newValue.text
-                }
-                textFieldValue = newValue
-                onQueryChange(newValue.text)
-            },
+            state = textFieldState,
+            inputTransformation = SearchQueryInputTransformation,
+            outputTransformation = aliasOutputTransformation,
             modifier =
                 Modifier
                     .fillMaxWidth()
@@ -570,7 +565,7 @@ internal fun PersistentSearchBar(
                         when {
                             keyEvent.type == KeyEventType.KeyDown &&
                                 (keyEvent.key == Key.Backspace || keyEvent.key == Key.Delete) &&
-                                textFieldValue.text.isEmpty() &&
+                                textFieldState.text.isEmpty() &&
                                 (detectedShortcutTarget != null ||
                                     detectedAliasSearchSection != null ||
                                     isCurrencyConverterAliasMode ||
@@ -637,7 +632,7 @@ internal fun PersistentSearchBar(
             },
             textStyle =
                 MaterialTheme.typography.titleMedium.copy(color = iconAndTextColor),
-            maxLines = SearchFieldMaxLines,
+            lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = SearchFieldMaxLines),
             leadingIcon = {
                 Box {
                     AnimatedContent(
@@ -730,12 +725,7 @@ internal fun PersistentSearchBar(
                             KeyboardType.Text
                         },
                 ),
-            keyboardActions =
-                KeyboardActions(
-                    onSearch = {
-                        submitSearchAction()
-                    },
-                ),
+            onKeyboardAction = { submitSearchAction() },
             colors =
                 TextFieldDefaults.colors(
                     unfocusedIndicatorColor = AppColors.AppBackgroundTransparent,
@@ -748,7 +738,6 @@ internal fun PersistentSearchBar(
                     unfocusedTextColor = iconAndTextColor,
                     cursorColor = if (showCursor) accentIconColor else Color.Transparent,
                 ),
-            visualTransformation = aliasVisualTransformation,
             interactionSource = searchBarInteractionSource,
         )
 

@@ -1,26 +1,27 @@
 package com.tk.quicksearch.shared.ui.components
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
+import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ToggleButtonDefaults
+import androidx.compose.material3.ToggleButtonShapes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -35,6 +36,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -44,7 +46,6 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.shared.ui.theme.AppMotion
-import com.tk.quicksearch.shared.ui.theme.connectedButtonShape
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 /** One option of a [ConnectedChoiceGroup]: a label with an optional icon or color swatch. */
@@ -61,8 +62,7 @@ data class ChoiceOption<T>(
  * morphing fully round. A pressed button tightens its inner corners. Options without an icon or
  * swatch show a check while selected.
  *
- * Built on stable APIs (material3 1.4 keeps `ToggleButton`/`ButtonGroup` internal) with the same
- * shape behavior. Unselected buttons are an accent tint rather than a surface color, so they read
+ * Built on Material's [ToggleButton] with the connected button group shapes. Unselected buttons are an accent tint rather than a surface color, so they read
  * on the settings tile over wallpaper, custom image, AMOLED, and Material You alike.
  *
  * [fillWidth] spreads the options across the row, each button's share proportional to its label so
@@ -117,7 +117,7 @@ fun <T> ConnectedChoiceGroup(
             (labelWidths[index] + leading + ChoicePadding * 2).coerceAtLeast(DesignTokens.MinTouchTarget)
         }
     BoxWithConstraints(modifier = modifier.then(if (fillWidth) Modifier.fillMaxWidth() else Modifier)) {
-        val available = maxWidth - DesignTokens.ConnectedGroupGap * (options.size - 1).coerceAtLeast(0)
+        val available = maxWidth - ButtonGroupDefaults.ConnectedSpaceBetween * (options.size - 1).coerceAtLeast(0)
         val compact = reservedWidths.fold(0.dp, Dp::plus) > available
         if (compactWidths.fold(0.dp, Dp::plus) > available) {
             Column(
@@ -126,7 +126,7 @@ fun <T> ConnectedChoiceGroup(
                     .fillMaxWidth()
                     .selectableGroup()
                     .alpha(if (enabled) 1f else ChoiceDisabledAlpha),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.ConnectedGroupGap),
+                verticalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
             ) {
                 options.forEach { option ->
                     ChoiceButton(
@@ -149,7 +149,7 @@ fun <T> ConnectedChoiceGroup(
                     .then(if (fillWidth) Modifier.fillMaxWidth() else Modifier)
                     .selectableGroup()
                     .alpha(if (enabled) 1f else ChoiceDisabledAlpha),
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.ConnectedGroupGap),
+            horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
         ) {
             options.forEachIndexed { index, option ->
                 val weight by animateFloatAsState(
@@ -181,60 +181,58 @@ private fun <T> ChoiceButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val shape =
-        connectedButtonShape(
-            interactionSource,
-            isStart = isStart,
-            isEnd = isEnd,
-            outer = ChoiceRound,
-            selected = checked,
-        )
-    val container by animateColorAsState(
-        if (checked) AppColors.Accent else AppColors.AccentTintTonal,
-        label = "choiceContainer",
-    )
-    val content by animateColorAsState(
-        if (checked) AppColors.OnAccent else MaterialTheme.colorScheme.onSurface,
-        label = "choiceContent",
-    )
-    Row(
+    val buttonShapes = connectedButtonShapes(isStart = isStart, isEnd = isEnd)
+    val container = if (checked) AppColors.Accent else AppColors.AccentTintTonal
+    val content = if (checked) AppColors.OnAccent else MaterialTheme.colorScheme.onSurface
+    ToggleButton(
+        checked = checked,
+        onCheckedChange = { onClick() },
         modifier =
             modifier
                 .widthIn(min = DesignTokens.MinTouchTarget)
                 .heightIn(min = ChoiceHeight)
-                .clip(shape)
-                .background(container, shape)
-                .selectable(
-                    selected = checked,
-                    enabled = enabled,
-                    role = Role.RadioButton,
-                    interactionSource = interactionSource,
-                    indication = ripple(color = content),
-                    onClick = onClick,
-                )
-                .padding(horizontal = ChoicePadding),
-        horizontalArrangement = Arrangement.spacedBy(ChoiceIconSpacing, Alignment.CenterHorizontally),
-        verticalAlignment = Alignment.CenterVertically,
+                .semantics { role = Role.RadioButton },
+        enabled = enabled,
+        shapes =
+            ToggleButtonShapes(
+                shape = buttonShapes.shape,
+                pressedShape = buttonShapes.pressedShape,
+                checkedShape = ButtonGroupDefaults.connectedButtonCheckedShape,
+            ),
+        // Disabled keeps the selection visible; the whole group dims instead.
+        colors =
+            ToggleButtonDefaults.colors(
+                containerColor = AppColors.AccentTintTonal,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                disabledContainerColor = container,
+                disabledContentColor = content,
+                checkedContainerColor = AppColors.Accent,
+                checkedContentColor = AppColors.OnAccent,
+            ),
+        elevation = null,
+        contentPadding = PaddingValues(horizontal = ChoicePadding),
     ) {
-        val leadingIcon = option.icon ?: if (checked && option.swatch == null) MaterialSymbols.Check else null
-        when {
-            option.swatch != null -> ChoiceSwatch(option.swatch)
-            leadingIcon != null ->
-                Icon(
-                    imageVector = leadingIcon,
-                    contentDescription = null,
-                    tint = content,
-                    modifier = Modifier.size(ChoiceIconSize),
-                )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(ChoiceIconSpacing, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            val leadingIcon = option.icon ?: if (checked && option.swatch == null) MaterialSymbols.Check else null
+            when {
+                option.swatch != null -> ChoiceSwatch(option.swatch)
+                leadingIcon != null ->
+                    Icon(
+                        imageVector = leadingIcon,
+                        contentDescription = null,
+                        modifier = Modifier.size(ChoiceIconSize),
+                    )
+            }
+            Text(
+                text = option.label,
+                style = MaterialTheme.typography.labelLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(vertical = DesignTokens.SpacingSmall),
+            )
         }
-        Text(
-            text = option.label,
-            style = MaterialTheme.typography.labelLarge,
-            color = content,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(vertical = DesignTokens.SpacingSmall),
-        )
     }
 }
 

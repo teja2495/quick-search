@@ -105,7 +105,7 @@ fun CardTextField(
         state = state,
         modifier = modifier.animateContentSize(),
         enabled = enabled,
-        labelPosition = TextFieldLabelPosition.Attached(alwaysMinimize = alwaysFloatLabel),
+        labelPosition = TextFieldLabelPosition.Inside(isAlwaysMinimized = alwaysFloatLabel),
         label = {
             Text(
                 text = label,

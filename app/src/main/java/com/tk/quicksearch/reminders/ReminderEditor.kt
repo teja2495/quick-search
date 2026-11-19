@@ -184,8 +184,8 @@ private fun ReminderFormDialog(
     onDelete: (() -> Unit)?,
 ) {
     val accentColor = MaterialTheme.colorScheme.primary
-    val titleVisualTransformation = remember(accentColor) {
-        ReminderNaturalLanguageVisualTransformation(accentColor)
+    val titleOutputTransformation = remember(accentColor) {
+        ReminderNaturalLanguageOutputTransformation(accentColor)
     }
     // The repeat button shows this. Typing a repeat phrase into the title fills it in; after that
     // the button's own choice stands until a different phrase is typed.
@@ -230,7 +230,7 @@ private fun ReminderFormDialog(
                 FormDateTimeSuggestion(dateTimeMillis = dateTime, hasTime = schedule.time != null)
             }
         },
-        titleVisualTransformation = titleVisualTransformation,
+        titleOutputTransformation = titleOutputTransformation,
         titleMaxLines = 2,
         belowTime = { ReminderRepeatField(repeat = repeat, onRepeatChange = { repeat = it }) },
     )

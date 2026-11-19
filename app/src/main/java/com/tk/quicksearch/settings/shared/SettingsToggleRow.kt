@@ -15,7 +15,7 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
+import com.tk.quicksearch.shared.ui.components.AppSlider
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -208,8 +208,7 @@ fun SettingsToggleRow(
                             )
                         },
                     ) { sliderModifier ->
-                        Slider(
-                            colors = AppColors.sliderColors(),
+                        AppSlider(
                             value = sliderDetails.value,
                             onValueChange = sliderDetails.onValueChange,
                             valueRange = sliderDetails.valueRange,

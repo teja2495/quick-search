@@ -32,8 +32,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -96,8 +97,8 @@ internal fun FolderContentsPopup(
         content: @Composable (removeZone: FolderRemoveZoneState, dismiss: () -> Unit) -> Unit,
 ) {
     val removeZone = remember(folder.id) { FolderRemoveZoneState() }
-    var name by rememberSaveable(folder.id) { mutableStateOf(folder.name) }
-    val currentName by rememberUpdatedState(name)
+    val nameState = rememberSaveable(folder.id, saver = TextFieldState.Saver) { TextFieldState(folder.name) }
+    val currentName by rememberUpdatedState(nameState.text.toString())
     val currentOnRename by rememberUpdatedState<(String) -> Unit> { actions.onRenameFolder(folder.id, it) }
     val focusManager = LocalFocusManager.current
     DisposableEffect(folder.id) { onDispose { currentOnRename(currentName) } }
@@ -127,10 +128,9 @@ internal fun FolderContentsPopup(
                         verticalAlignment = Alignment.CenterVertically,
                 ) {
                     FolderNameField(
-                            name = name,
-                            onNameChange = { name = it },
+                            state = nameState,
                             onDone = {
-                                currentOnRename(name)
+                                currentOnRename(nameState.text.toString())
                                 focusManager.clearFocus()
                             },
                             modifier = Modifier.weight(1f),
@@ -178,8 +178,7 @@ internal fun FolderContentsPopup(
 /** A bare, left-aligned name field: just a faint hint, with no background or border. */
 @Composable
 private fun FolderNameField(
-        name: String,
-        onNameChange: (String) -> Unit,
+        state: TextFieldState,
         onDone: () -> Unit,
         modifier: Modifier = Modifier,
 ) {
@@ -189,10 +188,9 @@ private fun FolderNameField(
                     textAlign = TextAlign.Start,
             )
     BasicTextField(
-            value = name,
-            onValueChange = onNameChange,
+            state = state,
             modifier = modifier,
-            singleLine = true,
+            lineLimits = TextFieldLineLimits.SingleLine,
             textStyle = textStyle,
             cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             keyboardOptions =
@@ -200,13 +198,13 @@ private fun FolderNameField(
                             capitalization = KeyboardCapitalization.Words,
                             imeAction = ImeAction.Done,
                     ),
-            keyboardActions = KeyboardActions(onDone = { onDone() }),
-            decorationBox = { innerTextField ->
+            onKeyboardAction = { onDone() },
+            decorator = { innerTextField ->
                 Box(
                         modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.CenterStart,
                 ) {
-                    if (name.isEmpty()) {
+                    if (state.text.isEmpty()) {
                         Text(
                                 text = stringResource(R.string.folder_name_placeholder),
                                 style =

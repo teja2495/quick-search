@@ -33,8 +33,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.OutputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.drop
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
@@ -71,7 +75,7 @@ internal fun ReminderFormDialog(
     nameHintResId: Int = R.string.calendar_create_event_name_hint,
     titleKeyboardCapitalization: KeyboardCapitalization = KeyboardCapitalization.None,
     titleDateTimeSuggestion: ((String) -> FormDateTimeSuggestion?)? = null,
-    titleVisualTransformation: VisualTransformation = VisualTransformation.None,
+    titleOutputTransformation: OutputTransformation? = null,
     titleMaxLines: Int = 1,
     showTitleInput: Boolean = true,
     requireExplicitDateOrTime: Boolean = false,
@@ -79,7 +83,8 @@ internal fun ReminderFormDialog(
     belowTime: @Composable () -> Unit = {},
 ) {
     val context = LocalContext.current
-    var reminderTitle by remember { mutableStateOf(initialTitle) }
+    val titleState = rememberTextFieldState(initialTitle)
+    val reminderTitle = titleState.text.toString()
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
     var dateOrTimeChosen by remember { mutableStateOf(initialDateTimeMillis != null) }
@@ -120,6 +125,26 @@ internal fun ReminderFormDialog(
         if (autoFocusTitle && showTitleInput) {
             titleFocusRequester.requestFocus()
             keyboardController?.show()
+        }
+    }
+
+    // A date or time typed into the title fills in the pickers; the initial title doesn't.
+    LaunchedEffect(titleState, titleDateTimeSuggestion) {
+        val suggest = titleDateTimeSuggestion ?: return@LaunchedEffect
+        snapshotFlow { titleState.text.toString() }.drop(1).collect { value ->
+            suggest(value)?.let { suggestion ->
+                val dateTime = Instant.ofEpochMilli(suggestion.dateTimeMillis)
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime()
+                datePickerState.selectedDateMillis = localMidnightToUtcMidnight(
+                    dateTime.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+                )
+                if (suggestion.hasTime) {
+                    timePickerState.hour = dateTime.hour
+                    timePickerState.minute = dateTime.minute
+                    hasTime = true
+                }
+            }
         }
     }
 
@@ -182,28 +207,16 @@ internal fun ReminderFormDialog(
                             )
                         }
                         if (showTitleInput) AppOutlinedTextField(
-                            value = reminderTitle,
-                            onValueChange = { value ->
-                                reminderTitle = value
-                                titleDateTimeSuggestion?.invoke(value)?.let { suggestion ->
-                                    val dateTime = Instant.ofEpochMilli(suggestion.dateTimeMillis)
-                                        .atZone(ZoneId.systemDefault())
-                                        .toLocalDateTime()
-                                    datePickerState.selectedDateMillis = localMidnightToUtcMidnight(
-                                        dateTime.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-                                    )
-                                    if (suggestion.hasTime) {
-                                        timePickerState.hour = dateTime.hour
-                                        timePickerState.minute = dateTime.minute
-                                        hasTime = true
-                                    }
-                                }
-                            },
+                            state = titleState,
                             label = stringResource(nameHintResId),
-                            singleLine = titleMaxLines == 1,
-                            maxLines = titleMaxLines,
+                            lineLimits =
+                                if (titleMaxLines == 1) {
+                                    TextFieldLineLimits.SingleLine
+                                } else {
+                                    TextFieldLineLimits.MultiLine(maxHeightInLines = titleMaxLines)
+                                },
                             keyboardOptions = KeyboardOptions(capitalization = titleKeyboardCapitalization),
-                            visualTransformation = titleVisualTransformation,
+                            outputTransformation = titleOutputTransformation,
                             modifier = Modifier.fillMaxWidth().focusRequester(titleFocusRequester),
                             shape = AppShapes.extraSmall,
                         )
