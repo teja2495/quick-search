@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -353,24 +356,32 @@ fun SpeedBumpOverlay(
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
-                SpeedBumpPauseMenu(
-                    appName = appInfo.appName,
-                    expanded = runningDeadline == null,
-                    onExpand = {
-                        deadline?.let {
-                            remainingAtMenuOpen = (it - SystemClock.elapsedRealtime()).coerceAtLeast(0)
-                            deadline = null
-                        }
-                    },
-                    onDismiss = {
-                        deadline = SystemClock.elapsedRealtime() + remainingAtMenuOpen
-                    },
-                    onSelectDuration = { minutes ->
-                        SpeedBump.pause(context, appInfo.packageName, minutes)
-                        onOpen()
-                    },
-                )
             }
+
+            // Pausing bypasses the friction, so it lives in the top-end corner as a deliberate
+            // reach instead of in the thumb zone next to "Don't Open".
+            SpeedBumpPauseMenu(
+                appName = appInfo.appName,
+                expanded = runningDeadline == null,
+                onExpand = {
+                    deadline?.let {
+                        remainingAtMenuOpen = (it - SystemClock.elapsedRealtime()).coerceAtLeast(0)
+                        deadline = null
+                    }
+                },
+                onDismiss = {
+                    deadline = SystemClock.elapsedRealtime() + remainingAtMenuOpen
+                },
+                onSelectDuration = { minutes ->
+                    SpeedBump.pause(context, appInfo.packageName, minutes)
+                    onOpen()
+                },
+                modifier =
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .windowInsetsPadding(WindowInsets.safeDrawing)
+                        .padding(DesignTokens.SpacingSmall),
+            )
         }
     }
 }
@@ -382,8 +393,9 @@ private fun SpeedBumpPauseMenu(
     onExpand: () -> Unit,
     onDismiss: () -> Unit,
     onSelectDuration: (Int) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Box(contentAlignment = Alignment.Center) {
+    Box(contentAlignment = Alignment.Center, modifier = modifier) {
         AppTextButton(
             onClick = onExpand,
             tone = AppButtonTone.Neutral,

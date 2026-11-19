@@ -32,7 +32,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -135,6 +134,7 @@ open class MainActivity : FragmentActivity() {
     private val navigationRequest = mutableStateOf<NavigationRequest?>(null)
     // True when the overlay handed off to this activity, so leaving goes back to the overlay.
     private val returnToOverlay = mutableStateOf(false)
+    private val launchCover = LaunchTransitionCover(enabled = this !is HomeActivity)
     private var pendingSearchTargetShortcut: Pair<String, SearchTarget>? = null
     private var pendingContactActionPickerRequest: PendingContactActionPickerRequest? = null
     private var hasMainUiActivated = false
@@ -263,7 +263,10 @@ open class MainActivity : FragmentActivity() {
     override fun onStart() {
         super.onStart()
         UiSurfaceMemoryManager.onSurfaceStarted()
+        launchCover.onStart(lifecycleScope)
     }
+
+    override fun onEnterAnimationComplete() = super.onEnterAnimationComplete().also { launchCover.onEnterAnimationComplete() }
 
     override fun onStop() {
         super.onStop()
@@ -413,11 +416,11 @@ open class MainActivity : FragmentActivity() {
                     modifier =
                         Modifier
                             .fillMaxSize()
-                            .background(
+                            .then(
                                 if (showsSystemWallpaperBackdrop) {
-                                    Color.Transparent
+                                    launchCover.backdropModifier()
                                 } else {
-                                    MaterialTheme.colorScheme.background
+                                    Modifier.background(MaterialTheme.colorScheme.background)
                                 },
                             ),
                 ) {
