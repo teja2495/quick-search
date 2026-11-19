@@ -4,9 +4,9 @@ import com.tk.quicksearch.search.contacts.models.ContactActionProvider
 import com.tk.quicksearch.search.contacts.models.ContactButtonAction
 import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.search.core.SearchTarget
-import com.tk.quicksearch.search.core.AppIconShape
-import com.tk.quicksearch.search.core.AppSuggestionTabType
-import com.tk.quicksearch.search.core.LauncherAppIcon
+import com.tk.quicksearch.search.apps.AppIconShape
+import com.tk.quicksearch.search.apps.AppSuggestionTabType
+import com.tk.quicksearch.app.LauncherAppIcon
 import com.tk.quicksearch.search.core.AccentColorMode
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.AppTheme
@@ -23,7 +23,7 @@ import com.tk.quicksearch.search.core.IconPackInfo
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.other.OtherSearchItemId
 import com.tk.quicksearch.settings.appShortcutsSettings.AppShortcutSource
-import com.tk.quicksearch.settings.settingsDetailScreen.AiBackedToolConfigId
+import com.tk.quicksearch.settings.toolsSettings.AiBackedToolConfigId
 import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.LlmTextModel

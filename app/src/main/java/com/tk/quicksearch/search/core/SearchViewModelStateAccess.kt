@@ -1,5 +1,9 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.app.LauncherAppIcon
+import com.tk.quicksearch.search.apps.AppIconShape
+
+
 internal class SearchViewModelStartupState {
     var pendingNavigationClear: Boolean = false
     var isStartupComplete: Boolean = false

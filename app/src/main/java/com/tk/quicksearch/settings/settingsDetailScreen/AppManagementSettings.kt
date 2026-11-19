@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.settings.gestureSettings.labelResId
 import com.tk.quicksearch.shared.ui.components.AppFabTone
 import com.tk.quicksearch.shared.ui.components.AppExtendedFloatingActionButton
 import com.tk.quicksearch.search.apps.appLock.AppLockGate

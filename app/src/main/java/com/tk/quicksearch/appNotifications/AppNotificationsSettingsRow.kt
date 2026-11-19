@@ -9,9 +9,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotsCheckedChange
-import com.tk.quicksearch.search.data.AppNotificationFilters
-import com.tk.quicksearch.search.data.AppNotificationsSettings
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.rememberAppNotificationsConfig
+import com.tk.quicksearch.appNotifications.AppNotificationFilters
+import com.tk.quicksearch.appNotifications.AppNotificationsSettings
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.rememberAppNotificationsConfig
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 
 /**

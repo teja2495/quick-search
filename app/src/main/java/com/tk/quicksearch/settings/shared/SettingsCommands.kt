@@ -3,12 +3,12 @@ package com.tk.quicksearch.settings.shared
 import com.tk.quicksearch.search.appSettings.AppSettingsToggleKey
 import com.tk.quicksearch.search.appSettings.BooleanSetting
 import com.tk.quicksearch.search.core.AccentColorMode
-import com.tk.quicksearch.search.core.AppIconShape
-import com.tk.quicksearch.search.core.AppSuggestionTabType
+import com.tk.quicksearch.search.apps.AppIconShape
+import com.tk.quicksearch.search.apps.AppSuggestionTabType
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
-import com.tk.quicksearch.search.core.LauncherAppIcon
+import com.tk.quicksearch.app.LauncherAppIcon
 import com.tk.quicksearch.search.core.HomeTextColor
 import com.tk.quicksearch.search.core.SearchBarStyle
 import com.tk.quicksearch.search.core.SearchSectionRegistry

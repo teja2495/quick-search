@@ -70,7 +70,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
-import com.tk.quicksearch.search.core.AppIconShape
+import com.tk.quicksearch.search.apps.AppIconShape
 import com.tk.quicksearch.search.data.AppsRepository
 import com.tk.quicksearch.search.data.TodayAppUsage
 import com.tk.quicksearch.search.models.AppInfo

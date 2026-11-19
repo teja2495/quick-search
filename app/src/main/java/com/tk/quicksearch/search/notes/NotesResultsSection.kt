@@ -1,6 +1,6 @@
 package com.tk.quicksearch.search.notes
 
-import com.tk.quicksearch.settings.NoteDeleteConfirmationDialog
+import com.tk.quicksearch.settings.notesSettings.NoteDeleteConfirmationDialog
 import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive

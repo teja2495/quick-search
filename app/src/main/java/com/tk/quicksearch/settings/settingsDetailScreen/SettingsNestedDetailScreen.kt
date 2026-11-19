@@ -1,5 +1,20 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.settings.calendarSettings.CalendarEventsBottomBar
+import com.tk.quicksearch.settings.calendarSettings.CalendarEventsHeaderMenu
+import com.tk.quicksearch.settings.calendarSettings.CalendarEventsSettingsSection
+import com.tk.quicksearch.settings.notesSettings.NoteEditor
+import com.tk.quicksearch.settings.notesSettings.NoteEditorToolbarState
+import com.tk.quicksearch.settings.notesSettings.NotesNavigationMemory
+import com.tk.quicksearch.settings.notesSettings.NotesSettingsBottomBar
+import com.tk.quicksearch.settings.notesSettings.NotesSettingsSection
+import com.tk.quicksearch.settings.notesSettings.noteEditorHeaderActions
+import com.tk.quicksearch.settings.notesSettings.noteEditorTitleRes
+import com.tk.quicksearch.settings.remindersSettings.RemindersSettingsSection
+import com.tk.quicksearch.settings.toolsSettings.AiBackedToolConfigId
+import com.tk.quicksearch.settings.toolsSettings.CustomToolEditorDetailContent
+import com.tk.quicksearch.settings.toolsSettings.CustomToolNavigationMemory
+import com.tk.quicksearch.settings.toolsSettings.ToolsDetailContent
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.components.AppFabTone
 import com.tk.quicksearch.shared.ui.components.AppFloatingActionButton
@@ -51,8 +66,8 @@ import com.tk.quicksearch.settings.shared.settingsContentWidth
 import com.tk.quicksearch.settings.shared.settingsScrollClip
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.settings.NoteDeleteConfirmationDialog
-import com.tk.quicksearch.settings.NotesBulkDeleteConfirmationDialog
+import com.tk.quicksearch.settings.notesSettings.NoteDeleteConfirmationDialog
+import com.tk.quicksearch.settings.notesSettings.NotesBulkDeleteConfirmationDialog
 import com.tk.quicksearch.settings.bookmarksSettings.BookmarksHeaderMenu
 import com.tk.quicksearch.settings.bookmarksSettings.BookmarksSettingsSection
 import kotlinx.coroutines.Dispatchers

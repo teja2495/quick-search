@@ -1,5 +1,8 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.app.LauncherAppIcon
+import com.tk.quicksearch.search.apps.AppIconShape
+import com.tk.quicksearch.search.apps.AppSuggestionTabType
 import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.R
 import com.tk.quicksearch.overlay.OverlayModeController
@@ -13,7 +16,6 @@ import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderRegistry
 import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.tools.aiSearch.resolveModelSelection
-import com.tk.quicksearch.settings.settingsDetailScreen.AiBackedToolConfigId
 import com.tk.quicksearch.shared.util.isLowRamDevice
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async

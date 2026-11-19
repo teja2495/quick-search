@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppThemeColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable

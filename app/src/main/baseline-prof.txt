@@ -113,7 +113,7 @@ Lcom/tk/quicksearch/searchEngines/SecondarySearchOrchestrator;
 Lcom/tk/quicksearch/app/navigation/NavigationHandler;
 Lcom/tk/quicksearch/app/navigation/NavigationManagerKt;
 Lcom/tk/quicksearch/app/navigation/SettingsNavigationMemory;
-Lcom/tk/quicksearch/settings/settingsDetailScreen/CustomToolNavigationMemory;
+Lcom/tk/quicksearch/settings/toolsSettings/CustomToolNavigationMemory;
 
 # Handlers initialized during early lifecycle
 Lcom/tk/quicksearch/search/contacts/actions/ContactActionHandler;
@@ -123,7 +123,7 @@ Lcom/tk/quicksearch/search/apps/AppManagementService;
 Lcom/tk/quicksearch/search/contacts/ContactManagementHandler;
 Lcom/tk/quicksearch/search/files/FileManagementHandler;
 Lcom/tk/quicksearch/search/deviceSettings/DeviceSettingsManagementHandler;
-Lcom/tk/quicksearch/tools/calculator/CalculatorHandler;
+Lcom/tk/quicksearch/tools/calculator/CalculatorHandlerKt;
 
 # First-query search and Compose rendering path. These methods are reached when a user types
 # before background dex compilation has had a chance to optimize the newly installed app.

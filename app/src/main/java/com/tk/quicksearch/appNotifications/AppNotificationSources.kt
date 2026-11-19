@@ -24,10 +24,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.data.AppNotificationFilters
-import com.tk.quicksearch.search.data.GlanceNotificationsStore
+import com.tk.quicksearch.appNotifications.AppNotificationFilters
+import com.tk.quicksearch.search.glance.GlanceNotificationsStore
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryStore
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.rememberAppLabel
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.rememberAppLabel
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.theme.AppColors

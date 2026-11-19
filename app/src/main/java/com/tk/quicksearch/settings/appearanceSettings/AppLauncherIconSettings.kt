@@ -46,7 +46,7 @@ import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.CUSTOM_APP_THEME_PALETTES
-import com.tk.quicksearch.search.core.LauncherAppIcon
+import com.tk.quicksearch.app.LauncherAppIcon
 import com.tk.quicksearch.shared.ui.components.AppBottomSheet
 import com.tk.quicksearch.shared.ui.components.AppDrawerHeader
 import com.tk.quicksearch.shared.ui.components.SegmentedTile

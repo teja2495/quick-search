@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.searchEngines.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.IN_APP_BROWSER_PACKAGE
 import com.tk.quicksearch.searchEngines.buildCustomSearchUrl

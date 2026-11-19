@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.search.apps.AppIconShape
+import com.tk.quicksearch.search.apps.AppSuggestionSelector
 import com.tk.quicksearch.search.contacts.models.ContactActionProvider
 import android.app.Application
 import android.content.Context

@@ -1,12 +1,12 @@
 package com.tk.quicksearch.search.data.userAppPreferences
 
 import com.tk.quicksearch.search.appSettings.readBooleanSettings
-import com.tk.quicksearch.search.core.AppIconShape
-import com.tk.quicksearch.search.core.AppSuggestionTabType
+import com.tk.quicksearch.search.apps.AppIconShape
+import com.tk.quicksearch.search.apps.AppSuggestionTabType
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
-import com.tk.quicksearch.search.core.LauncherAppIcon
+import com.tk.quicksearch.app.LauncherAppIcon
 import com.tk.quicksearch.search.data.preferences.BasePreferences
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.FileType

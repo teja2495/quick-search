@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.reminders.ReminderPermissions
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
-import com.tk.quicksearch.settings.settingsDetailScreen.ReminderFormDialog
+import com.tk.quicksearch.settings.remindersSettings.ReminderFormDialog
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailHeader
 import com.tk.quicksearch.settings.shared.ModelFeatureSettingsCard
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground

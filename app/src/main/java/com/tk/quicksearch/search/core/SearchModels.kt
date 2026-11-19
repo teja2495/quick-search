@@ -16,6 +16,7 @@ import com.tk.quicksearch.search.models.ReminderInfo
 import com.tk.quicksearch.search.models.SecondaryRankingSignal
 import com.tk.quicksearch.search.searchHistory.RecentSearchItem
 import com.tk.quicksearch.search.utils.RecentResultRankingUtils
+import com.tk.quicksearch.searchEngines.SearchEngine
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.GeminiModelCatalog
 import com.tk.quicksearch.tools.aiTools.DictionarySense

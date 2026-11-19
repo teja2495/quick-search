@@ -1,4 +1,6 @@
 package com.tk.quicksearch.search.core
+import com.tk.quicksearch.app.LauncherIconManager
+import com.tk.quicksearch.search.apps.AppSuggestionSelector
 import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.app.Application
 import android.os.Trace

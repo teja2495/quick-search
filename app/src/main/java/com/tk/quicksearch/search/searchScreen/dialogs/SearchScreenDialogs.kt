@@ -1,405 +1,294 @@
 package com.tk.quicksearch.search.searchScreen.dialogs
 
-import androidx.compose.ui.semantics.Role
-import com.tk.quicksearch.shared.ui.theme.AppShapes
-import android.content.Intent
-import android.net.Uri
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import com.tk.quicksearch.shared.ui.components.AppBottomPopup
-import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
-import androidx.compose.material3.ripple
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.app.PastReleaseNotes
-import com.tk.quicksearch.app.ReleaseNotesRepository
+import com.tk.quicksearch.search.contacts.dialogs.ContactActionsPopup
+import com.tk.quicksearch.search.contacts.dialogs.ContactActionsPopupState
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
+import com.tk.quicksearch.search.contacts.dialogs.DirectDialChoiceDialog
+import com.tk.quicksearch.search.contacts.dialogs.PhoneNumberSelectionDialog
+import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
+import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
-import androidx.compose.ui.platform.LocalContext
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.components.AppButton
-import com.tk.quicksearch.shared.ui.components.AppTextButton
+import com.tk.quicksearch.shared.permissions.LockScreenAccessibilityDisclosureDialog
 
+/**
+ * Composable that manages all dialogs for SearchScreen
+ */
 @Composable
-internal fun ReleaseNotesDrawer(
-    versionName: String?,
-    onAcknowledge: () -> Unit,
-    onViewAllFeatures: () -> Unit,
+internal fun SearchScreenDialogs(
+    state: SearchUiState,
+    nicknameDialogState: NicknameDialogState?,
+    triggerDialogState: TriggerDialogState?,
+    onPhoneNumberSelected: (String, Boolean) -> Unit,
+    onDismissPhoneNumberSelection: () -> Unit,
+    onDirectDialChoiceSelected: (DirectDialOption, Boolean) -> Unit,
+    onDismissDirectDialChoice: () -> Unit,
+    onContactMethodClick: (ContactInfo, com.tk.quicksearch.search.models.ContactMethod) -> Unit,
+    getContactActionTrigger: (Long, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    onContactActionTriggerClick: (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction, String) -> Unit,
+    onDismissContactMethods: () -> Unit,
+    onReleaseNotesAcknowledged: () -> Unit,
+    onReleaseNotesViewAllFeatures: () -> Unit,
+    onAccessibilityPermissionDisclaimerDismissed: () -> Unit,
+    onDismissNicknameDialog: () -> Unit,
+    onDismissTriggerDialog: () -> Unit,
+    onSaveAppNickname: (AppInfo, String?) -> Unit,
+    onSaveAppShortcutNickname: (StaticShortcut, String?) -> Unit,
+    onSaveContactNickname: (ContactInfo, String?) -> Unit,
+    onSaveFileNickname: (DeviceFile, String?) -> Unit,
+    onSaveSettingNickname: (DeviceSetting, String?) -> Unit,
+    onSaveCalendarEventNickname: (CalendarEventInfo, String?) -> Unit,
+    onSaveAppTrigger: (AppInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveAppShortcutTrigger: (StaticShortcut, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveContactTrigger: (ContactInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveContactActionTrigger: (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveFileTrigger: (DeviceFile, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveSettingTrigger: (DeviceSetting, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveNoteTrigger: (NoteInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    getAllTriggerWordsById: () -> Map<String, String>,
+    getAllAliasWordsById: () -> Map<String, String>,
+    getLastShownPhoneNumber: (Long) -> String?,
+    setLastShownPhoneNumber: (Long, String) -> Unit,
 ) {
     val context = LocalContext.current
-    val releaseNotesMarkdown = remember {
-        context.assets.open("RELEASE_NOTES.md").bufferedReader().use { it.readText() }
-    }
-    val bulletPoints = remember(releaseNotesMarkdown) {
-        parseReleaseNotesBulletPoints(releaseNotesMarkdown)
-    }
-    val title =
-        if (versionName != null) {
-            stringResource(R.string.release_notes_title, versionName)
-        } else {
-            stringResource(R.string.release_notes_title_no_version)
-        }
 
-    // Past releases are fetched lazily, the first time the history section is expanded.
-    var isHistoryExpanded by remember(versionName) { mutableStateOf(false) }
-    var pastReleaseNotes by remember(versionName) { mutableStateOf<List<PastReleaseNotes>>(emptyList()) }
-    var isLoadingHistory by remember(versionName) { mutableStateOf(false) }
-    var hasLoadedHistory by remember(versionName) { mutableStateOf(false) }
-    var expandedPastVersion by remember(versionName) { mutableStateOf<String?>(null) }
-
-    LaunchedEffect(isHistoryExpanded) {
-        if (!isHistoryExpanded || hasLoadedHistory) return@LaunchedEffect
-        isLoadingHistory = true
-        pastReleaseNotes = ReleaseNotesRepository().getPastReleaseNotes(versionName)
-        isLoadingHistory = false
-        hasLoadedHistory = true
+    // Phone number selection dialog
+    state.phoneNumberSelection?.let { selection ->
+        PhoneNumberSelectionDialog(
+            contactInfo = selection.contactInfo,
+            isCall = selection.isCall,
+            onPhoneNumberSelected = onPhoneNumberSelected,
+            onDismiss = onDismissPhoneNumberSelection,
+        )
     }
 
-    AppBottomPopup(
-        onDismiss = onAcknowledge,
-        contentCardColor = AppColors.DialogBackground,
-        contentSpacing = 8.dp,
-        title = {
-            Text(text = title)
-        },
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-        ) {
-            ReleaseNotesBulletList(bulletPoints = bulletPoints)
-
-            HorizontalDivider(
-                modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintLightAlpha),
-            )
-
-            ReleaseNotesExpanderRow(
-                label = stringResource(R.string.release_notes_previous_versions),
-                isExpanded = isHistoryExpanded,
-                style = MaterialTheme.typography.bodyMedium,
-                onClick = { isHistoryExpanded = !isHistoryExpanded },
-            )
-
-            AnimatedVisibility(visible = isHistoryExpanded) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    when {
-                        isLoadingHistory ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = DesignTokens.SpacingMedium),
-                                horizontalArrangement = Arrangement.Center,
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(20.dp),
-                                    strokeWidth = 2.dp,
-                                )
-                            }
-
-                        pastReleaseNotes.isEmpty() ->
-                            Text(
-                                text = stringResource(R.string.release_notes_previous_versions_unavailable),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(vertical = DesignTokens.SpacingMedium),
-                            )
-
-                        else ->
-                            {
-                                pastReleaseNotes.forEach { release ->
-                                    val isExpanded = expandedPastVersion == release.versionName
-                                    ReleaseNotesExpanderRow(
-                                        label = "v${release.versionName}",
-                                        isExpanded = isExpanded,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        bottomPadding = if (isExpanded) 0.dp else DesignTokens.SpacingMedium,
-                                        onClick = {
-                                            expandedPastVersion =
-                                                if (isExpanded) null else release.versionName
-                                        },
-                                    )
-                                    AnimatedVisibility(visible = isExpanded) {
-                                        ReleaseNotesBulletList(
-                                            bulletPoints = parseReleaseNotesBulletPoints(release.markdown),
-                                            modifier = Modifier.padding(start = DesignTokens.SpacingSmall, top = DesignTokens.SpacingXSmall, bottom = DesignTokens.SpacingSmall),
-                                        )
-                                    }
-                                }
-
-                                ReleaseNotesNavigationRow(
-                                    label = stringResource(R.string.release_notes_action_more),
-                                    onClick = {
-                                        runCatching {
-                                            context.startActivity(
-                                                Intent(Intent.ACTION_VIEW, Uri.parse(releasesUrl)),
-                                            )
-                                        }
-                                    },
-                                )
-                            }
-                    }
-                }
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = DesignTokens.SpacingSmall),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                AppTextButton(onClick = onViewAllFeatures) {
-                    Text(text = stringResource(R.string.release_notes_action_all_features))
-                }
-                AppButton(onClick = onAcknowledge) {
-                    Text(text = stringResource(R.string.release_notes_action_got_it))
-                }
-            }
-        }
+    state.directDialChoice?.let { choice ->
+        DirectDialChoiceDialog(
+            contactName = choice.contactName,
+            phoneNumber = choice.phoneNumber,
+            onSelectOption = onDirectDialChoiceSelected,
+            onDismiss = onDismissDirectDialChoice,
+        )
     }
-}
 
-private const val releasesUrl = "https://github.com/teja2495/quick-search/releases/"
+    // Contact methods dialog
+    state.contactMethodsBottomSheet?.let { contactInfo ->
+        val viewInContactsLabel = stringResource(R.string.contact_method_view_in_contacts_label)
+        ContactActionsPopup(
+            state =
+                ContactActionsPopupState.ContactActions(
+                    contactInfo = contactInfo,
+                    onContactMethodClick = onContactMethodClick,
+                    onAvatarClick = { contact ->
+                        onContactMethodClick(contact, ContactMethod.ViewInContactsApp(viewInContactsLabel))
+                    },
+                    enableContactActionTriggers = true,
+                    getContactActionTrigger = { contact, action ->
+                        getContactActionTrigger(contact.contactId, action)
+                    },
+                    onContactActionTriggerClick = onContactActionTriggerClick,
+                ),
+            getLastShownPhoneNumber = getLastShownPhoneNumber,
+            setLastShownPhoneNumber = setLastShownPhoneNumber,
+            onDismiss = onDismissContactMethods,
+        )
+    }
 
-@Composable
-private fun ReleaseNotesBulletList(
-    bulletPoints: List<String>,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-    ) {
-        bulletPoints.forEach { point ->
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-                verticalAlignment = Alignment.Top,
-            ) {
-                Text(
-                    text = "•",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+    if (state.showReleaseNotesDialog) {
+        ReleaseNotesDrawer(
+            versionName = state.releaseNotesVersionName,
+            onAcknowledge = onReleaseNotesAcknowledged,
+            onViewAllFeatures = onReleaseNotesViewAllFeatures,
+        )
+    }
+
+    if (state.showAccessibilityPermissionDisclaimer) {
+        LockScreenAccessibilityDisclosureDialog(
+            onAgree = {
+                onAccessibilityPermissionDisclaimerDismissed()
+                LockScreenAccessibilityService.openAccessibilitySettings(context)
+            },
+            onDismiss = onAccessibilityPermissionDisclaimerDismissed,
+        )
+    }
+
+    // Nickname dialog
+    nicknameDialogState?.let { dialogState ->
+        when (dialogState) {
+            is NicknameDialogState.App -> {
+                NicknameDialog(
+                    currentNickname = dialogState.currentNickname,
+                    itemName = dialogState.itemName,
+                    onSave = { nickname ->
+                        onSaveAppNickname(dialogState.app, nickname)
+                    },
+                    onDismiss = onDismissNicknameDialog,
                 )
-                Text(
-                    text = point,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+            }
+
+            is NicknameDialogState.AppShortcut -> {
+                NicknameDialog(
+                    currentNickname = dialogState.currentNickname,
+                    itemName = dialogState.itemName,
+                    onSave = { nickname ->
+                        onSaveAppShortcutNickname(dialogState.shortcut, nickname)
+                    },
+                    onDismiss = onDismissNicknameDialog,
+                )
+            }
+
+            is NicknameDialogState.Contact -> {
+                NicknameDialog(
+                    currentNickname = dialogState.currentNickname,
+                    itemName = dialogState.itemName,
+                    onSave = { nickname ->
+                        onSaveContactNickname(dialogState.contact, nickname)
+                    },
+                    onDismiss = onDismissNicknameDialog,
+                )
+            }
+
+            is NicknameDialogState.File -> {
+                NicknameDialog(
+                    currentNickname = dialogState.currentNickname,
+                    itemName = dialogState.itemName,
+                    onSave = { nickname ->
+                        onSaveFileNickname(dialogState.file, nickname)
+                    },
+                    onDismiss = onDismissNicknameDialog,
+                )
+            }
+
+            is NicknameDialogState.Setting -> {
+                NicknameDialog(
+                    currentNickname = dialogState.currentNickname,
+                    itemName = dialogState.itemName,
+                    onSave = { nickname ->
+                        onSaveSettingNickname(dialogState.setting, nickname)
+                    },
+                    onDismiss = onDismissNicknameDialog,
+                )
+            }
+
+            is NicknameDialogState.CalendarEvent -> {
+                NicknameDialog(
+                    currentNickname = dialogState.currentNickname,
+                    itemName = dialogState.itemName,
+                    onSave = { nickname ->
+                        onSaveCalendarEventNickname(dialogState.event, nickname)
+                    },
+                    onDismiss = onDismissNicknameDialog,
                 )
             }
         }
     }
-}
 
-@Composable
-private fun ReleaseNotesExpanderRow(
-    label: String,
-    isExpanded: Boolean,
-    style: TextStyle,
-    bottomPadding: Dp = DesignTokens.SpacingMedium,
-    onClick: () -> Unit,
-) {
-    val chevronRotation by animateFloatAsState(
-        targetValue = if (isExpanded) 180f else 0f,
-        label = "releaseNotesChevronRotation",
-    )
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = DesignTokens.MinTouchTarget)
-            .clip(AppShapes.small)
-            .clickable(
-                role = Role.Button,
-                interactionSource = remember { MutableInteractionSource() },
-                indication = ripple(),
-                onClick = onClick,
-            )
-            .padding(top = DesignTokens.SpacingMedium, bottom = bottomPadding),
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = label,
-            modifier = Modifier.weight(1f),
-            style = style,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Icon(
-            imageVector = MaterialSymbols.ExpandMore,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(DesignTokens.IconSizeSmall).rotate(chevronRotation),
-        )
+    triggerDialogState?.let { dialogState ->
+        // Both scan the whole customization store; read once per dialog, not per recomposition.
+        val allTriggerWords =
+            androidx.compose.runtime.remember(dialogState, getAllTriggerWordsById) { getAllTriggerWordsById() }
+        val allAliasWords =
+            androidx.compose.runtime.remember(dialogState, getAllAliasWordsById) { getAllAliasWordsById() }
+        when (dialogState) {
+            is TriggerDialogState.App ->
+                TriggerDialog(
+                    currentTrigger = dialogState.currentTrigger,
+                    itemName = dialogState.itemName,
+                    existingTriggerWords =
+                        allTriggerWords
+                            .filterKeys { it != "app:${dialogState.app.packageName}" }
+                            .values,
+                    existingAliasWords = allAliasWords.values,
+                    onSave = { onSaveAppTrigger(dialogState.app, it) },
+                    onDismiss = onDismissTriggerDialog,
+                )
+            is TriggerDialogState.AppShortcut ->
+                TriggerDialog(
+                    currentTrigger = dialogState.currentTrigger,
+                    itemName = dialogState.itemName,
+                    existingTriggerWords =
+                        allTriggerWords
+                            .filterKeys { it != "shortcut:${shortcutKey(dialogState.shortcut)}" }
+                            .values,
+                    existingAliasWords = allAliasWords.values,
+                    onSave = { onSaveAppShortcutTrigger(dialogState.shortcut, it) },
+                    onDismiss = onDismissTriggerDialog,
+                )
+            is TriggerDialogState.Contact ->
+                TriggerDialog(
+                    currentTrigger = dialogState.currentTrigger,
+                    itemName = dialogState.itemName,
+                    existingTriggerWords =
+                        allTriggerWords
+                            .filterKeys { it != "contact:${dialogState.contact.contactId}" }
+                            .values,
+                    existingAliasWords = allAliasWords.values,
+                    onSave = { onSaveContactTrigger(dialogState.contact, it) },
+                    onDismiss = onDismissTriggerDialog,
+                )
+            is TriggerDialogState.ContactAction ->
+                TriggerDialog(
+                    currentTrigger = dialogState.currentTrigger,
+                    itemName = dialogState.itemName,
+                    existingTriggerWords =
+                        allTriggerWords
+                            .filterKeys {
+                                it != "contactAction:${dialogState.contact.contactId}:${dialogState.action.toSerializedString()}"
+                            }
+                            .values,
+                    existingAliasWords = allAliasWords.values,
+                    onSave = {
+                        onSaveContactActionTrigger(dialogState.contact, dialogState.action, it)
+                    },
+                    onDismiss = onDismissTriggerDialog,
+                )
+            is TriggerDialogState.File ->
+                TriggerDialog(
+                    currentTrigger = dialogState.currentTrigger,
+                    itemName = dialogState.itemName,
+                    existingTriggerWords =
+                        allTriggerWords
+                            .filterKeys { it != "file:${dialogState.file.uri}" }
+                            .values,
+                    existingAliasWords = allAliasWords.values,
+                    onSave = { onSaveFileTrigger(dialogState.file, it) },
+                    onDismiss = onDismissTriggerDialog,
+                )
+            is TriggerDialogState.Setting ->
+                TriggerDialog(
+                    currentTrigger = dialogState.currentTrigger,
+                    itemName = dialogState.itemName,
+                    existingTriggerWords =
+                        allTriggerWords
+                            .filterKeys { it != "setting:${dialogState.setting.id}" }
+                            .values,
+                    existingAliasWords = allAliasWords.values,
+                    onSave = { onSaveSettingTrigger(dialogState.setting, it) },
+                    onDismiss = onDismissTriggerDialog,
+                )
+            is TriggerDialogState.Note ->
+                TriggerDialog(
+                    currentTrigger = dialogState.currentTrigger,
+                    itemName = dialogState.itemName,
+                    existingTriggerWords =
+                        allTriggerWords
+                            .filterKeys { it != "note:${dialogState.note.noteId}" }
+                            .values,
+                    existingAliasWords = allAliasWords.values,
+                    onSave = { onSaveNoteTrigger(dialogState.note, it) },
+                    onDismiss = onDismissTriggerDialog,
+                )
+        }
     }
-}
-
-@Composable
-private fun ReleaseNotesNavigationRow(
-    label: String,
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = DesignTokens.MinTouchTarget)
-            .clip(AppShapes.small)
-            .clickable(
-                role = Role.Button,
-                interactionSource = remember { MutableInteractionSource() },
-                indication = ripple(),
-                onClick = onClick,
-            )
-            .padding(vertical = DesignTokens.SpacingMedium),
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = label,
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Icon(
-            imageVector = MaterialSymbols.ChevronRight,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(DesignTokens.IconSizeSmall),
-        )
-    }
-}
-
-private fun parseReleaseNotesBulletPoints(markdown: String): List<String> {
-    val bulletPattern = Regex("^\\s*[-*+]\\s+(.+)$")
-    val numberedPattern = Regex("^\\s*\\d+\\.\\s+(.+)$")
-    return markdown
-        .lineSequence()
-        .mapNotNull { rawLine ->
-            val line = rawLine.trim()
-            when {
-                line.isBlank() -> null
-                else -> {
-                    bulletPattern.matchEntire(line)?.groupValues?.get(1)
-                        ?: numberedPattern.matchEntire(line)?.groupValues?.get(1)
-                        ?: line.takeIf { !it.startsWith("#") }
-                }
-            }
-        }.map { it.trim() }
-        .filter { it.isNotEmpty() }
-        .toList()
-}
-
-sealed class NicknameDialogState {
-    data class App(
-        val app: AppInfo,
-        val currentNickname: String?,
-        val itemName: String,
-    ) : NicknameDialogState()
-
-    data class AppShortcut(
-        val shortcut: StaticShortcut,
-        val currentNickname: String?,
-        val itemName: String,
-    ) : NicknameDialogState()
-
-    data class Contact(
-        val contact: ContactInfo,
-        val currentNickname: String?,
-        val itemName: String,
-    ) : NicknameDialogState()
-
-    data class File(
-        val file: DeviceFile,
-        val currentNickname: String?,
-        val itemName: String,
-    ) : NicknameDialogState()
-
-    data class Setting(
-        val setting: DeviceSetting,
-        val currentNickname: String?,
-        val itemName: String,
-    ) : NicknameDialogState()
-
-    data class CalendarEvent(
-        val event: CalendarEventInfo,
-        val currentNickname: String?,
-        val itemName: String,
-    ) : NicknameDialogState()
-}
-
-sealed class TriggerDialogState {
-    data class App(
-        val app: AppInfo,
-        val currentTrigger: com.tk.quicksearch.search.data.preferences.ResultTrigger?,
-        val itemName: String,
-    ) : TriggerDialogState()
-
-    data class AppShortcut(
-        val shortcut: StaticShortcut,
-        val currentTrigger: com.tk.quicksearch.search.data.preferences.ResultTrigger?,
-        val itemName: String,
-    ) : TriggerDialogState()
-
-    data class Contact(
-        val contact: ContactInfo,
-        val currentTrigger: com.tk.quicksearch.search.data.preferences.ResultTrigger?,
-        val itemName: String,
-    ) : TriggerDialogState()
-
-    data class ContactAction(
-        val contact: ContactInfo,
-        val action: ContactCardAction,
-        val currentTrigger: com.tk.quicksearch.search.data.preferences.ResultTrigger?,
-        val itemName: String,
-    ) : TriggerDialogState()
-
-    data class File(
-        val file: DeviceFile,
-        val currentTrigger: com.tk.quicksearch.search.data.preferences.ResultTrigger?,
-        val itemName: String,
-    ) : TriggerDialogState()
-
-    data class Setting(
-        val setting: DeviceSetting,
-        val currentTrigger: com.tk.quicksearch.search.data.preferences.ResultTrigger?,
-        val itemName: String,
-    ) : TriggerDialogState()
-
-    data class Note(
-        val note: NoteInfo,
-        val currentTrigger: com.tk.quicksearch.search.data.preferences.ResultTrigger?,
-        val itemName: String,
-    ) : TriggerDialogState()
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import com.tk.quicksearch.reminders.ReminderRepeat
 import com.tk.quicksearch.reminders.ReminderScheduler
 import com.tk.quicksearch.search.data.preferences.ReminderPreferences
+import com.tk.quicksearch.search.glance.GlanceTiming
 import com.tk.quicksearch.search.models.ReminderInfo
 import com.tk.quicksearch.search.noted.NotedGlanceTasks
 import com.tk.quicksearch.search.utils.SearchRankingUtils

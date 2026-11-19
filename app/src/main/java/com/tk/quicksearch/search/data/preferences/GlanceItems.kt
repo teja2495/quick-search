@@ -3,7 +3,7 @@ package com.tk.quicksearch.search.data.preferences
 import android.content.Context
 import com.tk.quicksearch.customInfo.CustomInfoItem
 import com.tk.quicksearch.customInfo.CustomInfoScheduler
-import com.tk.quicksearch.search.data.AppNotificationsSettings
+import com.tk.quicksearch.appNotifications.AppNotificationsSettings
 import com.tk.quicksearch.search.glance.GlanceStatusDefinition
 import com.tk.quicksearch.search.glance.lowStorageStatus
 import com.tk.quicksearch.widgets.atAGlanceWidget.AtAGlanceWidgetUpdater

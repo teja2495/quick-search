@@ -50,10 +50,10 @@ import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.settings.appearanceSettings.AppearanceSettingsSection
 import com.tk.quicksearch.shared.permissions.PermissionHelper
-import com.tk.quicksearch.settings.FeaturesList
-import com.tk.quicksearch.settings.OpenSourceLicenseEntry
-import com.tk.quicksearch.settings.OpenSourceLicensesList
-import com.tk.quicksearch.settings.downloadAndShareFeatures
+import com.tk.quicksearch.settings.aboutSettings.FeaturesList
+import com.tk.quicksearch.settings.aboutSettings.OpenSourceLicenseEntry
+import com.tk.quicksearch.settings.aboutSettings.OpenSourceLicensesList
+import com.tk.quicksearch.settings.aboutSettings.downloadAndShareFeatures
 import com.tk.quicksearch.settings.searchEngineSettings.SearchEngines
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.SettingsCommand

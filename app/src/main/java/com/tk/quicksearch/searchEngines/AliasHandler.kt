@@ -1,6 +1,6 @@
 package com.tk.quicksearch.searchEngines
 
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.searchEngines.SearchEngine
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchSectionRegistry
 import com.tk.quicksearch.search.core.SearchTarget

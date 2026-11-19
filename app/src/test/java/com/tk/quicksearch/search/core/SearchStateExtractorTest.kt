@@ -1,6 +1,10 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.app.LauncherAppIcon
+import com.tk.quicksearch.search.apps.AppIconShape
+import com.tk.quicksearch.search.apps.AppSuggestionTabType
 import com.tk.quicksearch.search.contacts.models.ContactButtonAction
+import com.tk.quicksearch.searchEngines.SearchEngine
 import java.lang.reflect.Constructor
 import java.lang.reflect.Modifier
 import org.junit.Assert.assertEquals

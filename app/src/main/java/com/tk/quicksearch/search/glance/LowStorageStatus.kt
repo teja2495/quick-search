@@ -8,7 +8,7 @@ import android.provider.Settings
 import android.text.format.Formatter
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.preferences.GlancePreferences
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.openFirstAvailable
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.openFirstAvailable
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 
 private const val LOW_STORAGE_THRESHOLD_PERCENT = 10

@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.tk.quicksearch.search.core.AppIconShape
+import com.tk.quicksearch.search.apps.AppIconShape
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.getDisplayName
 import com.tk.quicksearch.searchEngines.shared.IconRenderStyle

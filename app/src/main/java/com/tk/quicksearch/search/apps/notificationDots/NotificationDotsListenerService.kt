@@ -13,7 +13,7 @@ import android.media.session.PlaybackState
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import androidx.core.content.ContextCompat
-import com.tk.quicksearch.search.data.GlanceNotificationsStore
+import com.tk.quicksearch.search.glance.GlanceNotificationsStore
 import com.tk.quicksearch.search.data.preferences.BatteryPreferences
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryAccess
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryStore

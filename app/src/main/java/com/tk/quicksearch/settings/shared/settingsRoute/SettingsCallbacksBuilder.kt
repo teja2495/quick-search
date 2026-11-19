@@ -5,7 +5,6 @@ import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.appShortcutRepository.SearchTargetShortcutMode
 import com.tk.quicksearch.searchEngines.AliasHandler
-import com.tk.quicksearch.settings.settingsDetailScreen.AiBackedToolConfigId
 import com.tk.quicksearch.settings.appShortcutsSettings.AppShortcutSource
 import com.tk.quicksearch.settings.shared.applySettingsCommand
 

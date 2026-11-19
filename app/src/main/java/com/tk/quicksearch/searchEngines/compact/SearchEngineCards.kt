@@ -25,9 +25,9 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.AppIconShape
+import com.tk.quicksearch.search.apps.AppIconShape
 import com.tk.quicksearch.search.core.SearchTarget
-import com.tk.quicksearch.search.core.isLikelyWebUrl
+import com.tk.quicksearch.shared.util.isLikelyWebUrl
 import com.tk.quicksearch.searchEngines.getDisplayName
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.searchEngines.shared.IconRenderStyle
@@ -37,7 +37,7 @@ import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardStyleOverrides
-import com.tk.quicksearch.search.searchScreen.predictedSubmitHighlight
+import com.tk.quicksearch.search.searchScreen.components.predictedSubmitHighlight
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.util.hapticConfirm
 

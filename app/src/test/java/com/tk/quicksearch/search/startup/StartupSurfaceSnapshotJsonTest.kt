@@ -4,7 +4,7 @@ import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.BrowserApp
 import com.tk.quicksearch.search.core.CustomSearchEngine
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.searchEngines.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.models.AppInfo
 import org.junit.Assert.assertEquals

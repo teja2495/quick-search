@@ -1,5 +1,10 @@
 package com.tk.quicksearch.search.searchScreen
 
+import com.tk.quicksearch.search.searchScreen.components.CreateReminderPill
+import com.tk.quicksearch.search.searchScreen.components.KeyboardSwitchPill
+import com.tk.quicksearch.search.searchScreen.components.PhoneCallPill
+import com.tk.quicksearch.search.searchScreen.components.SetAlarmPill
+import com.tk.quicksearch.search.searchScreen.components.StartTimerPill
 import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.content.Intent
 import android.net.Uri

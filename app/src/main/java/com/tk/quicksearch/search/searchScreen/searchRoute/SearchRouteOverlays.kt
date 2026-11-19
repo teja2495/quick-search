@@ -14,7 +14,7 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.apps.speedBump.SpeedBumpOverlay
 import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
-import com.tk.quicksearch.settings.settingsDetailScreen.DefaultCalendarDialog
+import com.tk.quicksearch.settings.calendarSettings.DefaultCalendarDialog
 import com.tk.quicksearch.settings.settingsDetailScreen.SecondaryRankingDialog
 import com.tk.quicksearch.settings.appearanceSettings.IconPackPickerDialog
 

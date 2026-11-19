@@ -23,9 +23,9 @@ import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
 import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotKeys
-import com.tk.quicksearch.search.core.AppIconShape
+import com.tk.quicksearch.search.apps.AppIconShape
 import com.tk.quicksearch.app.startup.StartupTrace
-import com.tk.quicksearch.search.core.AppSuggestionTabType
+import com.tk.quicksearch.search.apps.AppSuggestionTabType
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.AppInfo

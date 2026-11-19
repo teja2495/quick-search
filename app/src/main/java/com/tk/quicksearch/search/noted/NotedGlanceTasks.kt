@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.noted
 
 import android.content.Context
-import com.tk.quicksearch.search.data.GlanceTiming
+import com.tk.quicksearch.search.glance.GlanceTiming
 import com.tk.quicksearch.search.data.ReminderRepository
 import com.tk.quicksearch.search.data.preferences.ReminderPreferences
 import com.tk.quicksearch.search.models.NotedItem

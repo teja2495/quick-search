@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Dp
 import com.tk.quicksearch.search.appSettings.AppSettingResult
+import com.tk.quicksearch.search.apps.AppSuggestionTabType
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.appShortcutRepository.shortcutDisplayName
@@ -18,6 +19,7 @@ import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.models.ReminderInfo
 import com.tk.quicksearch.search.bookmarks.BookmarksSectionParams
 import com.tk.quicksearch.reminders.ReminderEditorRequests
+import com.tk.quicksearch.search.searchScreen.components.PermissionDisabledCard
 import com.tk.quicksearch.searchEngines.AliasParser
 import com.tk.quicksearch.searchEngines.defaultBrowserTarget
 import com.tk.quicksearch.searchEngines.getId

@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen
 
+import com.tk.quicksearch.search.searchScreen.components.NumberKeyboardOperatorPills
+import com.tk.quicksearch.search.searchScreen.components.OpenKeyboardAction
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition

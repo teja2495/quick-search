@@ -7,8 +7,7 @@ import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.AppTheme
-import com.tk.quicksearch.search.core.AppSuggestionTabType
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.search.apps.AppSuggestionTabType
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.data.preferences.*
 import com.tk.quicksearch.search.models.FileType

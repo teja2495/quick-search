@@ -12,8 +12,8 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.tk.quicksearch.shared.ui.theme.AppColors
-import com.tk.quicksearch.search.data.AppNotificationFilters
-import com.tk.quicksearch.search.data.AppNotificationFiltersCodec
+import com.tk.quicksearch.appNotifications.AppNotificationFilters
+import com.tk.quicksearch.appNotifications.AppNotificationFiltersCodec
 import com.tk.quicksearch.search.data.assets.ManagedAssetStore
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
 import com.tk.quicksearch.widgets.searchWidget.MicAction

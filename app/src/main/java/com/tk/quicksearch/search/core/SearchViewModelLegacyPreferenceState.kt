@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.app.LauncherAppIcon
+import com.tk.quicksearch.search.apps.AppIconShape
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.tools.inlineSearch.SearchToolType

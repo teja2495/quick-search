@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.CUSTOM_APP_THEME_PALETTES
-import com.tk.quicksearch.search.searchScreen.AppThemeColors
+import com.tk.quicksearch.shared.ui.theme.AppThemeColors
 import com.tk.quicksearch.shared.ui.components.AppBottomSheet
 import com.tk.quicksearch.shared.ui.components.AppDrawerHeader
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols

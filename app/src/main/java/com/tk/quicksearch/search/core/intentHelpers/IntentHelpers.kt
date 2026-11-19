@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.provider.CalendarContract
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.searchEngines.SearchEngine
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.DeviceFile
 

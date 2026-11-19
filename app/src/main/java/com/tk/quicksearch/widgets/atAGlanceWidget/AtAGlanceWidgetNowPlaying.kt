@@ -10,7 +10,7 @@ import com.tk.quicksearch.media.MediaCommand
 import com.tk.quicksearch.search.data.MediaPlaybackRepository
 import com.tk.quicksearch.search.data.preferences.GlanceItem
 import com.tk.quicksearch.search.data.preferences.GlanceItemSettings
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.NowPlayingTransitionStates
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.NowPlayingTransitionStates
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomButtonsWidgetMediaAction
 import com.tk.quicksearch.widgets.mediaControlsWidget.MediaControlsSnapshot
 import com.tk.quicksearch.widgets.mediaControlsWidget.readMediaControlsSnapshot

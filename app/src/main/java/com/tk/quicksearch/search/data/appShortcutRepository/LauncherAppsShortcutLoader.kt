@@ -9,7 +9,7 @@ import android.os.Build
 import android.os.Process
 import android.os.UserHandle
 import android.util.Log
-import com.tk.quicksearch.search.data.PrivateSpaceProfile
+import com.tk.quicksearch.search.apps.privateSpace.PrivateSpaceProfile
 import java.util.Locale
 
 /**

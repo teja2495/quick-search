@@ -23,22 +23,22 @@ import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import com.tk.quicksearch.search.core.intentHelpers.IntentHelpers
 import com.tk.quicksearch.search.data.ContactBirthday
 import com.tk.quicksearch.search.data.ContactBirthdaysRepository
-import com.tk.quicksearch.search.data.GlanceNotificationsStore
+import com.tk.quicksearch.search.glance.GlanceNotificationsStore
 import com.tk.quicksearch.search.data.ReminderRepository
 import com.tk.quicksearch.search.data.preferences.GlanceItem
 import com.tk.quicksearch.search.glance.glanceStatusForKey
 import com.tk.quicksearch.search.noted.NotedGlanceTasks
 import com.tk.quicksearch.search.data.UpcomingAlarmRepository
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.copySensitiveText
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.endCallThroughTelecom
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.isDoNotDisturbOn
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.launchNotificationTarget
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.openAirplaneModeSettings
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.openBatterySettings
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.openCallHistoryUnlocked
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.openDoNotDisturbSettings
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.openHotspotSettings
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.openWifiPanel
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.copySensitiveText
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.endCallThroughTelecom
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.isDoNotDisturbOn
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.launchNotificationTarget
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.openAirplaneModeSettings
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.openBatterySettings
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.openCallHistoryUnlocked
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.openDoNotDisturbSettings
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.openHotspotSettings
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.openWifiPanel
 import com.tk.quicksearch.shared.util.sendFromUserTap
 
 /**

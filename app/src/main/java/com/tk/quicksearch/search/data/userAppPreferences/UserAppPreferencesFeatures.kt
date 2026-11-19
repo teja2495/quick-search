@@ -6,8 +6,7 @@ import com.tk.quicksearch.search.core.CustomSearchEngine
 import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.AppTheme
-import com.tk.quicksearch.search.core.AppSuggestionTabType
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.searchEngines.SearchEngine
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.data.preferences.*
 import com.tk.quicksearch.search.models.FileType
@@ -469,16 +468,16 @@ open class UserAppPreferencesFeatures(context: Context) : UserAppPreferencesCore
     fun setIconPackUnsupportedIconMaskEnabled(enabled: Boolean) =
             uiPreferences.setIconPackUnsupportedIconMaskEnabled(enabled)
 
-    fun getAppIconShape(): com.tk.quicksearch.search.core.AppIconShape =
+    fun getAppIconShape(): com.tk.quicksearch.search.apps.AppIconShape =
             uiPreferences.getAppIconShape()
 
-    fun setAppIconShape(shape: com.tk.quicksearch.search.core.AppIconShape) =
+    fun setAppIconShape(shape: com.tk.quicksearch.search.apps.AppIconShape) =
             uiPreferences.setAppIconShape(shape)
 
-    fun getLauncherAppIcon(): com.tk.quicksearch.search.core.LauncherAppIcon =
+    fun getLauncherAppIcon(): com.tk.quicksearch.app.LauncherAppIcon =
             uiPreferences.getLauncherAppIcon()
 
-    fun setLauncherAppIcon(selection: com.tk.quicksearch.search.core.LauncherAppIcon) =
+    fun setLauncherAppIcon(selection: com.tk.quicksearch.app.LauncherAppIcon) =
             uiPreferences.setLauncherAppIcon(selection)
 
     fun isThemedIconsEnabled(): Boolean = uiPreferences.isThemedIconsEnabled()

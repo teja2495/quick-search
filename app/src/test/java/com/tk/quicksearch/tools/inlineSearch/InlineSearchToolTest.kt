@@ -1,7 +1,7 @@
 package com.tk.quicksearch.tools.inlineSearch
 
 import com.tk.quicksearch.searchEngines.AliasHandler
-import com.tk.quicksearch.settings.settingsDetailScreen.ToolSettingsRegistry
+import com.tk.quicksearch.settings.toolsSettings.ToolSettingsRegistry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull

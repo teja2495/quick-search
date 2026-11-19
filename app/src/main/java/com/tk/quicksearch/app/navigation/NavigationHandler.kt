@@ -9,10 +9,10 @@ import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import com.tk.quicksearch.search.apps.appLock.SearchTargetAppLock
 import com.tk.quicksearch.search.contacts.utils.ContactIntentHelpers
 import com.tk.quicksearch.search.core.intentHelpers.IntentHelpers
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.searchEngines.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
-import com.tk.quicksearch.search.core.isLikelyWebUrl
-import com.tk.quicksearch.search.core.normalizeToBrowsableUrl
+import com.tk.quicksearch.shared.util.isLikelyWebUrl
+import com.tk.quicksearch.shared.util.normalizeToBrowsableUrl
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler

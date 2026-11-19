@@ -4,8 +4,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.luminance
 import com.tk.quicksearch.search.core.SearchUiState
-import com.tk.quicksearch.search.searchScreen.isAmoledSurfaceTheme
-import com.tk.quicksearch.search.searchScreen.resolveSearchColorTheme
+import com.tk.quicksearch.shared.ui.theme.isAmoledSurfaceTheme
+import com.tk.quicksearch.shared.ui.theme.overlayThemeTints
+import com.tk.quicksearch.shared.ui.theme.resolveSearchColorTheme
 
 internal data class SearchSurfaceColors(
     val amoledSurfacesActive: Boolean,

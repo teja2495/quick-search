@@ -68,7 +68,6 @@ import com.tk.quicksearch.shared.ui.components.ExpandableSegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.shared.permissions.PermissionHelper
-import com.tk.quicksearch.search.searchScreen.AppThemeColors
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens

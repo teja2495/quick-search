@@ -14,7 +14,7 @@ import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderRegistry
 import com.tk.quicksearch.tools.aiSearch.LlmModelCatalogCache
 import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.tools.aiSearch.resolveModelSelectionOrDefault
-import com.tk.quicksearch.settings.settingsDetailScreen.AiBackedToolConfigId
+import com.tk.quicksearch.settings.toolsSettings.AiBackedToolConfigId
 import com.tk.quicksearch.shared.util.isLowRamDevice
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async

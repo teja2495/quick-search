@@ -3,7 +3,7 @@ package com.tk.quicksearch.search.appSettings
 import android.content.Context
 import com.tk.quicksearch.R
 import com.tk.quicksearch.notchGesture.NotchGestureSupport
-import com.tk.quicksearch.settings.settingsDetailScreen.GestureSettingTarget
+import com.tk.quicksearch.settings.gestureSettings.GestureSettingTarget
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchSectionRegistry
 import com.tk.quicksearch.tools.tasker.TaskerIntegration

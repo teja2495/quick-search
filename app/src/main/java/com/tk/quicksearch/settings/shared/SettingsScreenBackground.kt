@@ -15,8 +15,8 @@ import androidx.compose.ui.graphics.luminance
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.searchScreen.SearchScreenBackground
-import com.tk.quicksearch.search.searchScreen.isAmoledSurfaceTheme
-import com.tk.quicksearch.search.searchScreen.resolveSearchColorTheme
+import com.tk.quicksearch.shared.ui.theme.isAmoledSurfaceTheme
+import com.tk.quicksearch.shared.ui.theme.resolveSearchColorTheme
 import com.tk.quicksearch.shared.ui.theme.LocalAmoledThemeActive
 import com.tk.quicksearch.shared.ui.theme.LocalSearchColorTheme
 import com.tk.quicksearch.shared.ui.theme.ThemeModeFallbackBackgroundAlpha

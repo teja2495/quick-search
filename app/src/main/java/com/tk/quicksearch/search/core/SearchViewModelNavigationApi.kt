@@ -12,6 +12,7 @@ import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
+import com.tk.quicksearch.searchEngines.SearchEngine
 import com.tk.quicksearch.tools.aiSearch.QuickSearchHelp
 
 internal interface SearchViewModelNavigationApi {

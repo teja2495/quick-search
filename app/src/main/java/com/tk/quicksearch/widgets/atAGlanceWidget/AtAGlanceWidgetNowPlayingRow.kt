@@ -33,7 +33,7 @@ import androidx.glance.unit.ColorProvider
 import com.tk.quicksearch.R
 import com.tk.quicksearch.media.AppSeekAction
 import com.tk.quicksearch.media.MediaCommand
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.CenteredOnCardNudge
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.CenteredOnCardNudge
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomButtonsWidgetMediaAction
 import com.tk.quicksearch.widgets.mediaControlsWidget.MediaControlsOpenPlayerActivity

@@ -43,7 +43,7 @@ import com.tk.quicksearch.search.apps.notificationDots.hasNotificationDot
 import com.tk.quicksearch.search.apps.privateSpace.privateSpaceItems
 import com.tk.quicksearch.search.apps.privateSpace.rememberPrivateSpaceController
 import com.tk.quicksearch.search.common.AddToHomeHandler
-import com.tk.quicksearch.search.core.AppIconShape
+import com.tk.quicksearch.search.apps.AppIconShape
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.AppInfo

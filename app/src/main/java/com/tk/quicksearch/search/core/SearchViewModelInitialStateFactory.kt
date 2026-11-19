@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.core
 
 import android.content.Context
 import com.tk.quicksearch.search.apps.AppSearchPerformanceLogger
+import com.tk.quicksearch.search.apps.AppSuggestionTabType
 import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.data.filterAvailableStartupApps

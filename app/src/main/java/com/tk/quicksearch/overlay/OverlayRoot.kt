@@ -69,7 +69,7 @@ import com.tk.quicksearch.shared.ui.components.UndoSnackbarAnchor
 import com.tk.quicksearch.search.searchScreen.searchRoute.SearchRoute
 import com.tk.quicksearch.search.searchScreen.SearchScreenBackground
 import com.tk.quicksearch.search.searchScreen.components.NumberKeyboardOperatorPills
-import com.tk.quicksearch.settings.settingsDetailScreen.CustomToolNavigationMemory
+import com.tk.quicksearch.settings.toolsSettings.CustomToolNavigationMemory
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.searchEngines.inline.LocalInsetFullBleedHorizontalExtension

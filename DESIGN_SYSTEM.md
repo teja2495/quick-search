@@ -352,7 +352,7 @@ settings and add a property in sorted order.
 | `InformationCard`, `InformationCardFooter` | Tool and AI answer cards. The footer is the Material card action area: source at the start, outlined 20dp `IconButton`s with tooltips at the end |
 | `QuickActionButton` and pills (`searchScreen/components/Pills.kt`) | Search quick actions: 32dp tonal extra-small buttons that share one line and shrink labels instead of wrapping |
 | `OpenKeyboardAction` | Home's bottom keyboard strip, as a `ConnectedButtonRow` |
-| `HomeSectionHeaderRow`, `GlanceStatusRow`, `GlanceActionChip` (`searchScreenLayout/`) | Home section titles, At a Glance rows, and their pill actions |
+| `HomeSectionHeaderRow`, `GlanceStatusRow`, `GlanceActionChip` (`searchScreenLayout/`, `searchScreenLayout/glance/`) | Home section titles, At a Glance rows, and their pill actions |
 | `WidgetConfigScaffold`, `WidgetSettingTile`, `WidgetColorChoiceGroup`, `WidgetSaveButton` | Widget configuration screens, built on segmented tiles and connected choices |
 
 ## Moving to a new Material version

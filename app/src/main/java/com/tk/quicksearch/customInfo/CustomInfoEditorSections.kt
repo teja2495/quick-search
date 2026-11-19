@@ -32,7 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.GlanceStatusRow
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.GlanceStatusRow
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.components.TonalButton

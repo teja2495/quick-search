@@ -6,7 +6,7 @@ import com.tk.quicksearch.search.core.AiSearchStatus
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SectionRenderParams
 import com.tk.quicksearch.search.core.SearchUiState
-import com.tk.quicksearch.search.core.isLikelyWebUrl
+import com.tk.quicksearch.shared.util.isLikelyWebUrl
 import com.tk.quicksearch.searchEngines.defaultBrowserTarget
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 

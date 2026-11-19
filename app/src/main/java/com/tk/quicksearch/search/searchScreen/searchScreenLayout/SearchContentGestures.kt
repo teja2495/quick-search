@@ -35,11 +35,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.core.*
-import com.tk.quicksearch.search.core.isLikelyWebUrl
 import com.tk.quicksearch.search.searchScreen.hasAnySearchResults
-import com.tk.quicksearch.search.searchScreen.appThemeResultCardColor
-import com.tk.quicksearch.search.searchScreen.appThemeDividerColor
-import com.tk.quicksearch.search.searchScreen.appThemeActionColor
 import com.tk.quicksearch.search.searchHistory.SearchHistoryTab
 import com.tk.quicksearch.searchEngines.*
 import kotlin.math.min

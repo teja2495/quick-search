@@ -1,6 +1,6 @@
 package com.tk.quicksearch.search.data.preferences
 
-import com.tk.quicksearch.settings.settingsDetailScreen.GestureSettingTarget
+import com.tk.quicksearch.settings.gestureSettings.GestureSettingTarget
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

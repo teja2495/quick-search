@@ -22,12 +22,12 @@ import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.tk.quicksearch.customInfo.CustomInfoRepository
 import com.tk.quicksearch.search.apps.appIconCacheVersion
-import com.tk.quicksearch.search.data.AppNotificationsSettings
-import com.tk.quicksearch.search.data.GlanceNotificationsStore
+import com.tk.quicksearch.appNotifications.AppNotificationsSettings
+import com.tk.quicksearch.search.glance.GlanceNotificationsStore
 import com.tk.quicksearch.search.data.ReminderRepository
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.ACTION_WIFI_AP_STATE_CHANGED
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.CaptivePortalWifiCallback
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.registerWifiNetworkCallback
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.ACTION_WIFI_AP_STATE_CHANGED
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.CaptivePortalWifiCallback
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.registerWifiNetworkCallback
 import com.tk.quicksearch.widgets.utils.refreshWidget
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CoroutineScope

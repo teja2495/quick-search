@@ -51,7 +51,8 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.searchEngines.*
-import com.tk.quicksearch.search.core.isLikelyWebUrl
+import com.tk.quicksearch.searchEngines.SearchEngine
+import com.tk.quicksearch.shared.util.isLikelyWebUrl
 import com.tk.quicksearch.search.bookmarks.LocalBookmarksSectionParams
 import com.tk.quicksearch.search.searchScreen.ExpandedSection
 import com.tk.quicksearch.search.searchScreen.ContactsSectionParams
@@ -63,7 +64,7 @@ import com.tk.quicksearch.search.searchScreen.CalendarSectionParams
 import com.tk.quicksearch.search.searchScreen.NotesSectionParams
 import com.tk.quicksearch.search.searchScreen.RemindersSectionParams
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
-import com.tk.quicksearch.search.searchScreen.overlayThemeTints
+import com.tk.quicksearch.shared.ui.theme.overlayThemeTints
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor

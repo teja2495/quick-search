@@ -16,7 +16,7 @@ import android.os.UserManager
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.search.apps.sortedForAllApps
 import com.tk.quicksearch.search.core.intentHelpers.AppLaunchingIntents
-import com.tk.quicksearch.search.data.PrivateSpaceProfile
+import com.tk.quicksearch.search.apps.privateSpace.PrivateSpaceProfile
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.utils.UserHandleUtils
 import kotlinx.coroutines.CoroutineScope

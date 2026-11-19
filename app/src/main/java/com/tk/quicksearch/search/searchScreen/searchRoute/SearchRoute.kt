@@ -47,7 +47,7 @@ import com.tk.quicksearch.search.core.ItemCustomizationRemover
 import com.tk.quicksearch.search.core.LocalItemCustomizationRemover
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.searchEngines.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
@@ -71,7 +71,7 @@ import com.tk.quicksearch.search.apps.swipeGestures.AppSwipeGestures
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
-import com.tk.quicksearch.settings.settingsDetailScreen.NotesNavigationMemory
+import com.tk.quicksearch.settings.notesSettings.NotesNavigationMemory
 import com.tk.quicksearch.search.data.preferences.CalendarPreferences
 import com.tk.quicksearch.search.searchScreen.SearchScreen as SearchScreenComposable
 import com.tk.quicksearch.search.searchScreen.LocalHomeHorizontalSwipeHandler

@@ -7,7 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.searchEngines.SearchEngine
 import com.tk.quicksearch.searchEngines.IN_APP_BROWSER_PACKAGE
 import com.tk.quicksearch.searchEngines.buildCustomSearchUrl
 import com.tk.quicksearch.searchEngines.buildSearchUrl

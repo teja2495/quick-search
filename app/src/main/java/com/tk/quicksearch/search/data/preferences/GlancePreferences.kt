@@ -2,8 +2,8 @@ package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.tk.quicksearch.search.data.AppNotificationFilters
-import com.tk.quicksearch.search.data.AppNotificationFiltersCodec
+import com.tk.quicksearch.appNotifications.AppNotificationFilters
+import com.tk.quicksearch.appNotifications.AppNotificationFiltersCodec
 import com.tk.quicksearch.search.glance.GlanceStatusDefinition
 
 /**

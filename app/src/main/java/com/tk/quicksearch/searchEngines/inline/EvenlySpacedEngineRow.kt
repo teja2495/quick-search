@@ -27,9 +27,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.AppIconShape
+import com.tk.quicksearch.search.apps.AppIconShape
 import com.tk.quicksearch.search.core.SearchTarget
-import com.tk.quicksearch.search.core.isLikelyWebUrl
+import com.tk.quicksearch.shared.util.isLikelyWebUrl
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.searchEngines.getDisplayName
 import com.tk.quicksearch.searchEngines.getId

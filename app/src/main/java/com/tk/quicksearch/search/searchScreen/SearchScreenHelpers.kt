@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Dp
 import com.tk.quicksearch.search.appSettings.AppSettingResult
+import com.tk.quicksearch.search.apps.AppIconShape
+import com.tk.quicksearch.search.apps.AppSuggestionTabType
 import com.tk.quicksearch.search.contacts.models.ContactButtonAction
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
@@ -24,6 +26,7 @@ import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.search.searchScreen.dialogs.NicknameDialogState
 import com.tk.quicksearch.search.searchScreen.dialogs.TriggerDialogState
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
+import com.tk.quicksearch.shared.util.isLikelyWebUrl
 import java.util.Locale
 
 sealed interface PredictedSubmitTarget {

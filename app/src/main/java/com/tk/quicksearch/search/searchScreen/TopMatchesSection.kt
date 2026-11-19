@@ -1,563 +1,673 @@
 package com.tk.quicksearch.search.searchScreen
 
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.graphics.Color
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardStyleOverrides
+import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.compactBottomDivider
+import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.key
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.tk.quicksearch.search.appSettings.AppSettingResult
-import com.tk.quicksearch.search.appShortcuts.AppShortcutSearchPolicy
-import com.tk.quicksearch.search.apps.AppNameAbbreviation
-import com.tk.quicksearch.search.apps.AppSearchInitials
-import com.tk.quicksearch.search.apps.AppSearchPolicy
+import com.tk.quicksearch.R
+import com.tk.quicksearch.search.appSettings.AppSettingResultRow
+import com.tk.quicksearch.search.appShortcuts.AppShortcutRow
+import com.tk.quicksearch.search.apps.AppGridView
+import com.tk.quicksearch.search.apps.AppItemDropdownMenu
+import com.tk.quicksearch.search.apps.notificationDots.AppNotificationDot
 import com.tk.quicksearch.search.apps.notificationDots.hasNotificationDot
 import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotKeys
 import com.tk.quicksearch.search.apps.rememberAppIcon
-import com.tk.quicksearch.search.core.SearchSection
-import com.tk.quicksearch.search.core.SectionRenderContext
+import com.tk.quicksearch.search.calendar.CalendarEventRow
+import com.tk.quicksearch.search.common.AddToHomeHandler
+import com.tk.quicksearch.search.contacts.components.ContactResultRow
+import com.tk.quicksearch.search.contacts.models.ContactButtonAction
 import com.tk.quicksearch.search.core.SectionRenderParams
-import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.appShortcutRepository.isShortcutDisabled
-import com.tk.quicksearch.search.data.appShortcutRepository.shortcutDisplayName
 import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
-import com.tk.quicksearch.search.deviceSettings.DeviceSetting
+import com.tk.quicksearch.search.deviceSettings.SettingResultRow
+import com.tk.quicksearch.search.files.FileResultRow
 import com.tk.quicksearch.search.models.AppInfo
-import com.tk.quicksearch.search.models.CalendarEventInfo
-import com.tk.quicksearch.search.models.ReminderInfo
-import com.tk.quicksearch.search.models.BookmarkInfo
-import com.tk.quicksearch.search.data.bookmarks.BookmarkUrls
-import com.tk.quicksearch.search.models.ContactInfo
-import com.tk.quicksearch.search.models.DeviceFile
-import com.tk.quicksearch.search.models.NoteInfo
-import com.tk.quicksearch.search.models.SecondaryRankingSignal
+import com.tk.quicksearch.search.reminders.ReminderRow
+import com.tk.quicksearch.search.bookmarks.BookmarkRow
+import com.tk.quicksearch.search.bookmarks.LocalBookmarksSectionParams
+import com.tk.quicksearch.search.notes.NoteRow
 import com.tk.quicksearch.search.other.OtherSearchItemId
+import com.tk.quicksearch.search.other.OtherSearchItemAction
+import com.tk.quicksearch.search.other.OtherSearchItemActionHandler
 import com.tk.quicksearch.search.other.OtherSearchItemRegistry
+import com.tk.quicksearch.search.other.ScreenTimeResultCard
+import com.tk.quicksearch.search.core.ScreenTimeState
 import com.tk.quicksearch.search.searchScreen.components.predictedSubmitHighlight
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
+import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
-import com.tk.quicksearch.search.utils.SearchRankingUtils
-import com.tk.quicksearch.search.utils.SearchQueryContext
+import com.tk.quicksearch.search.searchScreen.shared.LocalCardlessStackSpacing
+import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
-
-internal const val APP_ROW_MIN_HEIGHT = 52
-internal const val APP_ICON_SIZE = 32
-
-internal sealed interface TopMatchItem {
-    val priority: Int
-    val sectionOrder: Int
-    val secondaryScore: Long
-    val index: Int
-
-    data class App(
-        val app: AppInfo,
-        override val priority: Int,
-        override val sectionOrder: Int,
-        override val secondaryScore: Long,
-        override val index: Int,
-    ) : TopMatchItem
-
-    data class AppGrid(
-        val apps: List<AppInfo>,
-        override val priority: Int,
-        override val sectionOrder: Int,
-        override val secondaryScore: Long,
-        override val index: Int,
-    ) : TopMatchItem
-
-    data class AppShortcut(
-        val shortcut: StaticShortcut,
-        override val priority: Int,
-        override val sectionOrder: Int,
-        override val secondaryScore: Long,
-        override val index: Int,
-    ) : TopMatchItem
-
-    data class Contact(
-        val contact: ContactInfo,
-        override val priority: Int,
-        override val sectionOrder: Int,
-        override val secondaryScore: Long,
-        override val index: Int,
-    ) : TopMatchItem
-
-    data class File(
-        val file: DeviceFile,
-        override val priority: Int,
-        override val sectionOrder: Int,
-        override val secondaryScore: Long,
-        override val index: Int,
-    ) : TopMatchItem
-
-    data class Setting(
-        val setting: DeviceSetting,
-        override val priority: Int,
-        override val sectionOrder: Int,
-        override val secondaryScore: Long,
-        override val index: Int,
-    ) : TopMatchItem
-
-    data class AppSetting(
-        val setting: AppSettingResult,
-        override val priority: Int,
-        override val sectionOrder: Int,
-        override val secondaryScore: Long,
-        override val index: Int,
-    ) : TopMatchItem
-
-    data class Calendar(
-        val event: CalendarEventInfo,
-        override val priority: Int,
-        override val sectionOrder: Int,
-        override val secondaryScore: Long,
-        override val index: Int,
-    ) : TopMatchItem
-
-    data class Reminder(
-        val reminder: ReminderInfo,
-        override val priority: Int,
-        override val sectionOrder: Int,
-        override val secondaryScore: Long,
-        override val index: Int,
-    ) : TopMatchItem
-
-    data class Bookmark(
-        val bookmark: BookmarkInfo,
-        override val priority: Int,
-        override val sectionOrder: Int,
-        override val secondaryScore: Long,
-        override val index: Int,
-    ) : TopMatchItem
-
-    data class Noted(
-        val item: com.tk.quicksearch.search.models.NotedItem,
-        override val priority: Int,
-        override val sectionOrder: Int,
-        override val secondaryScore: Long,
-        override val index: Int,
-    ) : TopMatchItem
-
-    data class Note(
-        val note: NoteInfo,
-        override val priority: Int,
-        override val sectionOrder: Int,
-        override val secondaryScore: Long,
-        override val index: Int,
-    ) : TopMatchItem
-
-    data class Other(
-        val itemId: OtherSearchItemId,
-        override val priority: Int,
-        override val sectionOrder: Int,
-        override val secondaryScore: Long,
-        override val index: Int,
-    ) : TopMatchItem
-}
-
-/**
- * Exactly what [buildTopMatches] reads. Keying the build on this, rather than on the whole render
- * context and params, keeps unrelated changes (predicted target, startup phase, pinned lists,
- * expand callbacks) from re-ranking every candidate.
- */
-internal data class TopMatchInputs(
-    val displayApps: List<AppInfo>,
-    val appShortcuts: List<StaticShortcut>,
-    val contacts: List<ContactInfo>,
-    val files: List<DeviceFile>,
-    val settings: List<DeviceSetting>,
-    val appSettings: List<AppSettingResult>,
-    val calendarEvents: List<CalendarEventInfo>,
-    val reminders: List<ReminderInfo>,
-    val bookmarks: List<BookmarkInfo>,
-    val noted: List<com.tk.quicksearch.search.models.NotedItem>,
-    val notes: List<NoteInfo>,
-    val recencyIndex: com.tk.quicksearch.search.utils.RecentResultRankingUtils.RecencyIndex,
-    val getAppNickname: ((String) -> String?)?,
-    val getShortcutNickname: ((String) -> String?)?,
-    val getContactNickname: (Long) -> String?,
-    val getFileNickname: (String) -> String?,
-    val getSettingNickname: ((String) -> String?)?,
-    val getEventNickname: ((Long) -> String?)?,
-)
-
-internal fun topMatchInputs(
-    renderingState: SectionRenderingState,
-    context: SectionRenderContext,
-    params: SectionRenderParams,
-): TopMatchInputs =
-    TopMatchInputs(
-        displayApps = renderingState.displayApps,
-        appShortcuts = context.appShortcutsList,
-        contacts = context.contactsList,
-        files = context.filesList,
-        settings = context.settingsList,
-        appSettings = context.appSettingsList,
-        calendarEvents = context.calendarEventsList,
-        reminders = context.remindersList,
-        bookmarks = context.bookmarksList,
-        noted = context.notedList,
-        notes = context.notesList,
-        recencyIndex = context.recentResultRecencyIndex,
-        getAppNickname = params.appsParams?.getAppNickname,
-        getShortcutNickname = params.appShortcutsParams?.getShortcutNickname,
-        getContactNickname = params.contactsParams.getContactNickname,
-        getFileNickname = params.filesParams.getFileNickname,
-        getSettingNickname = params.settingsParams?.getSettingNickname,
-        getEventNickname = params.calendarParams?.getEventNickname,
-    )
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 @Composable
-internal fun rememberTopMatches(
-    query: String,
-    renderingState: SectionRenderingState,
-    context: SectionRenderContext,
+internal fun TopMatchesSection(
+    matches: List<TopMatchItem>,
     params: SectionRenderParams,
-    limit: Int,
-    topMatchesSectionOrder: List<SearchSection>,
-    disabledTopMatchesSections: Set<SearchSection>,
-    secondaryRankingSignal: SecondaryRankingSignal,
-    otherSearchItemIds: List<OtherSearchItemId> = emptyList(),
-    filterStaleCandidates: Boolean = false,
-): List<TopMatchItem> {
-    val inputs = topMatchInputs(renderingState, context, params)
-    return remember(
-        query,
-        inputs,
-        limit,
-        topMatchesSectionOrder,
-        disabledTopMatchesSections,
-        secondaryRankingSignal,
-        otherSearchItemIds,
-        filterStaleCandidates,
+    showWallpaperBackground: Boolean,
+    showTopResultIndicator: Boolean,
+    showHeader: Boolean = true,
+    selectedMatchIndex: Int? = null,
+    reverseOrder: Boolean = false,
+    showLeadingDivider: Boolean = false,
+    screenTimeState: ScreenTimeState,
+    pinnedNonAppItemOrder: List<String>,
+    iconPackPackage: String?,
+    onOtherSearchItemAction: OtherSearchItemActionHandler,
+    modifier: Modifier = Modifier,
+) {
+    val cardLayoutEnabled = LocalSearchCardLayoutEnabled.current
+    val highlightedMatch = selectedMatchIndex?.let(matches::getOrNull) ?: matches.firstOrNull()
+    val displayedMatches = if (reverseOrder) matches.asReversed() else matches
+    // With cards on, consecutive result rows form one segmented group: tiles 2dp apart with large
+    // outer and small inner corners. The app grid and Screen Time card stay separate cards.
+    val segmented = cardLayoutEnabled
+    val segmentPositions = remember(displayedMatches) { topMatchSegmentPositions(displayedMatches) }
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = if (segmented) Arrangement.Top else Arrangement.spacedBy(DesignTokens.SpacingXSmall),
     ) {
-        if (query.isBlank() || limit <= 0) {
-            emptyList()
-        } else {
-            buildTopMatches(
-                query = query,
-                inputs = inputs,
-                limit = limit,
-                topMatchesSectionOrder = topMatchesSectionOrder,
-                disabledTopMatchesSections = disabledTopMatchesSections,
-                secondaryRankingSignal = secondaryRankingSignal,
-                otherSearchItemIds = otherSearchItemIds,
-                filterStaleCandidates = filterStaleCandidates,
-            )
+        // Bottom-aligned results can stack Top Matches under the app grid, which ends without a
+        // divider. Flat cards above already end in one, so only the grid needs this.
+        if (!cardLayoutEnabled && showLeadingDivider) {
+            TopMatchesBoundaryDivider(showWallpaperBackground)
+        }
+        CompositionLocalProvider(LocalCardlessStackSpacing provides DesignTokens.SpacingXSmall) {
+            if (showHeader) {
+                val headerModifier =
+                    if (cardLayoutEnabled) Modifier else Modifier.compactBottomDivider(showWallpaperBackground)
+                TopMatchesHeader(modifier = headerModifier)
+            }
+
+            displayedMatches.forEachIndexed { index, item ->
+                key(item.stableKey()) {
+                    val isTopPredicted = showTopResultIndicator && item == highlightedMatch
+                    val segment = segmentPositions[index]
+                    val topGap =
+                        when {
+                            !segmented -> 0.dp
+                            index == 0 -> if (showHeader) DesignTokens.SpacingXSmall else 0.dp
+                            segment != null && segment.first > 0 -> DesignTokens.SegmentedListGap
+                            else -> DesignTokens.SpacingXSmall
+                        }
+                    if (topGap > 0.dp) Spacer(modifier = Modifier.height(topGap))
+                    if (item is TopMatchItem.AppGrid) {
+                        // Flat rows end in a divider; keep the icons as far off it as the regular app
+                        // grid sits below the section above it (half the results stack spacing).
+                        val gridTopPadding =
+                            if (!cardLayoutEnabled && item != displayedMatches.first()) {
+                                (DesignTokens.SpacingMedium - DesignTokens.SpacingXSmall) / 2
+                            } else {
+                                0.dp
+                            }
+                        Box(modifier = Modifier.fillMaxWidth().padding(top = gridTopPadding)) {
+                            TopMatchAppGrid(
+                                apps = item.apps,
+                                params = params.appsParams,
+                                isPredicted = isTopPredicted,
+                            )
+                        }
+                        // Flat cards end in their own divider, the app grid doesn't. Close it off before
+                        // the next match or, when not bottom-aligned, before the regular results, at the
+                        // same distance as the results stack spacing.
+                        if (!cardLayoutEnabled && (item != displayedMatches.last() || !reverseOrder)) {
+                            TopMatchesBoundaryDivider(
+                                showWallpaperBackground,
+                                Modifier.padding(top = DesignTokens.SpacingMedium - DesignTokens.SpacingXSmall),
+                            )
+                        }
+                    } else if (item is TopMatchItem.Other) {
+                        when (item.itemId) {
+                            OtherSearchItemId.SCREEN_TIME ->
+                                ScreenTimeResultCard(
+                                    state = screenTimeState,
+                                    isPinned =
+                                        OtherSearchItemRegistry.isPinned(
+                                            item.itemId,
+                                            pinnedNonAppItemOrder,
+                                        ),
+                                    showWallpaperBackground = showWallpaperBackground,
+                                    iconPackPackage = iconPackPackage,
+                                    onTogglePin = { onOtherSearchItemAction(item.itemId, OtherSearchItemAction.TOGGLE_PIN) },
+                                    onHide = { onOtherSearchItemAction(item.itemId, OtherSearchItemAction.HIDE) },
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .predictedSubmitHighlight(
+                                                isPredicted = isTopPredicted,
+                                                shape = SearchResultCardDefaults.shape,
+                                                opaqueCardTopResultBorder = true,
+                                            ),
+                                )
+                        }
+                    } else {
+                        val rowShape =
+                            if (segmented && segment != null) {
+                                AppShapes.segment(segment.first, segment.second)
+                            } else {
+                                SearchResultCardDefaults.shape
+                            }
+                        SearchResultCard(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .predictedSubmitHighlight(
+                                        isPredicted = isTopPredicted,
+                                        shape = rowShape,
+                                        opaqueCardTopResultBorder = true,
+                                    ),
+                            showWallpaperBackground = showWallpaperBackground,
+                            styleOverrides =
+                                if (segmented) {
+                                    // Tiles are set apart by their gap, so they drop the wallpaper outline.
+                                    SearchResultCardStyleOverrides(shape = rowShape, border = NoSegmentBorder)
+                                } else {
+                                    SearchResultCardStyleOverrides()
+                                },
+                        ) {
+                            Column(
+                                modifier =
+                                    Modifier.padding(
+                                        horizontal = DesignTokens.SpacingLarge,
+                                        vertical =
+                                            if (cardLayoutEnabled) DesignTokens.SpacingXSmall else DesignTokens.SpacingSmall,
+                                    ),
+                            ) {
+                                TopMatchRow(
+                                    item = item,
+                                    params = params,
+                                    isPredicted = false,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
-private fun buildTopMatches(
-    query: String,
-    inputs: TopMatchInputs,
-    limit: Int,
-    topMatchesSectionOrder: List<SearchSection>,
-    disabledTopMatchesSections: Set<SearchSection>,
-    secondaryRankingSignal: SecondaryRankingSignal,
-    otherSearchItemIds: List<OtherSearchItemId>,
-    filterStaleCandidates: Boolean,
-): List<TopMatchItem> {
-    val sectionOrder =
-        topMatchesSectionOrder.mapIndexed { index, section -> section to index }.toMap()
-    fun order(section: SearchSection): Int = sectionOrder[section] ?: Int.MAX_VALUE
-    fun isTopMatchesSectionEnabled(section: SearchSection): Boolean =
-        section !in disabledTopMatchesSections && section in sectionOrder
-    // Normalize the query once; the raw-query overload would redo it for every candidate.
-    val rankingQuery = SearchRankingUtils.prepareRankingQuery(query)
-    fun priority(text: String, nickname: String? = null): Int =
-        SearchRankingUtils.calculateMatchPriorityWithNickname(text, nickname, rankingQuery)
-    val queryContext = SearchQueryContext.fromRawQuery(query)
-    val recencyIndex = inputs.recencyIndex
+private val NoSegmentBorder = BorderStroke(0.dp, Color.Transparent)
 
-    val matches = mutableListOf<TopMatchItem>()
-    otherSearchItemIds.forEachIndexed { index, itemId ->
-        matches +=
-            TopMatchItem.Other(
-                itemId = itemId,
-                priority = otherSearchItemMatchPriority(itemId, query),
-                sectionOrder = Int.MAX_VALUE,
-                secondaryScore = 0L,
-                index = index,
-            )
-    }
-    if (isTopMatchesSectionEnabled(SearchSection.APPS)) {
-        inputs.displayApps.firstOrNull()?.let { topApp ->
-            matches +=
-                TopMatchItem.AppGrid(
-                    apps = inputs.displayApps,
-                    priority =
-                        appTopMatchPriority(
-                            app = topApp,
-                            nickname = inputs.getAppNickname?.invoke(topApp.launchCountKey()),
-                            query = queryContext,
-                        ),
-                    sectionOrder = order(SearchSection.APPS),
-                    secondaryScore =
-                        topMatchSecondaryScore(
-                            secondaryRankingSignal,
-                            recencyScore = topApp.lastUsedTime,
-                            openCount = topApp.launchCount.toLong(),
-                        ),
-                    index = 0,
-                )
+/**
+ * Position of each match within its run of consecutive result rows as (index, count), or null for
+ * the app grid and other cards, which aren't part of a segmented group.
+ */
+private fun topMatchSegmentPositions(matches: List<TopMatchItem>): List<Pair<Int, Int>?> {
+    fun isRow(item: TopMatchItem) = item !is TopMatchItem.AppGrid && item !is TopMatchItem.Other
+    val positions = MutableList<Pair<Int, Int>?>(matches.size) { null }
+    var start = 0
+    while (start < matches.size) {
+        if (!isRow(matches[start])) {
+            start++
+            continue
         }
+        var end = start
+        while (end + 1 < matches.size && isRow(matches[end + 1])) end++
+        val count = end - start + 1
+        for (i in start..end) positions[i] = (i - start) to count
+        start = end + 1
     }
-    if (isTopMatchesSectionEnabled(SearchSection.APP_SHORTCUTS)) {
-        inputs.appShortcuts.forEachIndexed { index, shortcut ->
-            val id = shortcutKey(shortcut)
-            matches += TopMatchItem.AppShortcut(
-                shortcut = shortcut,
-                priority = appShortcutTopMatchPriority(
-                    shortcut = shortcut,
-                    nickname = inputs.getShortcutNickname?.invoke(id),
-                    query = queryContext,
-                ),
-                sectionOrder = order(SearchSection.APP_SHORTCUTS),
-                secondaryScore = secondaryScore(
-                    secondaryRankingSignal,
-                    recencyIndex.appShortcutScores[id],
-                    recencyIndex.appShortcutOpenCounts[id],
-                ),
-                index = index,
-            )
-        }
-    }
-    if (isTopMatchesSectionEnabled(SearchSection.CONTACTS)) {
-        inputs.contacts.forEachIndexed { index, contact ->
-            matches += TopMatchItem.Contact(
-                contact = contact,
-                priority = priority(
-                    contact.displayName,
-                    inputs.getContactNickname(contact.contactId),
-                ),
-                sectionOrder = order(SearchSection.CONTACTS),
-                secondaryScore = secondaryScore(
-                    secondaryRankingSignal,
-                    recencyIndex.contactScores[contact.contactId],
-                    recencyIndex.contactOpenCounts[contact.contactId],
-                ),
-                index = index,
-            )
-        }
-    }
-    if (isTopMatchesSectionEnabled(SearchSection.FILES)) {
-        inputs.files.forEachIndexed { index, file ->
-            val uri = file.uri.toString()
-            matches += TopMatchItem.File(
-                file = file,
-                priority = priority(file.displayName, inputs.getFileNickname(uri)),
-                sectionOrder = order(SearchSection.FILES),
-                secondaryScore = secondaryScore(
-                    secondaryRankingSignal,
-                    recencyIndex.fileScores[uri],
-                    recencyIndex.fileOpenCounts[uri],
-                ),
-                index = index,
-            )
-        }
-    }
-    if (isTopMatchesSectionEnabled(SearchSection.SETTINGS)) {
-        inputs.settings.forEachIndexed { index, setting ->
-            matches += TopMatchItem.Setting(
-                setting = setting,
-                priority = priority(
-                    setting.title,
-                    inputs.getSettingNickname?.invoke(setting.id),
-                ),
-                sectionOrder = order(SearchSection.SETTINGS),
-                secondaryScore = secondaryScore(
-                    secondaryRankingSignal,
-                    recencyIndex.settingScores[setting.id],
-                    recencyIndex.settingOpenCounts[setting.id],
-                ),
-                index = index,
-            )
-        }
-    }
-    if (isTopMatchesSectionEnabled(SearchSection.APP_SETTINGS)) {
-        inputs.appSettings.forEachIndexed { index, setting ->
-            matches += TopMatchItem.AppSetting(
-                setting = setting,
-                priority = priority(setting.title),
-                sectionOrder = order(SearchSection.APP_SETTINGS),
-                secondaryScore = secondaryScore(
-                    secondaryRankingSignal,
-                    recencyIndex.appSettingScores[setting.id],
-                    recencyIndex.appSettingOpenCounts[setting.id],
-                ),
-                index = index,
-            )
-        }
-    }
-    if (isTopMatchesSectionEnabled(SearchSection.CALENDAR)) {
-        inputs.calendarEvents.forEachIndexed { index, event ->
-            matches += TopMatchItem.Calendar(
-                event = event,
-                priority = priority(
-                    event.title,
-                    inputs.getEventNickname?.invoke(event.eventId),
-                ),
-                sectionOrder = order(SearchSection.CALENDAR),
-                secondaryScore = topMatchSecondaryScore(
-                    secondaryRankingSignal,
-                    recencyScore = recencyIndex.calendarLastOpenedTimes[event.eventId] ?: 0L,
-                    openCount = (recencyIndex.calendarOpenCounts[event.eventId] ?: 0).toLong(),
-                ),
-                index = index,
-            )
-        }
-    }
-    if (isTopMatchesSectionEnabled(SearchSection.REMINDERS)) {
-        inputs.reminders.forEachIndexed { index, reminder ->
-            matches += TopMatchItem.Reminder(
-                reminder = reminder,
-                priority = priority(reminder.title),
-                sectionOrder = order(SearchSection.REMINDERS),
-                // No open history; `index` keeps the repository's soonest-first order.
-                secondaryScore = 0L,
-                index = index,
-            )
-        }
-    }
-    if (isTopMatchesSectionEnabled(SearchSection.BOOKMARKS)) {
-        inputs.bookmarks.forEachIndexed { index, bookmark ->
-            matches += TopMatchItem.Bookmark(
-                bookmark = bookmark,
-                // The site's domain counts like a nickname, one step below a name match.
-                priority = priority(bookmark.name, BookmarkUrls.displayHost(bookmark.url)),
-                sectionOrder = order(SearchSection.BOOKMARKS),
-                secondaryScore = 0L,
-                index = index,
-            )
-        }
-    }
-    if (isTopMatchesSectionEnabled(SearchSection.NOTED)) {
-        inputs.noted.forEachIndexed { index, item ->
-            matches += TopMatchItem.Noted(
-                item = item,
-                priority = priority(item.title),
-                sectionOrder = order(SearchSection.NOTED),
-                // No open history; `index` keeps Noted's most-recently-updated-first order.
-                secondaryScore = 0L,
-                index = index,
-            )
-        }
-    }
-    if (
-            isTopMatchesSectionEnabled(SearchSection.NOTES)
-    ) {
-        inputs.notes.forEachIndexed { index, note ->
-            matches += TopMatchItem.Note(
-                note = note,
-                priority = priority(note.title),
-                sectionOrder = order(SearchSection.NOTES),
-                secondaryScore = secondaryScore(
-                    secondaryRankingSignal,
-                    recencyIndex.noteScores[note.noteId],
-                    recencyIndex.noteOpenCounts[note.noteId],
-                ),
-                index = index,
-            )
-        }
-    }
+    return positions
+}
 
-    return rankTopMatches(
-        matches = filterTopMatchesForActiveQuery(matches, filterStaleCandidates),
-        limit = limit,
+/** Full-width divider between Top Matches and the regular results (card layout off). */
+@Composable
+private fun TopMatchesBoundaryDivider(showWallpaperBackground: Boolean, modifier: Modifier = Modifier) {
+    HorizontalDivider(
+        modifier = Modifier.compactEdgeToEdge().then(modifier),
+        color = SearchResultCardDefaults.dividerColor(showWallpaperBackground),
     )
 }
 
-internal fun appTopMatchPriority(
-    app: AppInfo,
-    nickname: String?,
-    query: SearchQueryContext,
-): Int =
-    AppSearchPolicy.matchPriority(
-        appName = app.appName,
-        searchAliases = app.searchAliases,
-        nickname = nickname,
-        query = query,
-        initials = AppSearchInitials.initialsFor(app),
-        abbreviationTargets = AppNameAbbreviation.targetsFor(app),
-    )
-
-internal fun appShortcutTopMatchPriority(
-    shortcut: StaticShortcut,
-    nickname: String?,
-    query: SearchQueryContext,
-): Int =
-    AppShortcutSearchPolicy.matchPriority(
-        displayName = shortcutDisplayName(shortcut),
-        appLabel = shortcut.appLabel,
-        nickname = nickname,
-        query = query,
-    )
-
-internal fun filterTopMatchesForActiveQuery(
-    matches: List<TopMatchItem>,
-    filterStaleCandidates: Boolean,
-): List<TopMatchItem> =
-    if (filterStaleCandidates) {
-        matches.filterNot { SearchRankingUtils.isOtherMatch(it.priority) }
-    } else {
-        matches
-    }
-
-internal fun otherSearchItemMatchPriority(
-    itemId: OtherSearchItemId,
-    query: String,
-): Int =
-    OtherSearchItemRegistry.searchTerms(itemId).minOf { searchTerm ->
-        SearchRankingUtils.calculateMatchPriority(searchTerm, query)
-    }
-
-internal fun rankTopMatches(
-    matches: List<TopMatchItem>,
-    limit: Int,
-): List<TopMatchItem> =
-    matches
-        .sortedWith(
-            compareBy<TopMatchItem> { it.priority }
-                .thenByDescending { it.secondaryScore }
-                .thenBy { it.sectionOrder }
-                .thenBy { it.index },
+@Composable
+private fun TopMatchesHeader(modifier: Modifier) {
+    Row(
+        modifier =
+            modifier.padding(
+                start = DesignTokens.SpacingMedium,
+                top = DesignTokens.SpacingXSmall,
+                end = DesignTokens.SpacingLarge,
+                bottom = DesignTokens.SpacingXSmall,
+            ),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = MaterialSymbols.AutoAwesome,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.ContentNearOpaqueAlpha),
+            modifier = Modifier.size(DesignTokens.ButtonIconSizeExtraSmall),
         )
-        .take(limit)
-
-internal fun topMatchSecondaryScore(
-    signal: SecondaryRankingSignal,
-    recencyScore: Long,
-    openCount: Long,
-): Long =
-    when (signal) {
-        SecondaryRankingSignal.RECENCY -> recencyScore
-        SecondaryRankingSignal.MOST_OPENED -> openCount
-        SecondaryRankingSignal.NONE -> 0L
+        Text(
+            text = stringResource(R.string.top_matches_title),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.semantics { heading() },
+        )
     }
+}
 
-internal fun shouldDeferTopMatchesForLocalSearch(
-    query: String,
-    isAppSearchInProgress: Boolean,
-    isSecondarySearchInProgress: Boolean,
-): Boolean =
-    query.isNotBlank() &&
-        (isAppSearchInProgress || isSecondarySearchInProgress)
+internal fun openTopMatch(
+    item: TopMatchItem,
+    params: SectionRenderParams,
+): Boolean? {
+    when (item) {
+        is TopMatchItem.App -> params.appsParams?.onAppClick?.invoke(item.app) ?: return null
+        is TopMatchItem.AppGrid -> {
+            val app = item.apps.firstOrNull() ?: return null
+            val onAppClick = params.appsParams?.onAppClick ?: return null
+            onAppClick(app)
+        }
+        is TopMatchItem.AppShortcut ->
+            params.appShortcutsParams?.onShortcutClick?.invoke(item.shortcut) ?: return null
+        is TopMatchItem.Contact -> {
+            if (item.contact.hasContactMethods) {
+                params.contactsParams.onShowContactMethods(item.contact)
+            } else {
+                params.contactsParams.onContactClick(item.contact)
+            }
+        }
+        is TopMatchItem.File -> params.filesParams.onFileClick(item.file)
+        is TopMatchItem.Setting -> params.settingsParams?.onSettingClick?.invoke(item.setting) ?: return null
+        is TopMatchItem.AppSetting -> {
+            val settingsParams = params.settingsParams ?: return null
+            if (item.setting.isToggleAction) {
+                val currentValue = settingsParams.isAppSettingToggleChecked(item.setting)
+                settingsParams.onAppSettingToggle(item.setting, !currentValue)
+                return true
+            } else {
+                settingsParams.onAppSettingClick(item.setting)
+            }
+        }
+        is TopMatchItem.Calendar ->
+            params.calendarParams?.onEventClick?.invoke(item.event) ?: return null
+        is TopMatchItem.Reminder ->
+            params.remindersParams?.onReminderClick?.invoke(item.reminder) ?: return null
+        is TopMatchItem.Note -> params.notesParams?.onNoteClick?.invoke(item.note) ?: return null
+        is TopMatchItem.Bookmark ->
+            params.bookmarksParams?.onBookmarkClick?.invoke(item.bookmark) ?: return null
+        is TopMatchItem.Noted -> params.notedParams?.onItemClick?.invoke(item.item) ?: return null
+        is TopMatchItem.Other -> return true
+    }
+    return false
+}
 
-private fun secondaryScore(
-    signal: SecondaryRankingSignal,
-    recencyScore: Int?,
-    openCount: Int?,
-): Long =
-    topMatchSecondaryScore(
-        signal,
-        recencyScore = recencyScore?.toLong() ?: 0L,
-        openCount = openCount?.toLong() ?: 0L,
+@Composable
+private fun TopMatchRow(
+    item: TopMatchItem,
+    params: SectionRenderParams,
+    isPredicted: Boolean,
+) {
+    when (item) {
+        is TopMatchItem.App -> TopMatchAppRow(
+            app = item.app,
+            params = params.appsParams,
+            isPredicted = isPredicted,
+        )
+
+        is TopMatchItem.AppGrid -> Unit
+
+        is TopMatchItem.AppShortcut -> params.appShortcutsParams?.let { appShortcutsParams ->
+            val id = shortcutKey(item.shortcut)
+            AppShortcutRow(
+                shortcut = item.shortcut,
+                isPinned = appShortcutsParams.pinnedShortcutIds.contains(id),
+                hasNickname = !appShortcutsParams.getShortcutNickname(id).isNullOrBlank(),
+                hasTrigger = appShortcutsParams.getShortcutTrigger(id)?.word?.isNotBlank() == true,
+                onShortcutClick = appShortcutsParams.onShortcutClick,
+                onTogglePin = appShortcutsParams.onTogglePin,
+                onDisable = appShortcutsParams.onDisable,
+                onDisableAllForApp = appShortcutsParams.onDisableAllForApp,
+                onAppInfoClick = appShortcutsParams.onAppInfoClick,
+                onNicknameClick = appShortcutsParams.onNicknameClick,
+                onTriggerClick = appShortcutsParams.onTriggerClick,
+                onEditCustomShortcut = appShortcutsParams.onEditCustomShortcut,
+                onEditShortcutIcon = appShortcutsParams.onEditShortcutIcon,
+                iconPackPackage = appShortcutsParams.iconPackPackage,
+                isPredicted = isPredicted,
+            )
+        }
+
+        is TopMatchItem.Contact -> ContactResultRow(
+            contactInfo = item.contact,
+            primaryContactButton = params.contactsParams.primaryContactButton ?: ContactButtonAction.CALL,
+            secondaryContactButton = params.contactsParams.secondaryContactButton ?: ContactButtonAction.SMS,
+            primaryAction = params.contactsParams.getPrimaryContactCardAction(item.contact.contactId),
+            secondaryAction = params.contactsParams.getSecondaryContactCardAction(item.contact.contactId),
+            onContactClick = params.contactsParams.onContactClick,
+            onShowContactMethods = params.contactsParams.onShowContactMethods,
+            onCallContact = params.contactsParams.onCallContact,
+            onSmsContact = params.contactsParams.onSmsContact,
+            onContactMethodClick = { method -> params.contactsParams.onContactMethodClick(item.contact, method) },
+            isPinned = params.contactsParams.pinnedContactIds.contains(item.contact.contactId),
+            onTogglePin = params.contactsParams.onTogglePin,
+            onExclude = params.contactsParams.onExclude,
+            onNicknameClick = params.contactsParams.onNicknameClick,
+            hasNickname = !params.contactsParams.getContactNickname(item.contact.contactId).isNullOrBlank(),
+            onTriggerClick = params.contactsParams.onTriggerClick,
+            hasTrigger = params.contactsParams.getContactTrigger(item.contact.contactId)?.word?.isNotBlank() == true,
+            onPrimaryActionLongPress = params.contactsParams.onPrimaryActionLongPress,
+            onSecondaryActionLongPress = params.contactsParams.onSecondaryActionLongPress,
+            onCustomAction = params.contactsParams.onCustomAction,
+            isPredicted = isPredicted,
+        )
+
+        is TopMatchItem.File -> FileResultRow(
+            deviceFile = item.file,
+            onClick = params.filesParams.onFileClick,
+            onOpenFolder = params.filesParams.onOpenFolder,
+            isPinned = params.filesParams.pinnedFileUris.contains(item.file.uri.toString()),
+            onTogglePin = params.filesParams.onTogglePin,
+            onExclude = params.filesParams.onExclude,
+            onExcludeExtension = params.filesParams.onExcludeExtension,
+            onNicknameClick = params.filesParams.onNicknameClick,
+            hasNickname = !params.filesParams.getFileNickname(item.file.uri.toString()).isNullOrBlank(),
+            onTriggerClick = params.filesParams.onTriggerClick,
+            hasTrigger = params.filesParams.getFileTrigger(item.file.uri.toString())?.word?.isNotBlank() == true,
+            isPredicted = isPredicted,
+        )
+
+        is TopMatchItem.Setting -> params.settingsParams?.let { settingsParams ->
+            SettingResultRow(
+                shortcut = item.setting,
+                isPinned = settingsParams.pinnedSettingIds.contains(item.setting.id),
+                onClick = settingsParams.onSettingClick,
+                onTogglePin = settingsParams.onTogglePin,
+                onExclude = settingsParams.onExclude,
+                onNicknameClick = settingsParams.onNicknameClick,
+                hasNickname = !settingsParams.getSettingNickname(item.setting.id).isNullOrBlank(),
+                onTriggerClick = settingsParams.onTriggerClick,
+                hasTrigger = settingsParams.getSettingTrigger(item.setting.id)?.word?.isNotBlank() == true,
+                isPredicted = isPredicted,
+            )
+        }
+
+        is TopMatchItem.AppSetting -> params.settingsParams?.let { settingsParams ->
+            AppSettingResultRow(
+                setting = item.setting,
+                checked = settingsParams.isAppSettingToggleChecked(item.setting),
+                onToggle = settingsParams.onAppSettingToggle,
+                onWebSuggestionsCountChange = settingsParams.onAppSettingWebSuggestionsCountChange,
+                onClick = settingsParams.onAppSettingClick,
+                webSuggestionsCount = settingsParams.appSettingWebSuggestionsCount,
+                appSettingPhoneAppGridColumns = settingsParams.appSettingPhoneAppGridColumns,
+                onAppSettingPhoneAppGridColumnsChange = settingsParams.onAppSettingPhoneAppGridColumnsChange,
+                appSettingAppResultRowCount = settingsParams.appSettingAppResultRowCount,
+                onAppSettingAppResultRowCountChange = settingsParams.onAppSettingAppResultRowCountChange,
+                isPredicted = isPredicted,
+            )
+        }
+
+        is TopMatchItem.Calendar -> params.calendarParams?.let { calendarParams ->
+            CalendarEventRow(
+                event = item.event,
+                isPinned = calendarParams.pinnedEventIds.contains(item.event.eventId),
+                isExcluded = calendarParams.excludedEventIds.contains(item.event.eventId),
+                hasNickname = !calendarParams.getEventNickname(item.event.eventId).isNullOrBlank(),
+                onClick = calendarParams.onEventClick,
+                onTogglePin = calendarParams.onTogglePin,
+                onExclude = calendarParams.onExclude,
+                onInclude = calendarParams.onInclude,
+                onNicknameClick = calendarParams.onNicknameClick,
+                isPredicted = isPredicted,
+                onArchive = calendarParams.onArchiveTodayEvent,
+            )
+        }
+
+        is TopMatchItem.Reminder -> params.remindersParams?.let { remindersParams ->
+            ReminderRow(
+                reminder = item.reminder,
+                isPinned = remindersParams.pinnedReminderIds.contains(item.reminder.reminderId),
+                onClick = remindersParams.onReminderClick,
+                onTogglePin = remindersParams.onTogglePin,
+                onMarkDone = remindersParams.onMarkDone,
+                onDelete = remindersParams.onDelete,
+                isPredicted = isPredicted,
+            )
+        }
+
+        is TopMatchItem.Bookmark -> LocalBookmarksSectionParams.current?.let { bookmarksParams ->
+            BookmarkRow(
+                bookmark = item.bookmark,
+                onClick = bookmarksParams.onBookmarkClick,
+                isPredicted = isPredicted,
+            )
+        }
+
+        is TopMatchItem.Noted -> com.tk.quicksearch.search.noted.LocalNotedSectionParams.current?.let { notedParams ->
+            com.tk.quicksearch.search.noted.NotedRow(
+                item = item.item,
+                onClick = notedParams.onItemClick,
+                iconPackPackage = notedParams.iconPackPackage,
+                isPredicted = isPredicted,
+                isPinned =
+                    params.remindersParams?.pinnedReminderIds.orEmpty()
+                        .contains(com.tk.quicksearch.search.noted.NotedGlanceTasks.reminderIdFor(item.item.id)),
+                onTogglePin =
+                    params.remindersParams?.let { remindersParams ->
+                        com.tk.quicksearch.search.noted.NotedGlanceTasks.asPinnedReminder(item.item)?.let { reminder ->
+                            { remindersParams.onTogglePin(reminder) }
+                        }
+                    },
+            )
+        }
+
+        is TopMatchItem.Note -> params.notesParams?.let { notesParams ->
+            NoteRow(
+                note = item.note,
+                isPinned = notesParams.pinnedNoteIds.contains(item.note.noteId),
+                onClick = notesParams.onNoteClick,
+                onTogglePin = notesParams.onTogglePin,
+                onDelete = notesParams.onDelete,
+                onTriggerClick = notesParams.onTriggerClick,
+                hasTrigger = notesParams.getNoteTrigger(item.note.noteId)?.word?.isNotBlank() == true,
+                isPredicted = isPredicted,
+            )
+        }
+
+        is TopMatchItem.Other -> Unit
+    }
+}
+
+@Composable
+private fun TopMatchAppGrid(
+    apps: List<AppInfo>,
+    params: AppsSectionParams?,
+    isPredicted: Boolean,
+) {
+    if (params == null || apps.isEmpty()) return
+    AppGridView(
+        apps = apps,
+        allApps = apps,
+        pinnedAndRecentApps = emptyList(),
+        pinnedApps = emptyList(),
+        newOrUpdatedApps = emptyList(),
+        mostUsedApps = emptyList(),
+        appShortcuts = params.appShortcuts,
+        isSearching = true,
+        hasUsagePermission = params.hasUsagePermission,
+        selectedSuggestionTab = params.selectedSuggestionTab,
+        enabledSuggestionTabs = params.enabledSuggestionTabs,
+        onSuggestionTabSelected = params.onSuggestionTabSelected,
+        showAllAppsButton = false,
+        onAppClick = params.onAppClick,
+        onAppShortcutClick = params.onAppShortcutClick,
+        onAppInfoClick = params.onAppInfoClick,
+        onUninstallClick = params.onUninstallClick,
+        onHideApp = params.onHideApp,
+        onDisableAppShortcut = params.onDisableAppShortcut,
+        onPinApp = params.onPinApp,
+        onUnpinApp = params.onUnpinApp,
+        onReorderPinnedApps = params.onReorderPinnedApps,
+        onNicknameClick = params.onNicknameClick,
+        onTriggerClick = params.onTriggerClick,
+        onOpenInSplitScreen = params.onOpenInSplitScreen,
+        getAppNickname = params.getAppNickname,
+        getAppTrigger = params.getAppTrigger,
+        pinnedPackageNames = params.pinnedPackageNames,
+        disabledShortcutIds = params.disabledAppShortcutIds,
+        rowCount = params.rowCount,
+        phoneColumnOverride = params.phoneColumnOverride,
+        appIconSizeStep = params.appIconSizeStep,
+        iconPackPackage = params.iconPackPackage,
+        appIconShape = params.appIconShape,
+        themedIconsEnabled = params.themedIconsEnabled,
+        showAppLabels = params.showAppLabels,
+        oneHandedMode = params.oneHandedMode,
+        isOverlayPresentation = params.isOverlayPresentation,
+        predictedTarget = if (isPredicted) params.predictedTarget else null,
+        suppressTopResultIndicator = !isPredicted,
+        showWallpaperBackground = params.showWallpaperBackground,
+        notificationDotsEnabled = params.notificationDotsEnabled,
     )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun TopMatchAppRow(
+    app: AppInfo,
+    params: AppsSectionParams?,
+    isPredicted: Boolean,
+) {
+    if (params == null) return
+    val notificationDotKeys = rememberNotificationDotKeys(params.notificationDotsEnabled)
+    val view = LocalView.current
+    val context = LocalContext.current
+    val addToHomeHandler = remember(context) { AddToHomeHandler(context) }
+    var showOptions by remember { mutableStateOf(false) }
+    val shortcuts =
+        remember(params.appShortcuts, params.disabledAppShortcutIds, app.packageName) {
+            params.appShortcuts.filter { shortcut ->
+                shortcut.packageName == app.packageName &&
+                    !isShortcutDisabled(shortcut, params.disabledAppShortcutIds)
+            }
+        }
+    val iconResult =
+        rememberAppIcon(
+            packageName = app.packageName,
+            iconPackPackage = params.iconPackPackage,
+            userHandleId = app.userHandleId,
+            forceCircularMask = params.appIconShape == com.tk.quicksearch.search.apps.AppIconShape.CIRCLE,
+        )
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier =
+                Modifier.fillMaxWidth()
+                    .heightIn(min = APP_ROW_MIN_HEIGHT.dp)
+                    .topPredictedRowContainer(isTopPredicted = isPredicted)
+                    .combinedClickable(
+                        role = Role.Button,
+                        onClick = {
+                            if (!showOptions) {
+                                hapticConfirm(view)()
+                                params.onAppClick(app)
+                            }
+                        },
+                        onLongClickLabel = stringResource(R.string.desc_show_options),
+                        onLongClick = if (app.isArchived) null else ({ showOptions = true }),
+                    )
+                    .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier.padding(start = DesignTokens.SpacingXSmall).size(APP_ICON_SIZE.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                iconResult.bitmap?.let { icon ->
+                    androidx.compose.foundation.Image(
+                        bitmap = icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(APP_ICON_SIZE.dp),
+                    )
+                } ?: Icon(
+                    imageVector = MaterialSymbols.Apps,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(DesignTokens.IconSize),
+                )
+                AppNotificationDot(visible = app.hasNotificationDot(notificationDotKeys))
+            }
+
+            Text(
+                text = rememberQueryHighlightedText(app.appName),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+        }
+
+        AppItemDropdownMenu(
+            expanded = showOptions,
+            onDismiss = { showOptions = false },
+            isPinned = params.pinnedPackageNames.contains(app.launchCountKey()),
+            showUninstall =
+                !app.isSystemApp &&
+                    app.packageName != context.packageName,
+            hasNickname = !params.getAppNickname(app.launchCountKey()).isNullOrBlank(),
+            hasTrigger = params.getAppTrigger(app.launchCountKey())?.word?.isNotBlank() == true,
+            shortcuts = shortcuts,
+            appInfo = app,
+            iconPackPackage = params.iconPackPackage,
+            appIconShape = params.appIconShape,
+            onShortcutClick = params.onAppShortcutClick,
+            onAppInfoClick = { params.onAppInfoClick(app) },
+            onHideApp = { params.onHideApp(app) },
+            onDisableShortcut = params.onDisableAppShortcut,
+            onPinApp = { params.onPinApp(app) },
+            onUnpinApp = { params.onUnpinApp(app) },
+            onUninstallClick = { params.onUninstallClick(app) },
+            onNicknameClick = { params.onNicknameClick(app) },
+            onTriggerClick = { params.onTriggerClick(app) },
+            onAddToHome = { addToHomeHandler.addAppToHome(app) },
+            onOpenInSplitScreen = { params.onOpenInSplitScreen(app) },
+            showSwipeGestures = false,
+        )
+    }
+}

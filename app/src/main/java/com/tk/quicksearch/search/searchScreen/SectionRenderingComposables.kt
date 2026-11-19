@@ -19,7 +19,6 @@ import com.tk.quicksearch.search.apps.AppGridView
 import com.tk.quicksearch.search.calendar.CalendarEventsSection
 import com.tk.quicksearch.search.contacts.ContactResultsSection
 import com.tk.quicksearch.search.contacts.models.ContactButtonAction
-import com.tk.quicksearch.search.core.AppSuggestionTabType
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SectionRenderContext
 import com.tk.quicksearch.search.core.SectionRenderParams
@@ -32,8 +31,8 @@ import com.tk.quicksearch.search.bookmarks.LocalBookmarksSectionParams
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.homeTextColor
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.AtAGlanceCardShell
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.AtAGlanceTitle
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.AtAGlanceCardShell
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.AtAGlanceTitle
 import com.tk.quicksearch.app.startup.StartupTrace
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.compactBottomDivider
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled

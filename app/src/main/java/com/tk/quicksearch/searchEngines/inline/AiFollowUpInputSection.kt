@@ -63,7 +63,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
-import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.SearchBarStyle
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.getId

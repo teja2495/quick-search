@@ -5,7 +5,7 @@ import android.content.Context
 import android.os.Build
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.util.isTablet
-import com.tk.quicksearch.settings.settingsDetailScreen.ToolSettingsRegistry
+import com.tk.quicksearch.settings.toolsSettings.ToolSettingsRegistry
 
 /**
  * Searchable toggle and inline-control rows, plus the pages that sit beside them in search order.

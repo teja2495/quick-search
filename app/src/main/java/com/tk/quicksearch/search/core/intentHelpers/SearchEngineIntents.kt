@@ -8,7 +8,7 @@ import android.net.Uri
 import android.util.Log
 import java.net.URLEncoder
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.searchEngines.SearchEngine
 import com.tk.quicksearch.searchEngines.buildSearchUrl
 import com.tk.quicksearch.searchEngines.getAppPackageCandidates
 import com.tk.quicksearch.shared.util.PackageConstants

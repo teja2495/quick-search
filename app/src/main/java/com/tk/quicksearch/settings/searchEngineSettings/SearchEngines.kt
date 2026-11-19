@@ -20,7 +20,7 @@ import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
 import com.tk.quicksearch.shared.ui.components.SegmentedTileToggleHorizontalPadding
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.searchEngines.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.searchEngines.getId

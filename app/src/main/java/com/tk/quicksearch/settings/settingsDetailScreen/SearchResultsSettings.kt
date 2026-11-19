@@ -1,571 +1,592 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
-import androidx.compose.ui.semantics.Role
-import com.tk.quicksearch.shared.ui.components.AppIconButton
-import androidx.compose.foundation.clickable
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.ui.draw.clip
+import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
+import com.tk.quicksearch.settings.shared.settingsRoute.SectionSettingsSection
+import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenCallbacks
+import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
-import androidx.compose.ui.semantics.CustomAccessibilityAction
-import androidx.compose.ui.semantics.customActions
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.view.HapticFeedbackConstantsCompat
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.data.preferences.UiPreferences
-import com.tk.quicksearch.search.core.AppSuggestionTabType
-import com.tk.quicksearch.search.models.SecondaryRankingSignal
-import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import com.tk.quicksearch.search.data.preferences.NicknamePreferences
+import com.tk.quicksearch.search.data.preferences.TriggerPreferences
+import com.tk.quicksearch.search.apps.AppSuggestionTabType
+import com.tk.quicksearch.search.core.ItemPriorityConfig
+import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
 import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
-import com.tk.quicksearch.shared.util.performHapticFeedbackSafely
-import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.rememberReorderableLazyListState
-import com.tk.quicksearch.shared.ui.components.AppDialogSurface
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
-import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
-import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
-import com.tk.quicksearch.shared.ui.components.SegmentedTile
-import com.tk.quicksearch.shared.ui.components.TonalIconBadge
-import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
-import com.tk.quicksearch.shared.ui.components.ChoiceOption
-import com.tk.quicksearch.shared.ui.components.AppTextButton
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
+import com.tk.quicksearch.shared.ui.components.AppTonalButton
 
-private val RecentQueriesDisplayCountOptions = UiPreferences.RECENT_QUERIES_DISPLAY_COUNT_OPTIONS
-
-private fun recentQueriesDisplayCountOptionIndex(count: Int): Int =
-    RecentQueriesDisplayCountOptions.indexOf(count).coerceAtLeast(0)
-
-private fun recentQueriesDisplayCountForOptionIndex(index: Int): Int =
-    RecentQueriesDisplayCountOptions[index.coerceIn(RecentQueriesDisplayCountOptions.indices)]
-
-/** Card for app suggestions, web suggestions, recent queries and excluded items. */
 @Composable
-internal fun SearchOptionsCard(
-    appSuggestionsEnabled: Boolean,
-    enabledAppSuggestionTabs: Set<AppSuggestionTabType>,
-    hasUsagePermission: Boolean,
-    onAppSuggestionsToggle: (Boolean) -> Unit,
-    onAppSuggestionTabEnabledChange: (AppSuggestionTabType, Boolean) -> Unit,
-    onRequestUsagePermission: () -> Unit,
-    webSuggestionsEnabled: Boolean,
-    onWebSuggestionsToggle: (Boolean) -> Unit,
-    webSuggestionsCount: Int,
-    onWebSuggestionsCountChange: (Int) -> Unit,
-    recentQueriesEnabled: Boolean,
-    onRecentQueriesToggle: (Boolean) -> Unit,
-    recentQueriesDisplayCount: Int,
-    onRecentQueriesDisplayCountChange: (Int) -> Unit,
-    appResultsEnabled: Boolean,
-    appResultRowCount: Int,
-    onAppResultRowCountChange: (Int) -> Unit,
-    fuzzySearchEnabled: Boolean,
-    fuzzySearchAvailable: Boolean,
-    onFuzzySearchToggle: (Boolean) -> Unit,
-    secondaryRankingSignal: SecondaryRankingSignal,
-    onSecondaryRankingSignalChange: (SecondaryRankingSignal) -> Unit,
-    hasExcludedItems: Boolean,
-    hasNicknames: Boolean,
-    hasTriggers: Boolean,
-    excludedItemsTitle: String,
-    excludedItemsDescription: String,
-    onNavigateToExcludedItems: () -> Unit,
-    onNavigateToNicknames: () -> Unit,
-    onNavigateToTriggers: () -> Unit,
+internal fun AppSuggestionTabsDialog(
+    enabledTabs: Set<AppSuggestionTabType>,
+    onTabEnabledChange: (AppSuggestionTabType, Boolean) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val tabLabels = rememberAppSuggestionTabLabels()
+    // The Pinned tab is always shown: it holds pinned apps, shortcuts, and folders.
+    val configurableTabs =
+        remember(tabLabels) {
+            listOf(
+                AppSuggestionTabType.RECENTS to requireNotNull(tabLabels[AppSuggestionTabType.RECENTS]),
+                AppSuggestionTabType.NEW_UPDATED to requireNotNull(tabLabels[AppSuggestionTabType.NEW_UPDATED]),
+                AppSuggestionTabType.MOST_USED to requireNotNull(tabLabels[AppSuggestionTabType.MOST_USED]),
+            )
+        }
+
+    AppPickerDrawer(
+        title = stringResource(R.string.app_suggestions_tabs_dialog_title),
+        onDismiss = onDismiss,
+        header = {
+            Text(
+                text = stringResource(R.string.app_suggestions_tabs_dialog_message),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().clip(AppShapes.extraLarge),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
+        ) {
+            itemsIndexed(configurableTabs, key = { _, tab -> tab.first.name }) { index, (tab, title) ->
+                SegmentedToggleTile(
+                    title = title,
+                    checked = tab in enabledTabs,
+                    onCheckedChange = { onTabEnabledChange(tab, it) },
+                    icon = when (tab) {
+                        AppSuggestionTabType.RECENTS -> MaterialSymbols.History
+                        AppSuggestionTabType.NEW_UPDATED -> MaterialSymbols.Refresh
+                        else -> MaterialSymbols.Apps
+                    },
+                    index = index,
+                    count = configurableTabs.size,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+internal fun rememberAppSuggestionTabLabels(): Map<AppSuggestionTabType, String> =
+    mapOf(
+        AppSuggestionTabType.PINNED to stringResource(R.string.app_suggestions_tab_pinned),
+        AppSuggestionTabType.RECENTS to stringResource(R.string.app_suggestions_tab_recent),
+        AppSuggestionTabType.NEW_UPDATED to stringResource(R.string.app_suggestions_tab_new_updated),
+        AppSuggestionTabType.MOST_USED to stringResource(R.string.common_most_used),
+    )
+
+internal fun buildAppSuggestionTabsSummary(
+    enabledTabs: Set<AppSuggestionTabType>,
+    labels: Map<AppSuggestionTabType, String>,
+): String {
+    val orderedTabs =
+        listOf(
+            AppSuggestionTabType.PINNED,
+            AppSuggestionTabType.RECENTS,
+            AppSuggestionTabType.NEW_UPDATED,
+            AppSuggestionTabType.MOST_USED,
+        )
+
+    return orderedTabs
+        .filter { it in enabledTabs }
+        .mapNotNull(labels::get)
+        .joinToString(separator = ", ")
+}
+
+@Composable
+private fun TopMatchesCard(
+    topMatchesEnabled: Boolean,
+    onTopMatchesToggle: (Boolean) -> Unit,
+    topMatchesLimit: Int,
+    onTopMatchesLimitChange: (Int) -> Unit,
+    topMatchesSectionOrder: List<SearchSection>,
+    disabledTopMatchesSections: Set<SearchSection>,
+    onTopMatchesSectionOrderChange: (List<SearchSection>) -> Unit,
+    onTopMatchesSectionEnabledChange: (SearchSection, Boolean) -> Unit,
+    isLocked: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
-    val view = LocalView.current
-    var appSuggestionsTipDismissed by rememberSaveable { mutableStateOf(false) }
-    var lastWebStep by remember { mutableStateOf(webSuggestionsCount) }
-    var lastRecentQueriesDisplayCount by remember { mutableStateOf(recentQueriesDisplayCount) }
-    var showAppSuggestionTabsDialog by rememberSaveable { mutableStateOf(false) }
-    var showSecondaryRankingDialog by rememberSaveable { mutableStateOf(false) }
-    val context = LocalContext.current
-    var pinnedNotificationItems by remember { mutableStateOf(PinnedNotifications.pinnedItems(context)) }
-    var showPinnedNotificationItemsDialog by rememberSaveable { mutableStateOf(false) }
+    var showPriorityDialog by rememberSaveable { mutableStateOf(false) }
+    val priorityItems =
+        remember(topMatchesSectionOrder) {
+            topMatchesSectionOrder.filter { section ->
+                    section in com.tk.quicksearch.search.core.SearchSectionRegistry.settingsSections
+            }
+        }
 
-    LaunchedEffect(appSuggestionsEnabled) {
-        if (!appSuggestionsEnabled) {
-            appSuggestionsTipDismissed = false
-        }
-    }
-    LaunchedEffect(webSuggestionsEnabled) {
-        if (!webSuggestionsEnabled) {
-            lastWebStep = webSuggestionsCount
-        }
-    }
-    LaunchedEffect(recentQueriesEnabled) {
-        if (!recentQueriesEnabled) {
-            lastRecentQueriesDisplayCount = recentQueriesDisplayCount
-        }
-    }
-
-    val tiles = buildList<@Composable () -> Unit> {
-        add {
-            SearchResultsSliderToggle(
-                title = stringResource(R.string.web_search_suggestions_title),
-                checked = webSuggestionsEnabled,
-                onCheckedChange = onWebSuggestionsToggle,
-                leadingIcon = MaterialSymbols.Language,
-                sliderDetails =
-                    if (webSuggestionsEnabled) {
-                        SettingsToggleSliderDetails(
-                            value = webSuggestionsCount.toFloat(),
-                            onValueChange = { value ->
-                                val step = value.toInt()
-                                if (step != lastWebStep) {
-                                    hapticToggle(view)()
-                                    lastWebStep = step
-                                }
-                                onWebSuggestionsCountChange(step)
-                            },
-                            valueRange = 1f..5f,
-                            steps = 3,
-                            valueLabel = webSuggestionsCount.toString(),
-                        )
-                    } else {
-                        null
-                    },
-            )
-        }
-        add {
-            SearchResultsSliderToggle(
-                title = stringResource(R.string.recent_queries_toggle_title),
-                subtitle = stringResource(R.string.recent_queries_toggle_desc),
-                checked = recentQueriesEnabled,
-                onCheckedChange = onRecentQueriesToggle,
-                leadingIcon = MaterialSymbols.History,
-                sliderDetails =
-                    if (recentQueriesEnabled) {
-                        SettingsToggleSliderDetails(
-                            value = recentQueriesDisplayCountOptionIndex(recentQueriesDisplayCount).toFloat(),
-                            onValueChange = { value ->
-                                val count = recentQueriesDisplayCountForOptionIndex(value.toInt())
-                                if (count != lastRecentQueriesDisplayCount) {
-                                    hapticToggle(view)()
-                                    lastRecentQueriesDisplayCount = count
-                                }
-                                onRecentQueriesDisplayCountChange(count)
-                            },
-                            valueRange = 0f..4f,
-                            steps = 3,
-                            valueLabel = recentQueriesDisplayCount.toString(),
-                            description = stringResource(R.string.recent_queries_toggle_desc),
-                        )
-                    } else {
-                        null
-                    },
-            )
-        }
-        if (fuzzySearchAvailable) {
-            add {
-                SettingsToggleRow(
-                    title = stringResource(R.string.fuzzy_search_toggle_title),
-                    subtitle = stringResource(R.string.fuzzy_search_toggle_desc),
-                    checked = fuzzySearchEnabled,
-                    onCheckedChange = onFuzzySearchToggle,
-                    leadingIcon = MaterialSymbols.AutoAwesome,
-                    showDivider = false,
-                )
-            }
-        }
-        add {
-            SearchOptionsNavigationRow(
-                item =
-                    SettingsCardItem(
-                        title = stringResource(R.string.secondary_ranking_title),
-                        description = secondaryRankingDescription(secondaryRankingSignal),
-                        icon = MaterialSymbols.Reorder,
-                        actionOnPress = { showSecondaryRankingDialog = true },
-                    ),
-            )
-        }
-        if (appResultsEnabled) {
-            add {
-                AppResultRowsSelector(
-                    selectedRowCount = appResultRowCount,
-                    onSelectRowCount = onAppResultRowCountChange,
-                )
-            }
-        }
-        add {
-            SettingsToggleRow(
-                title = stringResource(R.string.app_suggestions_toggle_title),
-                subtitle = stringResource(R.string.app_suggestions_toggle_desc),
-                checked = appSuggestionsEnabled,
-                onCheckedChange = onAppSuggestionsToggle,
-                leadingIcon = MaterialSymbols.Apps,
-                showTipBanner = appSuggestionsEnabled && !hasUsagePermission && !appSuggestionsTipDismissed,
-                tipBannerText = stringResource(R.string.app_suggestions_usage_access_tip),
-                tipBannerLinkText = stringResource(R.string.app_suggestions_usage_access_link),
-                onTipBannerLinkClick = onRequestUsagePermission,
-                onTipBannerDismiss = { appSuggestionsTipDismissed = true },
-                showDivider = false,
-            )
-        }
-        if (appSuggestionsEnabled) {
-            add {
-                AppSuggestionTabsPickerRow(
-                    enabledTabs = enabledAppSuggestionTabs,
-                    onClick = { showAppSuggestionTabsDialog = true },
-                )
-            }
-        }
-        if (pinnedNotificationItems.isNotEmpty()) {
-            add {
-                SearchOptionsNavigationRow(
-                    item =
-                        SettingsCardItem(
-                            title = stringResource(R.string.notification_pinned_items_title),
-                            description = stringResource(R.string.notification_pinned_items_description),
-                            icon = MaterialSymbols.Notifications,
-                            actionOnPress = { showPinnedNotificationItemsDialog = true },
-                        ),
-                )
-            }
-        }
-        if (hasNicknames) {
-            add {
-                SearchOptionsNavigationRow(
-                    item =
-                        SettingsCardItem(
-                            title = stringResource(R.string.settings_nicknames_title),
-                            description = stringResource(R.string.settings_nicknames_desc),
-                            icon = MaterialSymbols.Label,
-                            actionOnPress = onNavigateToNicknames,
-                        ),
-                )
-            }
-        }
-        if (hasTriggers) {
-            add {
-                SearchOptionsNavigationRow(
-                    item =
-                        SettingsCardItem(
-                            title = stringResource(R.string.settings_triggers_title),
-                            description = stringResource(R.string.settings_triggers_desc),
-                            icon = MaterialSymbols.Bolt,
-                            actionOnPress = onNavigateToTriggers,
-                        ),
-                )
-            }
-        }
-        if (hasExcludedItems) {
-            add {
-                SearchOptionsNavigationRow(
-                    item =
-                        SettingsCardItem(
-                            title = excludedItemsTitle,
-                            description = excludedItemsDescription,
-                            icon = MaterialSymbols.VisibilityOff,
-                            actionOnPress = onNavigateToExcludedItems,
-                        ),
-                )
-            }
-        }
-    }
+    val tileCount = if (topMatchesEnabled) 3 else 1
     SegmentedGroup(modifier = modifier) {
-        tiles.forEachIndexed { index, tile ->
-            SegmentedTile(index = index, count = tiles.size) { tile() }
+        SegmentedToggleTile(
+            title = stringResource(R.string.top_matches_title),
+            description = stringResource(R.string.top_matches_toggle_desc),
+            checked = topMatchesEnabled,
+            onCheckedChange = onTopMatchesToggle,
+            icon = MaterialSymbols.AutoAwesome,
+            enabled = !isLocked,
+            index = 0,
+            count = tileCount,
+        )
+        if (topMatchesEnabled) {
+            SettingsSegmentNavigationRow(
+                item = SettingsCardItem(
+                    title = stringResource(R.string.top_matches_priority_title),
+                    description = stringResource(R.string.top_matches_priority_desc),
+                    icon = MaterialSymbols.Reorder,
+                    actionOnPress = { showPriorityDialog = true },
+                ),
+                index = 1,
+                count = tileCount,
+            )
+            SegmentedTile(index = 2, count = tileCount) {
+                TopMatchesLimitSlider(
+                    selectedLimit = topMatchesLimit,
+                    onLimitSelected = onTopMatchesLimitChange,
+                )
+            }
         }
     }
 
-    if (showAppSuggestionTabsDialog) {
-        AppSuggestionTabsDialog(
-            enabledTabs = enabledAppSuggestionTabs,
-            onTabEnabledChange = onAppSuggestionTabEnabledChange,
-            onDismiss = { showAppSuggestionTabsDialog = false },
-        )
-    }
-
-    if (showPinnedNotificationItemsDialog) {
-        PinnedNotificationItemsDialog(
-            items = pinnedNotificationItems,
-            onRemove = { action ->
-                PinnedNotifications.remove(context, action)
-                pinnedNotificationItems = pinnedNotificationItems.filterNot { it.toJson() == action.toJson() }
-                if (pinnedNotificationItems.isEmpty()) showPinnedNotificationItemsDialog = false
-            },
-            onReorder = { reorderedItems ->
-                PinnedNotifications.reorder(context, reorderedItems)
-                pinnedNotificationItems = reorderedItems
-            },
-            onDismiss = { showPinnedNotificationItemsDialog = false },
-        )
-    }
-
-    if (showSecondaryRankingDialog) {
-        SecondaryRankingDialog(
-            selectedSignal = secondaryRankingSignal,
-            onSignalSelected = onSecondaryRankingSignalChange,
-            onDismiss = { showSecondaryRankingDialog = false },
+    if (showPriorityDialog) {
+        PriorityReorderDialog(
+            items = priorityItems,
+            onItemsChange = onTopMatchesSectionOrderChange,
+            disabledSections = disabledTopMatchesSections,
+            onItemEnabledChange = onTopMatchesSectionEnabledChange,
+            onDismiss = { showPriorityDialog = false },
         )
     }
 }
 
 @Composable
-private fun secondaryRankingDescription(signal: SecondaryRankingSignal): String {
-    val description = stringResource(R.string.secondary_ranking_dialog_desc)
-    val currentSelection =
-        secondaryRankingCurrentSelectionLabel(
-            signal = signal,
-            recencyLabel = stringResource(R.string.secondary_ranking_recency),
-            mostOpenedLabel = stringResource(R.string.secondary_ranking_most_opened),
-        )
-    val currentLine =
-        currentSelection?.let {
-            stringResource(R.string.settings_app_language_desc, it)
-        }
-    return buildSecondaryRankingDescription(description, currentLine)
-}
-
-private fun secondaryRankingCurrentSelectionLabel(
-    signal: SecondaryRankingSignal,
-    recencyLabel: String,
-    mostOpenedLabel: String,
-): String? =
-    when (signal) {
-        SecondaryRankingSignal.RECENCY -> recencyLabel
-        SecondaryRankingSignal.MOST_OPENED -> mostOpenedLabel
-        SecondaryRankingSignal.NONE -> null
-    }
-
-private fun buildSecondaryRankingDescription(
-    description: String,
-    currentSelectionLine: String?,
-): String = currentSelectionLine?.let { "$description\n$it" } ?: description
-
-@Composable
-private fun AppResultRowsSelector(
-    selectedRowCount: Int,
-    onSelectRowCount: (Int) -> Unit,
+private fun TopMatchesLimitSlider(
+    selectedLimit: Int,
+    onLimitSelected: (Int) -> Unit,
 ) {
-    SegmentedTileContent {
-        Text(
-            text = stringResource(R.string.settings_app_result_rows_title),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        ConnectedChoiceGroup(
-            options = listOf(1, 2).map { ChoiceOption(it, it.toString()) },
-            selected = selectedRowCount,
-            onSelect = onSelectRowCount,
-        )
+    val view = LocalView.current
+    val limitOptions = com.tk.quicksearch.search.data.preferences.UiPreferences.TOP_MATCHES_LIMIT_OPTIONS
+    val currentIndex = limitOptions.indexOf(selectedLimit).coerceAtLeast(0)
+    var lastIndex by remember { mutableStateOf(currentIndex) }
+    LaunchedEffect(selectedLimit) {
+        lastIndex = limitOptions.indexOf(selectedLimit).coerceAtLeast(0)
     }
-}
 
-@Composable
-private fun SearchOptionsNavigationRow(item: SettingsCardItem) {
-    SegmentedTileRow(
-        title = item.title,
-        description = item.description,
-        leading = { SettingsIconBadge(item) },
-        modifier = Modifier.clickable(role = Role.Button, onClick = item.actionOnPress),
+    SettingsToggleRow(
+        title = stringResource(R.string.top_matches_count_label),
+        checked = true,
+        onCheckedChange = {},
+        sliderDetails =
+            SettingsToggleSliderDetails(
+                value = currentIndex.toFloat(),
+                onValueChange = { value ->
+                    val index = value.toInt().coerceIn(0, limitOptions.size - 1)
+                    if (index != lastIndex) {
+                        hapticToggle(view)()
+                        lastIndex = index
+                    }
+                    onLimitSelected(limitOptions[index])
+                },
+                valueRange = 0f..(limitOptions.size - 1).toFloat(),
+                steps = limitOptions.size - 2,
+                valueLabel = selectedLimit.toString(),
+                valueLabelWidth = 24.dp,
+            ),
+        isFirstItem = false,
+        isLastItem = true,
+        showSwitch = false,
     )
 }
 
 @Composable
-internal fun PinnedNotificationItemsDialog(
-    items: List<CustomWidgetButtonAction>,
-    onRemove: (CustomWidgetButtonAction) -> Unit,
-    onReorder: (List<CustomWidgetButtonAction>) -> Unit,
-    onDismiss: () -> Unit,
+private fun LaunchOptionsCard(
+    onRefreshApps: (Boolean) -> Unit,
+    onRefreshContacts: (Boolean) -> Unit,
+    onRefreshFiles: (Boolean) -> Unit,
+    hasContactPermission: Boolean,
+    hasFilePermission: Boolean,
+    modifier: Modifier = Modifier,
 ) {
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val view = LocalView.current
-    val reorderableItems = remember(items) { items.toMutableStateList() }
-    val moveUp = stringResource(R.string.action_move_up)
-    val moveDown = stringResource(R.string.action_move_down)
-    val listState = rememberLazyListState()
-    var reorderedDuringDrag by remember { mutableStateOf(false) }
-    val reorderableState =
-        rememberReorderableLazyListState(listState) { from, to ->
-            if (from.index != to.index) {
-                reorderableItems.add(to.index, reorderableItems.removeAt(from.index))
-                reorderedDuringDrag = true
-                performHapticFeedbackSafely(
-                    view,
-                    HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK,
-                )
-            }
-        }
-    AppDialogSurface(
-        onDismissRequest = onDismiss,
-        modifier = Modifier.fillMaxWidth().height(screenHeight * 0.65f),
-    ) {
+    SegmentedTile(index = 0, count = 1, modifier = modifier) {
         Column(
-            modifier =
-                Modifier
-                    .fillMaxHeight()
-                    .padding(
-                        horizontal = DesignTokens.SpacingXXLarge,
-                        vertical = DesignTokens.SpacingXLarge,
-                    ),
+            modifier = Modifier.padding(
+                horizontal = DesignTokens.SpacingXXLarge,
+                vertical = DesignTokens.SpacingXLarge,
+            ),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         ) {
             Text(
-                text = stringResource(R.string.notification_pinned_items_title),
-                style = MaterialTheme.typography.headlineSmall,
+                text = stringResource(R.string.settings_refresh_data_title),
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = DesignTokens.SpacingMedium),
             )
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.fillMaxWidth().weight(1f),
+            Text(
+                text = stringResource(R.string.settings_refresh_data_note),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Max),
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
-                itemsIndexed(
-                    items = reorderableItems,
-                    key = { _, action -> action.toJson() },
-                ) { index, action ->
-                    ReorderableItem(
-                        state = reorderableState,
-                        key = action.toJson(),
-                    ) { isDragging ->
-                        fun moveBy(delta: Int): Boolean {
-                            val current = reorderableItems.indexOf(action)
-                            val target = current + delta
-                            if (current < 0 || target !in reorderableItems.indices) return false
-                            reorderableItems.add(target, reorderableItems.removeAt(current))
-                            onReorder(reorderableItems.toList())
-                            return true
-                        }
-                        if (index > 0) HorizontalDivider(color = AppColors.SettingsDivider)
-                        val category = stringResource(action.type.categoryRes)
-                        Surface(
-                            color = if (isDragging) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
-                            modifier = Modifier.fillMaxWidth(),
+                AppTonalButton(
+                    onClick = { onRefreshApps(true) },
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    contentPadding = PaddingValues(
+                        horizontal = DesignTokens.SpacingSmall,
+                        vertical = DesignTokens.SpacingMedium,
+                    ),
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+                    ) {
+                        Icon(
+                            imageVector = MaterialSymbols.Apps,
+                            contentDescription = null,
+                            modifier = Modifier.size(DesignTokens.IconSizeSmall),
+                        )
+                        Text(
+                            text = stringResource(R.string.section_apps),
+                            style = MaterialTheme.typography.labelLarge,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                }
+                if (hasContactPermission) {
+                    AppTonalButton(
+                        onClick = { onRefreshContacts(true) },
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        contentPadding = PaddingValues(
+                            horizontal = DesignTokens.SpacingSmall,
+                            vertical = DesignTokens.SpacingMedium,
+                        ),
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
                         ) {
-                            Row(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .heightIn(min = 48.dp)
-                                        .padding(vertical = DesignTokens.SpacingSmall),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Icon(
-                                    imageVector = MaterialSymbols.DragHandle,
-                                    contentDescription = stringResource(R.string.settings_action_reorder),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier =
-                                        Modifier
-                                            .size(DesignTokens.MinTouchTarget)
-                                            .longPressDraggableHandle(
-                                                onDragStarted = {
-                                                    reorderedDuringDrag = false
-                                                    performHapticFeedbackSafely(
-                                                        view,
-                                                        HapticFeedbackConstantsCompat.GESTURE_START,
-                                                    )
-                                                },
-                                                onDragStopped = {
-                                                    if (reorderedDuringDrag) {
-                                                        onReorder(reorderableItems.toList())
-                                                    }
-                                                    performHapticFeedbackSafely(
-                                                        view,
-                                                        HapticFeedbackConstantsCompat.GESTURE_END,
-                                                    )
-                                                },
-                                            )
-                                            .padding(DesignTokens.SpacingMedium),
-                                )
-                                Column(
-                                    modifier = Modifier.weight(1f).semantics(mergeDescendants = true) {
-                                        customActions = buildList {
-                                            if (index > 0) add(CustomAccessibilityAction(moveUp) { moveBy(-1) })
-                                            if (index < reorderableItems.lastIndex) add(CustomAccessibilityAction(moveDown) { moveBy(1) })
-                                        }
-                                    },
-                                ) {
-                                    Text(
-                                        text = action.displayLabel(),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                    )
-                                    Text(
-                                        text = category,
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                }
-                                AppIconButton(onClick = { onRemove(action) }, tooltip = stringResource(
-                                            R.string.notification_pinned_items_remove,
-                                            action.displayLabel(),
-                                        )) {
-                                    Icon(
-                                        imageVector = MaterialSymbols.DeleteOutline,
-                                        contentDescription = stringResource(
-                                            R.string.notification_pinned_items_remove,
-                                            action.displayLabel(),
-                                        ),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                }
-                            }
+                            Icon(
+                                imageVector = MaterialSymbols.Contacts,
+                                contentDescription = null,
+                                modifier = Modifier.size(DesignTokens.IconSizeSmall),
+                            )
+                            Text(
+                                text = stringResource(R.string.contacts_action_button_contacts),
+                                style = MaterialTheme.typography.labelLarge,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
+                }
+                if (hasFilePermission) {
+                    AppTonalButton(
+                        onClick = { onRefreshFiles(true) },
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        contentPadding = PaddingValues(
+                            horizontal = DesignTokens.SpacingSmall,
+                            vertical = DesignTokens.SpacingMedium,
+                        ),
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+                        ) {
+                            Icon(
+                                imageVector = MaterialSymbols.InsertDriveFile,
+                                contentDescription = null,
+                                modifier = Modifier.size(DesignTokens.IconSizeSmall),
+                            )
+                            Text(
+                                text = stringResource(R.string.section_files),
+                                style = MaterialTheme.typography.labelLarge,
+                                textAlign = TextAlign.Center,
+                            )
                         }
                     }
                 }
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-            ) {
-                AppTextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.common_close))
-                }
-            }
         }
     }
 }
 
+/** Search Results settings section that combines all search results related settings. */
 @Composable
-private fun AppSuggestionTabsPickerRow(
-    enabledTabs: Set<AppSuggestionTabType>,
-    onClick: () -> Unit,
+fun SearchResultsSettingsSection(
+    state: SettingsScreenState,
+    callbacks: SettingsScreenCallbacks,
+    hasUsagePermission: Boolean,
+    hasContactPermission: Boolean,
+    hasFilePermission: Boolean,
+    hasCalendarPermission: Boolean,
+    onNavigateToExcludedItems: () -> Unit,
+    onNavigateToNicknames: () -> Unit,
+    onNavigateToTriggers: () -> Unit,
+    onNavigateToAppManagement: () -> Unit,
+    onNavigateToAppShortcuts: () -> Unit,
+    onNavigateToCallsTexts: () -> Unit,
+    onNavigateToFiles: () -> Unit,
+    onNavigateToDeviceSettings: () -> Unit,
+    onNavigateToCalendarEvents: () -> Unit,
+    onNavigateToNotes: () -> Unit,
+    onNavigateToReminders: () -> Unit = {},
+    onNavigateToBookmarks: () -> Unit = {},
+    modifier: Modifier = Modifier,
 ) {
-    val tabLabels = rememberAppSuggestionTabLabels()
-    val enabledTabsSummary =
-        remember(enabledTabs, tabLabels) {
-            buildAppSuggestionTabsSummary(enabledTabs, tabLabels)
-        }
+    val context = LocalView.current.context
 
-    SegmentedTileRow(
-        title = stringResource(R.string.app_suggestions_enabled_tabs_picker_hint),
-        description = stringResource(R.string.settings_app_language_desc, enabledTabsSummary),
-        leading = { TonalIconBadge(icon = MaterialSymbols.Reorder) },
-        modifier = Modifier.clickable(role = Role.Button, onClick = onClick),
-    )
+    // Read once when the section is shown, then off the main thread whenever the settings state
+    // changes, instead of re-reading every nickname and trigger map on each recomposition.
+    val initialCustomizationFlags = remember(context) { readSearchCustomizationFlags(context) }
+    val customizationFlags by
+        produceState(initialValue = initialCustomizationFlags, context, state) {
+            value = withContext(Dispatchers.IO) { readSearchCustomizationFlags(context) }
+        }
+    val hasNicknames = customizationFlags.first
+    val hasTriggers = customizationFlags.second
+
+    val hasExcludedItems =
+        state.suggestionExcludedApps.isNotEmpty() ||
+            state.resultExcludedApps.isNotEmpty() ||
+            state.excludedContacts.isNotEmpty() ||
+            state.excludedFiles.isNotEmpty() ||
+            state.excludedSettings.isNotEmpty() ||
+            state.excludedAppShortcuts.isNotEmpty() ||
+            state.excludedFileExtensions.isNotEmpty() ||
+            state.excludedOtherItems.isNotEmpty()
+
+    val sectionOrder =
+        ItemPriorityConfig
+            .getSearchResultsPriority()
+            .filter { section ->
+                    section in com.tk.quicksearch.search.core.SearchSectionRegistry.settingsSections
+            }
+    val allSectionsDisabled = sectionOrder.isNotEmpty() && sectionOrder.all { it in state.disabledSections }
+
+    Column(modifier = modifier) {
+        // Search Sections Section
+        SectionSettingsSection(
+            sectionOrder = sectionOrder,
+            disabledSections = state.disabledSections,
+            onToggleSection = callbacks.onToggleSection,
+            sectionAliasCodes = state.shortcutCodes,
+            onSetSectionAlias = callbacks.onSetSearchSectionAlias,
+            appsSubtitle = stringResource(R.string.settings_manage_apps_desc),
+            onAppsClick = onNavigateToAppManagement,
+            appShortcutsSubtitle = stringResource(R.string.settings_manage_shortcuts_desc),
+            onAppShortcutsClick = onNavigateToAppShortcuts,
+            contactsSubtitle =
+                if (hasContactPermission) {
+                    stringResource(R.string.settings_manage_calls_texts_contacts_desc)
+                } else {
+                    stringResource(R.string.permission_required_title)
+                },
+            onContactsClick = if (hasContactPermission) onNavigateToCallsTexts else null,
+            filesSubtitle =
+                if (hasFilePermission) {
+                    stringResource(R.string.settings_manage_files_desc)
+                } else {
+                    stringResource(R.string.permission_required_title)
+                },
+            onFilesClick = if (hasFilePermission) onNavigateToFiles else null,
+            deviceSettingsSubtitle = stringResource(R.string.settings_view_all_desc),
+            onDeviceSettingsClick = onNavigateToDeviceSettings,
+            appSettingsSubtitle = stringResource(R.string.settings_app_settings_desc),
+            calendarSubtitle =
+                if (hasCalendarPermission) {
+                    stringResource(R.string.settings_calendar_view_all_events_desc)
+                } else {
+                    stringResource(R.string.permission_required_title)
+                },
+            onCalendarClick =
+                if (hasCalendarPermission) {
+                    onNavigateToCalendarEvents
+                } else {
+                    null
+                },
+            notesSubtitle = stringResource(R.string.settings_notes_view_all_desc),
+            onNotesClick = onNavigateToNotes,
+            remindersSubtitle = stringResource(R.string.settings_reminders_view_all_desc),
+            onRemindersClick = onNavigateToReminders,
+            bookmarksSubtitle = stringResource(R.string.settings_bookmarks_view_all_desc),
+            onBookmarksClick = onNavigateToBookmarks,
+            sectionsWithHiddenAlias = buildSet {
+                if (!hasContactPermission) add(SearchSection.CONTACTS)
+                if (!hasFilePermission) add(SearchSection.FILES)
+                if (!hasCalendarPermission) add(SearchSection.CALENDAR)
+            },
+            showTitle = false,
+        )
+
+        TopMatchesCard(
+            topMatchesEnabled = state.topMatchesEnabled,
+            onTopMatchesToggle = { enabled ->
+                callbacks.onApplySettingsCommand(
+                    SettingsCommand.Toggle(
+                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.TOP_MATCHES,
+                        enabled = enabled,
+                    ),
+                )
+            },
+            topMatchesLimit = state.topMatchesLimit,
+            onTopMatchesLimitChange = { limit ->
+                callbacks.onApplySettingsCommand(SettingsCommand.TopMatchesLimit(limit))
+            },
+            topMatchesSectionOrder = state.topMatchesSectionOrder,
+            disabledTopMatchesSections = state.disabledTopMatchesSections,
+            onTopMatchesSectionOrderChange = { order ->
+                callbacks.onApplySettingsCommand(SettingsCommand.TopMatchesSectionOrder(order))
+            },
+            onTopMatchesSectionEnabledChange = { section, enabled ->
+                callbacks.onApplySettingsCommand(
+                    SettingsCommand.TopMatchesSectionEnabled(section, enabled),
+                )
+            },
+            isLocked = allSectionsDisabled,
+            modifier = Modifier.padding(top = DesignTokens.SpacingLarge),
+        )
+
+        SearchOptionsCard(
+            appSuggestionsEnabled = state.appSuggestionsEnabled,
+            enabledAppSuggestionTabs = state.enabledAppSuggestionTabs,
+            hasUsagePermission = hasUsagePermission,
+            onAppSuggestionsToggle = { enabled ->
+                callbacks.onApplySettingsCommand(
+                    SettingsCommand.Toggle(
+                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.APP_SUGGESTIONS,
+                        enabled = enabled,
+                    ),
+                )
+            },
+            onAppSuggestionTabEnabledChange = { tab, enabled ->
+                callbacks.onApplySettingsCommand(
+                    SettingsCommand.AppSuggestionTabEnabled(tab = tab, enabled = enabled),
+                )
+            },
+            onRequestUsagePermission = callbacks.onRequestUsagePermission,
+            webSuggestionsEnabled = state.webSuggestionsEnabled,
+            onWebSuggestionsToggle = { enabled ->
+                callbacks.onApplySettingsCommand(
+                    SettingsCommand.Toggle(
+                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.WEB_SUGGESTIONS,
+                        enabled = enabled,
+                    ),
+                )
+            },
+            webSuggestionsCount = state.webSuggestionsCount,
+            onWebSuggestionsCountChange = { count ->
+                callbacks.onApplySettingsCommand(SettingsCommand.WebSuggestionsCount(count))
+            },
+            recentQueriesEnabled = state.recentQueriesEnabled,
+            onRecentQueriesToggle = { enabled ->
+                callbacks.onApplySettingsCommand(
+                    SettingsCommand.Toggle(
+                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.RECENT_QUERIES,
+                        enabled = enabled,
+                    ),
+                )
+            },
+            recentQueriesDisplayCount = state.recentQueriesDisplayCount,
+            onRecentQueriesDisplayCountChange = { count ->
+                callbacks.onApplySettingsCommand(SettingsCommand.RecentQueriesDisplayCount(count))
+            },
+            appResultsEnabled = SearchSection.APPS !in state.disabledSections,
+            appResultRowCount = state.appResultRowCount,
+            onAppResultRowCountChange = { rowCount ->
+                callbacks.onApplySettingsCommand(SettingsCommand.AppResultRowCount(rowCount))
+            },
+            fuzzySearchEnabled = state.fuzzySearchEnabled,
+            fuzzySearchAvailable = state.fuzzySearchAvailable,
+            onFuzzySearchToggle = { enabled ->
+                callbacks.onApplySettingsCommand(
+                    SettingsCommand.Toggle(
+                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.FUZZY_SEARCH,
+                        enabled = enabled,
+                    ),
+                )
+            },
+            secondaryRankingSignal = state.secondaryRankingSignal,
+            onSecondaryRankingSignalChange = { signal ->
+                callbacks.onApplySettingsCommand(SettingsCommand.SecondaryRanking(signal))
+            },
+            hasExcludedItems = hasExcludedItems,
+            hasNicknames = hasNicknames,
+            hasTriggers = hasTriggers,
+            excludedItemsTitle = stringResource(R.string.settings_excluded_items_title),
+            excludedItemsDescription = stringResource(R.string.settings_excluded_items_desc),
+            onNavigateToExcludedItems = onNavigateToExcludedItems,
+            onNavigateToNicknames = onNavigateToNicknames,
+            onNavigateToTriggers = onNavigateToTriggers,
+            modifier = Modifier.padding(top = DesignTokens.SpacingLarge),
+        )
+
+        LaunchOptionsCard(
+            onRefreshApps = callbacks.onRefreshApps,
+            onRefreshContacts = callbacks.onRefreshContacts,
+            onRefreshFiles = callbacks.onRefreshFiles,
+            hasContactPermission = hasContactPermission,
+            hasFilePermission = hasFilePermission,
+            modifier = Modifier.padding(top = DesignTokens.SpacingLarge),
+        )
+    }
+}
+
+/** Whether any nickname (first) and any trigger (second) is saved. Reads preferences; call sparingly. */
+private fun readSearchCustomizationFlags(context: android.content.Context): Pair<Boolean, Boolean> {
+    val hasNicknames =
+        NicknamePreferences(context).run {
+            getAllAppNicknames().isNotEmpty() ||
+                getAllAppShortcutNicknames().isNotEmpty() ||
+                getAllContactNicknames().isNotEmpty() ||
+                getAllFileNicknames().isNotEmpty() ||
+                getAllSettingNicknames().isNotEmpty() ||
+                getAllCalendarEventNicknames().isNotEmpty()
+        }
+    val hasTriggers =
+        TriggerPreferences(context).run {
+            getAllAppTriggers().isNotEmpty() ||
+                getAllAppShortcutTriggers().isNotEmpty() ||
+                getAllContactTriggers().isNotEmpty() ||
+                getAllContactActionTriggers().isNotEmpty() ||
+                getAllFileTriggers().isNotEmpty() ||
+                getAllSettingTriggers().isNotEmpty() ||
+                getAllNoteTriggers().isNotEmpty()
+        }
+    return hasNicknames to hasTriggers
 }

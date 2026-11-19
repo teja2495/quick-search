@@ -8,13 +8,11 @@ import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.AppTheme
-import com.tk.quicksearch.search.core.AppSuggestionTabType
-import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.data.CalendarRepository
-import com.tk.quicksearch.search.data.TodayGlanceEvents
-import com.tk.quicksearch.search.data.loadTodayGlanceEvents
-import com.tk.quicksearch.search.data.markTodayGlanceEventDone
+import com.tk.quicksearch.search.glance.TodayGlanceEvents
+import com.tk.quicksearch.search.glance.loadTodayGlanceEvents
+import com.tk.quicksearch.search.glance.markTodayGlanceEventDone
 import com.tk.quicksearch.search.data.preferences.*
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.searchHistory.SearchHistoryPreferences

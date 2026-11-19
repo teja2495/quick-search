@@ -20,12 +20,12 @@ import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermissio
 import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotsCheckedChange
 import com.tk.quicksearch.search.apps.speedBump.SpeedBumpOutsideQuickSearchToggleState
 import com.tk.quicksearch.search.apps.speedBump.rememberSpeedBumpOutsideQuickSearchToggleState
-import com.tk.quicksearch.search.data.AppNotificationsSettings
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.rememberAppNotificationsConfig
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.rememberResumeRefreshKey
+import com.tk.quicksearch.appNotifications.AppNotificationsSettings
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.rememberAppNotificationsConfig
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.rememberResumeRefreshKey
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
-import com.tk.quicksearch.settings.settingsDetailScreen.GestureSettingTarget
-import com.tk.quicksearch.settings.settingsDetailScreen.ToolSettingsRegistry
+import com.tk.quicksearch.settings.gestureSettings.GestureSettingTarget
+import com.tk.quicksearch.settings.toolsSettings.ToolSettingsRegistry
 import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.settings.shared.applySettingsCommand
 import com.tk.quicksearch.settings.shared.isAppSettingToggleEnabled

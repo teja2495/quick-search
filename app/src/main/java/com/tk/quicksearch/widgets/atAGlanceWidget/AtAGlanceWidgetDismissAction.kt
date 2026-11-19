@@ -8,18 +8,18 @@ import androidx.glance.appwidget.action.ActionCallback
 import com.tk.quicksearch.customInfo.CustomInfoRepository
 import com.tk.quicksearch.customInfo.CustomInfoScheduler
 import com.tk.quicksearch.search.data.CalendarRepository
-import com.tk.quicksearch.search.data.GlanceNotificationsStore
+import com.tk.quicksearch.search.glance.GlanceNotificationsStore
 import com.tk.quicksearch.search.data.ReminderRepository
 import com.tk.quicksearch.search.noted.NotedGlanceTasks
 import com.tk.quicksearch.search.data.UpcomingAlarmRepository
-import com.tk.quicksearch.search.data.dismissTodayGlanceEvent
-import com.tk.quicksearch.search.data.dismissTomorrowGlanceEvent
+import com.tk.quicksearch.search.glance.dismissTodayGlanceEvent
+import com.tk.quicksearch.search.glance.dismissTomorrowGlanceEvent
 import com.tk.quicksearch.search.data.preferences.BatteryPreferences
 import com.tk.quicksearch.search.data.preferences.CalendarPreferences
 import com.tk.quicksearch.search.data.preferences.GlanceItem
 import com.tk.quicksearch.search.data.preferences.GlancePreferences
 import com.tk.quicksearch.search.glance.glanceStatusForKey
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.WifiSignInDismissal
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.WifiSignInDismissal
 import com.tk.quicksearch.widgets.utils.refreshAtAGlanceWidgets
 import java.time.LocalDate
 

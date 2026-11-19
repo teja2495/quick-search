@@ -15,7 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchViewModel
-import com.tk.quicksearch.search.data.AppNotificationFilters
+import com.tk.quicksearch.appNotifications.AppNotificationFilters
 import com.tk.quicksearch.settings.settingsDetailScreen.AtAGlanceSettingsSection
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow

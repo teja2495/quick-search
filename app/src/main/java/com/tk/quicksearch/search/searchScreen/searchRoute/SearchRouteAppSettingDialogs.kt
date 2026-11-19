@@ -16,12 +16,12 @@ import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.settings.appearanceSettings.LauncherIconDrawer
 import com.tk.quicksearch.settings.appearanceSettings.PinnedSectionsOrderDrawer
-import com.tk.quicksearch.settings.settingsDetailScreen.AiApiKeyRequiredDialog
+import com.tk.quicksearch.settings.aiSettings.AiApiKeyRequiredDialog
 import com.tk.quicksearch.settings.settingsDetailScreen.AppSuggestionTabsDialog
-import com.tk.quicksearch.settings.settingsDetailScreen.GestureSettingsDialogs
+import com.tk.quicksearch.settings.gestureSettings.GestureSettingsDialogs
 import com.tk.quicksearch.settings.settingsDetailScreen.PinnedNotificationItemsDialog
 import com.tk.quicksearch.settings.settingsDetailScreen.PriorityReorderDialog
-import com.tk.quicksearch.settings.settingsDetailScreen.rememberGestureSettingsState
+import com.tk.quicksearch.settings.gestureSettings.rememberGestureSettingsState
 import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.settings.settingsScreen.AppLanguagePickerDialog
 import com.tk.quicksearch.settings.settingsScreen.SettingsBackupFlow

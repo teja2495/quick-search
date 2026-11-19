@@ -27,8 +27,8 @@ import com.tk.quicksearch.search.data.preferences.ReminderPreferences
 import com.tk.quicksearch.search.models.ReminderInfo
 import com.tk.quicksearch.search.noted.NotedIntegration
 import com.tk.quicksearch.search.noted.NotedRepository
-import com.tk.quicksearch.settings.settingsDetailScreen.ReminderFormDialog
-import com.tk.quicksearch.settings.settingsDetailScreen.FormDateTimeSuggestion
+import com.tk.quicksearch.settings.remindersSettings.ReminderFormDialog
+import com.tk.quicksearch.settings.remindersSettings.FormDateTimeSuggestion
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.time.ScheduleRepeat
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols

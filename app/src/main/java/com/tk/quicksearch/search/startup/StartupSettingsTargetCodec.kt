@@ -3,7 +3,7 @@ package com.tk.quicksearch.search.startup
 import com.tk.quicksearch.search.appSettings.AppSettingsAction
 import com.tk.quicksearch.search.appSettings.AppSettingsRouteAction
 import com.tk.quicksearch.search.appSettings.AppSettingsTarget
-import com.tk.quicksearch.settings.settingsDetailScreen.GestureSettingTarget
+import com.tk.quicksearch.settings.gestureSettings.GestureSettingTarget
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 
 internal fun AppSettingsTarget.snapshotValue(): String =

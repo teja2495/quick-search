@@ -20,7 +20,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.core.*
-import com.tk.quicksearch.search.core.isLikelyWebUrl
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.AtAGlanceRows
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.rememberAtAGlanceItems
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.rememberNowPlayingGlance
+import com.tk.quicksearch.shared.util.isLikelyWebUrl
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.searchHistory.SearchHistoryTab

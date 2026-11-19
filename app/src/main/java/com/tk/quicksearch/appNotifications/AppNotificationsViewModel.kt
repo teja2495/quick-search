@@ -4,9 +4,9 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.tk.quicksearch.search.data.AppNotificationApp
-import com.tk.quicksearch.search.data.AppNotificationFilters
-import com.tk.quicksearch.search.data.AppNotificationsSettings
+import com.tk.quicksearch.appNotifications.AppNotificationApp
+import com.tk.quicksearch.appNotifications.AppNotificationFilters
+import com.tk.quicksearch.appNotifications.AppNotificationsSettings
 import com.tk.quicksearch.search.data.AppsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

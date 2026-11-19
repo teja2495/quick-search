@@ -47,7 +47,7 @@ import com.tk.quicksearch.app.startup.StartupCoordinator
 import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
 import com.tk.quicksearch.app.startup.StartupMode
 import com.tk.quicksearch.app.startup.StartupTrace
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.searchEngines.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.core.AppThemeMode
@@ -55,7 +55,7 @@ import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
-import com.tk.quicksearch.settings.settingsDetailScreen.NotesNavigationMemory
+import com.tk.quicksearch.settings.notesSettings.NotesNavigationMemory
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.shared.util.AppLanguageManager
 import com.tk.quicksearch.search.data.preferences.BootstrapPreferences

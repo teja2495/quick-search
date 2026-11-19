@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import com.tk.quicksearch.search.searchScreen.components.SearchBarWithSettingsButton
 import com.tk.quicksearch.shared.ui.components.undoSnackbarAvoidArea
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
@@ -515,7 +516,7 @@ internal fun SearchScreenContent(
     val searchFieldModifier = searchBarGeometry.searchFieldModifier
 
     val searchFieldContent: @Composable () -> Unit = {
-        PersistentSearchBar(
+        SearchBarWithSettingsButton(
                 query = state.query,
                 selectRetainedQuery = state.selectRetainedQuery,
                 onSelectRetainedQueryHandled = onSelectRetainedQueryHandled,

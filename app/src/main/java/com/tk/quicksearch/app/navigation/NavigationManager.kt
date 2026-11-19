@@ -65,7 +65,7 @@ import com.tk.quicksearch.settings.settingsDetailScreen.LocalSettingsPageData
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsPageData
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
-import com.tk.quicksearch.settings.settingsDetailScreen.CustomToolNavigationMemory
+import com.tk.quicksearch.settings.toolsSettings.CustomToolNavigationMemory
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsRoute
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.util.FeedbackUtils

@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tk.quicksearch.R
+import com.tk.quicksearch.app.LauncherAppIcon
 import com.tk.quicksearch.app.ReleaseNotesHandler
 import com.tk.quicksearch.app.navigation.NavigationHandler
 import com.tk.quicksearch.search.appShortcuts.AppShortcutManagementHandler

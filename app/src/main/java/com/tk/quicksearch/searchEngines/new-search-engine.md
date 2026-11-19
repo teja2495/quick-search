@@ -1,6 +1,6 @@
 # Add a built-in search engine
 
-Append one entry to [SearchEngine.kt](../search/core/SearchEngine.kt). The entry name is the ID
+Append one entry to [SearchEngine.kt](SearchEngine.kt). The entry name is the ID
 stored in preferences, aliases, and shortcuts. Existing names and order must stay stable.
 
 ```kotlin

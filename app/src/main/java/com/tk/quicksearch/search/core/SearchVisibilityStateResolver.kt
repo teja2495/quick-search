@@ -1,5 +1,8 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.shared.util.isLikelyWebUrl
+
+
 internal class SearchVisibilityStateResolver {
     fun apply(state: SearchUiState): SearchUiState =
         state.copy(

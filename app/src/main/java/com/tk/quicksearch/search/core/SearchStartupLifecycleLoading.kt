@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.search.apps.AppIconShape
+import com.tk.quicksearch.search.apps.AppSuggestionTabType
 import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.appShortcutRepository.isUserCreatedShortcut

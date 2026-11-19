@@ -13,14 +13,14 @@ import com.tk.quicksearch.search.data.preferences.BatteryPreferences.Companion.C
 import com.tk.quicksearch.search.data.preferences.GlanceItem
 import com.tk.quicksearch.search.glance.GlanceStatusSurface
 import com.tk.quicksearch.search.glance.glanceStatusItems
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.ACTION_WIFI_AP_STATE_CHANGED
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.BatteryStatus
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.WifiSignInDismissal
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.formatShortDuration
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.hasCaptivePortalWifi
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.isAirplaneModeOn
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.isDoNotDisturbOn
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.isHotspotOn
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.ACTION_WIFI_AP_STATE_CHANGED
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.BatteryStatus
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.WifiSignInDismissal
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.formatShortDuration
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.hasCaptivePortalWifi
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.isAirplaneModeOn
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.isDoNotDisturbOn
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.isHotspotOn
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import java.text.NumberFormat
 

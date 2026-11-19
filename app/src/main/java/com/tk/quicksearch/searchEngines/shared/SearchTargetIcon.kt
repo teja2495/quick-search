@@ -23,8 +23,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import com.tk.quicksearch.search.apps.rememberAppIcon
-import com.tk.quicksearch.search.core.AppIconShape
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.search.apps.AppIconShape
+import com.tk.quicksearch.searchEngines.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.getAppPackageCandidates
 import com.tk.quicksearch.searchEngines.getContentDescription

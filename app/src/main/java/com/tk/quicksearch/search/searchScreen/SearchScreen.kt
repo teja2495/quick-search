@@ -25,7 +25,7 @@ import com.tk.quicksearch.search.apps.GestureAllAppsDrawer
 import com.tk.quicksearch.shared.ui.theme.LocalImageBackgroundIsDark
 import com.tk.quicksearch.shared.ui.theme.LocalHomeTextColorOverride
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
-import com.tk.quicksearch.search.core.AppSuggestionTabType
+import com.tk.quicksearch.search.apps.AppSuggestionTabType
 import com.tk.quicksearch.search.core.DirectDialOption
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
@@ -382,7 +382,7 @@ fun SearchScreen(
         LocalHomeTextColorOverride provides state.homeTextColorOverride,
         LocalHomeWidgetEditGuard provides homeWidgetEditGuard,
         LocalSearchCardLayoutEnabled provides state.cardLayoutEnabled,
-        com.tk.quicksearch.search.searchScreen.searchScreenLayout.LocalGlanceIconPackPackage provides state.selectedIconPackPackage,
+        com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.LocalGlanceIconPackPackage provides state.selectedIconPackPackage,
         com.tk.quicksearch.search.bookmarks.LocalBookmarksSectionParams provides stateResult.sectionParams.bookmarksParams,
         com.tk.quicksearch.search.noted.LocalNotedSectionParams provides stateResult.sectionParams.notedParams,
     ) {

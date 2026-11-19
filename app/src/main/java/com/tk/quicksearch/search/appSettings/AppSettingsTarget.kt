@@ -2,8 +2,8 @@ package com.tk.quicksearch.search.appSettings
 
 import com.tk.quicksearch.app.navigation.AppSettingsDestinationHandlers
 import com.tk.quicksearch.reminders.ReminderEditorRequests
-import com.tk.quicksearch.settings.settingsDetailScreen.GestureSettingTarget
-import com.tk.quicksearch.settings.settingsDetailScreen.NotesNavigationMemory
+import com.tk.quicksearch.settings.gestureSettings.GestureSettingTarget
+import com.tk.quicksearch.settings.notesSettings.NotesNavigationMemory
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 
 /** A searchable Settings row's destination. */

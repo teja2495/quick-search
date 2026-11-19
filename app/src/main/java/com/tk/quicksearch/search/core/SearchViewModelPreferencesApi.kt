@@ -1,7 +1,10 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.app.LauncherAppIcon
+import com.tk.quicksearch.search.apps.AppIconShape
+import com.tk.quicksearch.search.apps.AppSuggestionTabType
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
-import com.tk.quicksearch.settings.settingsDetailScreen.AiBackedToolConfigId
+import com.tk.quicksearch.settings.toolsSettings.AiBackedToolConfigId
 
 internal interface SearchViewModelPreferencesApi {
     val preferencesApiDelegate: SearchViewModelPreferencesApiDelegate

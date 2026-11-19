@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.searchEngines.SearchEngine
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
 import com.tk.quicksearch.searchEngines.getDefaultShortcutCode

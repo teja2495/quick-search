@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ButtonDefaults
 import com.tk.quicksearch.shared.ui.components.AppTopAppBar
-import com.tk.quicksearch.settings.preloadFeaturesMarkdown
+import com.tk.quicksearch.settings.aboutSettings.preloadFeaturesMarkdown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text

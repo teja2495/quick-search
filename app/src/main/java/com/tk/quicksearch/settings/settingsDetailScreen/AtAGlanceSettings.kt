@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.settings.aiSettings.AiApiKeyRequiredDialog
+import com.tk.quicksearch.settings.calendarSettings.CalendarEventsBottomBar
 import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import androidx.compose.material3.Icon
 import android.Manifest
@@ -42,7 +44,7 @@ import com.tk.quicksearch.appNotifications.AppNotificationsSettingsRow
 import com.tk.quicksearch.appNotifications.WidgetAppNotificationsSettingsRow
 import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
 import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotsCheckedChange
-import com.tk.quicksearch.search.data.AppNotificationFilters
+import com.tk.quicksearch.appNotifications.AppNotificationFilters
 import com.tk.quicksearch.search.data.preferences.AppGlanceItemSettings
 import com.tk.quicksearch.search.data.preferences.BatteryPreferences
 import com.tk.quicksearch.search.data.preferences.GlanceItem

@@ -19,7 +19,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.AppIconShape
+import com.tk.quicksearch.search.apps.AppIconShape
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup

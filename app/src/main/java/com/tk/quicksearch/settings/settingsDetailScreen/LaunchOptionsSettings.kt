@@ -1,6 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
 import com.tk.quicksearch.notchGesture.NotchGestureSupport
+import com.tk.quicksearch.settings.gestureSettings.NotchLaunchOptionRow
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
