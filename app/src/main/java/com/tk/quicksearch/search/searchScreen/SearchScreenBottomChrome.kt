@@ -384,11 +384,10 @@ internal fun SearchScreenBottomChrome(
                             if (hideOpenKeyboardActionInstantly) {
                                 ExitTransition.None
                             } else {
-                                fadeOut(animationSpec = tween(durationMillis = AppMotion.DurationExit, easing = AppMotion.EmphasizedAccelerateEasing)) +
-                                        shrinkVertically(
-                                                shrinkTowards = Alignment.Bottom,
-                                                animationSpec = tween(durationMillis = AppMotion.DurationShort, easing = AppMotion.EmphasizedAccelerateEasing),
-                                        )
+                                shrinkVertically(
+                                        shrinkTowards = Alignment.Top,
+                                        animationSpec = tween(durationMillis = AppMotion.DurationShort, easing = AppMotion.EmphasizedAccelerateEasing),
+                                )
                             },
             ) {
                 OpenKeyboardAction(

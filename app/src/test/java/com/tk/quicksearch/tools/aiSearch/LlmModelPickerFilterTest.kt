@@ -49,7 +49,7 @@ class LlmModelPickerFilterTest {
     }
 
     @Test
-    fun geminiKeepsLatestOfHydrogenCarbonArgon() {
+    fun geminiKeepsLatestOfHydrogenCarbonArgonNeon() {
         val catalog =
             models(
                 "gemini-flash-latest",
@@ -59,7 +59,8 @@ class LlmModelPickerFilterTest {
                 "gemini-3-carbon-preview",
                 "gemini-2.5-argon",
                 "gemini-3.1-argon",
-                "gemini-3.1-neon",
+                "gemini-3-neon",
+                "gemini-3.1-neon-preview",
             )
         assertEquals(
             setOf(
@@ -67,6 +68,7 @@ class LlmModelPickerFilterTest {
                 "gemini-3.5-hydrogen",
                 "gemini-3-carbon-preview",
                 "gemini-3.1-argon",
+                "gemini-3.1-neon-preview",
             ),
             GeminiModelCatalog.pickerModels(catalog).ids(),
         )

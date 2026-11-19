@@ -781,12 +781,13 @@ internal fun SearchScreenContent(
             openKeyboardText = openKeyboardText,
             onVoiceClick = onVoiceClick,
             onOpenKeyboardActionClicked = {
-                hideOpenKeyboardActionInstantly = true
-                delayedOpenKeyboardActionVisible = false
-                searchFocusRequester.requestFocus()
-                openKeyboardActionScope.launch {
-                    withFrameNanos { }
-                    keyboardController?.show()
+                if (delayedOpenKeyboardActionVisible) {
+                    delayedOpenKeyboardActionVisible = false
+                    searchFocusRequester.requestFocus()
+                    openKeyboardActionScope.launch {
+                        withFrameNanos { }
+                        keyboardController?.show()
+                    }
                 }
             },
         ) }
