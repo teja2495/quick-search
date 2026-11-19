@@ -325,7 +325,7 @@
     <string name="search_section_menu_title">Suchen in</string>
     <string name="top_matches_count_label">Anzahl der Treffer</string>
     <string name="top_matches_priority_desc">Priorität ändern und Elemente in den Top-Ergebnissen deaktivieren</string>
-    <string name="top_matches_priority_dialog_info">Halten und ziehen, um die Priorität zu ändern. Schalter verwenden, um bestimmte Ergebnistypen zu aktivieren oder zu deaktivieren.</string>
+    <string name="top_matches_priority_dialog_info">Zum Sortieren halten und ziehen. Ergebnistypen ein- oder ausschalten.</string>
     <string name="top_matches_priority_title">Top-Ergebnisse verwalten</string>
     <string name="top_matches_title">Top-Ergebnisse</string>
     <string name="top_matches_toggle_desc">Die besten passenden Ergebnisse aller Typen in einer einzigen Liste anzeigen.</string>

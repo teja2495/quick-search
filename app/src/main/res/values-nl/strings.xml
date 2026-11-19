@@ -333,7 +333,7 @@
     <string name="search_section_menu_title">Zoeken in</string>
     <string name="top_matches_count_label">Aantal resultaten</string>
     <string name="top_matches_priority_desc">Prioriteit wijzigen en items in topresultaten in- of uitschakelen</string>
-    <string name="top_matches_priority_dialog_info">Houd ingedrukt en sleep om de prioriteit te wijzigen, en gebruik de schakelaar om bepaalde resultaattypen in of uit te schakelen.</string>
+    <string name="top_matches_priority_dialog_info">Houd ingedrukt en sleep om te herschikken. Zet resultaattypen aan of uit.</string>
     <string name="top_matches_priority_title">Topresultaten beheren</string>
     <string name="top_matches_title">Topresultaten</string>
     <string name="top_matches_toggle_desc">Toon de beste resultaten van alle typen in één lijst</string>

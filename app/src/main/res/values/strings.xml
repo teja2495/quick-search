@@ -331,7 +331,7 @@
     <string name="search_section_menu_title">Search in</string>
     <string name="top_matches_count_label">No. of matches</string>
     <string name="top_matches_priority_desc">Change priority and disable items in top matches</string>
-    <string name="top_matches_priority_dialog_info">Hold and drag to change priority, and use the toggle to enable or disable certain result types.</string>
+    <string name="top_matches_priority_dialog_info">Hold and drag to reorder. Toggle result types.</string>
     <string name="top_matches_priority_title">Manage Top Matches</string>
     <string name="top_matches_title">Top Matches</string>
     <string name="top_matches_toggle_desc">Show top matched results across all types in a single list</string>

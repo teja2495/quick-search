@@ -326,7 +326,7 @@
     <string name="search_section_menu_title">Szukaj w</string>
     <string name="top_matches_count_label">Liczba dopasowań</string>
     <string name="top_matches_priority_desc">Zmień priorytet i wyłączaj elementy w najlepszych dopasowaniach</string>
-    <string name="top_matches_priority_dialog_info">Przytrzymaj i przeciągnij, aby zmienić priorytet, oraz użyj przełącznika, aby włączyć lub wyłączyć określone typy wyników.</string>
+    <string name="top_matches_priority_dialog_info">Przytrzymaj i przeciągnij, aby zmienić kolejność. Włącz lub wyłącz typy wyników.</string>
     <string name="top_matches_priority_title">Zarządzaj najlepszymi dopasowaniami</string>
     <string name="top_matches_title">Najlepsze dopasowania</string>
     <string name="top_matches_toggle_desc">Pokaż najlepiej dopasowane wyniki ze wszystkich typów na jednej liście</string>

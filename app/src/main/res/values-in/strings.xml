@@ -326,7 +326,7 @@
     <string name="search_section_menu_title">Cari di</string>
     <string name="top_matches_count_label">Jumlah kecocokan</string>
     <string name="top_matches_priority_desc">Ubah prioritas dan nonaktifkan item dalam kecocokan teratas</string>
-    <string name="top_matches_priority_dialog_info">Tahan dan seret untuk mengubah prioritas, dan gunakan tombol untuk mengaktifkan atau menonaktifkan jenis hasil tertentu.</string>
+    <string name="top_matches_priority_dialog_info">Tahan dan seret untuk mengurutkan ulang. Aktifkan atau nonaktifkan jenis hasil.</string>
     <string name="top_matches_priority_title">Kelola Kecocokan Teratas</string>
     <string name="top_matches_title">Kecocokan Teratas</string>
     <string name="top_matches_toggle_desc">Tampilkan hasil kecocokan teratas dari semua jenis dalam satu daftar</string>

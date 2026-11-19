@@ -325,7 +325,7 @@
     <string name="search_section_menu_title">Αναζήτηση σε</string>
     <string name="top_matches_count_label">Αριθμός αποτελεσμάτων</string>
     <string name="top_matches_priority_desc">Αλλαγή προτεραιότητας και απενεργοποίηση στοιχείων στα κορυφαία αποτελέσματα</string>
-    <string name="top_matches_priority_dialog_info">Κρατήστε πατημένο και σύρετε για να αλλάξετε προτεραιότητα, και χρησιμοποιήστε τον διακόπτη για να ενεργοποιήσετε ή να απενεργοποιήσετε συγκεκριμένους τύπους αποτελεσμάτων.</string>
+    <string name="top_matches_priority_dialog_info">Κρατήστε πατημένο και σύρετε για αναδιάταξη. Ενεργοποιήστε ή απενεργοποιήστε τύπους αποτελεσμάτων.</string>
     <string name="top_matches_priority_title">Διαχείριση κορυφαίων αποτελεσμάτων</string>
     <string name="top_matches_title">Κορυφαία αποτελέσματα</string>
     <string name="top_matches_toggle_desc">Εμφάνιση των καλύτερων αντιστοιχισμένων αποτελεσμάτων όλων των τύπων σε μία λίστα.</string>

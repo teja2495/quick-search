@@ -1,6 +1,7 @@
 package com.tk.quicksearch.settings.appShortcutsSettings
 
 import com.tk.quicksearch.shared.ui.components.AppIconButton
+import com.tk.quicksearch.shared.ui.components.AppIconButtonStyle
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -49,6 +50,7 @@ import com.tk.quicksearch.search.data.appShortcutRepository.isUserCreatedShortcu
 import com.tk.quicksearch.search.data.appShortcutRepository.shortcutDisplayName
 import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.searchEngines.isSearchTargetShortcutPackageName
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
@@ -60,7 +62,7 @@ import kotlinx.coroutines.withContext
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import com.tk.quicksearch.shared.ui.theme.AppMotion
-import com.tk.quicksearch.shared.ui.components.AppTextButton
+import com.tk.quicksearch.shared.ui.components.TonalButton
 
 @Composable
 fun AppShortcutsSettingsSection(
@@ -314,7 +316,8 @@ val context = LocalContext.current
         state = shortcutListState,
         modifier =
             modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .settingsScrollClip(shortcutListState),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
             if (normalizedSearchQuery.isBlank()) {
@@ -351,19 +354,12 @@ val context = LocalContext.current
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        androidx.compose.foundation.layout.Box {
-                            AppTextButton(onClick = { isFilterMenuExpanded = true }) {
-                                Text(
-                                    text = stringResource(selectedFilterOption.labelResId),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                )
-                                Icon(
-                                    imageVector = MaterialSymbols.ExpandMore,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                )
-                            }
+                        Box {
+                            TonalButton(
+                                text = stringResource(selectedFilterOption.labelResId),
+                                onClick = { isFilterMenuExpanded = true },
+                                icon = MaterialSymbols.ExpandMore,
+                            )
                             AppDropdownMenu(
                                 expanded = isFilterMenuExpanded,
                                 onDismissRequest = { isFilterMenuExpanded = false },
@@ -382,26 +378,25 @@ val context = LocalContext.current
                                 }
                             }
                         }
+                        val expandCollapseLabel = stringResource(
+                            if (allExpanded) {
+                                R.string.settings_app_shortcuts_collapse_all
+                            } else {
+                                R.string.settings_app_shortcuts_expand_all
+                            },
+                        )
                         AppIconButton(
                             onClick = {
                                 visibleShortcutGroups.forEach { group ->
                                     expandedCards[group.packageName] = !allExpanded
                                 }
                             },
-                            tooltip = if (allExpanded) {
-                                        stringResource(R.string.settings_app_shortcuts_collapse_all)
-                                    } else {
-                                        stringResource(R.string.settings_app_shortcuts_expand_all)
-                                    },
+                            tooltip = expandCollapseLabel,
+                            style = AppIconButtonStyle.Tonal,
                         ) {
                             Icon(
                                 imageVector = if (allExpanded) MaterialSymbols.UnfoldLess else MaterialSymbols.UnfoldMore,
-                                contentDescription =
-                                    if (allExpanded) {
-                                        stringResource(R.string.settings_app_shortcuts_collapse_all)
-                                    } else {
-                                        stringResource(R.string.settings_app_shortcuts_expand_all)
-                                    },
+                                contentDescription = expandCollapseLabel,
                                 tint = MaterialTheme.colorScheme.primary,
                             )
                         }

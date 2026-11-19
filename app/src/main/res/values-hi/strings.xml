@@ -325,7 +325,7 @@
     <string name="search_section_menu_title">इसमें खोजें</string>
     <string name="top_matches_count_label">मैचों की संख्या</string>
     <string name="top_matches_priority_desc">टॉप मैच में प्राथमिकता बदलें और आइटम अक्षम करें</string>
-    <string name="top_matches_priority_dialog_info">प्राथमिकता बदलने के लिए दबाकर खींचें, और कुछ परिणाम प्रकार सक्षम या अक्षम करने के लिए टॉगल का उपयोग करें।</string>
+    <string name="top_matches_priority_dialog_info">क्रम बदलने के लिए दबाकर खींचें। नतीजों के प्रकार चालू या बंद करें।</string>
     <string name="top_matches_priority_title">टॉप मैच प्रबंधित करें</string>
     <string name="top_matches_title">टॉप मैच</string>
     <string name="top_matches_toggle_desc">सभी प्रकारों के सबसे उपयुक्त परिणामों को एक ही सूची में दिखाएं।</string>

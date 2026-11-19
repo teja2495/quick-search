@@ -325,7 +325,7 @@
     <string name="search_section_menu_title">搜索范围</string>
     <string name="top_matches_count_label">匹配项数量</string>
     <string name="top_matches_priority_desc">更改最佳匹配中的项目优先级或将其停用</string>
-    <string name="top_matches_priority_dialog_info">长按并拖动以更改优先级，利用开关可以启用或停用某些特定的结果类型。</string>
+    <string name="top_matches_priority_dialog_info">长按并拖动可排序。使用开关启用或停用结果类型。</string>
     <string name="top_matches_priority_title">管理最佳匹配</string>
     <string name="top_matches_title">最佳匹配</string>
     <string name="top_matches_toggle_desc">在单个列表中显示所有类型中最匹配的结果。</string>

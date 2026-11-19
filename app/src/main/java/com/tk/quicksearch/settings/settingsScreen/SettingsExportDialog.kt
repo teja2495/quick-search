@@ -25,7 +25,6 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 import com.tk.quicksearch.shared.ui.components.AppButton
-import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 @Composable
 fun SettingsExportDialog(
@@ -53,9 +52,6 @@ fun SettingsExportDialog(
         footer = {
             AppButton(onClick = onExport, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.settings_backup_export_button))
-            }
-            AppTextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.dialog_cancel))
             }
         },
     ) {

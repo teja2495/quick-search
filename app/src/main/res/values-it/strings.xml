@@ -324,7 +324,7 @@
     <string name="search_section_menu_title">Cerca in</string>
     <string name="top_matches_count_label">Numero di corrispondenze</string>
     <string name="top_matches_priority_desc">Modifica la priorità e disattiva elementi nelle migliori corrispondenze</string>
-    <string name="top_matches_priority_dialog_info">Tieni premuto e trascina per modificare la priorità, e usa l\u2019interruttore per attivare o disattivare determinati tipi di risultati.</string>
+    <string name="top_matches_priority_dialog_info">Tieni premuto e trascina per riordinare. Attiva o disattiva i tipi di risultati.</string>
     <string name="top_matches_priority_title">Gestisci migliori corrispondenze</string>
     <string name="top_matches_title">Migliori corrispondenze</string>
     <string name="top_matches_toggle_desc">Mostra i risultati più pertinenti di tutti i tipi in un unico elenco.</string>

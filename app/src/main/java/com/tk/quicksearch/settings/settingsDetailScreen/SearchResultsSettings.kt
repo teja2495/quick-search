@@ -189,6 +189,7 @@ private fun TopMatchesCard(
             disabledSections = disabledTopMatchesSections,
             onItemEnabledChange = onTopMatchesSectionEnabledChange,
             onDismiss = { showPriorityDialog = false },
+            heightFraction = TOP_MATCHES_DRAWER_HEIGHT_FRACTION,
         )
     }
 }

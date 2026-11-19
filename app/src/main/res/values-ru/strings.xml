@@ -325,7 +325,7 @@
 <string name="search_section_menu_title">Искать в</string>
 <string name="top_matches_count_label">Количество совпадений</string>
 <string name="top_matches_priority_desc">Изменить приоритет и отключить элементы в лучших совпадениях</string>
-<string name="top_matches_priority_dialog_info">Удерживайте и перетаскивайте элементы, чтобы изменить приоритет. Используйте переключатели для включения или отключения определенных типов результатов.</string>
+<string name="top_matches_priority_dialog_info">Удерживайте и перетаскивайте для сортировки. Включайте и отключайте типы результатов.</string>
 <string name="top_matches_priority_title">Управление лучшими совпадениями</string>
 <string name="top_matches_title">Лучшие совпадения</string>
 <string name="top_matches_toggle_desc">Показывать наиболее подходящие результаты всех типов в едином списке.</string>

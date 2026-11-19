@@ -33,12 +33,15 @@ import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.AppSwitch
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
+import com.tk.quicksearch.shared.ui.components.DEFAULT_PICKER_DRAWER_HEIGHT_FRACTION
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.performHapticFeedbackSafely
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
+
+internal const val TOP_MATCHES_DRAWER_HEIGHT_FRACTION = 0.95f
 
 /** Section ordering and optional enable switches in the shared settings drawer. */
 @Composable
@@ -50,6 +53,7 @@ internal fun PriorityReorderDialog(
     onItemEnabledChange: ((SearchSection, Boolean) -> Unit)? = null,
     titleRes: Int = R.string.top_matches_priority_title,
     infoRes: Int = R.string.top_matches_priority_dialog_info,
+    heightFraction: Float = DEFAULT_PICKER_DRAWER_HEIGHT_FRACTION,
 ) {
     val view = LocalView.current
     val orderedItems = remember(items) { items.toMutableStateList() }
@@ -65,6 +69,7 @@ internal fun PriorityReorderDialog(
     AppPickerDrawer(
         title = stringResource(titleRes),
         onDismiss = onDismiss,
+        heightFraction = heightFraction,
         header = {
             Text(
                 text = stringResource(infoRes),

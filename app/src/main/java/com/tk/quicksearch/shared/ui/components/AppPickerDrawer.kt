@@ -77,6 +77,7 @@ class AppPickerDrawerSearch(
  * @param header Shown between the search field and [content], such as filter chips or a note.
  * @param footer Pinned below [content], such as an option that applies to the whole list.
  * @param onDismissStarted Called as soon as the drawer starts closing.
+ * @param heightFraction Height limit, or fixed height when [search] is set.
  * @param content Receives `dismiss`, which animates the drawer closed and then calls [onDismiss].
  */
 @Composable
@@ -89,11 +90,12 @@ fun AppPickerDrawer(
     titleIcon: (@Composable () -> Unit)? = null,
     header: (@Composable ColumnScope.() -> Unit)? = null,
     footer: (@Composable ColumnScope.() -> Unit)? = null,
+    heightFraction: Float = DEFAULT_PICKER_DRAWER_HEIGHT_FRACTION,
     content: @Composable BoxScope.(dismiss: () -> Unit) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
-    val maxHeight = LocalConfiguration.current.screenHeightDp.dp * DRAWER_HEIGHT_FRACTION
+    val maxHeight = LocalConfiguration.current.screenHeightDp.dp * heightFraction
     val fixedHeight = search != null
 
     AppBottomSheet(
@@ -122,7 +124,7 @@ fun AppPickerDrawer(
                     .fillMaxWidth()
                     .then(
                         if (fixedHeight) {
-                            Modifier.fillMaxHeight(DRAWER_HEIGHT_FRACTION)
+                            Modifier.fillMaxHeight(heightFraction)
                         } else {
                             Modifier.heightIn(max = maxHeight)
                         },
@@ -356,4 +358,4 @@ val AppPickerDrawerRowShape = AppShapes.large
 private val SELECTED_CHECK_SIZE = 24.dp
 private val ICON_BADGE_ICON_SIZE = 18.dp
 
-private const val DRAWER_HEIGHT_FRACTION = 0.85f
+internal const val DEFAULT_PICKER_DRAWER_HEIGHT_FRACTION = 0.85f

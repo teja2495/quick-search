@@ -27,7 +27,6 @@ import com.tk.quicksearch.settings.appShortcutsSettings.AppShortcutSource
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenState
 import com.tk.quicksearch.settings.shared.settingsContentWidth
-import com.tk.quicksearch.settings.shared.settingsScrollClip
 import com.tk.quicksearch.settings.appShortcutsSettings.AppShortcutsSettingsSection
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.tools.aiSearch.supportsThinkingControl
@@ -85,7 +84,6 @@ internal fun ColumnScope.AppShortcutsDetailContent(
                                 start = DesignTokens.ContentHorizontalPadding,
                                 end = DesignTokens.ContentHorizontalPadding,
                                 bottom = 96.dp,
-                            )
-                            .settingsScrollClip(),
+                            ),
                 )
 }

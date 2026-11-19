@@ -326,7 +326,7 @@
     <string name="search_section_menu_title">البحث في</string>
     <string name="top_matches_count_label">عدد التطابقات</string>
     <string name="top_matches_priority_desc">تغيير أولوية العناصر وتعطيلها في أفضل التطابقات</string>
-    <string name="top_matches_priority_dialog_info">اضغط مع الاستمرار ثم اسحب لتغيير الأولوية، واستخدم مفتاح التبديل لتفعيل أو تعطيل أنواع نتائج معينة.</string>
+    <string name="top_matches_priority_dialog_info">اضغط مطولًا واسحب لإعادة الترتيب. فعّل أو عطّل أنواع النتائج.</string>
     <string name="top_matches_priority_title">إدارة أفضل التطابقات</string>
     <string name="top_matches_title">أفضل التطابقات</string>
     <string name="top_matches_toggle_desc">إظهار أفضل النتائج المطابقة عبر جميع الأنواع في قائمة واحدة.</string>

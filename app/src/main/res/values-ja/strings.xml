@@ -326,7 +326,7 @@
     <string name="search_section_menu_title">検索対象</string>
     <string name="top_matches_count_label">表示件数</string>
     <string name="top_matches_priority_desc">ベストマッチの優先順位を変更し、項目を無効化</string>
-    <string name="top_matches_priority_dialog_info">長押ししてドラッグすると優先順位を変更できます。スイッチを使って特定の結果タイプを有効または無効にできます。</string>
+    <string name="top_matches_priority_dialog_info">長押ししてドラッグで並べ替え。スイッチで結果の種類を切り替え。</string>
     <string name="top_matches_priority_title">ベストマッチの管理</string>
     <string name="top_matches_title">ベストマッチ</string>
     <string name="top_matches_toggle_desc">すべてのタイプで最も一致した結果を1つのリストに表示</string>

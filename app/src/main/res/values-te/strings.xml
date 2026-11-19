@@ -325,7 +325,7 @@
     <string name="search_section_menu_title">ఇందులో వెతకండి</string>
     <string name="top_matches_count_label">మ్యాచ్‌ల సంఖ్య</string>
     <string name="top_matches_priority_desc">టాప్ మ్యాచ్‌లలో ప్రాధాన్యతను మార్చండి మరియు అంశాలను నిలిపివేయండి</string>
-    <string name="top_matches_priority_dialog_info">ప్రాధాన్యతను మార్చడానికి నొక్కి పట్టి లాగండి మరియు నిర్దిష్ట ఫలిత రకాలను ప్రారంభించడానికి లేదా నిలిపివేయడానికి టోగుల్‌ను ఉపయోగించండి.</string>
+    <string name="top_matches_priority_dialog_info">క్రమం మార్చడానికి నొక్కి పట్టి లాగండి. ఫలిత రకాలను ఆన్ లేదా ఆఫ్ చేయండి.</string>
     <string name="top_matches_priority_title">టాప్ మ్యాచ్‌లను నిర్వహించండి</string>
     <string name="top_matches_title">టాప్ మ్యాచ్‌లు</string>
     <string name="top_matches_toggle_desc">అన్ని రకాలలో అత్యుత్తమంగా సరిపోలిన ఫలితాలను ఒకే జాబితాలో చూపించు.</string>

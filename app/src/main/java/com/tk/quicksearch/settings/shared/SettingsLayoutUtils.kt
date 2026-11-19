@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
@@ -52,6 +53,31 @@ fun Modifier.settingsScrollClip(scrollState: ScrollState): Modifier {
                 top = scrollState.value.toFloat().coerceIn(0f, maxRadius),
                 bottom = (scrollState.maxValue - scrollState.value).toFloat().coerceIn(0f, maxRadius),
             )
+        clip = true
+    }
+}
+
+/** Scroll-aware clipping for a lazy settings list. Apply to the list that owns [listState]. */
+fun Modifier.settingsScrollClip(listState: LazyListState): Modifier {
+    val shapes = ScrollEdgeShapeCache()
+    return graphicsLayer {
+        val maxRadius = DesignTokens.SegmentedListOuterCorner.toPx()
+        val top = if (listState.firstVisibleItemIndex == 0) {
+            listState.firstVisibleItemScrollOffset.toFloat().coerceIn(0f, maxRadius)
+        } else {
+            maxRadius
+        }
+        val layout = listState.layoutInfo
+        val lastVisible = layout.visibleItemsInfo.lastOrNull()
+        val bottom = when {
+            !listState.canScrollForward || lastVisible == null -> 0f
+            lastVisible.index < layout.totalItemsCount - 1 -> maxRadius
+            else -> {
+                val contentEnd = lastVisible.offset + lastVisible.size + layout.afterContentPadding
+                (contentEnd - layout.viewportEndOffset).toFloat().coerceIn(0f, maxRadius)
+            }
+        }
+        shape = shapes.shapeFor(top = top, bottom = bottom)
         clip = true
     }
 }

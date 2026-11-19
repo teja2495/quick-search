@@ -325,7 +325,7 @@
     <string name="search_section_menu_title">Buscar en</string>
     <string name="top_matches_count_label">N.º de resultados</string>
     <string name="top_matches_priority_desc">Cambia la prioridad y desactiva elementos en los mejores resultados</string>
-    <string name="top_matches_priority_dialog_info">Mantén presionado y arrastra para cambiar la prioridad. Usa el interruptor para activar o desactivar ciertos tipos de resultados.</string>
+    <string name="top_matches_priority_dialog_info">Mantén pulsado y arrastra para reordenar. Activa o desactiva tipos de resultados.</string>
     <string name="top_matches_priority_title">Gestionar mejores resultados</string>
     <string name="top_matches_title">Mejores resultados</string>
     <string name="top_matches_toggle_desc">Muestra los resultados con mejor coincidencia de todos los tipos en una sola lista.</string>

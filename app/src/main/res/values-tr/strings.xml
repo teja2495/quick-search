@@ -324,7 +324,7 @@
 <string name="search_section_menu_title">Şurada ara</string>
 <string name="top_matches_count_label">Eşleşme sayısı</string>
 <string name="top_matches_priority_desc">En iyi eşleşmelerdeki öğelerin önceliğini değiştir ve devre dışı bırak</string>
-<string name="top_matches_priority_dialog_info">Önceliği değiştirmek için basılı tutup sürükle; belirli sonuç türlerini etkinleştirmek veya devre dışı bırakmak için anahtarı kullan.</string>
+<string name="top_matches_priority_dialog_info">Sıralamak için basılı tutup sürükle. Sonuç türlerini aç veya kapat.</string>
 <string name="top_matches_priority_title">En iyi eşleşmeleri yönet</string>
 <string name="top_matches_title">En iyi eşleşmeler</string>
 <string name="top_matches_toggle_desc">Tüm türlerde en iyi eşleşen sonuçları tek bir listede göster.</string>

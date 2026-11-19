@@ -325,7 +325,7 @@
 <string name="search_section_menu_title">Rechercher dans</string>
 <string name="top_matches_count_label">Nb de correspondances</string>
 <string name="top_matches_priority_desc">Modifier la priorité et désactiver des éléments dans les meilleurs résultats</string>
-<string name="top_matches_priority_dialog_info">Maintenez et glissez pour modifier la priorité, et utilisez le bouton pour activer ou désactiver certains types de résultats.</string>
+<string name="top_matches_priority_dialog_info">Maintenez et faites glisser pour réorganiser. Activez ou désactivez les types de résultats.</string>
 <string name="top_matches_priority_title">Gérer les meilleurs résultats</string>
 <string name="top_matches_title">Meilleurs résultats</string>
 <string name="top_matches_toggle_desc">Afficher les résultats les plus pertinents de tous les types dans une seule liste.</string>

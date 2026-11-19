@@ -325,7 +325,7 @@
     <string name="search_section_menu_title">Pesquisar em</string>
     <string name="top_matches_count_label">Nº de correspondências</string>
     <string name="top_matches_priority_desc">Alterar prioridade e desativar itens nas melhores correspondências</string>
-    <string name="top_matches_priority_dialog_info">Toque e arraste para alterar a prioridade e use a opção para ativar ou desativar certos tipos de resultados.</string>
+    <string name="top_matches_priority_dialog_info">Toque e segure, depois arraste para reordenar. Ative ou desative tipos de resultados.</string>
     <string name="top_matches_priority_title">Gerenciar melhores correspondências</string>
     <string name="top_matches_title">Melhores correspondências</string>
     <string name="top_matches_toggle_desc">Mostrar os resultados com melhor correspondência de todos os tipos em uma única lista.</string>

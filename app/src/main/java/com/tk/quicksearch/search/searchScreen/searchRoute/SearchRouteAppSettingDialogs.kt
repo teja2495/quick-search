@@ -21,6 +21,7 @@ import com.tk.quicksearch.settings.settingsDetailScreen.AppSuggestionTabsDialog
 import com.tk.quicksearch.settings.gestureSettings.GestureSettingsDialogs
 import com.tk.quicksearch.settings.settingsDetailScreen.PinnedNotificationItemsDialog
 import com.tk.quicksearch.settings.settingsDetailScreen.PriorityReorderDialog
+import com.tk.quicksearch.settings.settingsDetailScreen.TOP_MATCHES_DRAWER_HEIGHT_FRACTION
 import com.tk.quicksearch.settings.gestureSettings.rememberGestureSettingsState
 import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.settings.settingsScreen.AppLanguagePickerDialog
@@ -69,6 +70,7 @@ internal fun AppSettingRouteDialogs(
                     viewModel.applySettingsCommand(SettingsCommand.TopMatchesSectionEnabled(section, enabled))
                 },
                 onDismiss = onDismiss,
+                heightFraction = TOP_MATCHES_DRAWER_HEIGHT_FRACTION,
             )
         }
         AppSettingRouteDialog.APP_SUGGESTION_TABS ->
