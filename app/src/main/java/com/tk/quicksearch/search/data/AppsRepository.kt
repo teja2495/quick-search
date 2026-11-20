@@ -289,7 +289,7 @@ class AppsRepository(
         val usageLoadedAtElapsedMs = SystemClock.elapsedRealtime()
         val profileApps = queryLaunchableAppsFromAllProfiles()
         val launcherAppsQueriedAtElapsedMs = SystemClock.elapsedRealtime()
-        val launchableApps =
+        val launcherEntryApps =
             if (profileApps.isNotEmpty()) {
                 profileApps
                     .filter { includeArchivedApps || !isArchived(it.applicationInfo) }
@@ -300,6 +300,10 @@ class AppsRepository(
                     .distinctBy { it.activityInfo.packageName }
                     .map { createAppInfo(it, usageMap, launchCounts) }
             }
+        val launchableApps =
+            launcherEntryApps +
+                InfoEntryApps.query(packageManager, launcherEntryApps.mapTo(HashSet()) { it.packageName })
+                    .map { createAppInfo(it, usageMap, launchCounts) }
         val appInfoCreatedAtElapsedMs = SystemClock.elapsedRealtime()
         val nonLaunchableApps =
             if (includeNonLaunchableApps) {

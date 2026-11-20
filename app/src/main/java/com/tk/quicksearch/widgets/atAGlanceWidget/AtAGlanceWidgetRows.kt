@@ -18,6 +18,8 @@ import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.data.ContactBirthday
 import com.tk.quicksearch.search.data.ContactBirthdaysRepository
 import com.tk.quicksearch.search.glance.GlanceNotificationsStore
+import com.tk.quicksearch.search.glance.asEtaText
+import com.tk.quicksearch.search.glance.parseNavigationInstruction
 import com.tk.quicksearch.search.glance.MissedCallNotification
 import com.tk.quicksearch.search.glance.OtpNotifications
 import com.tk.quicksearch.search.data.ReminderRepository
@@ -220,6 +222,7 @@ internal class AtAGlanceWidgetRowLoader(
         titleMaxLines: Int = Int.MAX_VALUE,
         largeSubtitle: Boolean = false,
         pill: String? = null,
+        pillIcon: androidx.compose.ui.graphics.vector.ImageVector? = null,
         footer: String? = null,
         progress: Float? = null,
         progressFlag: Boolean = false,
@@ -235,7 +238,7 @@ internal class AtAGlanceWidgetRowLoader(
         titleStyle = titleStyle,
         titleMaxLines = titleMaxLines,
         largeSubtitle = largeSubtitle,
-        pill = pill?.let { AtAGlanceWidgetPill(it) },
+        pill = pill?.let { AtAGlanceWidgetPill(it, icon = pillIcon) },
         footer = footer,
         progress = progress,
         progressFlag = progressFlag,
@@ -547,6 +550,7 @@ internal class AtAGlanceWidgetRowLoader(
         val percentFormat = NumberFormat.getPercentInstance()
         return progress.map { notification ->
             val appLabel = appLabel(notification.packageName)
+            val navigation = notification.takeIf { it.isNavigation }?.title?.let(::parseNavigationInstruction)
             // A Live Update without a bar, such as a ride's "Driver 3 min away", shows its short text instead.
             val fraction =
                 notification.progress.toFloat().div(notification.progressMax).takeIf { notification.progressMax > 0 }
@@ -554,10 +558,10 @@ internal class AtAGlanceWidgetRowLoader(
                 prefix = "progress",
                 key = notification.key,
                 packageName = notification.packageName,
-                title = notification.title ?: appLabel,
+                title = navigation?.title ?: notification.title ?: appLabel,
                 subtitle =
                     if (notification.isNavigation) {
-                        notification.subText ?: notification.text
+                        (notification.subText ?: notification.text)?.asEtaText()
                     } else {
                         notification.text ?: notification.subText
                     } ?: appLabel.takeIf { notification.title != null },
@@ -565,6 +569,7 @@ internal class AtAGlanceWidgetRowLoader(
                 pill =
                     fraction?.takeUnless { notification.isNavigation }?.let { percentFormat.format(it.toDouble()) }
                         ?: notification.shortCriticalText,
+                pillIcon = navigation?.icon,
                 progress = fraction?.takeIf { it >= MIN_VISIBLE_PROGRESS },
                 progressFlag = notification.isNavigation,
             )

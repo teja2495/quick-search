@@ -56,6 +56,8 @@ internal enum class AtAGlanceWidgetPillStyle {
 internal data class AtAGlanceWidgetPill(
     val text: String,
     val style: AtAGlanceWidgetPillStyle = AtAGlanceWidgetPillStyle.NEUTRAL,
+    /** Drawn before the text, such as a navigation turn. */
+    val icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
 )
 
 /** Home's row buttons. */

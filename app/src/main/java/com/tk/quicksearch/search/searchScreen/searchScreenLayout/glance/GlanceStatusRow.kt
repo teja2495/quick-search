@@ -18,6 +18,8 @@ import com.tk.quicksearch.shared.ui.components.AppOutlinedButton
 import com.tk.quicksearch.shared.ui.components.AppButton
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -132,6 +134,8 @@ internal fun GlanceStatusRow(
     pillText: String? = null,
     pillColors: GlancePillColors = glanceNeutralPillColors(),
     pillWidthText: String? = null,
+    /** Shown before the pill's text, such as a navigation turn arrow. */
+    pillIcon: (@Composable () -> Unit)? = null,
     onDismiss: (() -> Unit)? = null,
     dismissAtTop: Boolean = false,
     belowText: (@Composable () -> Unit)? = null,
@@ -227,13 +231,21 @@ internal fun GlanceStatusRow(
                             modifier = Modifier.alpha(0f).clearAndSetSemantics {},
                         )
                     }
-                    Text(
-                        text = pillText,
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = pillColors.content,
-                        maxLines = 1,
-                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        if (pillIcon != null) {
+                            CompositionLocalProvider(LocalContentColor provides pillColors.content) { pillIcon() }
+                        }
+                        Text(
+                            text = pillText,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = pillColors.content,
+                            maxLines = 1,
+                        )
+                    }
                 }
             }
             if (hasMenu) {

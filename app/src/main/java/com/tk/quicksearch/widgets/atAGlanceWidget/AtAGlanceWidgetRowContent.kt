@@ -111,7 +111,7 @@ internal fun AtAGlanceWidgetRowContent(
         }
         row.pill?.let { pill ->
             Spacer(modifier = GlanceModifier.width(AtAGlanceWidgetDimens.ICON_TEXT_SPACING))
-            Pill(pill, colors, textScale)
+            Pill(context, pill, colors, textScale)
         }
         if (row.trailing.isNotEmpty()) {
             row.trailing.forEachIndexed { index, button ->
@@ -258,6 +258,7 @@ private fun TextGap() {
 
 @Composable
 private fun Pill(
+    context: Context,
     pill: AtAGlanceWidgetPill,
     colors: AtAGlanceWidgetRowColors,
     textScale: Float,
@@ -275,7 +276,15 @@ private fun Pill(
                 .padding(horizontal = 10.dp, vertical = 4.dp),
         contentAlignment = Alignment.Center,
     ) {
-        LabelText(pill.text, content, textScale)
+        if (pill.icon == null) {
+            LabelText(pill.text, content, textScale)
+        } else {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                VectorImage(context, pill.icon, content, 16.dp)
+                Spacer(modifier = GlanceModifier.width(4.dp))
+                LabelText(pill.text, content, textScale)
+            }
+        }
     }
 }
 
