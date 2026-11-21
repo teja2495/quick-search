@@ -30,6 +30,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -393,12 +399,7 @@ fun SettingsVersionDisplay(
                     .background(tileColor, iconShape)
                     .then(identityModifier),
         ) {
-            Box(
-                modifier =
-                    Modifier
-                        .size(VersionFooterCookieSize)
-                        .background(MaterialTheme.colorScheme.secondaryContainer, AppShapes.cookie9),
-            )
+            VersionFooterCookie()
             if (appIcon != null) {
                 Image(
                     bitmap = appIcon,
@@ -485,5 +486,38 @@ fun SettingsVersionDisplay(
     }
 }
 
+/**
+ * Cookie behind the app icon. It turns slowly while at least half of it is on screen and pauses
+ * where it is when scrolled away, so it costs no frames while hidden.
+ */
+@Composable
+private fun VersionFooterCookie() {
+    var isVisible by remember { mutableStateOf(false) }
+    val rotation = remember { Animatable(0f) }
+    LaunchedEffect(isVisible) {
+        if (!isVisible) return@LaunchedEffect
+        while (true) {
+            // Continue from the paused angle so resuming never jumps.
+            val start = rotation.value % 360f
+            rotation.snapTo(start)
+            rotation.animateTo(
+                targetValue = start + 360f,
+                animationSpec = tween(durationMillis = VersionFooterCookieRotationMillis, easing = LinearEasing),
+            )
+        }
+    }
+    Box(
+        modifier =
+            Modifier
+                .size(VersionFooterCookieSize)
+                .onVisibilityChanged(minFractionVisible = 0.5f) { visible -> isVisible = visible }
+                .graphicsLayer { rotationZ = rotation.value }
+                .background(MaterialTheme.colorScheme.secondaryContainer, AppShapes.cookie9),
+    )
+}
+
 private val VersionFooterIconSize = 44.dp
 private val VersionFooterCookieSize = 88.dp
+
+// Looping period, not a transition duration, so it stays local (see DESIGN_SYSTEM.md motion).
+private const val VersionFooterCookieRotationMillis = 16_000
