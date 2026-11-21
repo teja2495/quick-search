@@ -3,7 +3,7 @@ package com.tk.quicksearch.search.apps.appLock
 import android.content.Context
 import android.content.SharedPreferences
 
-/** Persistent per-package biometric lock state used while Quick Search is the default launcher. */
+/** Persistent per-package biometric lock state. */
 object AppLock {
     private const val PreferencesName = "app_lock_state"
     private const val LockedPackagesKey = "locked_packages"

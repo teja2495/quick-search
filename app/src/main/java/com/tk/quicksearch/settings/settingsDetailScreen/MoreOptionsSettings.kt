@@ -67,13 +67,12 @@ fun MoreOptionsSettings(
                 subtitleRes = R.string.notification_dots_toggle_desc,
                 leadingIcon = MaterialSymbols.Notifications,
             ),
-            // App Lock only works while Quick Search is the default launcher.
             ToggleItem(
                 key = AppSettingsToggleKey.APP_LOCK_OUTSIDE_QUICK_SEARCH,
                 titleRes = R.string.app_lock_outside_quick_search_title,
                 subtitleRes = R.string.app_lock_outside_quick_search_desc,
                 leadingIcon = MaterialSymbols.Lock,
-            ).takeIf { isDefaultLauncher },
+            ),
             ToggleItem(
                 key = AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH,
                 titleRes = R.string.speed_bump_outside_quick_search_title,

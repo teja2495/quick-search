@@ -11,7 +11,6 @@ import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import com.tk.quicksearch.R
-import com.tk.quicksearch.shared.util.cachedDefaultHomeAppStatus
 import java.lang.ref.WeakReference
 
 /**
@@ -52,7 +51,7 @@ object AppLockGate {
     }
 
     fun isProtected(context: Context, packageName: String): Boolean =
-        context.cachedDefaultHomeAppStatus() && AppLock.isLocked(context, packageName)
+        AppLock.isLocked(context, packageName)
 
     /** Runs [action] right away for unlocked apps, otherwise only after biometric authentication. */
     fun runAfterUnlock(

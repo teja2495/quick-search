@@ -138,7 +138,7 @@ internal fun AppNotificationRow(
                 text = "$appLabel • $age",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
+                maxLines = GlanceTextMaxLines,
                 overflow = TextOverflow.Ellipsis,
             )
         },

@@ -248,7 +248,7 @@ fun AppItemDropdownMenu(
         appInfo.appName,
     )
     val appLockAction =
-        if (isDefaultLauncher && isOtherLaunchableApp) {
+        if (isOtherLaunchableApp) {
             ItemMenuRow(
                 label = stringResource(
                     if (appLockEnabled) R.string.action_unlock_app else R.string.action_lock_app,
@@ -286,7 +286,6 @@ fun AppItemDropdownMenu(
         }
 
     val appearanceRows = buildList {
-        if (!isDefaultLauncher) speedBumpAction?.let(::add)
         if (isLaunchableApp) {
             add(ItemMenuRow(
                 label = stringResource(
@@ -305,12 +304,7 @@ fun AppItemDropdownMenu(
         }
     }
 
-    val speedBumpAndLockButtons =
-        if (isDefaultLauncher) {
-            listOfNotNull(speedBumpAction, appLockAction)
-        } else {
-            emptyList()
-        }
+    val speedBumpAndLockButtons = listOfNotNull(speedBumpAction, appLockAction)
 
     val splitAndIconButtons = buildList {
         if (isCurrentApp) {

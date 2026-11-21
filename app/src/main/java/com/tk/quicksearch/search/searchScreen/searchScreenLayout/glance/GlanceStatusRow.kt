@@ -130,7 +130,7 @@ internal fun GlanceStatusRow(
     headline: String? = null,
     titleStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     titleColor: Color = MaterialTheme.colorScheme.onSurface,
-    titleMaxLines: Int = 1,
+    titleMaxLines: Int = GlanceTextMaxLines,
     subtitle: String? = null,
     subtitleStyle: TextStyle = MaterialTheme.typography.bodyMedium,
     pillText: String? = null,
@@ -204,7 +204,7 @@ internal fun GlanceStatusRow(
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Medium,
                         color = titleColor,
-                        maxLines = 1,
+                        maxLines = GlanceTextMaxLines,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }

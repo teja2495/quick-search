@@ -272,7 +272,13 @@ private fun Pill(
         modifier =
             GlanceModifier
                 .background(ImageProvider(background), colorFilter = ColorFilter.tint(container))
-                .padding(horizontal = 10.dp, vertical = 4.dp),
+                // TextView's font padding sits a lone label about 1dp low, so text-only pills lift it.
+                .padding(
+                    start = 10.dp,
+                    end = 10.dp,
+                    top = if (pill.icon == null) 3.dp else 4.dp,
+                    bottom = if (pill.icon == null) 5.dp else 4.dp,
+                ),
         contentAlignment = Alignment.Center,
     ) {
         if (pill.icon == null) {

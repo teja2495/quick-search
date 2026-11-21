@@ -118,8 +118,6 @@ object AppLockLaunchWatcher {
         allowedPackage = null
         pendingPackage = null
         if (packageName !in lockedPackages) return false
-        // App Lock only protects apps while Quick Search is the default launcher.
-        if (!AppLockGate.isProtected(context, packageName)) return false
         pendingPackage = packageName
         AppLockActivity.start(context, packageName)
         return true
