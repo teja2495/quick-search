@@ -214,10 +214,24 @@ object AppColors {
         get() = current.searchBarTextAndIcon
 
     @Composable
-    fun getSearchBarTextAndIconColor(@Suppress("UNUSED_PARAMETER") showWallpaperBackground: Boolean): Color = SearchBarTextAndIcon
+    fun getSearchBarTextAndIconColor(showWallpaperBackground: Boolean): Color =
+        if (usesDarkDynamicSearchSurface(showWallpaperBackground)) {
+            MaterialTheme.colorScheme.onSecondaryContainer
+        } else {
+            SearchBarTextAndIcon
+        }
 
     @Composable
-    fun getSearchBarSecondaryIconTint(@Suppress("UNUSED_PARAMETER") showWallpaperBackground: Boolean): Color = SecondaryIconTint
+    private fun usesDarkDynamicSearchSurface(showWallpaperBackground: Boolean): Boolean =
+        showWallpaperBackground && LocalDeviceDynamicColorsActive.current && LocalAppIsDarkTheme.current
+
+    @Composable
+    fun getSearchBarSecondaryIconTint(showWallpaperBackground: Boolean): Color =
+        if (usesDarkDynamicSearchSurface(showWallpaperBackground)) {
+            MaterialTheme.colorScheme.onSecondaryContainer
+        } else {
+            SecondaryIconTint
+        }
 
     /** Solid charcoal for elevated cards on AMOLED true-black backgrounds. */
     val AmoledCardBackground: Color = Color(0xFF161616)
@@ -500,7 +514,12 @@ object AppColors {
     @Composable
     fun getSearchEngineSectionBackground(showWallpaperBackground: Boolean): Color {
         if (showWallpaperBackground && LocalDeviceDynamicColorsActive.current) {
-            return MaterialTheme.colorScheme.surfaceContainerHigh
+            // Dark Material You matches the Pixel Launcher's Google bar: a tinted secondary container.
+            return if (LocalAppIsDarkTheme.current) {
+                MaterialTheme.colorScheme.secondaryContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceContainerHigh
+            }
         }
         val isLightWithWallpaper = !LocalAppIsDarkTheme.current && showWallpaperBackground
         val base = if (!LocalAppIsDarkTheme.current) Color.White else Color.Black
