@@ -341,6 +341,12 @@
     <string name="notification_dots_toggle_title">Points de notification</string>
     <string name="notification_dots_toggle_desc">Afficher des points de notification sur les applications qui ont des notifications</string>
     <string name="desc_notification_dot">A des notifications</string>
+    <string name="notification_dots_style_dots">Points</string>
+    <string name="notification_dots_style_count">Nombre</string>
+    <plurals name="desc_notification_count">
+        <item quantity="one">%d notification</item>
+        <item quantity="other">%d notifications</item>
+    </plurals>
     <string name="show_in_recents_toggle_title">Afficher dans les applications récentes</string>
     <string name="show_in_recents_toggle_desc">Afficher Quick Search dans les applications récentes de votre appareil</string>
 <string name="web_search_suggestions_title">Suggestions Web</string>

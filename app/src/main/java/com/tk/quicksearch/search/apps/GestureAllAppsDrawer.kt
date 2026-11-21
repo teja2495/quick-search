@@ -9,7 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotKeys
+import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationBadges
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.appShortcutRepository.isShortcutDisabled
 import com.tk.quicksearch.search.folders.appFolderMemberKey
@@ -54,7 +54,7 @@ internal fun List<StaticShortcut>.enabledByPackage(
 internal fun GestureAllAppsDrawer(params: AppsSectionParams?) {
     val controller = LocalAllAppsDrawerController.current
     if (!controller.isOpen || params == null || params.allApps.isEmpty()) return
-    val notificationDotKeys = rememberNotificationDotKeys(params.notificationDotsEnabled)
+    val notificationBadges = rememberNotificationBadges(params.notificationDotsEnabled, params.notificationCountsEnabled)
     val apps = remember(params.allApps) { params.allApps.sortedForAllApps() }
     val shortcutsByPackage =
         remember(params.appShortcuts, params.disabledAppShortcutIds) {
@@ -113,6 +113,6 @@ internal fun GestureAllAppsDrawer(params: AppsSectionParams?) {
         appIconSizeStep = params.appIconSizeStep,
         iconPackPackage = params.iconPackPackage,
         appIconShape = params.appIconShape,
-        notificationDotKeys = notificationDotKeys,
+        notificationBadges = notificationBadges,
     )
 }

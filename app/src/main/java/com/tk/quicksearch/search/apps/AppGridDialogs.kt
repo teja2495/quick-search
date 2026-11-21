@@ -38,8 +38,8 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.tk.quicksearch.search.apps.notificationDots.AppNotificationDot
-import com.tk.quicksearch.search.apps.notificationDots.hasNotificationDot
+import com.tk.quicksearch.search.apps.notificationDots.AppNotificationBadge
+import com.tk.quicksearch.search.apps.notificationDots.NotificationBadges
 import com.tk.quicksearch.search.apps.privateSpace.privateSpaceItems
 import com.tk.quicksearch.search.apps.privateSpace.rememberPrivateSpaceController
 import com.tk.quicksearch.search.common.AddToHomeHandler
@@ -78,7 +78,7 @@ internal fun AllAppsDrawer(
         appIconSizeStep: Int,
         iconPackPackage: String?,
         appIconShape: AppIconShape,
-        notificationDotKeys: Set<String> = emptySet(),
+        notificationBadges: NotificationBadges = NotificationBadges.None,
 ) {
     val dialogColumns = getAppGridColumns(phoneColumnOverride)
     val context = LocalContext.current
@@ -121,7 +121,7 @@ internal fun AllAppsDrawer(
                             appIconSizeStep = appIconSizeStep,
                             iconPackPackage = iconPackPackage,
                             appIconShape = appIconShape,
-                            notificationDotKeys = notificationDotKeys,
+                            notificationBadges = notificationBadges,
                             onClick = { onAppClick(app) },
                             shortcuts = shortcutsByPackage[app.packageName].orEmpty(),
                             appActions =
@@ -171,7 +171,7 @@ internal fun AllAppsDrawer(
                             appIconSizeStep = appIconSizeStep,
                             iconPackPackage = iconPackPackage,
                             appIconShape = appIconShape,
-                            notificationDotKeys = emptySet(),
+                            notificationBadges = NotificationBadges.None,
                             onClick = {
                                 onDismiss()
                                 privateSpace.launch(context, app)
@@ -200,7 +200,7 @@ internal fun AllAppsDialogGridItem(
         appIconSizeStep: Int,
         iconPackPackage: String?,
         appIconShape: AppIconShape,
-        notificationDotKeys: Set<String>,
+        notificationBadges: NotificationBadges,
         onClick: () -> Unit,
         shortcuts: List<StaticShortcut> = emptyList(),
         // Null for apps without an options menu or swipe gestures (Private Space).
@@ -268,7 +268,7 @@ internal fun AllAppsDialogGridItem(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(iconSize),
                 )
-                AppNotificationDot(visible = app.hasNotificationDot(notificationDotKeys))
+                AppNotificationBadge(count = notificationBadges.countFor(app), showCount = notificationBadges.showCount)
             }
             Text(
                     text = app.appName,

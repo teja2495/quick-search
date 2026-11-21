@@ -54,6 +54,11 @@ class UserAppPreferences(context: Context) : UserAppPreferencesFeatures(context)
     fun setNotificationDotsEnabled(enabled: Boolean) =
             uiPreferences.setNotificationDotsEnabled(enabled)
 
+    fun areNotificationCountsEnabled(): Boolean = uiPreferences.areNotificationCountsEnabled()
+
+    fun setNotificationCountsEnabled(enabled: Boolean) =
+            uiPreferences.setNotificationCountsEnabled(enabled)
+
     fun getSelectedAppSuggestionTab(): AppSuggestionTabType =
             uiPreferences.getSelectedAppSuggestionTab()
 

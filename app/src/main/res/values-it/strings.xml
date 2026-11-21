@@ -340,6 +340,12 @@
     <string name="notification_dots_toggle_title">Pallini di notifica</string>
     <string name="notification_dots_toggle_desc">Mostra i pallini di notifica sulle app che hanno notifiche</string>
     <string name="desc_notification_dot">Ha notifiche</string>
+    <string name="notification_dots_style_dots">Punti</string>
+    <string name="notification_dots_style_count">Numero</string>
+    <plurals name="desc_notification_count">
+        <item quantity="one">%d notifica</item>
+        <item quantity="other">%d notifiche</item>
+    </plurals>
     <string name="show_in_recents_toggle_title">Mostra nelle app recenti</string>
     <string name="show_in_recents_toggle_desc">Mostra Quick Search nelle app recenti del tuo dispositivo</string>
     <string name="web_search_suggestions_title">Suggerimenti web</string>

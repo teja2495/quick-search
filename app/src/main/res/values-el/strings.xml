@@ -341,6 +341,12 @@
     <string name="notification_dots_toggle_title">Τελείες ειδοποιήσεων</string>
     <string name="notification_dots_toggle_desc">Εμφάνιση τελειών ειδοποιήσεων στις εφαρμογές που έχουν ειδοποιήσεις</string>
     <string name="desc_notification_dot">Έχει ειδοποιήσεις</string>
+    <string name="notification_dots_style_dots">Κουκκίδες</string>
+    <string name="notification_dots_style_count">Αριθμός</string>
+    <plurals name="desc_notification_count">
+        <item quantity="one">%d ειδοποίηση</item>
+        <item quantity="other">%d ειδοποιήσεις</item>
+    </plurals>
     <string name="show_in_recents_toggle_title">Εμφάνιση στα Πρόσφατα</string>
     <string name="show_in_recents_toggle_desc">Εμφάνιση του Quick Search στις πρόσφατες εφαρμογές της συσκευής σας</string>
     <string name="web_search_suggestions_title">Προτάσεις ιστού</string>

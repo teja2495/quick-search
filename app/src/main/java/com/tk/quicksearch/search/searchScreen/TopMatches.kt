@@ -18,8 +18,6 @@ import com.tk.quicksearch.search.appShortcuts.AppShortcutSearchPolicy
 import com.tk.quicksearch.search.apps.AppNameAbbreviation
 import com.tk.quicksearch.search.apps.AppSearchInitials
 import com.tk.quicksearch.search.apps.AppSearchPolicy
-import com.tk.quicksearch.search.apps.notificationDots.hasNotificationDot
-import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotKeys
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SectionRenderContext

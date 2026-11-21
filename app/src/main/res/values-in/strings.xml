@@ -342,6 +342,11 @@
     <string name="notification_dots_toggle_title">Titik Notifikasi</string>
     <string name="notification_dots_toggle_desc">Tampilkan titik notifikasi pada aplikasi yang memiliki notifikasi</string>
     <string name="desc_notification_dot">Ada notifikasi</string>
+    <string name="notification_dots_style_dots">Titik</string>
+    <string name="notification_dots_style_count">Jumlah</string>
+    <plurals name="desc_notification_count">
+        <item quantity="other">%d notifikasi</item>
+    </plurals>
     <string name="show_in_recents_toggle_title">Tampilkan di Aplikasi Terbaru</string>
     <string name="show_in_recents_toggle_desc">Tampilkan Quick Search di aplikasi terbaru perangkat Anda</string>
     <string name="web_search_suggestions_title">Saran Web</string>

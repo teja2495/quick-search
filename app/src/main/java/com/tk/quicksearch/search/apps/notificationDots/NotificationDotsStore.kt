@@ -8,21 +8,22 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 internal object NotificationDotsStore {
-    private val keysState = MutableStateFlow<Set<String>>(emptySet())
+    private val countsState = MutableStateFlow<Map<String, Int>>(emptyMap())
 
-    val keys: StateFlow<Set<String>> = keysState.asStateFlow()
+    /** Active notification count per app key (package, and package:userId). */
+    val counts: StateFlow<Map<String, Int>> = countsState.asStateFlow()
 
     fun updateFromNotifications(notifications: Array<StatusBarNotification>?) {
-        keysState.value =
-            notifications
-                .orEmpty()
-                .filter { it.countsForDot() }
-                .flatMap { it.dotKeys() }
-                .toSet()
+        val counts = HashMap<String, Int>()
+        notifications
+            .orEmpty()
+            .filter { it.countsForDot() }
+            .forEach { sbn -> sbn.dotKeys().forEach { key -> counts[key] = (counts[key] ?: 0) + 1 } }
+        countsState.value = counts
     }
 
     fun clear() {
-        keysState.value = emptySet()
+        countsState.value = emptyMap()
     }
 }
 

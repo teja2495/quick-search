@@ -30,7 +30,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.tk.quicksearch.search.apps.notificationDots.hasNotificationDot
+import com.tk.quicksearch.search.apps.notificationDots.NotificationBadges
 import com.tk.quicksearch.search.apps.AppIconShape
 import com.tk.quicksearch.app.startup.StartupTrace
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
@@ -60,7 +60,7 @@ internal fun AppGridItem(
         appIconShape: AppIconShape = AppIconShape.DEFAULT,
         themedIconsEnabled: Boolean = true,
         showWallpaperBackground: Boolean = false,
-        notificationDotKeys: Set<String> = emptySet(),
+        notificationBadges: NotificationBadges = NotificationBadges.None,
         showPinnedIndicators: Boolean = false,
         isDragging: Boolean = false,
         dragOffset: IntOffset? = null,
@@ -231,7 +231,8 @@ internal fun AppGridItem(
                     themedIconsEnabled = themedIconsEnabled,
                     showWallpaperBackground = showWallpaperBackground,
                     showPinnedIndicator = showPinnedIndicators && appState.isPinned,
-                    showNotificationDot = appInfo.hasNotificationDot(notificationDotKeys),
+                    notificationCount = notificationBadges.countFor(appInfo),
+                    showNotificationCount = notificationBadges.showCount,
                     folderPreviewMember =
                             AppFolderMember.App(appInfo).takeIf { isMergeTarget },
             )

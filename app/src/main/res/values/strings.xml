@@ -347,6 +347,12 @@
     <string name="notification_dots_toggle_title">Notification Dots</string>
     <string name="notification_dots_toggle_desc">Show notification dots on apps that have notifications</string>
     <string name="desc_notification_dot">Has notifications</string>
+    <string name="notification_dots_style_dots">Dots</string>
+    <string name="notification_dots_style_count">Count</string>
+    <plurals name="desc_notification_count">
+        <item quantity="one">%d notification</item>
+        <item quantity="other">%d notifications</item>
+    </plurals>
     <string name="show_in_recents_toggle_title">Show in Recents</string>
     <string name="show_in_recents_toggle_desc">Show Quick Search in your device’s recent apps</string>
     <string name="web_search_suggestions_title">Web Suggestions</string>

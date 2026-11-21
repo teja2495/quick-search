@@ -381,6 +381,7 @@ data class AppsSectionParams(
     val suppressTopResultIndicator: Boolean = false,
     val showWallpaperBackground: Boolean = false,
     val notificationDotsEnabled: Boolean = false,
+    val notificationCountsEnabled: Boolean = false,
     val showUpdateCard: Boolean = false,
     val isUpdateReadyToInstall: Boolean = false,
     val onUpdateClick: () -> Unit = {},

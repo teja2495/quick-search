@@ -245,6 +245,7 @@ private fun renderAppsSection(
                 suppressTopResultIndicator = appsParams.suppressTopResultIndicator,
                 showWallpaperBackground = appsParams.showWallpaperBackground,
                 notificationDotsEnabled = appsParams.notificationDotsEnabled,
+                notificationCountsEnabled = appsParams.notificationCountsEnabled,
                 onGridAppeared = appsParams.onGridAppeared,
                 suppressSuggestionsEnterAnimation = appsParams.suppressSuggestionsEnterAnimation,
                 pinnedGridShortcuts = appsParams.pinnedGridAppShortcuts,

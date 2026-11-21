@@ -194,6 +194,14 @@ internal class SearchPreferencesDelegate(
         )
     }
 
+    fun setNotificationCountsEnabled(enabled: Boolean) {
+        updateBooleanPreference(
+            value = enabled,
+            preferenceSetter = userPreferences::setNotificationCountsEnabled,
+            stateUpdater = { updateConfigState { state -> state.copy(notificationCountsEnabled = it) } },
+        )
+    }
+
     fun setShowAllAppsButton(enabled: Boolean) {
         updateBooleanPreference(
             value = enabled,

@@ -345,6 +345,13 @@ open class UiPreferencesFeatures(context: Context) : UiPreferencesCore(context) 
         setBooleanPref(UiPreferences.KEY_NOTIFICATION_DOTS_ENABLED, enabled)
     }
 
+    fun areNotificationCountsEnabled(): Boolean =
+            getBooleanPref(UiPreferences.KEY_NOTIFICATION_COUNTS_ENABLED, false)
+
+    fun setNotificationCountsEnabled(enabled: Boolean) {
+        setBooleanPref(UiPreferences.KEY_NOTIFICATION_COUNTS_ENABLED, enabled)
+    }
+
     // ============================================================================
     // Web Search Suggestions Preferences
     // ============================================================================

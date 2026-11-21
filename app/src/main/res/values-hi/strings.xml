@@ -341,6 +341,12 @@
     <string name="notification_dots_toggle_title">नोटिफ़िकेशन डॉट्स</string>
     <string name="notification_dots_toggle_desc">जिन ऐप्स पर नोटिफ़िकेशन हैं उन पर नोटिफ़िकेशन डॉट्स दिखाएँ</string>
     <string name="desc_notification_dot">नोटिफ़िकेशन हैं</string>
+    <string name="notification_dots_style_dots">डॉट</string>
+    <string name="notification_dots_style_count">संख्या</string>
+    <plurals name="desc_notification_count">
+        <item quantity="one">%d नोटिफ़िकेशन</item>
+        <item quantity="other">%d नोटिफ़िकेशन</item>
+    </plurals>
     <string name="show_in_recents_toggle_title">हाल की ऐप्स में दिखाएँ</string>
     <string name="show_in_recents_toggle_desc">Quick Search को अपने डिवाइस की हाल की ऐप्स में दिखाएँ</string>
     <string name="web_search_suggestions_title">वेब सुझाव</string>

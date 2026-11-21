@@ -68,6 +68,9 @@ internal interface SearchViewModelPreferencesApi {
     fun setNotificationDotsEnabled(enabled: Boolean) =
         preferencesApiDelegate.setNotificationDotsEnabled(enabled)
 
+    fun setNotificationCountsEnabled(enabled: Boolean) =
+        preferencesApiDelegate.setNotificationCountsEnabled(enabled)
+
     fun setSelectedAppSuggestionTab(tab: AppSuggestionTabType) =
         preferencesApiDelegate.setSelectedAppSuggestionTab(tab)
 
@@ -373,6 +376,9 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
 
     fun setNotificationDotsEnabled(enabled: Boolean) =
         preferencesDelegate.setNotificationDotsEnabled(enabled)
+
+    fun setNotificationCountsEnabled(enabled: Boolean) =
+        preferencesDelegate.setNotificationCountsEnabled(enabled)
 
     fun setSelectedAppSuggestionTab(tab: AppSuggestionTabType) =
         preferencesDelegate.setSelectedAppSuggestionTab(tab)

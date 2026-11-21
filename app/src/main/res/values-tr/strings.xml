@@ -340,6 +340,12 @@
     <string name="notification_dots_toggle_title">Bildirim noktaları</string>
     <string name="notification_dots_toggle_desc">Bildirimi olan uygulamalarda bildirim noktalarını göster</string>
     <string name="desc_notification_dot">Bildirimleri var</string>
+    <string name="notification_dots_style_dots">Noktalar</string>
+    <string name="notification_dots_style_count">Sayı</string>
+    <plurals name="desc_notification_count">
+        <item quantity="one">%d bildirim</item>
+        <item quantity="other">%d bildirim</item>
+    </plurals>
     <string name="show_in_recents_toggle_title">Son kullanılanlarda göster</string>
     <string name="show_in_recents_toggle_desc">Quick Search\'ü cihazınızın son kullanılan uygulamalarında göster</string>
 <string name="web_search_suggestions_title">Web önerileri</string>

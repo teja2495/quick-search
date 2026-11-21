@@ -91,6 +91,9 @@ sealed interface SettingsCommand {
 
     data class AppIconShapeSetting(val shape: AppIconShape) : SettingsCommand
 
+    /** Notification badges show the count (true) or a dot (false). */
+    data class NotificationCountsSetting(val enabled: Boolean) : SettingsCommand
+
     data class LauncherAppIconSetting(val icon: LauncherAppIcon) : SettingsCommand
 }
 
@@ -223,6 +226,7 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
         is SettingsCommand.IconPackPackageSetting -> setIconPackPackage(command.packageName)
         is SettingsCommand.ResetAllAppIcons -> resetAllAppIconsToDefault()
         is SettingsCommand.AppIconShapeSetting -> setAppIconShape(command.shape)
+        is SettingsCommand.NotificationCountsSetting -> setNotificationCountsEnabled(command.enabled)
         is SettingsCommand.LauncherAppIconSetting -> setLauncherAppIcon(command.icon)
     }
 }

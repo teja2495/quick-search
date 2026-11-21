@@ -45,9 +45,9 @@ import com.tk.quicksearch.search.appSettings.AppSettingResultRow
 import com.tk.quicksearch.search.appShortcuts.AppShortcutRow
 import com.tk.quicksearch.search.apps.AppGridView
 import com.tk.quicksearch.search.apps.AppItemDropdownMenu
-import com.tk.quicksearch.search.apps.notificationDots.AppNotificationDot
-import com.tk.quicksearch.search.apps.notificationDots.hasNotificationDot
-import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotKeys
+import com.tk.quicksearch.search.apps.notificationDots.AppNotificationBadge
+import com.tk.quicksearch.search.apps.notificationDots.NotificationBadges
+import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationBadges
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.calendar.CalendarEventRow
 import com.tk.quicksearch.search.common.AddToHomeHandler
@@ -562,6 +562,7 @@ private fun TopMatchAppGrid(
         suppressTopResultIndicator = !isPredicted,
         showWallpaperBackground = params.showWallpaperBackground,
         notificationDotsEnabled = params.notificationDotsEnabled,
+        notificationCountsEnabled = params.notificationCountsEnabled,
     )
 }
 
@@ -573,7 +574,7 @@ private fun TopMatchAppRow(
     isPredicted: Boolean,
 ) {
     if (params == null) return
-    val notificationDotKeys = rememberNotificationDotKeys(params.notificationDotsEnabled)
+    val notificationBadges = rememberNotificationBadges(params.notificationDotsEnabled, params.notificationCountsEnabled)
     val view = LocalView.current
     val context = LocalContext.current
     val addToHomeHandler = remember(context) { AddToHomeHandler(context) }
@@ -630,7 +631,7 @@ private fun TopMatchAppRow(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(DesignTokens.IconSize),
                 )
-                AppNotificationDot(visible = app.hasNotificationDot(notificationDotKeys))
+                AppNotificationBadge(count = notificationBadges.countFor(app), showCount = notificationBadges.showCount)
             }
 
             Text(

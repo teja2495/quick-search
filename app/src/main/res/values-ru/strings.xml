@@ -341,6 +341,14 @@
     <string name="notification_dots_toggle_title">Точки уведомлений</string>
     <string name="notification_dots_toggle_desc">Показывать точки уведомлений на приложениях с уведомлениями</string>
     <string name="desc_notification_dot">Есть уведомления</string>
+    <string name="notification_dots_style_dots">Точки</string>
+    <string name="notification_dots_style_count">Число</string>
+    <plurals name="desc_notification_count">
+        <item quantity="one">%d уведомление</item>
+        <item quantity="few">%d уведомления</item>
+        <item quantity="many">%d уведомлений</item>
+        <item quantity="other">%d уведомления</item>
+    </plurals>
     <string name="show_in_recents_toggle_title">Показывать в недавних</string>
     <string name="show_in_recents_toggle_desc">Показывать Quick Search в списке недавних приложений устройства</string>
 <string name="web_search_suggestions_title">Поисковые подсказки</string>

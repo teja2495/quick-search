@@ -345,6 +345,7 @@ internal object SearchViewModelInitialStateFactory {
                 notificationDotsEnabled =
                     startupPreferencesReader.areNotificationDotsEnabled() &&
                         NotificationDotsPermission.canEnableNotificationDots(appContext),
+                notificationCountsEnabled = startupPreferencesReader.areNotificationCountsEnabled(),
                 selectedAppSuggestionTab = selectedAppSuggestionTab,
                 enabledAppSuggestionTabs = enabledAppSuggestionTabs,
                 selectRetainedQuery = !clearQueryOnLaunch && inMemoryRetainedQuery.isNotEmpty(),

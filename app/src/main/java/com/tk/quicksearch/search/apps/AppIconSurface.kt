@@ -48,7 +48,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.apps.notificationDots.AppNotificationDot
+import com.tk.quicksearch.search.apps.notificationDots.AppNotificationBadge
 import com.tk.quicksearch.search.apps.AppIconShape
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -85,7 +85,8 @@ internal fun AppIconSurface(
         themedIconsEnabled: Boolean = true,
         showWallpaperBackground: Boolean = false,
         showPinnedIndicator: Boolean = false,
-        showNotificationDot: Boolean = false,
+        notificationCount: Int = 0,
+        showNotificationCount: Boolean = false,
         folderPreviewMember: AppFolderMember? = null,
         isHeld: Boolean = false,
 ) {
@@ -348,8 +349,9 @@ internal fun AppIconSurface(
                         tint = colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentSecondaryAlpha),
                 )
             }
-            AppNotificationDot(
-                    visible = showNotificationDot,
+            AppNotificationBadge(
+                    count = notificationCount,
+                    showCount = showNotificationCount,
                     modifier =
                             if (showPinnedIndicator) {
                                 Modifier.padding(top = pinnedIndicatorInset + DesignTokens.SpacingMedium, end = pinnedIndicatorInset)

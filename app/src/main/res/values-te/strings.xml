@@ -341,6 +341,12 @@
     <string name="notification_dots_toggle_title">నోటిఫికేషన్ డాట్‌లు</string>
     <string name="notification_dots_toggle_desc">నోటిఫికేషన్‌లు ఉన్న యాప్‌లపై నోటిఫికేషన్ డాట్‌లను చూపించు</string>
     <string name="desc_notification_dot">నోటిఫికేషన్‌లు ఉన్నాయి</string>
+    <string name="notification_dots_style_dots">చుక్కలు</string>
+    <string name="notification_dots_style_count">సంఖ్య</string>
+    <plurals name="desc_notification_count">
+        <item quantity="one">%d నోటిఫికేషన్</item>
+        <item quantity="other">%d నోటిఫికేషన్‌లు</item>
+    </plurals>
     <string name="show_in_recents_toggle_title">ఇటీవలివాటిలో చూపించు</string>
     <string name="show_in_recents_toggle_desc">మీ పరికరంలోని ఇటీవలి యాప్‌లలో Quick Searchను చూపించు</string>
     <string name="web_search_suggestions_title">వెబ్ సూచనలు</string>

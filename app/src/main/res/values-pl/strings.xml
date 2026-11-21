@@ -342,6 +342,14 @@
     <string name="notification_dots_toggle_title">Kropki powiadomień</string>
     <string name="notification_dots_toggle_desc">Pokazuj kropki powiadomień na aplikacjach, które mają powiadomienia</string>
     <string name="desc_notification_dot">Ma powiadomienia</string>
+    <string name="notification_dots_style_dots">Kropki</string>
+    <string name="notification_dots_style_count">Liczba</string>
+    <plurals name="desc_notification_count">
+        <item quantity="one">%d powiadomienie</item>
+        <item quantity="few">%d powiadomienia</item>
+        <item quantity="many">%d powiadomień</item>
+        <item quantity="other">%d powiadomienia</item>
+    </plurals>
     <string name="show_in_recents_toggle_title">Pokaż w ostatnich</string>
     <string name="show_in_recents_toggle_desc">Pokaż Quick Search na ekranie ostatnich aplikacji urządzenia</string>
     <string name="web_search_suggestions_title">Sugestie sieciowe</string>

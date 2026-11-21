@@ -211,6 +211,7 @@ internal object SearchStateExtractor {
             includeArchivedAppsInSearch = s.includeArchivedAppsInSearch,
             showInRecents = s.showInRecents,
             notificationDotsEnabled = s.notificationDotsEnabled,
+            notificationCountsEnabled = s.notificationCountsEnabled,
             selectedAppSuggestionTab = s.selectedAppSuggestionTab,
             enabledAppSuggestionTabs = s.enabledAppSuggestionTabs,
             selectedIconPackPackage = s.selectedIconPackPackage,

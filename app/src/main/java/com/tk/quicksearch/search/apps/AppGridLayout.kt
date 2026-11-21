@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.common.AddToHomeHandler
 import com.tk.quicksearch.search.apps.AppIconShape
+import com.tk.quicksearch.search.apps.notificationDots.NotificationBadges
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.AppInfo
@@ -84,7 +85,7 @@ internal fun AppGrid(
         appIconShape: AppIconShape,
         themedIconsEnabled: Boolean = true,
         showWallpaperBackground: Boolean = false,
-        notificationDotKeys: Set<String> = emptySet(),
+        notificationBadges: NotificationBadges = NotificationBadges.None,
         showPinnedIndicators: Boolean = false,
         reorderPinnedApps: Boolean = false,
         scrollableRowCount: Int? = null,
@@ -589,7 +590,7 @@ internal fun AppGrid(
                                 appIconShape = appIconShape,
                                 themedIconsEnabled = themedIconsEnabled,
                                 showWallpaperBackground = showWallpaperBackground,
-                                notificationDotKeys = notificationDotKeys,
+                                notificationBadges = notificationBadges,
                                 showPinnedIndicators = showPinnedIndicators,
                                 onItemMeasured = { height ->
                                     measuredItemHeightPx = height.toFloat()
@@ -728,7 +729,7 @@ internal fun AppGrid(
                                     appIconShape = appIconShape,
                                     themedIconsEnabled = themedIconsEnabled,
                                     showWallpaperBackground = showWallpaperBackground,
-                                    notificationDotKeys = notificationDotKeys,
+                                    notificationBadges = notificationBadges,
                                     showPinnedIndicators = showPinnedIndicators,
                                     isDragging = isThisDragging,
                                     isMergeSource = isMergeSource,

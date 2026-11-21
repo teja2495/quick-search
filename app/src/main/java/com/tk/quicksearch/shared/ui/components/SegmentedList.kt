@@ -278,7 +278,10 @@ fun SegmentedTileRow(
     }
 }
 
-/** A switch tile with a tonal icon badge; the whole tile toggles. */
+/**
+ * A switch tile with a tonal icon badge; the whole row toggles. [expandedContent], when given,
+ * expands below the row while the switch is on, for a sub-option of the setting.
+ */
 @Composable
 fun SegmentedToggleTile(
     title: String,
@@ -289,6 +292,7 @@ fun SegmentedToggleTile(
     index: Int,
     count: Int,
     enabled: Boolean = true,
+    expandedContent: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     val view = LocalView.current
     val interactionSource = remember { MutableInteractionSource() }
@@ -300,26 +304,47 @@ fun SegmentedToggleTile(
             Modifier
                 .alpha(if (enabled) 1f else SegmentedTileDisabledAlpha),
     ) {
-        SegmentedTileRow(
-            title = title,
-            description = description,
-            modifier =
-                Modifier.toggleable(
-                    value = checked,
-                    enabled = enabled,
-                    role = Role.Switch,
-                    interactionSource = interactionSource,
-                    indication = androidx.compose.material3.ripple(),
-                    onValueChange = { newValue ->
-                        hapticToggle(view)()
-                        onCheckedChange(newValue)
-                    },
-                ),
-            leading = { TonalIconBadge(icon = icon) },
-            trailing = {
-                AppSwitch(checked = checked, onCheckedChange = null, enabled = enabled)
-            },
-        )
+        Column {
+            SegmentedTileRow(
+                title = title,
+                description = description,
+                modifier =
+                    Modifier.toggleable(
+                        value = checked,
+                        enabled = enabled,
+                        role = Role.Switch,
+                        interactionSource = interactionSource,
+                        indication = androidx.compose.material3.ripple(),
+                        onValueChange = { newValue ->
+                            hapticToggle(view)()
+                            onCheckedChange(newValue)
+                        },
+                    ),
+                leading = { TonalIconBadge(icon = icon) },
+                trailing = {
+                    AppSwitch(checked = checked, onCheckedChange = null, enabled = enabled)
+                },
+            )
+            if (expandedContent != null) {
+                AnimatedVisibility(
+                    visible = checked,
+                    enter = expandVertically(AppMotion.fastSpatial()) + fadeIn(tween(AppMotion.DurationShort, easing = AppMotion.EmphasizedDecelerateEasing)),
+                    exit = shrinkVertically(AppMotion.fastSpatial()) + fadeOut(tween(AppMotion.DurationExit, easing = AppMotion.EmphasizedAccelerateEasing)),
+                ) {
+                    Column(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    start = DesignTokens.SpacingLarge,
+                                    end = DesignTokens.SpacingLarge,
+                                    bottom = DesignTokens.SpacingLarge,
+                                ),
+                        content = expandedContent,
+                    )
+                }
+            }
+        }
     }
 }
 

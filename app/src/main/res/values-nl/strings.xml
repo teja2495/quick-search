@@ -349,6 +349,12 @@
     <string name="notification_dots_toggle_title">Meldingsstippen</string>
     <string name="notification_dots_toggle_desc">Meldingsstippen tonen op apps met meldingen</string>
     <string name="desc_notification_dot">Heeft meldingen</string>
+    <string name="notification_dots_style_dots">Stippen</string>
+    <string name="notification_dots_style_count">Aantal</string>
+    <plurals name="desc_notification_count">
+        <item quantity="one">%d melding</item>
+        <item quantity="other">%d meldingen</item>
+    </plurals>
     <string name="show_in_recents_toggle_title">In Recente apps tonen</string>
     <string name="show_in_recents_toggle_desc">Quick Search tonen in recente apps van je apparaat</string>
     <string name="web_search_suggestions_title">Websuggesties</string>

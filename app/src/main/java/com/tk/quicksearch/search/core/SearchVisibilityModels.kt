@@ -330,6 +330,7 @@ data class SearchUiState(
         val includeArchivedAppsInSearch: Boolean = true,
         val showInRecents: Boolean = false,
         val notificationDotsEnabled: Boolean = false,
+        val notificationCountsEnabled: Boolean = false,
         val selectedAppSuggestionTab: AppSuggestionTabType = AppSuggestionTabType.RECENTS,
         val enabledAppSuggestionTabs: Set<AppSuggestionTabType> = AppSuggestionTabType.DefaultEnabledTabs,
         // Section visibility preferences
@@ -644,6 +645,7 @@ fun SearchUiState(
                 includeArchivedAppsInSearch = config.includeArchivedAppsInSearch,
                 showInRecents = config.showInRecents,
                 notificationDotsEnabled = config.notificationDotsEnabled,
+                notificationCountsEnabled = config.notificationCountsEnabled,
                 selectedAppSuggestionTab = config.selectedAppSuggestionTab,
                 enabledAppSuggestionTabs = config.enabledAppSuggestionTabs,
                 selectedIconPackPackage = config.selectedIconPackPackage,

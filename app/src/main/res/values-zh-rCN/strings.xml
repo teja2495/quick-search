@@ -341,6 +341,11 @@
     <string name="notification_dots_toggle_title">通知圆点</string>
     <string name="notification_dots_toggle_desc">在有通知的应用上显示通知圆点</string>
     <string name="desc_notification_dot">有通知</string>
+    <string name="notification_dots_style_dots">圆点</string>
+    <string name="notification_dots_style_count">数量</string>
+    <plurals name="desc_notification_count">
+        <item quantity="other">%d 条通知</item>
+    </plurals>
     <string name="show_in_recents_toggle_title">在最近任务中显示</string>
     <string name="show_in_recents_toggle_desc">在设备的最近使用应用中显示 Quick Search</string>
     <string name="web_search_suggestions_title">网络联想建议</string>

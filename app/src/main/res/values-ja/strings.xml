@@ -342,6 +342,11 @@
     <string name="notification_dots_toggle_title">通知ドット</string>
     <string name="notification_dots_toggle_desc">通知のあるアプリに通知ドットを表示</string>
     <string name="desc_notification_dot">通知あり</string>
+    <string name="notification_dots_style_dots">ドット</string>
+    <string name="notification_dots_style_count">件数</string>
+    <plurals name="desc_notification_count">
+        <item quantity="other">通知 %d 件</item>
+    </plurals>
     <string name="show_in_recents_toggle_title">最近使用したアプリに表示</string>
     <string name="show_in_recents_toggle_desc">端末の最近使用したアプリ画面にQuick Searchを表示</string>
     <string name="web_search_suggestions_title">ウェブ検索候補</string>

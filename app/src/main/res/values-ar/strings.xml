@@ -342,6 +342,16 @@
     <string name="notification_dots_toggle_title">نقاط الإشعارات</string>
     <string name="notification_dots_toggle_desc">إظهار نقاط الإشعارات على التطبيقات التي لديها إشعارات</string>
     <string name="desc_notification_dot">يحتوي على إشعارات</string>
+    <string name="notification_dots_style_dots">نقاط</string>
+    <string name="notification_dots_style_count">العدد</string>
+    <plurals name="desc_notification_count">
+        <item quantity="zero">%d إشعار</item>
+        <item quantity="one">إشعار واحد</item>
+        <item quantity="two">إشعاران</item>
+        <item quantity="few">%d إشعارات</item>
+        <item quantity="many">%d إشعارًا</item>
+        <item quantity="other">%d إشعار</item>
+    </plurals>
     <string name="show_in_recents_toggle_title">إظهار في التطبيقات الحديثة</string>
     <string name="show_in_recents_toggle_desc">إظهار Quick Search في التطبيقات الحديثة على جهازك</string>
     <string name="web_search_suggestions_title">اقتراحات الويب</string>

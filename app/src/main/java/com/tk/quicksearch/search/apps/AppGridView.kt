@@ -22,7 +22,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
-import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotKeys
+import com.tk.quicksearch.search.apps.notificationDots.NotificationBadges
+import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationBadges
 import com.tk.quicksearch.search.apps.AppIconShape
 import com.tk.quicksearch.app.startup.StartupTrace
 import com.tk.quicksearch.search.apps.AppSuggestionTabType
@@ -86,6 +87,7 @@ fun AppGridView(
         themedIconsEnabled: Boolean = true,
         showWallpaperBackground: Boolean = false,
         notificationDotsEnabled: Boolean = false,
+        notificationCountsEnabled: Boolean = false,
         onGridAppeared: (() -> Unit)? = null,
         suppressSuggestionsEnterAnimation: Boolean = false,
         pinnedGridShortcuts: List<StaticShortcut> = emptyList(),
@@ -96,7 +98,7 @@ fun AppGridView(
         appFolders: List<AppFolder> = emptyList(),
         folderActions: AppGridFolderActions? = null,
 ) {
-    val notificationDotKeys = rememberNotificationDotKeys(notificationDotsEnabled)
+    val notificationBadges = rememberNotificationBadges(notificationDotsEnabled, notificationCountsEnabled)
     val context = LocalContext.current
     LaunchedEffect(notificationDotsEnabled) {
         if (notificationDotsEnabled) {
@@ -522,7 +524,7 @@ fun AppGridView(
                                 appIconShape = appIconShape,
                                 themedIconsEnabled = themedIconsEnabled,
                                 showWallpaperBackground = showWallpaperBackground,
-                                notificationDotKeys = notificationDotKeys,
+                                notificationBadges = notificationBadges,
                                 showPinnedIndicators =
                                         AppSuggestionTabType.PINNED !in enabledSuggestionTabs,
                                 reorderPinnedApps = selectedTab.type == AppSuggestionTabType.PINNED,
@@ -564,7 +566,7 @@ fun AppGridView(
                             appIconShape = appIconShape,
                             themedIconsEnabled = themedIconsEnabled,
                             showWallpaperBackground = showWallpaperBackground,
-                            notificationDotKeys = notificationDotKeys,
+                            notificationBadges = notificationBadges,
                             showPinnedIndicators =
                                     !isSearching &&
                                             AppSuggestionTabType.PINNED !in enabledSuggestionTabs,
@@ -661,7 +663,7 @@ fun AppGridView(
                     suppressTopResultIndicator = true,
                     appIconShape = appIconShape,
                     themedIconsEnabled = themedIconsEnabled,
-                    notificationDotKeys = notificationDotKeys,
+                    notificationBadges = notificationBadges,
                     reorderPinnedApps = true,
                     // Dropping a member on the popup's remove zone takes it out of the folder.
                     // The popup stays open unless that empties the folder.
@@ -711,7 +713,7 @@ fun AppGridView(
                 appIconSizeStep = appIconSizeStep,
                 iconPackPackage = iconPackPackage,
                 appIconShape = appIconShape,
-                notificationDotKeys = notificationDotKeys,
+                notificationBadges = notificationBadges,
         )
     }
 }
