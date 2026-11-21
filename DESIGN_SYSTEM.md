@@ -213,11 +213,14 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
 - **Icon shadows.** App icons and search engine icons over a light wallpaper, and the All Apps
   letter bubble, cast a shadow at a Material elevation level. A tonal surface can't separate a bare
   icon from an arbitrary wallpaper.
-- **Loading.** Material 3 Expressive's `LoadingIndicator` is still experimental in material3
-  1.5, so information cards (AI answers, weather, dictionary, currency, world clock) use
-  `InformationCardLoadingAnimation` (the same morphing shapes, built on graphics-shapes) and other
-  waits use `CircularProgressIndicator`. Switch area-filling waits to `LoadingIndicator` once it is
-  stable.
+- **Loading.** Every indeterminate wait uses `AppLoadingIndicator`, Material 3 Expressive's
+  `LoadingIndicator`, which is still experimental in material3 1.5 (the wrapper holds the opt-in).
+  Information cards (AI answers, weather, dictionary, currency, world clock) pair it with shimmering
+  placeholder lines in `InformationCardLoadingAnimation`. Determinate progress bars keep
+  `LinearProgressIndicator` / `LinearWavyProgressIndicator`.
+- **Segmented tiles.** `SegmentedTile` stays a custom container rather than Material's
+  `SegmentedListItem`: tiles hold free-form content, frosted backdrops, and caller-animated shapes
+  that the slot-based list item can't take. It follows the same segmented-list spec.
 - **Small badges.** Edit/remove badges on wallpaper thumbnails (20dp) and the notification history
   chevron are smaller than 48dp. They are clickable with a button role, and Compose extends their
   hit area to the 48dp minimum touch target where space allows.
@@ -247,8 +250,8 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
 - **Action menus:** `ItemMenuMaxWidth` 640, `ItemMenuRowHeight` 56.
 - **Sizes:** `IconSizeSmall` 20, `IconSize` 24, `LargeIconSize` 28, `IconSizeXLarge` 52,
   `ListItemMinHeight` 56 (one-line list row), `AppIconSize` 64, `BorderWidth` 1, `DividerThickness` 0.5,
-  `EditBadgeIconSize` 12 (pencil in an edit badge), `InlineProgressSize` 24 with
-  `InlineProgressStrokeWidth` 2 (a small spinner standing in for an icon or icon button).
+  `EditBadgeIconSize` 12 (pencil in an edit badge), `InlineProgressSize` 24 (a small loading
+  indicator standing in for an icon or icon button).
 - **At a Glance rows:** `GlanceRowMinHeight` 52, `GlanceRowHorizontalPadding` 7. The inset is off
   the 4dp grid; every glance row shares it so they line up. `ResultIconStartInset` gives the 24dp
   leading glyph in notes, reminders, calendar, and bookmark rows the same inset.
@@ -267,18 +270,20 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
   `favicon`, `faviconScaled` (corner is 20% of the icon, for favicons drawn at several sizes),
   `engineHighlight`, `inlineInput`, `field`. Use `full` rather than `CircleShape`.
 - **Builders:** `corners(...)`, `segment(...)`, `connected(...)`, `stacked(...)`.
-- **Press morphs:** `pressMorphPillShape` (every button), `pressMorphShape`,
-  `pressMorphButtonShape`, `floatingActionShape`, `pressMorphSegmentShape`. Connected button
-  groups use Material's `ButtonGroupDefaults` connected shapes.
-- **Expressive polygons:** `AppPolygons` holds the Material 3 Expressive polygons (`softBurst`,
-  `cookie9`, `pentagon`, `pill`, `sunny`, `cookie4`, `oval`) as `RoundedPolygon`s, plus
-  `PolygonShape`. `AppShapes.cookie9`/`cookie4` use them.
+- **Press morphs:** buttons and icon buttons use Material's own morph (`ButtonDefaults.shapes`,
+  `IconButtonDefaults.shapes`) inside their wrappers. Surfaces Material doesn't cover use
+  `pressMorphShape`, `pressMorphButtonShape`, `floatingActionShape` (FABs have no `shapes` API), and
+  `pressMorphSegmentShape`. Connected button groups use Material's `ButtonGroupDefaults` connected
+  shapes.
+- **Expressive polygons:** `AppPolygons` points at Material's `MaterialShapes` (`cookie9`,
+  `cookie4`), plus `PolygonShape`. `AppShapes.cookie9`/`cookie4` use them.
 
 ## Motion (`AppMotion.kt`)
 
-Springs follow the Material 3 Expressive motion scheme: `fastSpatial()` (small shape changes),
-`defaultSpatial()` (moves, rotations), `settle()` (no-bounce settle such as page snaps),
-`loadingMorph()` (looping shape morphs), `dragFeedback()` (grid drag and merge), and
+The theme (`MaterialExpressiveTheme` in `Theme.kt`) runs stock components on
+`MotionScheme.expressive()`. App-owned springs mirror that scheme: `fastSpatial()` (small shape
+changes), `defaultSpatial()` (moves, rotations), `settle()` (no-bounce settle such as page snaps),
+`dragFeedback()` (grid drag and merge), and
 `placement(visibilityThreshold)` (items settling into a new grid slot). Durations follow the
 Material 3 duration scale: `DurationMicro` 50, `DurationQuick` 100 (short2), `DurationExit` 150
 (short3, exits and fades out), `DurationShort` 200, `DurationStandard` 250 (medium1),
@@ -320,7 +325,7 @@ settings and add a property in sorted order.
 
 | Component | Material 3 pattern | Use for |
 |---|---|---|
-| `AppButton`, `AppTonalButton`, `AppOutlinedButton`, `AppTextButton`, `TonalButton` (`AppButtons.kt`) | Buttons | Every button. Pick a `tone` (`AppButtonTone.Accent` default, `Secondary` inside result cards, `Error` for destructive, `Neutral` for de-emphasized, `Custom(color)` over wallpaper), a `size` (`AppButtonSize.ExtraSmall` 32dp, `Small` 40dp default, `Medium` 56dp), and an optional `icon`. The wrappers own shape (a pill that squares on press), colors, and padding. `TonalButton` is the 48dp tonal action inside a tile (Reset, Edit, Delete) |
+| `AppButton`, `AppTonalButton`, `AppOutlinedButton`, `AppTextButton`, `TonalButton` (`AppButtons.kt`) | Buttons | Every button. Pick a `tone` (`AppButtonTone.Accent` default, `Secondary` inside result cards, `Error` for destructive, `Neutral` for de-emphasized, `Custom(color)` over wallpaper), a `size` (`AppButtonSize.ExtraSmall` 32dp, `Small` 40dp default, `Medium` 56dp), and an optional `icon`. The wrappers own shape (a pill that squares on press, via Material's `ButtonDefaults.shapes`), colors, and padding. `TonalButton` is the 48dp tonal action inside a tile (Reset, Edit, Delete) |
 | `ConnectedButtonRow` (`ConnectedButtonGroup.kt`) | Connected button group (Material `FilledTonalButton` + `ButtonGroupDefaults` shapes) | A row of related actions (not a choice). Declare buttons with `button(onClick, width, weight) { … }`; the row works out first and last, so conditional buttons need no position flags |
 | `ConnectedChoiceGroup`, `ChoiceOption`, `ChoiceTile` (`ConnectedChoiceGroup.kt`) | Connected button group (single select), Material `ToggleButton` | Single choices in settings and app-setting results. The selected option fills with `Accent` and morphs fully round. Labels use the Material type scale. Options stack vertically when they cannot fit side by side. `ChoiceTile` is a segmented tile with a `titleMedium` heading over a full-width group |
 | `SegmentedGroup`, `SegmentedTile`, `SegmentedTileRow`, `SegmentedToggleTile`, `SegmentedTileContent`, `AppSwitch`, `TonalIconBadge`, `TonalIconBadgeContainer` (`SegmentedList.kt`) | Segmented list | The default layout for settings pages, dialogs that list items, widget config screens, onboarding, and drawers. Each row is its own tile, with 28dp outer corners, 4dp inner corners, and 2dp gaps; inner corners round to 16dp while pressed. Rows lead with a 40dp `TonalIconBadge`. Inside a tile, `LocalSegmentedItemModifier` and `LocalInSegmentedTile` adjust nested rows |
@@ -328,7 +333,7 @@ settings and add a property in sorted order.
 | `PermissionsPageContent` (`shared/permissions/`) | Segmented list | The shared checklist and icon-free permission tiles for onboarding and Settings. Each page shows its applicable rows. |
 | `SettingsToggleRow`, `SettingsNavigationToggleRow`, `SettingsSegmentNavigationRow`, `SettingsIconBadge`, `BooleanSettingTile`, `SettingsNestedCheckbox`, `SettingsRemoveButton` (`settings/shared/`) | List items | Settings toggle, navigation, and sub-option rows. `BooleanSettingTile` binds a registered boolean preference to the same command that searchable Settings uses |
 | `AppTopAppBar` | Top app bar (small) | Full-screen page headers (Settings and its detail pages, widget config screens): back button, `titleLarge` heading, and `actions`. `navigationIcon` and `navigationContentDescription` swap the back arrow (a close icon for config screens that cancel); `windowInsets` is zero by default, and screens that draw under the status bar pass `TopAppBarDefaults.windowInsets`. The container is transparent over the page background, and there is no on-scroll fill because the page clips its scrolling content below the bar |
-| `AppIconButton`, `AppIconButtonStyle` | Icon button (standard, filled, tonal) with plain tooltip | Every icon-only action. `style` picks `Standard` (default), `Filled`, or `Tonal`; `colors` overrides the style's colors. `tooltip` is shown on long-press or hover. `modifier` goes on the button; parent-data modifiers (`align`, `weight`) go in `anchorModifier`, because the tooltip anchor wraps the button |
+| `AppIconButton`, `AppIconButtonStyle` | Icon button (standard, filled, tonal) with plain tooltip | Every icon-only action. `style` picks `Standard` (default), `Filled`, or `Tonal`; `colors` overrides the style's colors. `tooltip` is shown on long-press or hover. Buttons round-to-square on press (`IconButtonDefaults.shapes`). `modifier` goes on the button; parent-data modifiers (`align`, `weight`) go in `anchorModifier`, because the tooltip anchor wraps the button |
 | `AppPlainTooltip` | Plain tooltip | Custom icon-only actions that need to own their click or long press. Pass `preserveLongPress = true` when the gesture already runs an action. The tooltip appears on hover and the action keeps its accessible name. |
 | `AppAlertDialog` | Dialog | Alerts and confirmations on `surfaceContainerHigh`. Pass `confirmLabel`/`onConfirm` and an optional `dismissLabel`; set `destructive = true` for an error-tinted confirm |
 | `AppDialogSurface` | Dialog (custom content) | Custom centered content (File Preview, Pinned Notification Items). The feature owns sizing and actions |
@@ -337,13 +342,14 @@ settings and add a property in sorted order.
 | `AppDrawerHeader` | Sheet header | `titleLarge` drawer header with optional leading content and a 48dp close button |
 | `AppBottomPopup` | Bottom sheet (floating) | Bottom-anchored floating popup with the drawer header, 28dp corners, and a 640dp max width. `animateSizeChanges` animates height changes with the bottom anchored |
 | `ItemMenuPopup` | Menu (expressive) | Long-press action menus: tonal quick-action tiles, segmented option rows, and pill buttons on `surfaceContainerHighest`. Contact action popups reuse its tiles. Reflow options so gaps fall only at the end of the last row |
-| `AppDropdownMenu`, `AppDropdownMenuItem`, `AppSelectableDropdownMenuItem`, `AppDropdownMenuDivider`, `AppOverflowMenu` | Menu | Every three-dot and long-press dropdown: 28dp corners on `surfaceContainer`. `destructive = true` items must still confirm with `AppAlertDialog`. `AppDropdownMenuItem` takes an `icon: ImageVector` or a `leadingIcon` slot for custom leading content. A single choice inside a menu (sort order) uses `AppSelectableDropdownMenuItem` (Material `SelectableDropdownMenuItem`: check, accent tint, radio semantics); don't use raw `DropdownMenuItem` |
+| `AppDropdownMenu`, `AppDropdownMenuItem`, `AppSelectableDropdownMenuItem`, `AppDropdownMenuDivider`, `AppOverflowMenu` | Menu | Every three-dot and long-press dropdown: Material's expressive `DropdownMenuPopup` with one `DropdownMenuGroup`, 28dp corners on `surfaceContainer`; long menus scroll inside the group. `destructive = true` items must still confirm with `AppAlertDialog`. `AppDropdownMenuItem` takes an `icon: ImageVector` or a `leadingIcon` slot for custom leading content. A single choice inside a menu (sort order) uses `AppSelectableDropdownMenuItem` (Material `SelectableDropdownMenuItem`: check, accent tint, radio semantics); don't use raw `DropdownMenuItem` |
 | `AppUndoSnackbarHost`, `AppUndoSnackbarPopup`, `rememberUndoSnackbarController()` | Snackbar | Undo after a removal. Put the host in a screen's root overlay; settings pages without one use the popup. It lifts above `Modifier.undoSnackbarAvoidArea()` so it never covers the bottom search bar. `showMessage` shows a message with no action |
 | `AppMessages`, `AppMessageSnackbarHost` (`AppMessages.kt`) | Snackbar | Brief feedback in place of a `Toast`. `AppMessages.show(context, text or @StringRes, long)` works from any thread and goes to the highest-priority host registered by a resumed screen, falling back to a `Toast` when none is. The search route and overlay register their undo snackbar with `AppMessages.HostEffect(controller, ScreenHostPriority)`; navigation's root and `WidgetConfigScaffold` (with `inScaffold = true`) hold an `AppMessageSnackbarHost` at fallback priority |
 | `AppDatePickerDialog` | Date picker dialog | Picking a date. Wraps Material's `DatePickerDialog` and `DatePicker` with `AppTextButton` confirm and cancel actions |
 | `AppInputChip` | Input chip | A removable entry the user added (excluded file extensions): pill shape, trailing close icon, and a `SettingsDivider` outline |
 | `AliasPill` (`settings/shared/`) | Input chip | A tonal alias chip. The label opens the editor and the trailing close button clears the alias. Both actions keep independent 48dp touch targets. |
 | `AppOutlinedTextField`, `dialogTextFieldColors()`, `CardTextField`, `cardTextFieldColors()` | Text fields | Every form input: outlined fields in dialogs, sheets, and settings forms (`String`, `TextFieldValue`, and `TextFieldState` overloads take an optional label, placeholder, supporting text, icons, keyboard options, and a `shape`, `AppShapes.extraSmall` by default for strings; filter input with an `InputTransformation` such as `maxLengthTrim` and style it with an `OutputTransformation`, both on the `TextFieldState` overload, rather than a `VisualTransformation`); transparent fields with a visible focus indicator stacked as rows on a settings surface. Don't call Material `TextField` or `OutlinedTextField` directly; search-style fields are the exception below |
+| `AppLoadingIndicator` | Loading indicator (expressive) | Every indeterminate wait: Material's morphing `LoadingIndicator` in `Accent`, 48dp by default, `InlineProgressSize` inline. Don't use `CircularProgressIndicator` |
 | `AppFloatingActionButton`, `AppExtendedFloatingActionButton`, `AppFabTone` (`AppFloatingActionButton.kt`) | FAB, extended FAB | 56dp page-bottom actions with a 24dp icon, fully round and squaring on press. `AppFabTone.Primary` (`Accent`) for the main action, `Tonal` (`FloatingTonalContainer`) for a secondary one, `Error` for destructive. The extended FAB takes a label and an `enabled` flag (fades to `DisabledContentAlpha`); the caller sets its width. Don't call Material FABs directly |
 | `AppFilterChip`, `AppFilterChipStyle` (`AppFilterChip.kt`) | Filter chip | Filter and multi-select chips. Selected fills with `Accent`; `Outlined` (default) has a `SettingsDivider` outline, `Tonal` uses `AccentTintTonal` for chips on a tonal surface. `showSelectedCheck` adds the multi-select check. Over a wallpaper, pass the wallpaper-aware label and border colors |
 | `PickerFieldButton` | Text field (read-only) | Outlined field that opens a date, time, or repeat picker |
@@ -372,10 +378,10 @@ The design language is concentrated in a few places, so a redesign or a Material
 these rather than every screen:
 
 1. **Colors:** `Color.kt`, `ThemeColorRegistry.kt`, `AppColorPalette.kt`, and the `AppColors` tokens.
-2. **Shape:** the corner scale in `DesignTokens` and `AppShapes.kt`. When `MaterialShapes` is
-   public, point `AppPolygons` at it.
-3. **Motion:** `AppMotion.kt`. When `MotionScheme.expressive()` is public, pass it to both
-   `MaterialTheme` calls in `Theme.kt` and read springs from `MaterialTheme.motionScheme`.
+2. **Shape:** the corner scale in `DesignTokens`, `AppShapes.kt`, and `AppPolygons.kt` (backed by
+   `MaterialShapes`).
+3. **Motion:** the `motionScheme` passed to `MaterialExpressiveTheme` in `Theme.kt`, and
+   `AppMotion.kt`, which mirrors it for app-owned animations.
 4. **Typography:** `Type.kt` and both flavors' `DistributionTypography.kt`.
 5. **Components:** the wrappers in `shared/ui/components/`. `ConnectedButtonGroup.kt` and
    `ConnectedChoiceGroup.kt` are built on Material's `FilledTonalButton`/`ToggleButton` with

@@ -3,7 +3,7 @@ package com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance
 import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.os.Build
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
+import com.tk.quicksearch.shared.ui.components.AppLoadingIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -89,9 +89,8 @@ internal fun CustomInfoRow(
             onDismiss = onDismiss,
             trailing = {
                 if (retrying) {
-                    CircularProgressIndicator(
+                    AppLoadingIndicator(
                         modifier = Modifier.size(DesignTokens.InlineProgressSize),
-                        strokeWidth = DesignTokens.InlineProgressStrokeWidth,
                     )
                 } else {
                     AppIconButton(

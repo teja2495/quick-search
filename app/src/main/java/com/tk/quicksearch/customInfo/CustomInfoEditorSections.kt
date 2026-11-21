@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.CircularProgressIndicator
+import com.tk.quicksearch.shared.ui.components.AppLoadingIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -116,9 +116,8 @@ internal fun CustomInfoPreviewCard(
                 onDismiss = onDismiss,
                 belowText = {
                     if (loading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.padding(top = DesignTokens.SpacingXSmall).size(20.dp),
-                            strokeWidth = 2.dp,
+                        AppLoadingIndicator(
+                            modifier = Modifier.padding(top = DesignTokens.SpacingXSmall).size(DesignTokens.IconSizeSmall),
                         )
                     } else {
                         MarkdownText(

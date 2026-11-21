@@ -7,12 +7,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.ui.draw.clip
-import androidx.compose.material3.DropdownMenu
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenuPopup
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorPosition
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.SelectableDropdownMenuItem
 import androidx.compose.material3.Text
@@ -64,9 +68,11 @@ object AppDropdownMenuDefaults {
 }
 
 /**
- * The app's popup menu: rounded tonal surface that doesn't steal focus from the search field.
- * Put [AppDropdownMenuDivider] between items.
+ * The app's popup menu: Material 3 Expressive's [DropdownMenuPopup] holding one
+ * [DropdownMenuGroup], a rounded tonal surface that doesn't steal focus from the search field.
+ * Put [AppDropdownMenuDivider] between items. Long menus scroll inside the group.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppDropdownMenu(
     expanded: Boolean,
@@ -78,18 +84,25 @@ fun AppDropdownMenu(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     ReportOpenPopupEffect(expanded)
-    DropdownMenu(
+    DropdownMenuPopup(
         expanded = expanded,
         onDismissRequest = onDismissRequest,
-        modifier = modifier,
-        offset = offset,
-        shape = AppShapes.extraLarge,
-        tonalElevation = DesignTokens.ElevationLevel0,
-        shadowElevation = DesignTokens.ElevationLevel2,
+        popupPositionProvider =
+            MenuDefaults.rememberDropdownMenuPopupPositionProvider(
+                dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                offset = offset,
+            ),
         properties = PopupProperties(focusable = focusable),
-        containerColor = containerColor,
-        content = content,
-    )
+    ) {
+        DropdownMenuGroup(
+            shapes = MenuDefaults.groupShapes(shape = AppShapes.extraLarge, inactiveShape = AppShapes.extraLarge),
+            modifier = modifier.verticalScroll(rememberScrollState()),
+            containerColor = containerColor,
+            tonalElevation = DesignTokens.ElevationLevel0,
+            shadowElevation = DesignTokens.ElevationLevel2,
+            content = content,
+        )
+    }
 }
 
 /** Divider placed between [AppDropdownMenu] items. */
@@ -180,10 +193,10 @@ fun AppDropdownMenuItem(
             }
         },
         onClick = onClick,
+        shape = AppShapes.large,
         modifier = modifier
             .padding(horizontal = DesignTokens.SpacingXSmall)
-            .heightIn(min = DesignTokens.ItemMenuRowHeight)
-            .clip(AppShapes.large),
+            .heightIn(min = DesignTokens.ItemMenuRowHeight),
         leadingIcon = leadingIcon,
         enabled = enabled,
         colors = colors,

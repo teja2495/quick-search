@@ -28,7 +28,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
+import com.tk.quicksearch.shared.ui.components.AppLoadingIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -222,7 +222,7 @@ private fun WidgetPickerLoading() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium, Alignment.CenterVertically),
     ) {
-        CircularProgressIndicator()
+        AppLoadingIndicator()
         Text(
             text = stringResource(R.string.widgets_picker_loading),
             style = MaterialTheme.typography.bodyMedium,

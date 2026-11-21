@@ -1,6 +1,7 @@
 package com.tk.quicksearch.shared.ui.components
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonShapes
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -18,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
@@ -27,7 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.pressMorphPillShape
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 /*
  * The app's buttons. Every button outside this file goes through these wrappers instead of the
@@ -61,34 +62,34 @@ sealed interface AppButtonTone {
     ) : AppButtonTone
 }
 
-/** Material 3 Expressive button sizes: height, padding, icon size and the corner it squares to when pressed. */
+/** Material 3 Expressive button sizes: height, padding, icon size and the shape it squares to when pressed. */
 enum class AppButtonSize(
     internal val height: Dp,
     internal val horizontalPadding: Dp,
     internal val iconSize: Dp,
     internal val iconSpacing: Dp,
-    internal val pressedCorner: Dp,
+    internal val pressedShape: RoundedCornerShape,
 ) {
     ExtraSmall(
         height = DesignTokens.ButtonHeightExtraSmall,
         horizontalPadding = DesignTokens.SpacingMedium,
         iconSize = DesignTokens.ButtonIconSizeExtraSmall,
         iconSpacing = DesignTokens.SpacingXSmall,
-        pressedCorner = DesignTokens.ButtonPressedCornerSmall,
+        pressedShape = AppShapes.small,
     ),
     Small(
         height = DesignTokens.ButtonHeightSmall,
         horizontalPadding = DesignTokens.SpacingXXLarge,
         iconSize = DesignTokens.ButtonIconSizeSmall,
         iconSpacing = DesignTokens.SpacingSmall,
-        pressedCorner = DesignTokens.ButtonPressedCornerSmall,
+        pressedShape = AppShapes.small,
     ),
     Medium(
         height = DesignTokens.FloatingActionHeight,
         horizontalPadding = DesignTokens.SpacingXXLarge,
         iconSize = DesignTokens.IconSize,
         iconSpacing = DesignTokens.SpacingSmall,
-        pressedCorner = DesignTokens.ButtonPressedCornerMedium,
+        pressedShape = AppShapes.large,
     ),
 }
 
@@ -105,16 +106,15 @@ fun AppButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
-    val source = interactionSource ?: remember { MutableInteractionSource() }
     val color = tone.color()
     Button(
         onClick = onClick,
         modifier = modifier.heightIn(min = size.height),
         enabled = enabled,
-        shape = pressMorphPillShape(source, size.pressedCorner),
+        shapes = size.shapes(),
         colors = ButtonDefaults.buttonColors(containerColor = color, contentColor = tone.onColor(color)),
         contentPadding = contentPadding ?: size.padding(icon != null),
-        interactionSource = source,
+        interactionSource = interactionSource,
     ) { ButtonContent(icon, size, content) }
 }
 
@@ -131,15 +131,14 @@ fun AppTonalButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
-    val source = interactionSource ?: remember { MutableInteractionSource() }
     FilledTonalButton(
         onClick = onClick,
         modifier = modifier.heightIn(min = size.height),
         enabled = enabled,
-        shape = pressMorphPillShape(source, size.pressedCorner),
+        shapes = size.shapes(),
         colors = tone.tonalColors(),
         contentPadding = contentPadding ?: size.padding(icon != null),
-        interactionSource = source,
+        interactionSource = interactionSource,
     ) { ButtonContent(icon, size, content) }
 }
 
@@ -157,16 +156,15 @@ fun AppOutlinedButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
-    val source = interactionSource ?: remember { MutableInteractionSource() }
     OutlinedButton(
         onClick = onClick,
         modifier = modifier.heightIn(min = size.height),
         enabled = enabled,
-        shape = pressMorphPillShape(source, size.pressedCorner),
+        shapes = size.shapes(),
         colors = ButtonDefaults.outlinedButtonColors(contentColor = tone.color()),
         border = if (showBorder) ButtonDefaults.outlinedButtonBorder(enabled) else null,
         contentPadding = contentPadding ?: size.padding(icon != null),
-        interactionSource = source,
+        interactionSource = interactionSource,
     ) { ButtonContent(icon, size, content) }
 }
 
@@ -183,12 +181,11 @@ fun AppTextButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
-    val source = interactionSource ?: remember { MutableInteractionSource() }
     TextButton(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        shape = pressMorphPillShape(source, size.pressedCorner),
+        shapes = size.shapes(),
         colors = ButtonDefaults.textButtonColors(contentColor = tone.color()),
         contentPadding =
             contentPadding ?: if (icon != null) {
@@ -196,7 +193,7 @@ fun AppTextButton(
             } else {
                 ButtonDefaults.TextButtonContentPadding
             },
-        interactionSource = source,
+        interactionSource = interactionSource,
     ) { ButtonContent(icon, size, content) }
 }
 
@@ -242,6 +239,10 @@ private fun RowScope.ButtonContent(
     }
     content()
 }
+
+/** Material's press morph: fully round at rest, squaring to [AppButtonSize.pressedShape] on the theme's motion scheme. */
+@Composable
+private fun AppButtonSize.shapes(): ButtonShapes = ButtonDefaults.shapes(shape = AppShapes.full, pressedShape = pressedShape)
 
 private fun AppButtonSize.padding(hasIcon: Boolean): PaddingValues =
     PaddingValues(

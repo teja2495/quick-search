@@ -10,9 +10,9 @@ import androidx.compose.animation.core.spring
  * Motion specs for the whole app. Components take their springs from here, never from inline
  * `spring(...)` values, so a new motion language is a change to this file alone.
  *
- * The spatial springs are the Material 3 Expressive motion scheme. material3 1.4 keeps
- * `MotionScheme.expressive()` internal, so the values are copied here; once it is public, read
- * them from `MaterialTheme.motionScheme` instead and pass that scheme to the theme.
+ * The theme runs stock Material components on `MotionScheme.expressive()` (see `Theme.kt`). The
+ * spatial springs here mirror that scheme's values so app-owned animations, including ones outside
+ * composition, match the stock components without a composable read.
  */
 object AppMotion {
     /** Damping of the fast spatial spring: small components (button shape morphs). */
@@ -42,9 +42,6 @@ object AppMotion {
             stiffness = Spring.StiffnessMediumLow,
             visibilityThreshold = visibilityThreshold,
         )
-
-    /** Slow, bouncy morph for looping loading shapes. */
-    fun <T> loadingMorph(): SpringSpec<T> = spring(dampingRatio = FastSpatialDamping, stiffness = Spring.StiffnessLow)
 
     /** Scale and fade of a grid tile being dragged, merged into a folder, or dropped. */
     fun <T> dragFeedback(): SpringSpec<T> = spring(stiffness = Spring.StiffnessMediumLow)

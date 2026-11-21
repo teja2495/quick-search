@@ -1,7 +1,6 @@
 package com.tk.quicksearch.shared.ui.theme
 
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.shape.CircleShape
@@ -9,16 +8,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.RoundRect
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * Shape builders for every component. Components ask here for their shape instead of assembling
@@ -173,41 +165,6 @@ fun pressMorphButtonShape(
     height: Dp,
     pressed: Dp = DesignTokens.ButtonPressedCornerMedium,
 ): RoundedCornerShape = pressMorphShape(interactionSource, rest = height / 2, pressed = pressed)
-
-/**
- * Pill that stays fully round at any height and squares to [pressed] corners while pressed: the
- * shape of every button in `AppButtons.kt`.
- */
-@Composable
-fun pressMorphPillShape(
-    interactionSource: InteractionSource,
-    pressed: Dp,
-): Shape {
-    val isPressed by interactionSource.collectIsPressedAsState()
-    val progress by animateFloatAsState(
-        targetValue = if (isPressed) 1f else 0f,
-        animationSpec = AppMotion.fastSpatial(),
-        label = "pressedPill",
-    )
-    return remember(progress, pressed) { PillMorphShape(progress, pressed) }
-}
-
-/** Fully round at [progress] 0, [pressed] corners at 1. */
-private class PillMorphShape(
-    private val progress: Float,
-    private val pressed: Dp,
-) : Shape {
-    override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ): Outline {
-        val full = minOf(size.width, size.height) / 2f
-        val target = with(density) { pressed.toPx() }.coerceAtMost(full)
-        val radius = (full + (target - full) * progress).coerceIn(0f, full)
-        return Outline.Rounded(RoundRect(size.toRect(), CornerRadius(radius)))
-    }
-}
 
 /**
  * Floating action (bottom bars, onboarding, save, collapse): fully round at rest, squaring while

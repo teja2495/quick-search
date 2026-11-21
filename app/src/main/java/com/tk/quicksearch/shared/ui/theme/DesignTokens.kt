@@ -113,11 +113,8 @@ object DesignTokens {
     /** Pencil icon inside the small edit badge on an editable icon or avatar. */
     val EditBadgeIconSize = 12.dp
 
-    /** Size of a small inline `CircularProgressIndicator` that stands in for an icon or icon button. */
+    /** Size of a small inline `AppLoadingIndicator` that stands in for an icon or icon button. */
     val InlineProgressSize = IconSize
-
-    /** Stroke width of [InlineProgressSize] progress indicators. */
-    val InlineProgressStrokeWidth = 2.dp
 
     /** Large icon size - 28dp M3 Large usually 40dp+, but 28dp fits grid. */
     val LargeIconSize = 28.dp

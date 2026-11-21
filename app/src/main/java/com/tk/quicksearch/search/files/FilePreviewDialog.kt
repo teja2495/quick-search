@@ -29,7 +29,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.CircularProgressIndicator
+import com.tk.quicksearch.shared.ui.components.AppLoadingIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -233,7 +233,7 @@ private fun ImagePreview(deviceFile: DeviceFile) {
         contentAlignment = Alignment.Center,
     ) {
         when {
-            loading -> CircularProgressIndicator()
+            loading -> AppLoadingIndicator()
             bitmap != null -> Image(
                 bitmap = bitmap!!.asImageBitmap(),
                 contentDescription = deviceFile.displayName,
@@ -296,7 +296,7 @@ private fun PdfPreview(
         contentAlignment = Alignment.Center,
     ) {
         when {
-            loading -> CircularProgressIndicator()
+            loading -> AppLoadingIndicator()
             pages.isNotEmpty() -> {
                 // Scrolling between pages is disabled while zoomed so drags pan the page instead
                 VerticalPager(

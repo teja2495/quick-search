@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.CircularProgressIndicator
+import com.tk.quicksearch.shared.ui.components.AppLoadingIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -278,9 +278,8 @@ private fun BookmarkImportRow(
         leading = {
             if (isImporting) {
                 Box(modifier = Modifier.size(DesignTokens.Spacing40), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(
+                    AppLoadingIndicator(
                         modifier = Modifier.size(DesignTokens.IconSizeSmall),
-                        strokeWidth = DesignTokens.SegmentedListGap,
                     )
                 }
             } else {

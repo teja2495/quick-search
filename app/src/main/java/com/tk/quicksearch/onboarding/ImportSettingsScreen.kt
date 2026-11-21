@@ -23,7 +23,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
+import com.tk.quicksearch.shared.ui.components.AppLoadingIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -268,10 +268,8 @@ fun ImportSettingsScreen(
                             enter = fadeIn(tween(AppMotion.DurationShort, easing = AppMotion.EmphasizedDecelerateEasing)),
                             exit = fadeOut(tween(AppMotion.DurationShort, easing = AppMotion.EmphasizedAccelerateEasing)),
                         ) {
-                            CircularProgressIndicator(
+                            AppLoadingIndicator(
                                 modifier = Modifier.size(48.dp),
-                                color = AppColors.Accent,
-                                trackColor = AppColors.AccentTintLight,
                             )
                         }
                     }

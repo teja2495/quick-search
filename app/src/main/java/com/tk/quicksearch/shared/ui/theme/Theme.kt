@@ -7,7 +7,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -379,8 +381,9 @@ fun QuickSearchTheme(
         LocalWallpaperDynamicAccentActive provides (imageAccentSlots != null),
         LocalIsSystemWallpaperActive provides (backgroundSource == BackgroundSource.SYSTEM_WALLPAPER),
     ) {
-        MaterialTheme(
+        MaterialExpressiveTheme(
             colorScheme = colorScheme,
+            motionScheme = MotionScheme.expressive(),
             typography = quickSearchTypography(useSystemFont),
             shapes = AppShapes.material,
             content = content,
@@ -439,8 +442,9 @@ fun HomeTextContrastTheme(
         LocalQuickSearchAppColorPalette provides
             if (wantDark) DarkQuickSearchAppColorPalette else LightQuickSearchAppColorPalette,
     ) {
-        MaterialTheme(
+        MaterialExpressiveTheme(
             colorScheme = colorScheme,
+            motionScheme = MaterialTheme.motionScheme,
             typography = MaterialTheme.typography,
             shapes = MaterialTheme.shapes,
             content = content,

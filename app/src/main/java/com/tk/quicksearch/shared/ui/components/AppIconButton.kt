@@ -116,12 +116,15 @@ private fun StyledIconButton(
     interactionSource: MutableInteractionSource?,
     content: @Composable () -> Unit,
 ) {
+    // Material's expressive press morph: round at rest, squaring while pressed, on the theme's
+    // motion scheme.
     // Reserve touch space outside caller-supplied visual sizes, including 28dp and 40dp buttons.
     val touchTarget = Modifier.minimumInteractiveComponentSize().then(modifier)
     when (style) {
         AppIconButtonStyle.Standard ->
             IconButton(
                 onClick = onClick,
+                shapes = IconButtonDefaults.shapes(),
                 modifier = touchTarget,
                 enabled = enabled,
                 colors = colors ?: IconButtonDefaults.iconButtonColors(),
@@ -131,6 +134,7 @@ private fun StyledIconButton(
         AppIconButtonStyle.Filled ->
             FilledIconButton(
                 onClick = onClick,
+                shapes = IconButtonDefaults.shapes(),
                 modifier = touchTarget,
                 enabled = enabled,
                 colors = colors ?: IconButtonDefaults.filledIconButtonColors(),
@@ -140,6 +144,7 @@ private fun StyledIconButton(
         AppIconButtonStyle.Tonal ->
             FilledTonalIconButton(
                 onClick = onClick,
+                shapes = IconButtonDefaults.shapes(),
                 modifier = touchTarget,
                 enabled = enabled,
                 colors = colors ?: IconButtonDefaults.filledTonalIconButtonColors(),

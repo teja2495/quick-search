@@ -19,7 +19,7 @@ import com.tk.quicksearch.shared.ui.components.AppBottomPopup
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.material3.ripple
-import androidx.compose.material3.CircularProgressIndicator
+import com.tk.quicksearch.shared.ui.components.AppLoadingIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -116,9 +116,8 @@ internal fun ReleaseNotesDrawer(
                                 modifier = Modifier.fillMaxWidth().padding(vertical = DesignTokens.SpacingMedium),
                                 horizontalArrangement = Arrangement.Center,
                             ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(20.dp),
-                                    strokeWidth = 2.dp,
+                                AppLoadingIndicator(
+                                    modifier = Modifier.size(DesignTokens.IconSizeSmall),
                                 )
                             }
 
