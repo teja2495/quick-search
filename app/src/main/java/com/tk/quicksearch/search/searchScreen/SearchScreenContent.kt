@@ -191,6 +191,7 @@ internal fun SearchScreenContent(
     var isAiFollowUpInputVisible by remember { mutableStateOf(false) }
     var aiFollowUpText by remember { mutableStateOf("") }
     var searchHistoryCollapseRequestKey by remember { mutableStateOf(0) }
+    var clearRevealKey by remember { mutableStateOf(0) }
     val openKeyboardActionScope = rememberCoroutineScope()
 
     LaunchedEffect(isOverlayPresentation) {
@@ -525,7 +526,7 @@ internal fun SearchScreenContent(
                 selectRetainedQuery = state.selectRetainedQuery,
                 onSelectRetainedQueryHandled = onSelectRetainedQueryHandled,
                 onQueryChange = onQueryChanged,
-                onClearQuery = onClearQuery,
+                onClearQuery = { clearRevealKey += 1; onClearQuery() },
                 onSettingsClick = onSettingsClick,
                 showSettingsIcon = state.settingsIconEnabled,
                 onVoiceClick = onVoiceClick,
@@ -701,6 +702,7 @@ internal fun SearchScreenContent(
                 onSearchHistoryExpandedChange = { isSearchHistoryExpanded = it },
                 searchHistoryCollapseRequestKey = searchHistoryCollapseRequestKey,
                 isSearchHistoryExpanded = isSearchHistoryExpanded,
+                clearRevealKey = clearRevealKey,
                 onSearchHistoryCollapseRequested = { searchHistoryCollapseRequestKey += 1 },
                 onOpenPermissionsSettings = onOpenPermissionsSettings,
                 onHomePinnedSectionOrderChange = onHomePinnedSectionOrderChange,

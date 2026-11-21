@@ -84,3 +84,34 @@ internal fun AnimatedCollapseButton(
         content()
     }
 }
+
+/** Distance the Home content drifts while it fades in after the query is cleared. */
+private val ClearRevealOffset = 8.dp
+
+/**
+ * Subtle fade-in for the results area after the clear (X) button empties the query. Each tap bumps
+ * [clearKey]; the stale results hide at once and the Home content fades in with a small downward
+ * settle, so the switch doesn't read as a hard cut.
+ */
+@Composable
+internal fun rememberClearRevealModifier(clearKey: Int): Modifier {
+    var revealedKey by remember { mutableStateOf(clearKey) }
+    val reveal = remember { Animatable(1f) }
+    LaunchedEffect(clearKey) {
+        if (revealedKey != clearKey) {
+            reveal.snapTo(0f)
+            revealedKey = clearKey
+            reveal.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(AppMotion.DurationStandard, easing = AppMotion.EmphasizedDecelerateEasing),
+            )
+        }
+    }
+    val revealPending = revealedKey != clearKey
+    val offsetPx = with(LocalDensity.current) { ClearRevealOffset.toPx() }
+    return Modifier.graphicsLayer {
+        val progress = if (revealPending) 0f else reveal.value
+        alpha = progress
+        translationY = -(1f - progress) * offsetPx
+    }
+}

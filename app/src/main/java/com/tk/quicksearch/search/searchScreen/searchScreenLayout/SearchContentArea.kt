@@ -115,6 +115,7 @@ internal fun SearchContentArea(
     onSearchHistoryExpandedChange: (Boolean) -> Unit = {},
     searchHistoryCollapseRequestKey: Int = 0,
     isSearchHistoryExpanded: Boolean = false,
+    clearRevealKey: Int = 0,
     onSearchHistoryCollapseRequested: () -> Unit = {},
     showCalculator: Boolean = false,
     showCurrencyConverter: Boolean = false,
@@ -437,6 +438,7 @@ internal fun SearchContentArea(
 
             val expandRevealModifier =
                 rememberExpandRevealModifier(renderingState.expandedSection, isSearchHistoryExpanded)
+                    .then(rememberClearRevealModifier(clearRevealKey))
             val roundExpandedViewport = LocalSearchCardLayoutEnabled.current &&
                 (renderingState.expandedSection != ExpandedSection.NONE || isSearchHistoryExpanded)
             Box {
