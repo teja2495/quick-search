@@ -173,4 +173,18 @@ class SharedTimeLogicTest {
         assertEquals("in 30 hours", RelativeTimeFormatter.format(RelativeTimeFormatter.timeDistance(Instant.parse("2026-06-05T15:30:00Z"), now)))
         assertFalse((RelativeTimeFormatter.timeDistance(Instant.parse("2026-06-04T08:30:00Z"), now) as RelativeTime.Span).isFuture)
     }
+
+    @Test
+    fun timeDistanceCountsClockMinutes() {
+        val distance = { date: String, at: String ->
+            RelativeTimeFormatter.format(RelativeTimeFormatter.timeDistance(Instant.parse(date), Instant.parse(at)))
+        }
+        // The glance ticks just after each minute starts; 06:05:00.05 is still five minutes before 06:10.
+        assertEquals("in 5 minutes", distance("2026-06-04T06:10:00Z", "2026-06-04T06:05:00.050Z"))
+        assertEquals("in 5 minutes", distance("2026-06-04T06:10:00Z", "2026-06-04T06:05:59Z"))
+        assertEquals("in 1 minute", distance("2026-06-04T06:10:00Z", "2026-06-04T06:09:00.050Z"))
+        assertEquals("Now", distance("2026-06-04T06:10:00Z", "2026-06-04T06:10:30Z"))
+        assertEquals("1 minute ago", distance("2026-06-04T06:10:00Z", "2026-06-04T06:11:00.050Z"))
+        assertEquals("in 1 hour", distance("2026-06-04T07:10:00Z", "2026-06-04T06:10:00.050Z"))
+    }
 }

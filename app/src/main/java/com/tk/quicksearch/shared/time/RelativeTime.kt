@@ -4,6 +4,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.Period
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import kotlin.math.abs
 
 // SHARED FILE. The same file (apart from the package line) lives in quick-search and noted-android,
@@ -121,11 +122,14 @@ object RelativeTimeFormatter {
         return RelativeTime.Span(isFuture, parts)
     }
 
-    /** Minutes or hours only, however far away: Now under a minute, "in 5 minutes", "30 hours ago". */
+    /**
+     * Minutes or hours only, however far away: Now within the same clock minute, "in 5 minutes",
+     * "30 hours ago". Counts clock minutes, as the user reads them off the clock, so at 06:05:00.05
+     * a 06:10 item is "in 5 minutes" rather than the floored 4 minutes 59.95 seconds.
+     */
     fun timeDistance(date: Instant, now: Instant = Instant.now()): RelativeTime {
-        val seconds = abs(Duration.between(now, date).seconds)
-        if (seconds < 60) return RelativeTime.Now
-        val minutes = seconds / 60
+        val minutes = abs(Duration.between(now.truncatedTo(ChronoUnit.MINUTES), date.truncatedTo(ChronoUnit.MINUTES)).toMinutes())
+        if (minutes == 0L) return RelativeTime.Now
         val part = if (minutes < 60) {
             RelativeTime.Part(minutes.toInt(), RelativeTimeUnit.Minute)
         } else {

@@ -22,6 +22,15 @@ Repository playbook for coding agents. When prose and code disagree, trust the c
 - Entry points: `app/MainActivity.kt` (regular launch, assistant/search/share/process-text/import), `app/HomeActivity.kt` (HOME role), `overlay/OverlayActivity.kt` (draw-over-apps mode).
 - Persistence: modular `SharedPreferences` (secrets via the existing encrypted path). Room for notes (`search/data/notes/`), bookmarks (`search/data/bookmarks/`), and notification history (`search/notificationHistory/`). Startup app catalog: `search/data/AppCache.kt`.
 
+## Shared time logic (keep in sync across repos)
+
+The relative-time and schedule-parsing helpers are ported copies shared by Quick Search (Android and macOS) and Noted (Android and macOS), and must behave identically everywhere. Any change to how relative time is calculated or worded (`RelativeTimeFormatter`: "Now", "in 5 minutes", "2 hours ago", Today/Tomorrow, day/month/year spans), or to `NaturalLanguageScheduleParser` and the helpers next to them, must be made in all four projects in the same task, with the matching test added or updated in each one that has tests. Don't change one copy alone; if another repo can't be updated, say so explicitly.
+
+- `~/Projects/quick-search` (this repo): `app/src/main/java/com/tk/quicksearch/shared/time/RelativeTime.kt`, `app/src/main/java/com/tk/quicksearch/shared/time/NaturalLanguageScheduleParser.kt`; tests: `app/src/test/java/com/tk/quicksearch/shared/time/SharedTimeLogicTest.kt`
+- `~/Projects/noted-android`: `app/src/main/java/com/tk/noted/core/common/RelativeTime.kt`, `app/src/main/java/com/tk/noted/core/common/NaturalLanguageScheduleParser.kt`; tests: `app/src/test/java/com/tk/noted/core/common/SharedTimeLogicTest.kt`
+- `~/Projects/noted-mac`: `Noted/Core/Time/RelativeTime.swift`, `Noted/Core/Time/NaturalLanguageScheduleParser.swift`; tests: `NotedTests/SharedTimeLogicTests.swift`
+- `~/Projects/mac-search`: `Quick Search/Core/Time/RelativeTime.swift`, `Quick Search/Core/Time/NaturalLanguageScheduleParser.swift`; tests: no test target yet
+
 ## Architecture map
 
 ### Search
