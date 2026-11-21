@@ -217,6 +217,7 @@ internal class AtAGlanceWidgetRowLoader(
         title: String,
         subtitle: String?,
         icon: AtAGlanceWidgetIcon = AtAGlanceWidgetIcon.App(packageName),
+        headline: String? = null,
         dismiss: AtAGlanceWidgetDismissType? = null,
         titleStyle: AtAGlanceWidgetTitleStyle = AtAGlanceWidgetTitleStyle.BODY,
         titleMaxLines: Int = Int.MAX_VALUE,
@@ -225,12 +226,12 @@ internal class AtAGlanceWidgetRowLoader(
         pillIcon: androidx.compose.ui.graphics.vector.ImageVector? = null,
         footer: String? = null,
         progress: Float? = null,
-        progressFlag: Boolean = false,
         trailing: List<AtAGlanceWidgetButton> = emptyList(),
         dismissAtTop: Boolean = false,
     ) = AtAGlanceWidgetRow(
         key = "$prefix-$key",
         icon = icon,
+        headline = headline,
         title = title,
         subtitle = subtitle,
         tap = AtAGlanceWidgetTap(AtAGlanceWidgetTapType.NOTIFICATION, key = key, packageName = packageName),
@@ -241,7 +242,6 @@ internal class AtAGlanceWidgetRowLoader(
         pill = pill?.let { AtAGlanceWidgetPill(it, icon = pillIcon) },
         footer = footer,
         progress = progress,
-        progressFlag = progressFlag,
         trailing = trailing,
         dismissAtTop = dismissAtTop,
     )
@@ -558,20 +558,27 @@ internal class AtAGlanceWidgetRowLoader(
                 prefix = "progress",
                 key = notification.key,
                 packageName = notification.packageName,
+                // Navigation leads with the turn and the distance to it, as on home.
+                icon =
+                    navigation?.icon?.let { AtAGlanceWidgetIcon.Maneuver(it, notification.packageName) }
+                        ?: AtAGlanceWidgetIcon.App(notification.packageName),
+                headline = notification.shortCriticalText.takeIf { notification.isNavigation },
                 title = navigation?.title ?: notification.title ?: appLabel,
+                titleMaxLines = if (notification.isNavigation) 1 else Int.MAX_VALUE,
                 subtitle =
                     if (notification.isNavigation) {
                         (notification.subText ?: notification.text)?.asEtaText()
                     } else {
                         notification.text ?: notification.subText
                     } ?: appLabel.takeIf { notification.title != null },
-                // Navigation shows the distance to the next turn; its bar is the trip, not a percentage.
+                // Navigation's distance is the headline; its bar is the trip, not a percentage.
                 pill =
-                    fraction?.takeUnless { notification.isNavigation }?.let { percentFormat.format(it.toDouble()) }
-                        ?: notification.shortCriticalText,
-                pillIcon = navigation?.icon,
+                    if (notification.isNavigation) {
+                        null
+                    } else {
+                        fraction?.let { percentFormat.format(it.toDouble()) } ?: notification.shortCriticalText
+                    },
                 progress = fraction?.takeIf { it >= MIN_VISIBLE_PROGRESS },
-                progressFlag = notification.isNavigation,
             )
         } +
             finished.map { notification ->

@@ -32,6 +32,12 @@ internal sealed interface AtAGlanceWidgetIcon {
         val packageName: String,
     ) : AtAGlanceWidgetIcon
 
+    /** A navigation's next turn in a tonal tile, with the app's icon as a corner badge, as on home. */
+    data class Maneuver(
+        val vector: ImageVector,
+        val packageName: String,
+    ) : AtAGlanceWidgetIcon
+
     /** Home's low battery icon: an outline, red when [isCritical], with a red fill tracking [percent]. */
     data class Battery(
         val percent: Int,
@@ -171,6 +177,8 @@ internal data class AtAGlanceWidgetRow(
     /** Stable across refreshes, so the launcher keeps the scroll position. */
     val key: String,
     val icon: AtAGlanceWidgetIcon,
+    /** Large text above the title, like the distance to a navigation's next turn. */
+    val headline: String? = null,
     val title: String,
     val subtitle: String? = null,
     val tap: AtAGlanceWidgetTap,
@@ -190,8 +198,6 @@ internal data class AtAGlanceWidgetRow(
     val footer: String? = null,
     /** Draws a progress bar below the text, from 0 to 1. */
     val progress: Float? = null,
-    /** Ends the progress bar with a destination flag, like a navigation's trip. */
-    val progressFlag: Boolean = false,
     /** Buttons below the text, like a missed call's app chips. */
     val chips: List<AtAGlanceWidgetButton> = emptyList(),
     /** Buttons between the text and the close button. */

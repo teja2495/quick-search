@@ -192,8 +192,8 @@ private fun PreviewIcon(
                 colorFilter = if (appIcon == null) ColorFilter.tint(colors.body) else null,
             )
         }
-        // The sample rows have no battery row.
-        is AtAGlanceWidgetIcon.Battery -> Unit
+        // The sample rows have no battery or navigation row.
+        is AtAGlanceWidgetIcon.Battery, is AtAGlanceWidgetIcon.Maneuver -> Unit
     }
 }
 

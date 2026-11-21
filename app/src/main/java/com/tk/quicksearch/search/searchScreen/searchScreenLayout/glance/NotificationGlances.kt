@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -59,8 +58,6 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.glance.FinishedProgressNotification
-import com.tk.quicksearch.search.glance.asEtaText
-import com.tk.quicksearch.search.glance.parseNavigationInstruction
 import com.tk.quicksearch.search.glance.GlanceNotificationAction
 import com.tk.quicksearch.search.glance.GlanceNotificationsStore
 import com.tk.quicksearch.search.glance.MissedCallNotification
@@ -531,66 +528,6 @@ internal fun ProgressNotificationRow(notification: ProgressNotification) {
                 progress = { fraction },
                 modifier = Modifier.fillMaxWidth().padding(top = DesignTokens.SpacingXSmall, end = DesignTokens.SpacingXSmall),
             )
-        },
-    )
-}
-
-/**
- * Turn-by-turn navigation: the next instruction, the arrival time, the distance to the next turn and
- * the trip so far as a bar ending at a destination flag, rather than a task's percentage.
- */
-@Composable
-private fun NavigationProgressRow(
-    notification: ProgressNotification,
-    appLabel: String,
-) {
-    val context = LocalContext.current
-    val fraction =
-        if (notification.progressMax > 0) notification.progress.toFloat() / notification.progressMax else 0f
-    val instruction = remember(notification.title) { notification.title?.let(::parseNavigationInstruction) }
-    val pill = notification.shortCriticalText
-    GlanceStatusRow(
-        icon = { NotificationAppIcon(notification.packageName) },
-        title = instruction?.title ?: appLabel,
-        subtitle =
-            (notification.subText ?: notification.text)?.asEtaText()
-                ?: appLabel.takeIf { notification.title != null },
-        titleMaxLines = GlanceTextMaxLines,
-        pillText = pill,
-        pillIcon =
-            instruction?.icon?.takeIf { pill != null }?.let { vector ->
-                {
-                    Icon(
-                        imageVector = vector,
-                        contentDescription = null,
-                        tint = LocalContentColor.current,
-                        modifier = Modifier.size(16.dp),
-                    )
-                }
-            },
-        onClick = {
-            openNotificationTarget(context, notification.packageName, notification.contentIntent)
-        },
-        belowText = {
-            if (fraction < MIN_VISIBLE_PROGRESS) return@GlanceStatusRow
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = DesignTokens.SpacingXSmall),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
-            ) {
-                // The flag marks the destination, so the bar draws no stop indicator.
-                LinearWavyProgressIndicator(
-                    progress = { fraction },
-                    modifier = Modifier.weight(1f),
-                    stopSize = 0.dp,
-                )
-                Icon(
-                    imageVector = MaterialSymbols.Flag,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(16.dp),
-                )
-            }
         },
     )
 }

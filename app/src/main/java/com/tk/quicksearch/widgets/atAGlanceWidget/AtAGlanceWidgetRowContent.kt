@@ -149,6 +149,18 @@ private fun RowText(
     textScale: Float,
 ) {
     val isCritical = row.titleStyle == AtAGlanceWidgetTitleStyle.CRITICAL
+    row.headline?.let { headline ->
+        Text(
+            text = headline,
+            style =
+                TextStyle(
+                    color = colors.title,
+                    fontSize = AtAGlanceWidgetDimens.HEADLINE_FONT_SIZE * textScale,
+                    fontWeight = FontWeight.Medium,
+                ),
+            maxLines = 1,
+        )
+    }
     Text(
         text = row.title,
         style =
@@ -219,26 +231,13 @@ private fun RowText(
     }
     row.progress?.let { progress ->
         TextGap()
-        if (row.progressFlag) {
-            Row(modifier = GlanceModifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                LinearProgressIndicator(
-                    progress = progress,
-                    modifier = GlanceModifier.defaultWeight().height(AtAGlanceWidgetDimens.PROGRESS_HEIGHT),
-                    color = colors.title,
-                    backgroundColor = colors.progressTrack,
-                )
-                Spacer(modifier = GlanceModifier.width(4.dp))
-                VectorImage(context, MaterialSymbols.Flag, colors.title, 16.dp)
-            }
-        } else {
-            Spacer(modifier = GlanceModifier.height(4.dp))
-            LinearProgressIndicator(
-                progress = progress,
-                modifier = GlanceModifier.fillMaxWidth().height(AtAGlanceWidgetDimens.PROGRESS_HEIGHT).padding(end = 4.dp),
-                color = colors.title,
-                backgroundColor = colors.progressTrack,
-            )
-        }
+        Spacer(modifier = GlanceModifier.height(4.dp))
+        LinearProgressIndicator(
+            progress = progress,
+            modifier = GlanceModifier.fillMaxWidth().height(AtAGlanceWidgetDimens.PROGRESS_HEIGHT).padding(end = 4.dp),
+            color = colors.title,
+            backgroundColor = colors.progressTrack,
+        )
     }
     if (row.chips.isNotEmpty()) {
         Spacer(modifier = GlanceModifier.height(AtAGlanceWidgetDimens.CHIP_TOP_SPACING))
@@ -451,6 +450,7 @@ private fun RowIcon(
                 colorFilter = ColorFilter.tint(colors.tint(icon.tint)),
             )
         is AtAGlanceWidgetIcon.App -> AppImage(context, icon.packageName, colors, size)
+        is AtAGlanceWidgetIcon.Maneuver -> ManeuverTile(context, icon, colors)
         is AtAGlanceWidgetIcon.Battery ->
             Box(modifier = GlanceModifier.size(size)) {
                 Image(
@@ -466,6 +466,32 @@ private fun RowIcon(
                     colorFilter = ColorFilter.tint(colors.error),
                 )
             }
+    }
+}
+
+/** Home's navigation tile: the turn arrow on a tonal rounded square, the app's icon badged in its corner. */
+@Composable
+private fun ManeuverTile(
+    context: Context,
+    icon: AtAGlanceWidgetIcon.Maneuver,
+    colors: AtAGlanceWidgetRowColors,
+) {
+    Box(
+        modifier = GlanceModifier.size(AtAGlanceWidgetDimens.MANEUVER_TILE_SIZE + AtAGlanceWidgetDimens.MANEUVER_BADGE_OVERHANG),
+        contentAlignment = Alignment.BottomEnd,
+    ) {
+        Box(modifier = GlanceModifier.fillMaxWidth().fillMaxHeight(), contentAlignment = Alignment.TopStart) {
+            Box(
+                modifier =
+                    GlanceModifier
+                        .size(AtAGlanceWidgetDimens.MANEUVER_TILE_SIZE)
+                        .background(ImageProvider(R.drawable.widget_at_a_glance_tile_faint), colorFilter = ColorFilter.tint(colors.title)),
+                contentAlignment = Alignment.Center,
+            ) {
+                VectorImage(context, icon.vector, colors.title, AtAGlanceWidgetDimens.MANEUVER_ICON_SIZE)
+            }
+        }
+        AppImage(context, icon.packageName, colors, AtAGlanceWidgetDimens.MANEUVER_BADGE_SIZE)
     }
 }
 

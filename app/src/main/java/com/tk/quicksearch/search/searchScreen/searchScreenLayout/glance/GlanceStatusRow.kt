@@ -126,6 +126,8 @@ internal fun GlanceStatusRow(
      * ends with the At a Glance settings item.
      */
     menuItems: (@Composable ColumnScope.(closeMenu: () -> Unit) -> Unit)? = null,
+    /** Large text above the title, such as the distance to a navigation's next turn. */
+    headline: String? = null,
     titleStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     titleColor: Color = MaterialTheme.colorScheme.onSurface,
     titleMaxLines: Int = 1,
@@ -140,6 +142,7 @@ internal fun GlanceStatusRow(
     dismissAtTop: Boolean = false,
     belowText: (@Composable () -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
+    iconSize: Dp = DesignTokens.IconSize,
 ) {
     val verticalPadding = glanceRowVerticalPadding()
     val openSettings = rememberOpenAtAGlanceSettings()
@@ -190,11 +193,21 @@ internal fun GlanceStatusRow(
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(modifier = Modifier.size(DesignTokens.IconSize), contentAlignment = Alignment.Center) { icon() }
+            Box(modifier = Modifier.size(iconSize), contentAlignment = Alignment.Center) { icon() }
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing),
             ) {
+                if (headline != null) {
+                    Text(
+                        text = headline,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Medium,
+                        color = titleColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
                 Text(
                     text = title,
                     style = titleStyle,

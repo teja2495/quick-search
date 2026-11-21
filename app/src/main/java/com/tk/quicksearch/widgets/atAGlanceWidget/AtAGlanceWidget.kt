@@ -83,11 +83,20 @@ internal object AtAGlanceWidgetDimens {
     val BUTTON_ICON_SIZE = 20.dp
     val CHIP_ICON_SIZE = 16.dp
 
+    /** A navigation's turn tile; its app badge hangs past the tile's corner. */
+    val MANEUVER_TILE_SIZE = 40.dp
+    val MANEUVER_ICON_SIZE = 24.dp
+    val MANEUVER_BADGE_SIZE = 16.dp
+    val MANEUVER_BADGE_OVERHANG = 4.dp
+
     // Home's bodyMedium, bodySmall, bodyLarge, headlineSmall, labelMedium and labelSmall.
     val TITLE_FONT_SIZE = 14.sp
     val SUBTITLE_FONT_SIZE = 12.sp
     val LARGE_TITLE_FONT_SIZE = 16.sp
     val LARGE_SUBTITLE_FONT_SIZE = 20.sp
+
+    /** A navigation's distance to the next turn, above its instruction. */
+    val HEADLINE_FONT_SIZE = 20.sp
     val CODE_FONT_SIZE = 24.sp
     val LABEL_FONT_SIZE = 12.sp
     val FOOTER_FONT_SIZE = 11.sp
