@@ -91,4 +91,24 @@ class AppNotificationFiltersTest {
         assertEquals(listOf("Add", "debited"), decoded.apps.single().keywords)
         assertEquals(listOf("OTP"), decoded.keywords)
     }
+
+    @Test
+    fun lowercasedMatchingAgreesWithMatches() {
+        val filters = AppNotificationFilters(
+            apps = listOf(AppNotificationApp("com.bank", listOf("Debited"))),
+            keywords = listOf("Out for Delivery"),
+        )
+        val samples = listOf(
+            "com.bank" to "Rs 500 DEBITED",
+            "com.bank" to "Statement ready",
+            "com.shop" to "Your parcel is OUT FOR DELIVERY.",
+            "com.shop" to "Undelivered",
+        )
+        samples.forEach { (packageName, text) ->
+            assertEquals(
+                filters.matches(packageName, text),
+                filters.matchesLowercased(packageName, text.lowercase()),
+            )
+        }
+    }
 }

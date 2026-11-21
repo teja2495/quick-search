@@ -30,10 +30,18 @@ data class AppNotificationFilters(
     fun matches(
         packageName: String,
         text: String,
+    ): Boolean = matchesLowercased(packageName, text.lowercase())
+
+    /** [matches] for text already passed through [String.lowercase], so it isn't lowercased per keyword. */
+    fun matchesLowercased(
+        packageName: String,
+        lowercasedText: String,
     ): Boolean {
         val app = apps.firstOrNull { it.packageName == packageName }
-        if (app != null && (app.keywords.isEmpty() || app.keywords.any { containsWholeWords(text, it) })) return true
-        return keywords.any { containsWholeWords(text, it) }
+        if (app != null && (app.keywords.isEmpty() || app.keywords.any { containsWholeWordsLowercased(lowercasedText, it) })) {
+            return true
+        }
+        return keywords.any { containsWholeWordsLowercased(lowercasedText, it) }
     }
 
     companion object {
@@ -46,10 +54,15 @@ data class AppNotificationFilters(
         fun containsWholeWords(
             text: String,
             keyword: String,
+        ): Boolean = containsWholeWordsLowercased(text.lowercase(), keyword)
+
+        /** [containsWholeWords] for a [haystack] already passed through [String.lowercase]. */
+        private fun containsWholeWordsLowercased(
+            haystack: String,
+            keyword: String,
         ): Boolean {
             val needle = keyword.trim().lowercase()
             if (needle.isEmpty()) return false
-            val haystack = text.lowercase()
             var start = haystack.indexOf(needle)
             while (start >= 0) {
                 val end = start + needle.length

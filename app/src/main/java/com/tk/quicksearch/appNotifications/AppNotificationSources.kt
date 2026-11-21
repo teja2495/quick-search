@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.tk.quicksearch.R
 import com.tk.quicksearch.appNotifications.AppNotificationFilters
 import com.tk.quicksearch.search.glance.GlanceNotificationsStore
+import com.tk.quicksearch.search.notificationHistory.NotificationHistoryEntry
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryStore
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.rememberAppLabel
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
@@ -38,6 +40,8 @@ import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRow
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRowSpacing
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerSearch
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /** How far back Recent matches looks. */
 private const val RECENT_MATCH_WINDOW_MS = 7 * DateUtils.DAY_IN_MILLIS
@@ -53,7 +57,8 @@ private class RecentNotification(
     val text: String?,
     val postTime: Long,
 ) {
-    val searchText: String get() = listOfNotNull(title, text).joinToString("\n")
+    /** Title and text lowercased once, for [AppNotificationFilters.matchesLowercased]. */
+    val lowercasedSearchText: String = listOfNotNull(title, text).joinToString("\n").lowercase()
 }
 
 /**
@@ -66,24 +71,34 @@ private fun rememberRecentNotifications(): List<RecentNotification> {
     val context = LocalContext.current
     val history by remember(context) { NotificationHistoryStore.entries(context) }.collectAsState(initial = emptyList())
     val live by GlanceNotificationsStore.appNotificationCandidates.collectAsState()
-    return remember(history, live) {
-        val fromShade = live.map { RecentNotification(it.key, it.packageName, it.title, it.text, it.postTime) }
-        val fromHistory = history
-            .filter { it.appNotificationCandidate }
-            .map { entry ->
-                RecentNotification(
-                    entry.key,
-                    entry.packageName,
-                    entry.title.ifBlank { null },
-                    entry.text.ifBlank { null },
-                    entry.postTime,
-                )
-            }
-        (fromShade + fromHistory)
-            .filter { it.packageName != context.packageName }
-            .distinctBy { it.key to it.postTime }
-            .sortedByDescending { it.postTime }
+    // Merged and sorted off the main thread; this reruns for every notification posted.
+    val recent by produceState(initialValue = emptyList<RecentNotification>(), history, live) {
+        value = withContext(Dispatchers.Default) { mergeRecentNotifications(history, live, context.packageName) }
     }
+    return recent
+}
+
+private fun mergeRecentNotifications(
+    history: List<NotificationHistoryEntry>,
+    live: List<AppNotification>,
+    ownPackageName: String,
+): List<RecentNotification> {
+    val fromShade = live.map { RecentNotification(it.key, it.packageName, it.title, it.text, it.postTime) }
+    val fromHistory = history
+        .filter { it.appNotificationCandidate }
+        .map { entry ->
+            RecentNotification(
+                entry.key,
+                entry.packageName,
+                entry.title.ifBlank { null },
+                entry.text.ifBlank { null },
+                entry.postTime,
+            )
+        }
+    return (fromShade + fromHistory)
+        .filter { it.packageName != ownPackageName }
+        .distinctBy { it.key to it.postTime }
+        .sortedByDescending { it.postTime }
 }
 
 /** What [filters] would have shown lately, so the user can tell whether the keywords catch the right things. */
@@ -92,9 +107,13 @@ internal fun AppNotificationRecentMatches(filters: AppNotificationFilters) {
     val recent = rememberRecentNotifications()
     val matches = remember(recent, filters) {
         val since = System.currentTimeMillis() - RECENT_MATCH_WINDOW_MS
+        // Newest first, so the scan stops at the first notification older than the window.
         recent
-            .filter { it.postTime >= since && filters.matches(it.packageName, it.searchText) }
+            .asSequence()
+            .takeWhile { it.postTime >= since }
+            .filter { filters.matchesLowercased(it.packageName, it.lowercasedSearchText) }
             .take(MAX_RECENT_MATCHES)
+            .toList()
     }
     Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
         Text(

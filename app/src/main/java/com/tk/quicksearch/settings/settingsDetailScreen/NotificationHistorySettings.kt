@@ -65,7 +65,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.rememberResumeRefreshKey
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -119,9 +119,9 @@ fun NotificationHistorySettingsSection(
     val hiddenPackages by NotificationHistoryStore.hiddenPackages.collectAsState()
 
     // Listener access is granted from a system screen, so re-check it every time we come back.
+    // The store itself loads off the main thread when [NotificationHistoryStore.entries] is collected.
     DisposableEffect(lifecycleOwner, context) {
         NotificationHistoryAccess.refresh(context)
-        NotificationHistoryStore.ensureLoaded(context)
         val observer =
             LifecycleEventObserver { _, event ->
                 if (event == Lifecycle.Event.ON_RESUME) {
@@ -139,27 +139,40 @@ fun NotificationHistorySettingsSection(
                 hiddenPackages +
                 NotificationHistoryStore.DEFAULT_HIDDEN_PACKAGES
         }
-    val appLabels by produceState(initialValue = emptyMap<String, String>(), packageNames) {
-        value = withContext(Dispatchers.IO) { loadAppLabels(context, packageNames) }
+    // Only packages not yet labeled are looked up, so a new app posting doesn't relabel every app.
+    var appLabels by remember { mutableStateOf(emptyMap<String, String>()) }
+    LaunchedEffect(packageNames) {
+        val missing = packageNames - appLabels.keys
+        if (missing.isEmpty()) return@LaunchedEffect
+        val loaded = withContext(Dispatchers.IO) { loadAppLabels(context, missing) }
+        appLabels = appLabels + loaded
     }
 
+    // Lowercased once per list change, so a keystroke only runs a substring check per entry.
+    val searchIndex =
+        remember(entries, appLabels, locale) {
+            entries.map { entry ->
+                val appLabel = appLabels[entry.packageName] ?: entry.packageName
+                listOf(appLabel, entry.title, entry.text).map { it.lowercase(locale) }
+            }
+        }
     val normalizedQuery = remember(searchQuery, locale) { searchQuery.trim().lowercase(locale) }
     val filteredEntries =
-        remember(entries, appLabels, normalizedQuery, locale) {
+        remember(entries, searchIndex, normalizedQuery) {
             if (normalizedQuery.isBlank()) {
                 entries
             } else {
-                entries.filter { entry ->
-                    val appLabel = appLabels[entry.packageName] ?: entry.packageName
-                    listOf(appLabel, entry.title, entry.text).any { field ->
-                        field.lowercase(locale).contains(normalizedQuery)
-                    }
+                entries.filterIndexed { index, _ ->
+                    searchIndex[index].any { field -> field.contains(normalizedQuery) }
                 }
             }
         }
 
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val use24Hour = DateFormat.is24HourFormat(context)
+    // The 24-hour setting can only change while away, so it's re-read on resume, not per keystroke.
+    val resumeRefreshKey = rememberResumeRefreshKey()
+    val use24Hour = remember(context, resumeRefreshKey) { DateFormat.is24HourFormat(context) }
+    val timeFormatters = remember(use24Hour, locale) { NotificationTimeFormatters(use24Hour, locale) }
 
     if (showAppFilterDialog) {
         NotificationHistoryAppFilterDialog(
@@ -225,8 +238,8 @@ fun NotificationHistorySettingsSection(
             ) {
                 itemsIndexed(
                     items = filteredEntries,
-                    // Unique per row (matches the database's unique index), so removals animate.
-                    key = { _, entry -> "${entry.key}|${entry.title}|${entry.text}" },
+                    // The database row id is unique per row, so removals animate.
+                    key = { _, entry -> entry.id },
                 ) { index, entry ->
                     val appLabel = appLabels[entry.packageName] ?: entry.packageName
                     Column(modifier = Modifier.animateItem()) {
@@ -237,7 +250,7 @@ fun NotificationHistorySettingsSection(
                                 NotificationHistoryRow(
                                     entry = entry,
                                     appLabel = appLabel,
-                                    timeLabel = formatNotificationTime(entry.postTime, use24Hour, locale),
+                                    timeLabel = timeFormatters.format(entry.postTime),
                                     onClick = {
                                         AppLockGate.runAfterUnlock(context, entry.packageName, appLabel) {
                                             if (!NotificationHistoryLauncher.open(context, entry)) {
@@ -682,15 +695,18 @@ private fun loadAppLabels(
     }
 }
 
-private fun formatNotificationTime(
-    postTime: Long,
+/** Row time labels; built once per format setting and only used on the main thread. */
+private class NotificationTimeFormatters(
     use24Hour: Boolean,
     locale: Locale,
-): String {
-    val timePattern = if (use24Hour) "HH:mm" else "h:mm a"
-    val isToday =
-        android.text.format.DateUtils.isToday(postTime)
-    val pattern = if (isToday) timePattern else "MMM d, $timePattern"
-    val formatter = java.text.SimpleDateFormat(pattern, locale)
-    return runCatching { formatter.format(Date(postTime)) }.getOrElse { "" }
+) {
+    private val timePattern = if (use24Hour) "HH:mm" else "h:mm a"
+    private val todayFormatter = java.text.SimpleDateFormat(timePattern, locale)
+    private val olderFormatter = java.text.SimpleDateFormat("MMM d, $timePattern", locale)
+
+    fun format(postTime: Long): String {
+        val formatter =
+            if (android.text.format.DateUtils.isToday(postTime)) todayFormatter else olderFormatter
+        return runCatching { formatter.format(Date(postTime)) }.getOrElse { "" }
+    }
 }

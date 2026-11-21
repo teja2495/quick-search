@@ -26,7 +26,7 @@ data class NotificationHistoryEntity(
 )
 
 internal fun NotificationHistoryEntity.toModel() =
-    NotificationHistoryEntry(notificationKey, packageName, title, text, postTime, appNotificationCandidate)
+    NotificationHistoryEntry(notificationKey, packageName, title, text, postTime, appNotificationCandidate, id)
 
 internal fun NotificationHistoryEntry.toEntity() =
     NotificationHistoryEntity(
