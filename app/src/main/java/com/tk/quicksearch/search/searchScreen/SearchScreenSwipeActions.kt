@@ -139,7 +139,7 @@ internal fun rememberSearchScreenSwipeActions(
                 )
         }
     }
-    // The engine strip and bottom search bar sit outside the results area, so they need
+    // The engine strip and search bar (top or bottom) sit outside the results area, so they need
     // their own vertical drag detector to forward the same swipe gestures. Their inner
     // scrollers are horizontal only, so vertical drags reach this detector unconsumed.
     // Swipe up mirrors the results area: it only fires on an empty query.

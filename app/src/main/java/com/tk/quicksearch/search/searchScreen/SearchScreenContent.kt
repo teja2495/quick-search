@@ -30,8 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -649,7 +648,7 @@ internal fun SearchScreenContent(
         com.tk.quicksearch.tools.calculator.LocalCalculatorResultQueryHandler provides onQueryChanged,
     ) {
     Column(modifier = contentModifier, verticalArrangement = Arrangement.Top) {
-        if (showSearchField && !showBottomSearchBar) searchFieldContent()
+        if (showSearchField && !showBottomSearchBar) Box(Modifier.fillMaxWidth().then(bottomBarSwipeModifier)) { searchFieldContent() }
         if (!showSearchField) PinnedGlanceFocusTarget(searchFocusRequester)
 
         if (showSearchField && !showBottomSearchBar && !state.oneHandedMode) {
