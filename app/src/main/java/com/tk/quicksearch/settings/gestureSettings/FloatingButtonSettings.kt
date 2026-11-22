@@ -22,7 +22,9 @@ import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.FloatingButtonConfig
 import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
 import com.tk.quicksearch.settings.shared.SettingsCardItem
+import com.tk.quicksearch.shared.ui.components.AnimatedSegmentedTiles
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SettingsRevealVisibility
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
@@ -90,47 +92,48 @@ fun FloatingButtonSettingsSection(modifier: Modifier = Modifier) {
     }
 
     val showAccessibilityRow = config.enabled && !isAccessibilityEnabled
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
-    ) {
-        val enableCount = if (showAccessibilityRow) 2 else 1
+    Column(modifier = modifier) {
         SegmentedGroup {
-            SegmentedTile(index = 0, count = enableCount) {
-                SettingsToggleRow(
-                    title = stringResource(R.string.settings_floating_button_title),
-                    subtitle = stringResource(R.string.settings_floating_button_desc),
-                    checked = config.enabled,
-                    onCheckedChange = { enabled ->
-                        preferences.setFloatingButtonEnabled(enabled)
-                        config = config.copy(enabled = enabled)
-                        if (enabled && !LockScreenAccessibilityService.isEnabled(context)) {
-                            requestAccessibility()
-                        }
-                    },
-                    leadingIcon = MaterialSymbols.Search,
-                    isFirstItem = true,
-                    isLastItem = true,
-                )
-            }
-            if (showAccessibilityRow) {
-                SettingsSegmentNavigationRow(
-                    item =
-                        SettingsCardItem(
-                            title = stringResource(R.string.permissions_accessibility_lock_screen_title),
-                            description =
-                                stringResource(R.string.settings_gesture_lock_screen_requires_accessibility),
-                            icon = MaterialSymbols.Lock,
-                            actionOnPress = ::requestAccessibility,
-                        ),
-                    index = 1,
-                    count = enableCount,
-                )
+            AnimatedSegmentedTiles {
+                tile {
+                    SettingsToggleRow(
+                        title = stringResource(R.string.settings_floating_button_title),
+                        subtitle = stringResource(R.string.settings_floating_button_desc),
+                        checked = config.enabled,
+                        onCheckedChange = { enabled ->
+                            preferences.setFloatingButtonEnabled(enabled)
+                            config = config.copy(enabled = enabled)
+                            if (enabled && !LockScreenAccessibilityService.isEnabled(context)) {
+                                requestAccessibility()
+                            }
+                        },
+                        leadingIcon = MaterialSymbols.Search,
+                        isFirstItem = true,
+                        isLastItem = true,
+                    )
+                }
+                item(visible = showAccessibilityRow) { index, count ->
+                    SettingsSegmentNavigationRow(
+                        item =
+                            SettingsCardItem(
+                                title = stringResource(R.string.permissions_accessibility_lock_screen_title),
+                                description =
+                                    stringResource(R.string.settings_gesture_lock_screen_requires_accessibility),
+                                icon = MaterialSymbols.Lock,
+                                actionOnPress = ::requestAccessibility,
+                            ),
+                        index = index,
+                        count = count,
+                    )
+                }
             }
         }
 
-        if (config.enabled && isAccessibilityEnabled) {
-            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)) {
+        SettingsRevealVisibility(visible = config.enabled && isAccessibilityEnabled) {
+            Column(
+                modifier = Modifier.padding(top = DesignTokens.SpacingLarge),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+            ) {
                 Text(
                     text = stringResource(R.string.settings_floating_button_move_hint),
                     style = MaterialTheme.typography.bodyMedium,

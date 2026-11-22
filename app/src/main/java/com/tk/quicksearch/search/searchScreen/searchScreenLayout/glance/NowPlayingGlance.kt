@@ -87,6 +87,8 @@ private val NowPlayingRowStartPadding = DesignTokens.GlanceRowHorizontalPadding
 /** The active now-playing media session shown in the home At a Glance card, with transport controls. */
 internal class NowPlayingGlance(
     val title: String,
+    /** Artist (or album, or the player's own subtitle) shown under the title; null when the session has none. */
+    val subtitle: String?,
     val albumArt: android.graphics.Bitmap?,
     val isPlaying: Boolean,
     /** Whether the session accepts seeks; the rewind/forward buttons are hidden otherwise. */
@@ -228,6 +230,13 @@ private fun rememberLiveNowPlayingGlance(enabled: Boolean): NowPlayingGlance? {
             .getString(MediaMetadata.METADATA_KEY_TITLE)
             ?.takeIf { it.isNotBlank() }
             ?: return null
+    val subtitle =
+        listOf(
+            MediaMetadata.METADATA_KEY_ARTIST,
+            MediaMetadata.METADATA_KEY_ALBUM_ARTIST,
+            MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE,
+            MediaMetadata.METADATA_KEY_ALBUM,
+        ).firstNotNullOfOrNull { key -> activeMetadata.getString(key)?.trim()?.takeIf { it.isNotEmpty() && it != title } }
     val albumArt =
         activeMetadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
             ?: activeMetadata.getBitmap(MediaMetadata.METADATA_KEY_ART)
@@ -283,6 +292,7 @@ private fun rememberLiveNowPlayingGlance(enabled: Boolean): NowPlayingGlance? {
 
     return NowPlayingGlance(
         title = title,
+        subtitle = subtitle,
         albumArt = albumArt,
         isPlaying = isPlaying,
         canSeek = MediaSeek.supportsSeek(playbackState),
@@ -360,13 +370,24 @@ internal fun NowPlayingRow(
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             ) {
                 NowPlayingAlbumArt(glance)
-                Text(
-                    text = glance.title,
-                    modifier = Modifier.weight(1f).basicMarquee(),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = glance.title,
+                        modifier = Modifier.basicMarquee(),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                    )
+                    glance.subtitle?.let { subtitle ->
+                        Text(
+                            text = subtitle,
+                            modifier = Modifier.basicMarquee(),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                        )
+                    }
+                }
                 if (openGlanceSettings != null) {
                     AppDropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                         AtAGlanceSettingsMenuItem(openSettings = openGlanceSettings, closeMenu = { showMenu = false })

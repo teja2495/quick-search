@@ -45,6 +45,7 @@ import com.tk.quicksearch.search.core.ItemPriorityConfig
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.settings.shared.*
+import com.tk.quicksearch.shared.ui.components.AnimatedSegmentedTiles
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
@@ -150,30 +151,33 @@ private fun TopMatchesCard(
             }
         }
 
-    val tileCount = if (topMatchesEnabled) 3 else 1
     SegmentedGroup(modifier = modifier) {
-        SegmentedToggleTile(
-            title = stringResource(R.string.top_matches_title),
-            description = stringResource(R.string.top_matches_toggle_desc),
-            checked = topMatchesEnabled,
-            onCheckedChange = onTopMatchesToggle,
-            icon = MaterialSymbols.AutoAwesome,
-            enabled = !isLocked,
-            index = 0,
-            count = tileCount,
-        )
-        if (topMatchesEnabled) {
-            SettingsSegmentNavigationRow(
-                item = SettingsCardItem(
-                    title = stringResource(R.string.top_matches_priority_title),
-                    description = stringResource(R.string.top_matches_priority_desc),
-                    icon = MaterialSymbols.Reorder,
-                    actionOnPress = { showPriorityDialog = true },
-                ),
-                index = 1,
-                count = tileCount,
-            )
-            SegmentedTile(index = 2, count = tileCount) {
+        AnimatedSegmentedTiles {
+            item { index, count ->
+                SegmentedToggleTile(
+                    title = stringResource(R.string.top_matches_title),
+                    description = stringResource(R.string.top_matches_toggle_desc),
+                    checked = topMatchesEnabled,
+                    onCheckedChange = onTopMatchesToggle,
+                    icon = MaterialSymbols.AutoAwesome,
+                    enabled = !isLocked,
+                    index = index,
+                    count = count,
+                )
+            }
+            item(visible = topMatchesEnabled) { index, count ->
+                SettingsSegmentNavigationRow(
+                    item = SettingsCardItem(
+                        title = stringResource(R.string.top_matches_priority_title),
+                        description = stringResource(R.string.top_matches_priority_desc),
+                        icon = MaterialSymbols.Reorder,
+                        actionOnPress = { showPriorityDialog = true },
+                    ),
+                    index = index,
+                    count = count,
+                )
+            }
+            tile(visible = topMatchesEnabled) {
                 TopMatchesLimitSlider(
                     selectedLimit = topMatchesLimit,
                     onLimitSelected = onTopMatchesLimitChange,

@@ -44,6 +44,7 @@ import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
+import com.tk.quicksearch.shared.ui.components.AnimatedSegmentedTiles
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
@@ -171,21 +172,22 @@ private fun TavilyWebSearchSection() {
     }
 
     val hasSavedKey = apiKeyLast4 != null
-    val tileCount = if (hasSavedKey) 2 else 1
     SegmentedGroup {
-        ApiKeyTile(
-            title = stringResource(R.string.settings_tavily_title),
-            description = stringResource(R.string.settings_tavily_desc),
-            leading = { TonalIconBadge(icon = MaterialSymbols.Public) },
-            savedLast4 = apiKeyLast4,
-            isSaving = isSaving,
-            onSave = ::saveApiKey,
-            onDelete = { saveApiKey(null) },
-            index = 0,
-            count = tileCount,
-        )
-        if (hasSavedKey) {
-            SegmentedTile(index = 1, count = tileCount) {
+        AnimatedSegmentedTiles {
+            item { index, count ->
+                ApiKeyTile(
+                    title = stringResource(R.string.settings_tavily_title),
+                    description = stringResource(R.string.settings_tavily_desc),
+                    leading = { TonalIconBadge(icon = MaterialSymbols.Public) },
+                    savedLast4 = apiKeyLast4,
+                    isSaving = isSaving,
+                    onSave = ::saveApiKey,
+                    onDelete = { saveApiKey(null) },
+                    index = index,
+                    count = count,
+                )
+            }
+            tile(visible = hasSavedKey) {
                 SegmentedTileContent {
                     ConnectedChoiceGroup(
                         options =

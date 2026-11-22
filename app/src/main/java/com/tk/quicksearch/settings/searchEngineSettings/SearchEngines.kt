@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.shared.SettingsCardItem
 import com.tk.quicksearch.settings.shared.SettingsNestedCheckbox
+import com.tk.quicksearch.shared.ui.components.SettingsRevealVisibility
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
@@ -170,11 +171,11 @@ private fun SearchEngineAliasSuffixCard(
                 onCheckedChange = onToggle,
                 showDivider = false,
             )
-            if (enabled && onToggleTriggerAfterSpace != null) {
+            SettingsRevealVisibility(visible = enabled && onToggleTriggerAfterSpace != null) {
                 SettingsNestedCheckbox(
                     label = stringResource(R.string.alias_trigger_after_space),
                     checked = triggerAfterSpaceEnabled,
-                    onCheckedChange = onToggleTriggerAfterSpace,
+                    onCheckedChange = { onToggleTriggerAfterSpace?.invoke(it) },
                     modifier =
                         Modifier
                             .padding(

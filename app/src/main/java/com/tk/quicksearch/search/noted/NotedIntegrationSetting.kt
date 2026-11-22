@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.noted
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.layout.layout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -99,7 +99,14 @@ private fun NotedQuickNoteAliasPill(
     onEdit: () -> Unit,
     onClear: () -> Unit,
 ) {
-    val modifier = Modifier.padding(top = DesignTokens.SpacingXSmall)
+    // The pill keeps a 48dp touch target around its 32dp chip; let the invisible top inset overlap
+    // the title's space so the visible chip sits right under the title.
+    val modifier =
+        Modifier.layout { measurable, constraints ->
+            val placeable = measurable.measure(constraints)
+            val inset = AliasPillTouchInset.roundToPx()
+            layout(placeable.width, placeable.height - inset) { placeable.place(0, -inset) }
+        }
     if (alias.isNotBlank()) {
         AliasPill(
             text = AnnotatedString(alias),
@@ -117,3 +124,5 @@ private fun NotedQuickNoteAliasPill(
         )
     }
 }
+
+private val AliasPillTouchInset = (DesignTokens.MinTouchTarget - DesignTokens.ButtonHeightExtraSmall) / 2

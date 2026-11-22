@@ -36,6 +36,7 @@ import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.BasePreferences
 import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.settings.settingsDetailScreen.PriorityReorderDialog
+import com.tk.quicksearch.shared.ui.components.AnimatedSegmentedTiles
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
@@ -312,22 +313,16 @@ fun AppearanceSettingsSection(
         Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
 
         SegmentedGroup {
-            val pinnedCount = if (unifiedPinnedItemsEnabled) 2 else 3
-            var index = 0
-            SegmentedTile(index = index++, count = pinnedCount) {
-                SettingsToggleRow(
-                        title = stringResource(R.string.settings_unified_pinned_items_title),
-                        subtitle = stringResource(R.string.settings_unified_pinned_items_desc),
-                        checked = unifiedPinnedItemsEnabled,
-                        onCheckedChange = onToggleUnifiedPinnedItems,
-                )
-            }
-            if (!unifiedPinnedItemsEnabled) {
-                SegmentedTile(
-                    index = index++,
-                    count = pinnedCount,
-                    onClick = { showPinnedSectionOrderDialog = true },
-                ) {
+            AnimatedSegmentedTiles {
+                tile {
+                    SettingsToggleRow(
+                            title = stringResource(R.string.settings_unified_pinned_items_title),
+                            subtitle = stringResource(R.string.settings_unified_pinned_items_desc),
+                            checked = unifiedPinnedItemsEnabled,
+                            onCheckedChange = onToggleUnifiedPinnedItems,
+                    )
+                }
+                tile(visible = !unifiedPinnedItemsEnabled, onClick = { showPinnedSectionOrderDialog = true }) {
                     SegmentedTileRow(
                         title = stringResource(R.string.settings_pinned_sections_order_title),
                         description = stringResource(R.string.settings_pinned_sections_order_desc),
@@ -340,14 +335,14 @@ fun AppearanceSettingsSection(
                         },
                     )
                 }
-            }
-            SegmentedTile(index = index, count = pinnedCount) {
-                SettingsToggleRow(
-                        title = stringResource(R.string.settings_pinned_app_shortcuts_in_app_grid_title),
-                        subtitle = stringResource(R.string.settings_pinned_app_shortcuts_in_app_grid_desc),
-                        checked = pinnedAppShortcutsInAppGrid,
-                        onCheckedChange = onTogglePinnedAppShortcutsInAppGrid,
-                )
+                tile {
+                    SettingsToggleRow(
+                            title = stringResource(R.string.settings_pinned_app_shortcuts_in_app_grid_title),
+                            subtitle = stringResource(R.string.settings_pinned_app_shortcuts_in_app_grid_desc),
+                            checked = pinnedAppShortcutsInAppGrid,
+                            onCheckedChange = onTogglePinnedAppShortcutsInAppGrid,
+                    )
+                }
             }
         }
 

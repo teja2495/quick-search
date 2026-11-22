@@ -1,6 +1,7 @@
 package com.tk.quicksearch.shared.ui.theme
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.shape.CircleShape
@@ -11,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.lerp
 
 /**
  * Shape builders for every component. Components ask here for their shape instead of assembling
@@ -174,7 +176,11 @@ fun pressMorphButtonShape(
 fun floatingActionShape(interactionSource: InteractionSource): RoundedCornerShape =
     pressMorphButtonShape(interactionSource, DesignTokens.FloatingActionHeight)
 
-/** Segmented-list tile at [index] of [count] whose inner corners round further while pressed. */
+/**
+ * Segmented-list tile at [index] of [count] whose inner corners round further while pressed. When a
+ * neighbor appears or disappears and the tile becomes (or stops being) the first or last one, its
+ * outer corners morph on the default spatial spring instead of snapping.
+ */
 @Composable
 fun pressMorphSegmentShape(
     interactionSource: InteractionSource,
@@ -187,5 +193,19 @@ fun pressMorphSegmentShape(
             rest = DesignTokens.SegmentedListInnerCorner,
             pressed = DesignTokens.SegmentPressedInnerCorner,
         )
-    return AppShapes.segment(index, count, inner = inner)
+    val outer = DesignTokens.SegmentedListOuterCorner
+    val firstFraction by animateFloatAsState(
+        targetValue = if (index <= 0) 1f else 0f,
+        animationSpec = AppMotion.defaultSpatial(),
+        label = "segmentTopCorner",
+    )
+    val lastFraction by animateFloatAsState(
+        targetValue = if (index >= count - 1) 1f else 0f,
+        animationSpec = AppMotion.defaultSpatial(),
+        label = "segmentBottomCorner",
+    )
+    return AppShapes.stacked(
+        top = lerp(inner, outer, firstFraction.coerceIn(0f, 1f)),
+        bottom = lerp(inner, outer, lastFraction.coerceIn(0f, 1f)),
+    )
 }

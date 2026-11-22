@@ -54,6 +54,7 @@ import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
+import com.tk.quicksearch.shared.ui.components.AnimatedSegmentedTiles
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
 import com.tk.quicksearch.shared.ui.components.ExpandableSegmentedGroup
@@ -319,8 +320,8 @@ fun AppThemeCard(
                     }
             }
         }
-        if (showMaterialYouToggle) {
-            SegmentedTile(index = index++, count = count) {
+        AnimatedSegmentedTiles(firstIndex = index) {
+            tile(visible = showMaterialYouToggle) {
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_device_theme_title),
                         subtitle = stringResource(R.string.settings_device_theme_desc),
@@ -330,9 +331,7 @@ fun AppThemeCard(
                         showDivider = showAmoledThemeToggle || showThemedIconsToggle,
                 )
             }
-        }
-        if (showAmoledThemeToggle) {
-            SegmentedTile(index = index++, count = count) {
+            tile(visible = showAmoledThemeToggle) {
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_amoled_theme_title),
                         subtitle = stringResource(R.string.settings_amoled_theme_desc),
@@ -342,9 +341,7 @@ fun AppThemeCard(
                         showDivider = showThemedIconsToggle,
                 )
             }
-        }
-        if (showThemedIconsToggle) {
-            SegmentedTile(index = index++, count = count) {
+            tile(visible = showThemedIconsToggle) {
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_themed_icons_title),
                         subtitle = stringResource(R.string.settings_themed_icons_desc),

@@ -55,6 +55,7 @@ import com.tk.quicksearch.shared.util.performHapticFeedbackSafely
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import com.tk.quicksearch.shared.ui.components.AppDialogSurface
+import com.tk.quicksearch.shared.ui.components.AnimatedSegmentedTiles
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
 import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
@@ -133,65 +134,65 @@ internal fun SearchOptionsCard(
         }
     }
 
-    val tiles = buildList<@Composable () -> Unit> {
-        add {
-            SearchResultsSliderToggle(
-                title = stringResource(R.string.web_search_suggestions_title),
-                checked = webSuggestionsEnabled,
-                onCheckedChange = onWebSuggestionsToggle,
-                leadingIcon = MaterialSymbols.Language,
-                sliderDetails =
-                    if (webSuggestionsEnabled) {
-                        SettingsToggleSliderDetails(
-                            value = webSuggestionsCount.toFloat(),
-                            onValueChange = { value ->
-                                val step = value.toInt()
-                                if (step != lastWebStep) {
-                                    hapticToggle(view)()
-                                    lastWebStep = step
-                                }
-                                onWebSuggestionsCountChange(step)
-                            },
-                            valueRange = 1f..5f,
-                            steps = 3,
-                            valueLabel = webSuggestionsCount.toString(),
-                        )
-                    } else {
-                        null
-                    },
-            )
-        }
-        add {
-            SearchResultsSliderToggle(
-                title = stringResource(R.string.recent_queries_toggle_title),
-                subtitle = stringResource(R.string.recent_queries_toggle_desc),
-                checked = recentQueriesEnabled,
-                onCheckedChange = onRecentQueriesToggle,
-                leadingIcon = MaterialSymbols.History,
-                sliderDetails =
-                    if (recentQueriesEnabled) {
-                        SettingsToggleSliderDetails(
-                            value = recentQueriesDisplayCountOptionIndex(recentQueriesDisplayCount).toFloat(),
-                            onValueChange = { value ->
-                                val count = recentQueriesDisplayCountForOptionIndex(value.toInt())
-                                if (count != lastRecentQueriesDisplayCount) {
-                                    hapticToggle(view)()
-                                    lastRecentQueriesDisplayCount = count
-                                }
-                                onRecentQueriesDisplayCountChange(count)
-                            },
-                            valueRange = 0f..4f,
-                            steps = 3,
-                            valueLabel = recentQueriesDisplayCount.toString(),
-                            description = stringResource(R.string.recent_queries_toggle_desc),
-                        )
-                    } else {
-                        null
-                    },
-            )
-        }
-        if (fuzzySearchAvailable) {
-            add {
+    SegmentedGroup(modifier = modifier) {
+        AnimatedSegmentedTiles {
+            tile {
+                SearchResultsSliderToggle(
+                    title = stringResource(R.string.web_search_suggestions_title),
+                    checked = webSuggestionsEnabled,
+                    onCheckedChange = onWebSuggestionsToggle,
+                    leadingIcon = MaterialSymbols.Language,
+                    sliderDetails =
+                        if (webSuggestionsEnabled) {
+                            SettingsToggleSliderDetails(
+                                value = webSuggestionsCount.toFloat(),
+                                onValueChange = { value ->
+                                    val step = value.toInt()
+                                    if (step != lastWebStep) {
+                                        hapticToggle(view)()
+                                        lastWebStep = step
+                                    }
+                                    onWebSuggestionsCountChange(step)
+                                },
+                                valueRange = 1f..5f,
+                                steps = 3,
+                                valueLabel = webSuggestionsCount.toString(),
+                            )
+                        } else {
+                            null
+                        },
+                )
+            }
+            tile {
+                SearchResultsSliderToggle(
+                    title = stringResource(R.string.recent_queries_toggle_title),
+                    subtitle = stringResource(R.string.recent_queries_toggle_desc),
+                    checked = recentQueriesEnabled,
+                    onCheckedChange = onRecentQueriesToggle,
+                    leadingIcon = MaterialSymbols.History,
+                    sliderDetails =
+                        if (recentQueriesEnabled) {
+                            SettingsToggleSliderDetails(
+                                value = recentQueriesDisplayCountOptionIndex(recentQueriesDisplayCount).toFloat(),
+                                onValueChange = { value ->
+                                    val count = recentQueriesDisplayCountForOptionIndex(value.toInt())
+                                    if (count != lastRecentQueriesDisplayCount) {
+                                        hapticToggle(view)()
+                                        lastRecentQueriesDisplayCount = count
+                                    }
+                                    onRecentQueriesDisplayCountChange(count)
+                                },
+                                valueRange = 0f..4f,
+                                steps = 3,
+                                valueLabel = recentQueriesDisplayCount.toString(),
+                                description = stringResource(R.string.recent_queries_toggle_desc),
+                            )
+                        } else {
+                            null
+                        },
+                )
+            }
+            tile(visible = fuzzySearchAvailable) {
                 SettingsToggleRow(
                     title = stringResource(R.string.fuzzy_search_toggle_title),
                     subtitle = stringResource(R.string.fuzzy_search_toggle_desc),
@@ -201,51 +202,45 @@ internal fun SearchOptionsCard(
                     showDivider = false,
                 )
             }
-        }
-        add {
-            SearchOptionsNavigationRow(
-                item =
-                    SettingsCardItem(
-                        title = stringResource(R.string.secondary_ranking_title),
-                        description = secondaryRankingDescription(secondaryRankingSignal),
-                        icon = MaterialSymbols.Reorder,
-                        actionOnPress = { showSecondaryRankingDialog = true },
-                    ),
-            )
-        }
-        if (appResultsEnabled) {
-            add {
+            tile {
+                SearchOptionsNavigationRow(
+                    item =
+                        SettingsCardItem(
+                            title = stringResource(R.string.secondary_ranking_title),
+                            description = secondaryRankingDescription(secondaryRankingSignal),
+                            icon = MaterialSymbols.Reorder,
+                            actionOnPress = { showSecondaryRankingDialog = true },
+                        ),
+                )
+            }
+            tile(visible = appResultsEnabled) {
                 AppResultRowsSelector(
                     selectedRowCount = appResultRowCount,
                     onSelectRowCount = onAppResultRowCountChange,
                 )
             }
-        }
-        add {
-            SettingsToggleRow(
-                title = stringResource(R.string.app_suggestions_toggle_title),
-                subtitle = stringResource(R.string.app_suggestions_toggle_desc),
-                checked = appSuggestionsEnabled,
-                onCheckedChange = onAppSuggestionsToggle,
-                leadingIcon = MaterialSymbols.Apps,
-                showTipBanner = appSuggestionsEnabled && !hasUsagePermission && !appSuggestionsTipDismissed,
-                tipBannerText = stringResource(R.string.app_suggestions_usage_access_tip),
-                tipBannerLinkText = stringResource(R.string.app_suggestions_usage_access_link),
-                onTipBannerLinkClick = onRequestUsagePermission,
-                onTipBannerDismiss = { appSuggestionsTipDismissed = true },
-                showDivider = false,
-            )
-        }
-        if (appSuggestionsEnabled) {
-            add {
+            tile {
+                SettingsToggleRow(
+                    title = stringResource(R.string.app_suggestions_toggle_title),
+                    subtitle = stringResource(R.string.app_suggestions_toggle_desc),
+                    checked = appSuggestionsEnabled,
+                    onCheckedChange = onAppSuggestionsToggle,
+                    leadingIcon = MaterialSymbols.Apps,
+                    showTipBanner = appSuggestionsEnabled && !hasUsagePermission && !appSuggestionsTipDismissed,
+                    tipBannerText = stringResource(R.string.app_suggestions_usage_access_tip),
+                    tipBannerLinkText = stringResource(R.string.app_suggestions_usage_access_link),
+                    onTipBannerLinkClick = onRequestUsagePermission,
+                    onTipBannerDismiss = { appSuggestionsTipDismissed = true },
+                    showDivider = false,
+                )
+            }
+            tile(visible = appSuggestionsEnabled) {
                 AppSuggestionTabsPickerRow(
                     enabledTabs = enabledAppSuggestionTabs,
                     onClick = { showAppSuggestionTabsDialog = true },
                 )
             }
-        }
-        if (pinnedNotificationItems.isNotEmpty()) {
-            add {
+            tile(visible = pinnedNotificationItems.isNotEmpty()) {
                 SearchOptionsNavigationRow(
                     item =
                         SettingsCardItem(
@@ -256,9 +251,7 @@ internal fun SearchOptionsCard(
                         ),
                 )
             }
-        }
-        if (hasNicknames) {
-            add {
+            tile(visible = hasNicknames) {
                 SearchOptionsNavigationRow(
                     item =
                         SettingsCardItem(
@@ -269,9 +262,7 @@ internal fun SearchOptionsCard(
                         ),
                 )
             }
-        }
-        if (hasTriggers) {
-            add {
+            tile(visible = hasTriggers) {
                 SearchOptionsNavigationRow(
                     item =
                         SettingsCardItem(
@@ -282,9 +273,7 @@ internal fun SearchOptionsCard(
                         ),
                 )
             }
-        }
-        if (hasExcludedItems) {
-            add {
+            tile(visible = hasExcludedItems) {
                 SearchOptionsNavigationRow(
                     item =
                         SettingsCardItem(
@@ -295,11 +284,6 @@ internal fun SearchOptionsCard(
                         ),
                 )
             }
-        }
-    }
-    SegmentedGroup(modifier = modifier) {
-        tiles.forEachIndexed { index, tile ->
-            SegmentedTile(index = index, count = tiles.size) { tile() }
         }
     }
 

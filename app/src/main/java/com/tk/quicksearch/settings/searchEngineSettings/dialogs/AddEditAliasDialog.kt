@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.searchEngineSettings.dialogs
 
+import com.tk.quicksearch.search.noted.NotedQuickNoteAlias
+import androidx.compose.ui.platform.LocalContext
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import androidx.compose.foundation.layout.Arrangement
@@ -80,11 +82,14 @@ fun AddEditAliasDialog(
     }
     val focusRequester = remember { FocusRequester() }
     val isValidShortcut = validateCode(editingCode.text)
+    // Engine, tool, and section alias lists don't carry the Noted Quick Note alias; add it while active.
+    val context = LocalContext.current
+    val notedAlias = remember(context) { NotedQuickNoteAlias.activeAliasById(context) }
     val existingShortcutsForValidation =
         if (currentShortcutId.isNullOrEmpty()) {
-            existingShortcuts
+            existingShortcuts + notedAlias
         } else {
-            existingShortcuts.filterKeys { it != currentShortcutId }
+            (existingShortcuts + notedAlias).filterKeys { it != currentShortcutId }
         }
     val isValidConflict = validateConflict(editingCode.text, existingShortcutsForValidation)
     val normalizedAliasToken =

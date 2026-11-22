@@ -1,7 +1,9 @@
 package com.tk.quicksearch.settings.shared
 
 import com.tk.quicksearch.shared.ui.components.SliderWithValue
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -108,7 +110,8 @@ fun SettingsToggleRow(
         }
     }
 
-    Column {
+    // A slider or tip banner that comes and goes with the switch grows and shrinks the row.
+    Column(modifier = Modifier.animateContentSize(animationSpec = AppMotion.defaultSpatial())) {
         Row(
             modifier =
                 modifier

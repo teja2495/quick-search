@@ -15,6 +15,7 @@ import com.tk.quicksearch.search.glance.loadTodayGlanceEvents
 import com.tk.quicksearch.search.glance.markTodayGlanceEventDone
 import com.tk.quicksearch.search.data.preferences.*
 import com.tk.quicksearch.search.models.FileType
+import com.tk.quicksearch.search.noted.NotedQuickNoteAlias
 import com.tk.quicksearch.search.searchHistory.SearchHistoryPreferences
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
@@ -712,8 +713,10 @@ open class UserAppPreferencesCore(protected val context: Context) {
     fun getAllTriggerWordsById(): Map<String, String> =
             triggerPreferences.getAllTriggerWordsById()
 
+    /** Includes the Noted Quick Note alias (with its default) only while Noted Integration is on. */
     fun getAllAliasWordsById(): Map<String, String> =
-            aliasPreferences.getAllAliasWordsById()
+            aliasPreferences.getAllAliasWordsById() - NotedQuickNoteAlias.ALIAS_TARGET_ID +
+                NotedQuickNoteAlias.activeAliasById(context)
 
     fun hasAnyTriggerItems(): Boolean = getAllTriggerWordsById().isNotEmpty()
 

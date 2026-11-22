@@ -22,6 +22,9 @@ internal object NotedQuickNoteAlias {
     /** The alias's target id in [AliasPreferences]; it is stored and backed up like other aliases. */
     const val ALIAS_TARGET_ID = "noted_quick_note"
 
+    /** Used until the user saves or clears an alias; a cleared alias stays cleared. */
+    private const val DEFAULT_ALIAS = "nn"
+
     private const val MIN_CLEAR_DELAY_MS = 100L
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
@@ -31,13 +34,26 @@ internal object NotedQuickNoteAlias {
     @Volatile
     private var loaded = false
 
-    /** The saved alias, or "" when none. Read once and then served from memory: every keystroke checks it. */
+    /**
+     * The saved alias, [DEFAULT_ALIAS] when never set, or "" when cleared. Read once and then served
+     * from memory: every keystroke checks it.
+     */
     fun get(context: Context): String {
         if (!loaded) {
-            alias = AliasPreferences(context).getAliasCode(ALIAS_TARGET_ID).orEmpty()
+            alias = AliasPreferences(context).getAliasCode(ALIAS_TARGET_ID) ?: DEFAULT_ALIAS
             loaded = true
         }
         return alias.orEmpty()
+    }
+
+    /**
+     * The alias keyed by [ALIAS_TARGET_ID] while the Noted Integration toggle is on, for alias and
+     * trigger conflict checks; empty while it is off, since the alias does nothing then.
+     */
+    fun activeAliasById(context: Context): Map<String, String> {
+        if (!NotedIntegration.isEnabled(context)) return emptyMap()
+        val code = get(context)
+        return if (code.isEmpty()) emptyMap() else mapOf(ALIAS_TARGET_ID to code)
     }
 
     fun set(context: Context, code: String) {

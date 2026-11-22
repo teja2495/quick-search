@@ -7,7 +7,15 @@ import com.tk.quicksearch.search.searchScreen.contentBottomInset
 import com.tk.quicksearch.search.searchScreen.contentTopInset
 import com.tk.quicksearch.search.searchScreen.resultsClipShape
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.runtime.derivedStateOf
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -162,6 +170,20 @@ internal fun SearchContentArea(
                 || state.detectedTaskerIntentId != null
                 || com.tk.quicksearch.tools.aiSearch.QuickSearchHelp.questionOrNull(state.query) != null
     val hasQuery = state.query.isNotBlank()
+    val imeInsets = WindowInsets.ime
+    val imeDensity = LocalDensity.current
+    val isImeVisible by remember(imeInsets, imeDensity) {
+        derivedStateOf { imeInsets.getBottom(imeDensity) > 0 }
+    }
+    // With Open Keyboard off, focusing the bar means the user is about to type: clear Home
+    // and wait for the query instead of showing suggestions behind the keyboard.
+    val hideHomeWhileAwaitingQuery =
+        !state.openKeyboardOnLaunch &&
+            isImeVisible &&
+            !hasQuery &&
+            !hideOtherResults &&
+            renderingState.expandedSection == ExpandedSection.NONE &&
+            !isSearchHistoryExpanded
     val isUrlQuery = remember(state.query) { isLikelyWebUrl(state.query) }
     val alignResultsToBottom =
             useOneHandedMode &&
@@ -513,6 +535,11 @@ internal fun SearchContentArea(
                         // Show only the shared no-results message layout without the scroll view.
                         NoResultsMessage(state)
                     } else {
+                        AnimatedVisibility(
+                            visible = !hideHomeWhileAwaitingQuery,
+                            enter = fadeIn(tween(AppMotion.DurationShort)),
+                            exit = fadeOut(tween(AppMotion.DurationExit)),
+                        ) {
                         key(state.backgroundSource, state.showWallpaperBackground) {
                             ContentLayout(
                                 modifier = Modifier.fillMaxWidth().then(expandRevealModifier),
@@ -588,6 +615,7 @@ internal fun SearchContentArea(
                                 topMatches = topMatches,
                                 isScrollInProgress = { scrollState.isScrollInProgress },
                             )
+                        }
                         }
                     }
                 }

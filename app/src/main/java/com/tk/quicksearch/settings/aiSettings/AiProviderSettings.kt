@@ -44,6 +44,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.components.AnimatedSegmentedTiles
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
@@ -206,6 +207,8 @@ fun AdvancedPayloadSettingsSection(
         }
 
         SegmentedGroup {
+            AnimatedSegmentedTiles {
+              item { index, count ->
                 SegmentedToggleTile(
                         title = stringResource(R.string.settings_custom_provider_advanced_payload_title),
                         description =
@@ -223,12 +226,11 @@ fun AdvancedPayloadSettingsSection(
                                         saveIfValid(payloadInput, false)
                                 }
                         },
-                        index = 0,
-                        count = if (enabledInput) 2 else 1,
+                        index = index,
+                        count = count,
                 )
-
-                if (enabledInput) {
-                        SegmentedTile(index = 1, count = 2) {
+              }
+              tile(visible = enabledInput) {
                                 SegmentedTileContent {
                                         AppOutlinedTextField(
                                                 value = payloadInput,
@@ -269,8 +271,8 @@ fun AdvancedPayloadSettingsSection(
                                             label = null,
                                         )
                                 }
-                        }
-                }
+              }
+            }
         }
 }
 

@@ -29,6 +29,7 @@ import kotlinx.coroutines.withContext
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
 import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
+import com.tk.quicksearch.shared.ui.components.AnimatedSegmentedTiles
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 
 /** Whether a Tavily key is stored, with `Unknown` while the encrypted read is still in flight. */
@@ -112,52 +113,49 @@ fun ModelFeatureSettingsCard(
     val showFeatures = !isLoadingModels && selectedModel != null
     val showThinking = showFeatures && showThinkingCheckbox
     val showGrounding = showFeatures && showGroundingCheckbox && webSearchAvailable
-    val tileCount = 1 + (if (showThinking) 1 else 0) + (if (showGrounding) 1 else 0)
 
     // The model, then each on/off feature as its own switch tile, as Material 3 lists settings.
     SegmentedGroup(modifier = modifier) {
-        SegmentedTile(
-            index = 0,
-            count = tileCount,
-            onClick = if (isLoadingModels) null else ({ showModelDialog = true }),
-        ) {
-            SegmentedTileRow(
-                title = selectedModelLabel,
-                description = if (isLoadingModels) null else aiProviderDisplayName(selectedProviderId),
-                leading = { AiProviderBadge(providerId = selectedProviderId) },
-                trailing = {
-                    if (isLoadingModels) {
-                        AppLoadingIndicator(modifier = Modifier.size(DesignTokens.InlineProgressSize))
-                    } else {
-                        Icon(
-                            imageVector = MaterialSymbols.UnfoldMore,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                },
-            )
-        }
-        if (showThinking) {
-            SegmentedToggleTile(
-                title = thinkingLabel,
-                icon = MaterialSymbols.Lightbulb,
-                checked = thinkingEnabled,
-                onCheckedChange = onThinkingChange,
-                index = 1,
-                count = tileCount,
-            )
-        }
-        if (showGrounding) {
-            SegmentedToggleTile(
-                title = webSearchLabel,
-                icon = MaterialSymbols.Public,
-                checked = groundingEnabled,
-                onCheckedChange = onGroundingChange,
-                index = tileCount - 1,
-                count = tileCount,
-                enabled = groundingCheckboxEnabled,
-            )
+        AnimatedSegmentedTiles {
+            tile(onClick = if (isLoadingModels) null else ({ showModelDialog = true })) {
+                SegmentedTileRow(
+                    title = selectedModelLabel,
+                    description = if (isLoadingModels) null else aiProviderDisplayName(selectedProviderId),
+                    leading = { AiProviderBadge(providerId = selectedProviderId) },
+                    trailing = {
+                        if (isLoadingModels) {
+                            AppLoadingIndicator(modifier = Modifier.size(DesignTokens.InlineProgressSize))
+                        } else {
+                            Icon(
+                                imageVector = MaterialSymbols.UnfoldMore,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    },
+                )
+            }
+            item(visible = showThinking) { index, count ->
+                SegmentedToggleTile(
+                    title = thinkingLabel,
+                    icon = MaterialSymbols.Lightbulb,
+                    checked = thinkingEnabled,
+                    onCheckedChange = onThinkingChange,
+                    index = index,
+                    count = count,
+                )
+            }
+            item(visible = showGrounding) { index, count ->
+                SegmentedToggleTile(
+                    title = webSearchLabel,
+                    icon = MaterialSymbols.Public,
+                    checked = groundingEnabled,
+                    onCheckedChange = onGroundingChange,
+                    index = index,
+                    count = count,
+                    enabled = groundingCheckboxEnabled,
+                )
+            }
         }
     }
 

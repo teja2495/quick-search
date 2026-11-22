@@ -2,6 +2,7 @@ package com.tk.quicksearch.settings.gestureSettings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -23,7 +24,9 @@ import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
 import com.tk.quicksearch.settings.shared.SettingsCardItem
 import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.components.ChoiceTile
+import com.tk.quicksearch.shared.ui.components.AnimatedSegmentedTiles
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SettingsRevealVisibility
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
@@ -90,48 +93,46 @@ fun EdgeGestureSettingsSection(modifier: Modifier = Modifier) {
     }
 
     val showAccessibilityRow = config.enabled && !isAccessibilityEnabled
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
-    ) {
-        val enableCount = if (showAccessibilityRow) 2 else 1
+    Column(modifier = modifier) {
         SegmentedGroup {
-            SegmentedTile(index = 0, count = enableCount) {
-                SettingsToggleRow(
-                    title = stringResource(R.string.settings_edge_gesture_title),
-                    subtitle = stringResource(R.string.settings_edge_gesture_desc),
-                    checked = config.enabled,
-                    onCheckedChange = { enabled ->
-                        preferences.setEdgeGestureEnabled(enabled)
-                        config = config.copy(enabled = enabled)
-                        if (enabled && !LockScreenAccessibilityService.isEnabled(context)) {
-                            requestAccessibility()
-                        }
-                    },
-                    leadingIcon = MaterialSymbols.Swipe,
-                    isFirstItem = true,
-                    isLastItem = true,
-                )
-            }
-            if (showAccessibilityRow) {
-                SettingsSegmentNavigationRow(
-                    item =
-                        SettingsCardItem(
-                            title = stringResource(R.string.permissions_accessibility_lock_screen_title),
-                            description =
-                                stringResource(R.string.settings_gesture_lock_screen_requires_accessibility),
-                            icon = MaterialSymbols.Lock,
-                            actionOnPress = ::requestAccessibility,
-                        ),
-                    index = 1,
-                    count = enableCount,
-                )
+            AnimatedSegmentedTiles {
+                tile {
+                    SettingsToggleRow(
+                        title = stringResource(R.string.settings_edge_gesture_title),
+                        subtitle = stringResource(R.string.settings_edge_gesture_desc),
+                        checked = config.enabled,
+                        onCheckedChange = { enabled ->
+                            preferences.setEdgeGestureEnabled(enabled)
+                            config = config.copy(enabled = enabled)
+                            if (enabled && !LockScreenAccessibilityService.isEnabled(context)) {
+                                requestAccessibility()
+                            }
+                        },
+                        leadingIcon = MaterialSymbols.Swipe,
+                        isFirstItem = true,
+                        isLastItem = true,
+                    )
+                }
+                item(visible = showAccessibilityRow) { index, count ->
+                    SettingsSegmentNavigationRow(
+                        item =
+                            SettingsCardItem(
+                                title = stringResource(R.string.permissions_accessibility_lock_screen_title),
+                                description =
+                                    stringResource(R.string.settings_gesture_lock_screen_requires_accessibility),
+                                icon = MaterialSymbols.Lock,
+                                actionOnPress = ::requestAccessibility,
+                            ),
+                        index = index,
+                        count = count,
+                    )
+                }
             }
         }
 
-        if (config.enabled && isAccessibilityEnabled) {
+        SettingsRevealVisibility(visible = config.enabled && isAccessibilityEnabled) {
             val count = 6
-            SegmentedGroup {
+            SegmentedGroup(modifier = Modifier.padding(top = DesignTokens.SpacingLarge)) {
                 ChoiceTile(
                     title = stringResource(R.string.settings_edge_gesture_side),
                     options =

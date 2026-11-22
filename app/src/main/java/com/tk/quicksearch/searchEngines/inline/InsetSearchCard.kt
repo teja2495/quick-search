@@ -90,10 +90,11 @@ object InsetSearchBarGeometry {
     val BarHorizontalInset = DesignTokens.SpacingSmall
 
     /**
-     * Bar inset while the card is full bleed. The card grows outward then, so the bar widens a
-     * little too rather than leaving a wider margin than the resting card has.
+     * Bar inset while the card is full bleed. The card grows outward then, so the bar reaches a
+     * little past the content edge too, moving its leading search and trailing settings icons
+     * toward the screen edges rather than leaving a wider margin than the resting card has.
      */
-    private val FullBleedBarHorizontalInset = 0.dp
+    private val FullBleedBarHorizontalInset = -DesignTokens.SpacingSmall
 
     /** Bar inset [fullBleedFraction] of the way from resting to full bleed. */
     fun barHorizontalInset(fullBleedFraction: Float): Dp =
