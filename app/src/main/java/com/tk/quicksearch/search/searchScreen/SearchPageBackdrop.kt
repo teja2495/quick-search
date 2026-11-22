@@ -72,10 +72,21 @@ internal fun SearchPageBackdrop(
     modifier: Modifier = Modifier,
 ) {
     if (useSystemWallpaperBackdrop) {
+        // Android draws the sharp wallpaper behind the window here; the bitmap (a thumbnail) still
+        // feeds the frosted result cards so they keep their blur when the wallpaper blur is 0.
+        val overlayTint =
+            AppColors.WallpaperOverlayTint.copy(alpha = state.wallpaperBackgroundAlpha.coerceIn(0f, 1f))
+        PublishFrostedWallpaper(
+            wallpaperBitmap = imageBitmap,
+            enabled = imageBitmap != null,
+            tint = overlayTint,
+            alpha = 1f,
+        )
         Box(
             modifier =
                 modifier
                     .fillMaxSize()
+                    .frostedWallpaperAnchor(LocalFrostedCardSource.current)
                     .background(
                         AppColors.WallpaperOverlayTint.copy(
                             alpha = state.wallpaperBackgroundAlpha.coerceIn(0f, 1f),

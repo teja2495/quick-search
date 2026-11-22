@@ -18,6 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.tk.quicksearch.R
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.dp
@@ -87,6 +89,26 @@ internal fun SearchScreenBottomChrome(
     onVoiceClick: () -> Unit,
     onOpenKeyboardActionClicked: () -> Unit,
 ) {
+    val settledQuickActions =
+            rememberSettledQuickActions(
+                    query = state.query,
+                    raw =
+                            QuickActionInputs(
+                                    keyboardSwitchText,
+                                    shouldShowPhoneCallAction,
+                                    detectedAlarmTime,
+                                    detectedTimerSeconds,
+                                    detectedReminderSchedule,
+                            ),
+                    // "Switch back" answers the user's own tap, so it never waits.
+                    showImmediately =
+                            keyboardSwitchText == stringResource(R.string.keyboard_switch_back),
+            )
+    val keyboardSwitchText = settledQuickActions.keyboardSwitchText
+    val shouldShowPhoneCallAction = settledQuickActions.shouldShowPhoneCallAction
+    val detectedAlarmTime = settledQuickActions.detectedAlarmTime
+    val detectedTimerSeconds = settledQuickActions.detectedTimerSeconds
+    val detectedReminderSchedule = settledQuickActions.detectedReminderSchedule
     // With compact engines the bar sits at the top of a card that the engine row (or the AI follow-up
     // input) paints from below, so that content moves under the bar. The bar keeps the same slot in
     // composition either way, so toggling the card never resets its text field.

@@ -52,8 +52,8 @@ import kotlinx.coroutines.withContext
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-/** Frost blur added on top of the user's wallpaper blur, so cards always read as frosted. */
-private val FrostedCardExtraBlurRadius = 24.dp
+/** Fixed frost blur for result cards, independent of the wallpaper blur setting. */
+private val FrostedCardBlurRadius = 32.dp
 
 /** Box radius of each pass on the downscaled bitmap; three passes approximate a Gaussian. */
 private const val FROST_BOX_RADIUS = 3
@@ -123,7 +123,6 @@ private fun rememberFrostedCardsSupported(): Boolean {
 internal fun PublishFrostedWallpaper(
     wallpaperBitmap: ImageBitmap?,
     enabled: Boolean,
-    wallpaperBlurRadiusDp: Float,
     tint: Color,
     alpha: Float,
 ) {
@@ -140,7 +139,7 @@ internal fun PublishFrostedWallpaper(
 
     val sigmaPx =
         with(density) {
-            (wallpaperBlurRadiusDp.dp + FrostedCardExtraBlurRadius).toPx() * RADIUS_TO_SIGMA
+            FrostedCardBlurRadius.toPx() * RADIUS_TO_SIGMA
         }
     LaunchedEffect(source, active, wallpaperBitmap, sigmaPx, windowWidthPx) {
         if (!active || windowWidthPx <= 0) {

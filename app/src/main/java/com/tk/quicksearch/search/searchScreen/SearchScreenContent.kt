@@ -268,7 +268,7 @@ internal fun SearchScreenContent(
                 value = withContext(Dispatchers.IO) { getAllTriggerWordsById().values.toList() }
             }
 
-    val searchHintText = rememberSearchHint(state, isDefaultLauncher)
+    val searchHintText = rememberSearchHint(state)
     val trimmedQuery = state.query.trim()
     val cardVisibility = searchCardVisibility(state, activeCustomTool != null)
     val showCurrencyConverter = cardVisibility.showCurrencyConverter

@@ -432,7 +432,6 @@
     <string name="settings_app_shortcuts_description_with_enabled_count">షార్ట్‌కట్‌లను చూడటానికి ఏదైనా యాప్‌పై నొక్కండి. కస్టమ్ షార్ట్‌కట్‌లను ప్రారంభించండి, నిలిపివేయండి లేదా జోడించండి.\n\n%1$s షార్ట్‌కట్‌లు · %2$s ప్రారంభించబడ్డాయి</string>
     <string name="settings_app_shortcuts_edit_dialog_title">షార్ట్‌కట్‌ని సవరించండి</string>
     <string name="settings_app_shortcuts_empty">యాప్ షార్ట్‌కట్‌లు ఏవీ కనుగొనబడలేదు.</string>
-    <string name="settings_app_shortcuts_loading">షార్ట్‌కట్‌లు లోడ్ అవుతున్నాయి…</string>
     <string name="settings_app_shortcuts_disable_all">అన్ని షార్ట్‌కట్‌లను నిలిపివేయండి</string>
     <string name="settings_app_shortcuts_card_all_disabled">అన్ని షార్ట్‌కట్‌లు నిలిపివేయబడ్డాయి</string>
     <string name="settings_app_shortcuts_expand_all">అన్నింటినీ విస్తరించు</string>
@@ -979,7 +978,6 @@
     <string name="settings_direct_search_model_label">మోడల్</string>
     <string name="settings_select_model">మోడల్‌ను ఎంచుకోండి</string>
     <string name="ai_error_selected_model_unavailable">ఎంచుకున్న మోడల్ అందుబాటులో లేదు. సెట్టింగ్‌లలో మరొక మోడల్‌ను ఎంచుకోండి.</string>
-    <string name="settings_loading_models">మోడల్‌లు లోడ్ అవుతున్నాయి…</string>
     <string name="settings_direct_search_personal_context">వ్యక్తిగత సందర్భం (Personal Context)</string>
     <string name="settings_direct_search_personal_context_hint">సమాధానాలను రూపొందించేటప్పుడు AI ఉపయోగించాలనుకునే ఏదైనా సందర్భాన్ని జోడించండి.</string>
     <string name="settings_direct_search_personal_context_unsupported">ఈ మోడల్‌కు వ్యక్తిగత సందర్భం (Personal Context) అందుబాటులో లేదు.</string>
@@ -1046,7 +1044,6 @@
     <string name="settings_feedback_send_desc">లోపాలను నివేదించండి లేదా ఫీచర్లను అభ్యర్థించండి</string>
     <string name="settings_feedback_send_title">ఫీడ్‌బ్యాక్ పంపండి</string>
     <string name="settings_open_source_licenses_load_failed">లైసెన్స్‌లను లోడ్ చేయడం సాధ్యపడలేదు.</string>
-    <string name="settings_open_source_licenses_loading">లైసెన్స్‌లను లోడ్ చేస్తోంది…</string>
     <string name="settings_open_source_licenses_tap_to_view">లైసెన్స్ వచనాన్ని చూడటానికి నొక్కండి</string>
     <string name="settings_open_source_licenses_title">ఓపెన్ సోర్స్ లైసెన్స్‌లు</string>
 
@@ -1192,7 +1189,6 @@
     <string name="widget_icon_center">మధ్యలో</string>
     <string name="widget_icon_left">ఎడమవైపు</string>
     <string name="widget_icon_off">ఆఫ్</string>
-    <string name="widget_loading_state">విడ్జెట్ సెట్టింగ్‌లను లోడ్ చేస్తోంది…</string>
     <string name="widget_mic_action_default">డిఫాల్ట్</string>
     <string name="widget_mic_action_digital_assistant">అసిస్టెంట్</string>
     <string name="widget_mic_action_digital_assistant_current">%1$s ప్రస్తుతం మీ డిజిటల్ అసిస్టెంట్‌గా సెట్ చేయబడింది, మార్చడానికి ఇక్కడ నొక్కండి.</string>
@@ -1226,7 +1222,6 @@
     <string name="widgets_panel_lock_layout">లేఅవుట్‌ను లాక్ చేయండి</string>
     <string name="widgets_panel_unlock_layout">లేఅవుట్‌ను అన్‌లాక్ చేయండి</string>
     <string name="widgets_picker_empty">విడ్జెట్‌లు ఏవీ కనుగొనబడలేదు.</string>
-    <string name="widgets_picker_loading">విడ్జెట్‌లను లోడ్ చేస్తోంది...</string>
     <string name="widgets_picker_preview_unavailable">ప్రివ్యూ అందుబాటులో లేదు</string>
     <string name="widgets_picker_title">విడ్జెట్‌ను జోడించండి</string>
     <string name="widgets_picker_widget_count">%1$d విడ్జెట్‌లు</string>

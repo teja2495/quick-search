@@ -367,7 +367,10 @@ internal fun ContentLayout(
             onShowContactMethods = effectiveContactsParams.onShowContactMethods,
         )
     val atAGlanceContent: (@Composable (dividerBefore: Boolean, dividerAfter: Boolean) -> Unit)? =
-        if (atAGlanceItems.isNotEmpty()) {
+        // Hosts of these rows (the today's events card, or the card left once those events end) never
+        // run the retained collapse, so key on the live rows; otherwise a gone row keeps its segment
+        // and the event above it loses its bottom corners.
+        if (atAGlanceItems.live.isNotEmpty()) {
             { dividerBefore, dividerAfter ->
                 AtAGlanceRows(
                     items = atAGlanceItems.live,

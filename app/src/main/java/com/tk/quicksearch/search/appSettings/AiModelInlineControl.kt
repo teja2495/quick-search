@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.appSettings
 
 import com.tk.quicksearch.shared.ui.components.AppFilterChipStyle
+import com.tk.quicksearch.shared.ui.components.AppLoadingIndicator
 import com.tk.quicksearch.shared.ui.components.AppFilterChip
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
@@ -51,12 +52,15 @@ internal fun AiModelInlineContent(state: AiModelInlineState) {
     val tavilyKeyState = rememberTavilyKeyState()
     val selectedModel = state.availableModels.firstOrNull { it.id == state.selectedModelId }
     val isLoadingModels = state.configuredProviderIds.any { it !in state.modelsByProvider }
-    val selectedModelLabel =
-        when {
-            selectedModel != null -> selectedModel.displayName
-            isLoadingModels -> stringResource(R.string.settings_loading_models)
-            else -> stringResource(R.string.settings_select_model)
-        }
+    if (selectedModel == null && isLoadingModels) {
+        AppLoadingIndicator(
+            modifier =
+                Modifier
+                    .padding(top = DesignTokens.SpacingXSmall)
+                    .size(DesignTokens.InlineProgressSize),
+        )
+        return
+    }
     Text(
         text =
             if (selectedModel != null) {
@@ -66,7 +70,7 @@ internal fun AiModelInlineContent(state: AiModelInlineState) {
                     aiProviderDisplayName(state.providerId),
                 )
             } else {
-                selectedModelLabel
+                stringResource(R.string.settings_select_model)
             },
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,

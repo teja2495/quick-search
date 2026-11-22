@@ -214,20 +214,14 @@ internal fun WidgetPickerSheet(
     }
 }
 
-/** Fills the drawer's list area so the message sits in its vertical center. */
+/** Fills the drawer's list area so the indicator sits in its center. */
 @Composable
 private fun WidgetPickerLoading() {
-    Column(
+    Box(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium, Alignment.CenterVertically),
+        contentAlignment = Alignment.Center,
     ) {
         AppLoadingIndicator()
-        Text(
-            text = stringResource(R.string.widgets_picker_loading),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
     }
 }
 

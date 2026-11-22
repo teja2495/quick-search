@@ -1,6 +1,9 @@
 package com.tk.quicksearch.settings.aboutSettings
 
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.Box
+import com.tk.quicksearch.shared.ui.components.AppLoadingIndicator
 import android.content.Intent
 import android.content.res.Resources
 import android.net.Uri
@@ -53,12 +56,12 @@ internal fun OpenSourceLicensesList(
         }
 
     if (entries == null) {
-        Text(
-            text = stringResource(R.string.settings_open_source_licenses_loading),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = modifier,
-        )
+        Box(
+            modifier = modifier.fillMaxWidth().padding(vertical = DesignTokens.SpacingLarge),
+            contentAlignment = Alignment.Center,
+        ) {
+            AppLoadingIndicator()
+        }
         return
     }
 

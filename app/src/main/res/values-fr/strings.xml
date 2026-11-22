@@ -432,7 +432,6 @@
 <string name="settings_app_shortcuts_description_with_enabled_count">Appuyez sur une application pour voir ses raccourcis. Activez, désactivez ou ajoutez des raccourcis personnalisés.\n\n%1$s raccourcis · %2$s activés</string>
 <string name="settings_app_shortcuts_edit_dialog_title">Modifier le raccourci</string>
 <string name="settings_app_shortcuts_empty">Aucun raccourci d\'application trouvé.</string>
-<string name="settings_app_shortcuts_loading">Chargement des raccourcis…</string>
 <string name="settings_app_shortcuts_disable_all">Désactiver tous les raccourcis</string>
 <string name="settings_app_shortcuts_card_all_disabled">Tous les raccourcis désactivés</string>
 <string name="settings_app_shortcuts_expand_all">Tout développer</string>
@@ -979,7 +978,6 @@
 <string name="settings_direct_search_model_label">Modèle</string>
 <string name="settings_select_model">Sélectionner un modèle</string>
 <string name="ai_error_selected_model_unavailable">Le modèle sélectionné n’est pas disponible. Choisissez un autre modèle dans les paramètres.</string>
-<string name="settings_loading_models">Chargement des modèles…</string>
 <string name="settings_direct_search_personal_context">Contexte personnel</string>
 <string name="settings_direct_search_personal_context_hint">Ajoutez tout contexte que vous souhaitez que l\'AI utilise pour générer ses réponses.</string>
 <string name="settings_direct_search_personal_context_unsupported">Le contexte personnel n\'est pas disponible pour ce modèle.</string>
@@ -1046,7 +1044,6 @@
 <string name="settings_feedback_send_desc">Signaler des bugs ou demander des fonctionnalités</string>
 <string name="settings_feedback_send_title">Envoyer des commentaires</string>
 <string name="settings_open_source_licenses_load_failed">Impossible de charger les licences.</string>
-<string name="settings_open_source_licenses_loading">Chargement des licences…</string>
 <string name="settings_open_source_licenses_tap_to_view">Appuyez pour afficher le texte de la licence</string>
 <string name="settings_open_source_licenses_title">Licences Open Source</string>
 
@@ -1192,7 +1189,6 @@
 <string name="widget_icon_center">Centré</string>
 <string name="widget_icon_left">Gauche</string>
 <string name="widget_icon_off">Désactivé</string>
-<string name="widget_loading_state">Chargement des paramètres du widget…</string>
 <string name="widget_mic_action_default">Par défaut</string>
 <string name="widget_mic_action_digital_assistant">Assistant</string>
 <string name="widget_mic_action_digital_assistant_current">%1$s est actuellement défini comme votre assistant numérique, appuyez ici pour le modifier.</string>
@@ -1226,7 +1222,6 @@
 <string name="widgets_panel_lock_layout">Verrouiller la disposition</string>
 <string name="widgets_panel_unlock_layout">Déverrouiller la disposition</string>
 <string name="widgets_picker_empty">Aucun widget trouvé.</string>
-<string name="widgets_picker_loading">Chargement des widgets...</string>
 <string name="widgets_picker_preview_unavailable">Aperçu indisponible</string>
 <string name="widgets_picker_title">Ajouter un widget</string>
 <string name="widgets_picker_widget_count">%1$d widgets</string>

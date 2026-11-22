@@ -432,7 +432,6 @@
     <string name="settings_app_shortcuts_description_with_enabled_count">Tippe auf eine App, um ihre Verknüpfungen anzuzeigen. Aktiviere, deaktiviere oder füge benutzerdefinierte Verknüpfungen hinzu.\n\n%1$s Verknüpfungen · %2$s aktiviert</string>
     <string name="settings_app_shortcuts_edit_dialog_title">Verknüpfung bearbeiten</string>
     <string name="settings_app_shortcuts_empty">Keine App-Verknüpfungen gefunden.</string>
-    <string name="settings_app_shortcuts_loading">Verknüpfungen werden geladen…</string>
     <string name="settings_app_shortcuts_disable_all">Alle Verknüpfungen deaktivieren</string>
     <string name="settings_app_shortcuts_card_all_disabled">Alle Verknüpfungen deaktiviert</string>
     <string name="settings_app_shortcuts_expand_all">Alle aufklappen</string>
@@ -979,7 +978,6 @@
     <string name="settings_direct_search_model_label">Modell</string>
     <string name="settings_select_model">Modell auswählen</string>
     <string name="ai_error_selected_model_unavailable">Das ausgewählte Modell ist nicht verfügbar. Bitte wähle in den Einstellungen ein anderes Modell aus.</string>
-    <string name="settings_loading_models">Modelle werden geladen…</string>
     <string name="settings_direct_search_personal_context">Persönlicher Kontext</string>
     <string name="settings_direct_search_personal_context_hint">Füge hier Kontext hinzu, den die KI beim Generieren von Antworten berücksichtigen soll.</string>
     <string name="settings_direct_search_personal_context_unsupported">Persönlicher Kontext ist für dieses Modell nicht verfügbar.</string>
@@ -1046,7 +1044,6 @@
     <string name="settings_feedback_send_desc">Fehler melden oder neue Funktionen vorschlagen</string>
     <string name="settings_feedback_send_title">Feedback senden</string>
     <string name="settings_open_source_licenses_load_failed">Lizenzen konnten nicht geladen werden.</string>
-    <string name="settings_open_source_licenses_loading">Lizenzen werden geladen…</string>
     <string name="settings_open_source_licenses_tap_to_view">Tippe, um den Lizenztext anzuzeigen</string>
     <string name="settings_open_source_licenses_title">Open-Source-Lizenzen</string>
 
@@ -1192,7 +1189,6 @@
     <string name="widget_icon_center">Mitte</string>
     <string name="widget_icon_left">Links</string>
     <string name="widget_icon_off">Aus</string>
-    <string name="widget_loading_state">Widget-Einstellungen werden geladen…</string>
     <string name="widget_mic_action_default">Standard</string>
     <string name="widget_mic_action_digital_assistant">Assistent</string>
     <string name="widget_mic_action_digital_assistant_current">%1$s ist derzeit als dein Digitalassistent festgelegt, tippe hier, um ihn zu ändern.</string>
@@ -1226,7 +1222,6 @@
     <string name="widgets_panel_lock_layout">Layout sperren</string>
     <string name="widgets_panel_unlock_layout">Layout entsperren</string>
     <string name="widgets_picker_empty">Keine Widgets gefunden.</string>
-    <string name="widgets_picker_loading">Widgets werden geladen...</string>
     <string name="widgets_picker_preview_unavailable">Vorschau nicht verfügbar</string>
     <string name="widgets_picker_title">Widget hinzufügen</string>
     <string name="widgets_picker_widget_count">%1$d Widgets</string>

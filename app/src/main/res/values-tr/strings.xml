@@ -431,7 +431,6 @@
 <string name="settings_app_shortcuts_description_with_enabled_count">Kısayollarını görmek için herhangi bir uygulamaya dokun. Özel kısayolları etkinleştir, devre dışı bırak veya ekle.\n\n%1$s kısayol · %2$s etkin</string>
 <string name="settings_app_shortcuts_edit_dialog_title">Kısayolu düzenle</string>
 <string name="settings_app_shortcuts_empty">Uygulama kısayolu bulunamadı.</string>
-<string name="settings_app_shortcuts_loading">Kısayollar yükleniyor…</string>
 <string name="settings_app_shortcuts_disable_all">Tüm kısayolları devre dışı bırak</string>
 <string name="settings_app_shortcuts_card_all_disabled">Tüm kısayollar devre dışı</string>
 <string name="settings_app_shortcuts_expand_all">Tümünü genişlet</string>
@@ -978,7 +977,6 @@
 <string name="settings_direct_search_model_label">Model</string>
 <string name="settings_select_model">Model seç</string>
 <string name="ai_error_selected_model_unavailable">Seçilen model kullanılamıyor. Lütfen ayarlardan başka bir model seçin.</string>
-<string name="settings_loading_models">Modeller yükleniyor…</string>
 <string name="settings_direct_search_personal_context">Kişisel bağlam</string>
 <string name="settings_direct_search_personal_context_hint">Cevaplar oluşturulurken AI\'ın kullanmasını istediğin bilgileri ek.</string>
 <string name="settings_direct_search_personal_context_unsupported">Kişisel bağlam bu model için desteklenmiyor.</string>
@@ -1045,7 +1043,6 @@
 <string name="settings_feedback_send_desc">Hataları bildir veya özellik iste</string>
 <string name="settings_feedback_send_title">Geri bildirim gönder</string>
 <string name="settings_open_source_licenses_load_failed">Lisanslar yüklenemedi.</string>
-<string name="settings_open_source_licenses_loading">Lisanslar yükleniyor…</string>
 <string name="settings_open_source_licenses_tap_to_view">Lisans metnini görüntülemek için dokun</string>
 <string name="settings_open_source_licenses_title">Açık kaynak lisansları</string>
 
@@ -1191,7 +1188,6 @@
 <string name="widget_icon_center">Ortala</string>
 <string name="widget_icon_left">Sola hizala</string>
 <string name="widget_icon_off">Kapalı</string>
-<string name="widget_loading_state">Widget ayarları yükleniyor…</string>
 <string name="widget_mic_action_default">Varsayılan</string>
 <string name="widget_mic_action_digital_assistant">Asistan</string>
 <string name="widget_mic_action_digital_assistant_current">%1$s şu anda dijital asistanın olarak ayarlı, değiştirmek için buraya dokun.</string>
@@ -1225,7 +1221,6 @@
 <string name="widgets_panel_lock_layout">Düzeni kilitle</string>
 <string name="widgets_panel_unlock_layout">Düzenin kilidini aç</string>
 <string name="widgets_picker_empty">Widget bulunamadı.</string>
-<string name="widgets_picker_loading">Widget\'lar yükleniyor...</string>
 <string name="widgets_picker_preview_unavailable">Önizleme mevcut değil</string>
 <string name="widgets_picker_title">Widget ekle</string>
 <string name="widgets_picker_widget_count">%1$d widget</string>

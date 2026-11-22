@@ -29,7 +29,10 @@ object NotedIntegration {
     const val ITEMS_PATH = "items"
     const val KEYS_PARAM = "keys"
 
-    /** Insert with [COLUMN_TEXT] to put that text at the top of Noted's Quick Note. */
+    /**
+     * Insert with [COLUMN_TEXT] to put that text at the top of Noted's Quick Note. Query for one
+     * [COLUMN_TEXT] row with its full text (none while locked), or update with [COLUMN_TEXT] to replace it.
+     */
     const val QUICK_NOTE_PATH = "quick_note"
     const val COLUMN_TEXT = "text"
     const val QUERY_PARAM = "q"

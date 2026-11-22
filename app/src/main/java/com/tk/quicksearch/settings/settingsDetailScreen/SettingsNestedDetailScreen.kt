@@ -50,6 +50,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.app.navigation.SettingsPageBackHandler
+import com.tk.quicksearch.app.navigation.settingsSwipeBack
 import com.tk.quicksearch.shared.ui.components.predictiveBackPreview
 import com.tk.quicksearch.shared.ui.components.rememberPredictiveBackPreviewState
 import com.tk.quicksearch.search.data.NotesRepository
@@ -169,7 +170,7 @@ internal fun SettingsNestedDetailScreen(
     val backPreview = rememberPredictiveBackPreviewState()
     val backExitsMultiSelect = detailType == SettingsDetailType.NOTES && notesMultiSelectActive
     // Leaving multi-select keeps the notes page, so only a real exit previews the page leaving.
-    SettingsPageBackHandler(backPreview, preview = !backExitsMultiSelect) {
+    val onPageBack: () -> Unit = {
         if (backExitsMultiSelect) {
             notesMultiSelectActive = false
             notesSelectedIds = emptySet()
@@ -177,12 +178,21 @@ internal fun SettingsNestedDetailScreen(
             callbacks.onBack()
         }
     }
+    SettingsPageBackHandler(backPreview, preview = !backExitsMultiSelect, onBack = onPageBack)
     SettingsScreenBackground(
         appTheme = state.appTheme,
         overlayThemeIntensity = state.overlayThemeIntensity,
         deviceThemeEnabled = state.deviceThemeEnabled,
         amoledThemeEnabled = state.amoledThemeEnabled,
-        modifier = modifier.predictiveBackPreview(backPreview),
+        modifier =
+            modifier
+                .predictiveBackPreview(backPreview)
+                // The note editor keeps horizontal drags for text selection and its own swipe.
+                .settingsSwipeBack(
+                    enabled = detailType != SettingsDetailType.NOTE_EDITOR,
+                    seekable = !backExitsMultiSelect,
+                    onBack = onPageBack,
+                ),
     ) {
     Box(
         modifier =

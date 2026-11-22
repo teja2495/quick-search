@@ -432,7 +432,6 @@
     <string name="settings_app_shortcuts_description_with_enabled_count">Ketuk aplikasi apa saja untuk melihat pintasannya. Aktifkan, nonaktifkan, atau tambahkan pintasan kustom.\n\n%1$s pintasan · %2$s aktif</string>
     <string name="settings_app_shortcuts_edit_dialog_title">Edit Pintasan</string>
     <string name="settings_app_shortcuts_empty">Pintasan aplikasi tidak ditemukan.</string>
-    <string name="settings_app_shortcuts_loading">Memuat pintasan…</string>
     <string name="settings_app_shortcuts_disable_all">Nonaktifkan semua pintasan</string>
     <string name="settings_app_shortcuts_card_all_disabled">Semua pintasan dinonaktifkan</string>
     <string name="settings_app_shortcuts_expand_all">Perluas semua</string>
@@ -980,7 +979,6 @@
     <string name="settings_direct_search_model_label">Model</string>
     <string name="settings_select_model">Pilih model</string>
     <string name="ai_error_selected_model_unavailable">Model yang dipilih tidak tersedia. Pilih model lain di setelan.</string>
-    <string name="settings_loading_models">Memuat model…</string>
     <string name="settings_direct_search_personal_context">Konteks Pribadi</string>
     <string name="settings_direct_search_personal_context_hint">Tambahkan konteks apa pun yang ingin digunakan AI saat menghasilkan jawaban.</string>
     <string name="settings_direct_search_personal_context_unsupported">Konteks pribadi tidak tersedia untuk model ini.</string>
@@ -1047,7 +1045,6 @@
     <string name="settings_feedback_send_desc">Laporkan bug atau minta fitur baru</string>
     <string name="settings_feedback_send_title">Kirim Masukan</string>
     <string name="settings_open_source_licenses_load_failed">Tidak dapat memuat lisensi.</string>
-    <string name="settings_open_source_licenses_loading">Memuat lisensi…</string>
     <string name="settings_open_source_licenses_tap_to_view">Ketuk untuk melihat teks lisensi</string>
     <string name="settings_open_source_licenses_title">Lisensi Sumber Terbuka</string>
 
@@ -1195,7 +1192,6 @@
     <string name="widget_icon_center">Tengah</string>
     <string name="widget_icon_left">Kiri</string>
     <string name="widget_icon_off">Mati</string>
-    <string name="widget_loading_state">Memuat pengaturan widget…</string>
     <string name="widget_mic_action_default">Default</string>
     <string name="widget_mic_action_digital_assistant">Asisten</string>
     <string name="widget_mic_action_digital_assistant_current">%1$s saat ini ditetapkan sebagai asisten digital Anda, ketuk di sini untuk mengubahnya.</string>
@@ -1229,7 +1225,6 @@
     <string name="widgets_panel_lock_layout">Kunci tata letak</string>
     <string name="widgets_panel_unlock_layout">Buka kunci tata letak</string>
     <string name="widgets_picker_empty">Widget tidak ditemukan.</string>
-    <string name="widgets_picker_loading">Memuat Widget…</string>
     <string name="widgets_picker_preview_unavailable">Pratinjau tidak tersedia</string>
     <string name="widgets_picker_title">Tambah Widget</string>
     <string name="widgets_picker_widget_count">%1$d widget</string>

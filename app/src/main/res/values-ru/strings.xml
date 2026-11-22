@@ -436,7 +436,6 @@
 <string name="settings_app_shortcuts_description_with_enabled_count">Нажмите на любое приложение, чтобы просмотреть его ярлыки. Включайте, отключайте или создавайте свои ярлыки.\n\n%1$s ярлыков · %2$s включено</string>
 <string name="settings_app_shortcuts_edit_dialog_title">Редактировать ярлык</string>
 <string name="settings_app_shortcuts_empty">Ярлыки приложений не найдены.</string>
-<string name="settings_app_shortcuts_loading">Загрузка ярлыков…</string>
 <string name="settings_app_shortcuts_disable_all">Отключить все ярлыки</string>
 <string name="settings_app_shortcuts_card_all_disabled">Все ярлыки отключены</string>
 <string name="settings_app_shortcuts_expand_all">Развернуть все</string>
@@ -1007,7 +1006,6 @@
 <string name="settings_direct_search_model_label">Модель</string>
 <string name="settings_select_model">Выберите модель</string>
 <string name="ai_error_selected_model_unavailable">Выбранная модель недоступна. Выберите другую модель в настройках.</string>
-<string name="settings_loading_models">Загрузка моделей…</string>
 <string name="settings_direct_search_personal_context">Персональный контекст</string>
 <string name="settings_direct_search_personal_context_hint">Добавьте любой контекст, который ИИ должен учитывать при создании ответов.</string>
 <string name="settings_direct_search_personal_context_unsupported">Персональный контекст не поддерживается для этой модели.</string>
@@ -1074,7 +1072,6 @@
 <string name="settings_feedback_send_desc">Сообщить об ошибке или предложить функцию</string>
 <string name="settings_feedback_send_title">Отправить отзыв</string>
 <string name="settings_open_source_licenses_load_failed">Не удалось загрузить лицензии.</string>
-<string name="settings_open_source_licenses_loading">Загрузка лицензий…</string>
 <string name="settings_open_source_licenses_tap_to_view">Нажмите, чтобы просмотреть текст лицензии</string>
 <string name="settings_open_source_licenses_title">Лицензии открытого ПО</string>
 
@@ -1220,7 +1217,6 @@
 <string name="widget_icon_center">По центру</string>
 <string name="widget_icon_left">Слева</string>
 <string name="widget_icon_off">Выкл.</string>
-<string name="widget_loading_state">Загрузка настроек виджета…</string>
 <string name="widget_mic_action_default">По умолчанию</string>
 <string name="widget_mic_action_digital_assistant">Помощник</string>
 <string name="widget_mic_action_digital_assistant_current">%1$s сейчас выбран в качестве цифрового помощника. Нажмите здесь, чтобы изменить.</string>
@@ -1254,7 +1250,6 @@
 <string name="widgets_panel_lock_layout">Заблокировать расположение</string>
 <string name="widgets_panel_unlock_layout">Разблокировать расположение</string>
 <string name="widgets_picker_empty">Виджеты не найдены.</string>
-<string name="widgets_picker_loading">Загрузка виджетов...</string>
 <string name="widgets_picker_preview_unavailable">Превью недоступно</string>
 <string name="widgets_picker_title">Добавить виджет</string>
 <string name="widgets_picker_widget_count">%1$d виджетов</string>

@@ -1,6 +1,9 @@
 package com.tk.quicksearch.settings.shared
 
 import androidx.compose.material3.Icon
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import androidx.compose.foundation.layout.size
+import com.tk.quicksearch.shared.ui.components.AppLoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -94,7 +97,7 @@ fun ModelFeatureSettingsCard(
             configuredProviderIds.any { it !in availableModelsByProvider }
     val selectedModelLabel =
         when {
-            isLoadingModels -> stringResource(R.string.settings_loading_models)
+            isLoadingModels -> aiProviderDisplayName(selectedProviderId)
             selectedModel != null -> selectedModel.displayName
             else -> stringResource(R.string.settings_select_model)
         }
@@ -120,14 +123,18 @@ fun ModelFeatureSettingsCard(
         ) {
             SegmentedTileRow(
                 title = selectedModelLabel,
-                description = aiProviderDisplayName(selectedProviderId),
+                description = if (isLoadingModels) null else aiProviderDisplayName(selectedProviderId),
                 leading = { AiProviderBadge(providerId = selectedProviderId) },
                 trailing = {
-                    Icon(
-                        imageVector = MaterialSymbols.UnfoldMore,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    if (isLoadingModels) {
+                        AppLoadingIndicator(modifier = Modifier.size(DesignTokens.InlineProgressSize))
+                    } else {
+                        Icon(
+                            imageVector = MaterialSymbols.UnfoldMore,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 },
             )
         }

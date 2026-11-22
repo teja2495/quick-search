@@ -430,7 +430,6 @@
     <string name="settings_app_shortcuts_description_with_enabled_count">点击任意应用以查看其快捷方式。支持启用、停用或添加自定义快捷方式。\n\n%1$s 个快捷方式 · %2$s 个已启用</string>
     <string name="settings_app_shortcuts_edit_dialog_title">编辑快捷方式</string>
     <string name="settings_app_shortcuts_empty">未找到应用快捷方式。</string>
-    <string name="settings_app_shortcuts_loading">正在加载快捷方式…</string>
     <string name="settings_app_shortcuts_disable_all">停用所有快捷方式</string>
     <string name="settings_app_shortcuts_card_all_disabled">所有快捷方式已停用</string>
     <string name="settings_app_shortcuts_expand_all">全部展开</string>
@@ -965,7 +964,6 @@
     <string name="settings_direct_search_model_label">模型</string>
     <string name="settings_select_model">选择模型</string>
     <string name="ai_error_selected_model_unavailable">所选模型不可用。请在设置中选择其他模型。</string>
-    <string name="settings_loading_models">正在加载模型…</string>
     <string name="settings_direct_search_personal_context">个人背景信息</string>
     <string name="settings_direct_search_personal_context_hint">添加您希望 AI 在生成回答时参考的背景信息。</string>
     <string name="settings_direct_search_personal_context_unsupported">该模型不支持个人背景信息功能。</string>
@@ -1032,7 +1030,6 @@
     <string name="settings_feedback_send_desc">反馈故障 Bug 或提交新功能需求</string>
     <string name="settings_feedback_send_title">发送反馈</string>
     <string name="settings_open_source_licenses_load_failed">无法加载开源许可证。</string>
-    <string name="settings_open_source_licenses_loading">正在加载许可证…</string>
     <string name="settings_open_source_licenses_tap_to_view">点击以查看许可证正文文本</string>
     <string name="settings_open_source_licenses_title">开源许可证</string>
 
@@ -1178,7 +1175,6 @@
     <string name="widget_icon_center">居中</string>
     <string name="widget_icon_left">居左</string>
     <string name="widget_icon_off">关闭</string>
-    <string name="widget_loading_state">正在加载小部件设置…</string>
     <string name="widget_mic_action_default">默认语音</string>
     <string name="widget_mic_action_digital_assistant">数字助理</string>
     <string name="widget_mic_action_digital_assistant_current">%1$s 当前已设为你的数字助理，点按此处即可更改。</string>
@@ -1212,7 +1208,6 @@
     <string name="widgets_panel_lock_layout">锁定布局</string>
     <string name="widgets_panel_unlock_layout">解锁布局</string>
     <string name="widgets_picker_empty">未找到任何小部件。</string>
-    <string name="widgets_picker_loading">正在加载小部件...</string>
     <string name="widgets_picker_preview_unavailable">暂无预览效果</string>
     <string name="widgets_picker_title">添加小部件</string>
     <string name="widgets_picker_widget_count">%1$d 个小部件</string>

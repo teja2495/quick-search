@@ -23,7 +23,7 @@ import kotlinx.coroutines.delay
 private const val SEARCH_HINT_ROTATION_INTERVAL_MS = 5000L
 
 @Composable
-internal fun rememberSearchHint(state: SearchUiState, isDefaultLauncher: Boolean): String {
+internal fun rememberSearchHint(state: SearchUiState): String {
     val isCalculatorMode = state.calculatorState.isCalculatorMode
     val isUnitConverterMode = state.calculatorState.isUnitConverterMode
     val isCurrencyConverterAliasMode = state.isCurrencyConverterAliasMode
@@ -37,8 +37,6 @@ internal fun rememberSearchHint(state: SearchUiState, isDefaultLauncher: Boolean
             if (BuildConfig.DEBUG) {
                 // Debug builds override app_name to "QS Debug"
                 R.string.app_name
-            } else if (isDefaultLauncher) {
-                R.string.common_search
             } else {
                 R.string.search_hint_static
             },

@@ -16,8 +16,20 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.shared.ui.components.PredictiveBackPreviewHandler
 import com.tk.quicksearch.shared.ui.components.PredictiveBackPreviewState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.input.pointer.util.addPointerInputChange
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.shared.util.hapticGestureThreshold
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
@@ -128,6 +140,111 @@ internal fun SettingsPageBackHandler(
         }
     }
 }
+
+/**
+ * Swipe right to go back from a Settings page. Inside the Settings page switcher the previous page
+ * tracks the finger (the same seek the predictive back gesture drives); a flick or a drag past the
+ * threshold commits, anything else slides it away again. Without a seekable switcher (or while
+ * [seekable] is off, for a back that stays on the page) [onBack] runs on a committed release.
+ * Children that consume horizontal drags (sliders, horizontal lists) keep them.
+ */
+@Composable
+internal fun Modifier.settingsSwipeBack(
+    enabled: Boolean = true,
+    seekable: Boolean = true,
+    onBack: () -> Unit,
+): Modifier {
+    if (!enabled) return this
+    val seek = LocalSettingsBackSeek.current?.takeIf { seekable && it.canSeek }
+    val scope = rememberCoroutineScope()
+    val view = LocalView.current
+    val latestOnBack by rememberUpdatedState(onBack)
+    return pointerInput(seek) {
+        val velocityTracker = VelocityTracker()
+        val flingVelocityPx = SWIPE_BACK_FLING_VELOCITY.toPx()
+        val thresholdPx = SWIPE_BACK_THRESHOLD.toPx()
+        val fraction = MutableStateFlow(0f)
+        var seekJob: Job? = null
+        var total = 0f
+        var decided = false
+        var tracking = false
+        var pastThreshold = false
+
+        fun cancelSeek() {
+            val job = seekJob ?: return
+            seekJob = null
+            scope.launch {
+                job.cancelAndJoin()
+                seek?.cancel()
+            }
+        }
+
+        try {
+            detectHorizontalDominantDrag(
+                onDragStart = {
+                    velocityTracker.resetTracking()
+                    total = 0f
+                    decided = false
+                    tracking = false
+                    pastThreshold = false
+                },
+                onHorizontalDrag = { change, amount ->
+                    velocityTracker.addPointerInputChange(change)
+                    total += amount
+                    if (!decided && total != 0f) {
+                        decided = true
+                        tracking = total > 0f
+                        if (tracking && seek != null) {
+                            fraction.value = 0f
+                            seekJob = scope.launch { fraction.collect { seek.seekTo(it) } }
+                        }
+                    }
+                    if (tracking) {
+                        val distance = total.coerceAtLeast(0f)
+                        if (size.width > 0) fraction.value = distance / size.width
+                        if ((distance >= thresholdPx) != pastThreshold) {
+                            pastThreshold = !pastThreshold
+                            hapticGestureThreshold(view, pastThreshold)
+                        }
+                    }
+                },
+                onDragEnd = {
+                    if (tracking) {
+                        tracking = false
+                        val velocity = velocityTracker.calculateVelocity().x
+                        val commit =
+                            when {
+                                velocity >= flingVelocityPx -> total >= thresholdPx * SWIPE_BACK_MIN_FLING_FRACTION
+                                velocity <= -flingVelocityPx -> false
+                                else -> total >= thresholdPx
+                            }
+                        if (commit) {
+                            // Navigating sets the same target, so the switch finishes from the finger's position.
+                            seekJob?.cancel()
+                            seekJob = null
+                            latestOnBack()
+                        } else {
+                            cancelSeek()
+                        }
+                    }
+                },
+                onDragCancel = {
+                    if (tracking) cancelSeek()
+                    tracking = false
+                },
+            )
+        } finally {
+            // Restarted or disposed mid-drag: never leave the previous page half-revealed.
+            if (tracking) cancelSeek()
+        }
+    }
+}
+
+private val SWIPE_BACK_THRESHOLD = 56.dp
+private val SWIPE_BACK_FLING_VELOCITY = 400.dp
+
+/** A fling still needs this share of the threshold, so a stray flick does not navigate. */
+private const val SWIPE_BACK_MIN_FLING_FRACTION = 0.25f
 
 /** Time to rewind a fully previewed back; shorter previews rewind proportionally faster. */
 private const val CANCEL_DURATION_MS = AppMotion.DurationShort.toFloat()

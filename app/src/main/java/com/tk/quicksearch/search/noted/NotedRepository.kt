@@ -124,6 +124,32 @@ class NotedRepository(
         }
     }
 
+    /**
+     * The full text of Noted's Quick Note, or null when Noted is unavailable, the Quick Note is locked,
+     * or this Noted version can't share it. Blocking.
+     */
+    fun quickNoteTextBlocking(): String? {
+        if (!NotedIntegration.ensureChecked(appContext)) return null
+        val uri = providerUri(NotedIntegration.QUICK_NOTE_PATH).build()
+        return guarded("quick note read", null) {
+            appContext.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                val textIndex = cursor.getColumnIndex(NotedIntegration.COLUMN_TEXT)
+                if (textIndex >= 0 && cursor.moveToFirst()) cursor.getString(textIndex).orEmpty() else null
+            }
+        }
+    }
+
+    /** Replaces the text of Noted's Quick Note. Returns whether Noted now holds [text]. Blocking. */
+    fun replaceQuickNoteBlocking(text: String): Boolean {
+        if (!NotedIntegration.ensureChecked(appContext)) return false
+        val values = ContentValues().apply { put(NotedIntegration.COLUMN_TEXT, text) }
+        val uri = providerUri(NotedIntegration.QUICK_NOTE_PATH).build()
+        return guarded("quick note replace", false) {
+            // 0 also means the text was already the same, so check before reporting a failure.
+            appContext.contentResolver.update(uri, values, null, null) > 0 || quickNoteTextBlocking() == text
+        }
+    }
+
     private suspend fun queryItems(uri: Uri, label: String): List<NotedItem> {
         if (!NotedIntegration.ensureChecked(appContext)) return emptyList()
         return withContext(Dispatchers.IO) {

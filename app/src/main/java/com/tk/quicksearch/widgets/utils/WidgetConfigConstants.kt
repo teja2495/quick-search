@@ -20,8 +20,6 @@ object WidgetConfigConstants {
     val BOTTOM_BAR_BOTTOM_PADDING = 24.dp
     val SCROLLABLE_SECTION_BOTTOM_PADDING = 72.dp
 
-    val LOADING_STATE_SPACING = 16.dp
-
     val CUSTOM_BUTTON_SLOT_SIZE = 80.dp
     val CUSTOM_BUTTON_ICON_SIZE = 24.dp
     val CUSTOM_BUTTON_SPACING = 8.dp

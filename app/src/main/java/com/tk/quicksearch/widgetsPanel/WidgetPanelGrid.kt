@@ -1,6 +1,7 @@
 package com.tk.quicksearch.widgetsPanel
 
 import androidx.compose.ui.semantics.semantics
+import com.tk.quicksearch.shared.ui.components.AppLoadingIndicator
 import androidx.compose.ui.semantics.heading
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.AppShapes
@@ -706,11 +707,7 @@ private fun BoxScope.WidgetPanelGridItem(
                         ),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = stringResource(R.string.widget_loading_state),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                AppLoadingIndicator()
             }
         }
 

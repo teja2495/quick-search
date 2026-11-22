@@ -1,6 +1,7 @@
 package com.tk.quicksearch.settings.appShortcutsSettings
 
 import com.tk.quicksearch.shared.ui.components.AppIconButton
+import com.tk.quicksearch.shared.ui.components.AppLoadingIndicator
 import com.tk.quicksearch.shared.ui.components.AppIconButtonStyle
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
@@ -511,7 +512,7 @@ val context = LocalContext.current
         }
 }
 
-/** Shown only if loading takes long enough to notice, so fast loads don't flash the message. */
+/** Shown only if loading takes long enough to notice, so fast loads don't flash it. */
 @Composable
 private fun AppShortcutsLoadingIndicator(modifier: Modifier) {
     var showIndicator by remember { mutableStateOf(false) }
@@ -524,11 +525,7 @@ private fun AppShortcutsLoadingIndicator(modifier: Modifier) {
         contentAlignment = Alignment.Center,
     ) {
         if (showIndicator) {
-            Text(
-                text = stringResource(R.string.settings_app_shortcuts_loading),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            AppLoadingIndicator()
         }
     }
 }

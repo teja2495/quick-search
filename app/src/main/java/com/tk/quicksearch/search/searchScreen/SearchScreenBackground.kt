@@ -102,7 +102,6 @@ internal fun SearchScreenBackground(
         PublishFrostedWallpaper(
             wallpaperBitmap = wallpaperBitmap,
             enabled = hasWallpaperLayer,
-            wallpaperBlurRadiusDp = blurRadius,
             tint = AppColors.WallpaperOverlayTint.copy(alpha = wallpaperOverlayAlpha),
             alpha = wallpaperLayerAlpha,
         )

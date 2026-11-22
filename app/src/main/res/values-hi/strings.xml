@@ -432,7 +432,6 @@
     <string name="settings_app_shortcuts_description_with_enabled_count">उसके शॉर्टकट देखने के लिए किसी भी ऐप पर टैप करें। कस्टम शॉर्टकट सक्षम, अक्षम या जोड़ें।\n\n%1$s शॉर्टकट · %2$s सक्षम</string>
     <string name="settings_app_shortcuts_edit_dialog_title">शॉर्टकट संपादित करें</string>
     <string name="settings_app_shortcuts_empty">कोई ऐप शॉर्टकट नहीं मिला।</string>
-    <string name="settings_app_shortcuts_loading">शॉर्टकट लोड हो रहे हैं…</string>
     <string name="settings_app_shortcuts_disable_all">सभी शॉर्टकट बंद करें</string>
     <string name="settings_app_shortcuts_card_all_disabled">सभी शॉर्टकट बंद हैं</string>
     <string name="settings_app_shortcuts_expand_all">सभी फैलाएं</string>
@@ -979,7 +978,6 @@
     <string name="settings_direct_search_model_label">मॉडल</string>
     <string name="settings_select_model">मॉडल चुनें</string>
     <string name="ai_error_selected_model_unavailable">चुना गया मॉडल उपलब्ध नहीं है। कृपया सेटिंग में कोई दूसरा मॉडल चुनें।</string>
-    <string name="settings_loading_models">मॉडल लोड हो रहे हैं…</string>
     <string name="settings_direct_search_personal_context">व्यक्तिगत संदर्भ</string>
     <string name="settings_direct_search_personal_context_hint">उत्तर बनाते समय AI जिस संदर्भ का उपयोग करे, वह यहां जोड़ें।</string>
     <string name="settings_direct_search_personal_context_unsupported">इस मॉडल के लिए व्यक्तिगत संदर्भ उपलब्ध नहीं है।</string>
@@ -1046,7 +1044,6 @@
     <string name="settings_feedback_send_desc">बग रिपोर्ट करें या फ़ीचर्स का अनुरोध करें</string>
     <string name="settings_feedback_send_title">प्रतिक्रिया भेजें</string>
     <string name="settings_open_source_licenses_load_failed">लाइसेंस लोड नहीं हो सके।</string>
-    <string name="settings_open_source_licenses_loading">लाइसेंस लोड हो रहे हैं…</string>
     <string name="settings_open_source_licenses_tap_to_view">लाइसेंस टेक्स्ट देखने के लिए टैप करें</string>
     <string name="settings_open_source_licenses_title">ओपन सोर्स लाइसेंस</string>
 
@@ -1192,7 +1189,6 @@
     <string name="widget_icon_center">मध्य</string>
     <string name="widget_icon_left">बाएं</string>
     <string name="widget_icon_off">बंद</string>
-    <string name="widget_loading_state">विजेट सेटिंग्स लोड हो रही हैं…</string>
     <string name="widget_mic_action_default">डिफ़ॉल्ट</string>
     <string name="widget_mic_action_digital_assistant">असिस्टेंट</string>
     <string name="widget_mic_action_digital_assistant_current">%1$s अभी आपके डिजिटल असिस्टेंट के रूप में सेट है, बदलने के लिए यहां टैप करें।</string>
@@ -1226,7 +1222,6 @@
     <string name="widgets_panel_lock_layout">लेआउट लॉक करें</string>
     <string name="widgets_panel_unlock_layout">लेआउट अनलॉक करें</string>
     <string name="widgets_picker_empty">कोई विजेट नहीं मिला।</string>
-    <string name="widgets_picker_loading">विजेट्स लोड हो रहे हैं...</string>
     <string name="widgets_picker_preview_unavailable">प्रीव्यू उपलब्ध नहीं</string>
     <string name="widgets_picker_title">विजेट जोड़ें</string>
     <string name="widgets_picker_widget_count">%1$d विजेट्स</string>

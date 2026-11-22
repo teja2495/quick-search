@@ -441,7 +441,6 @@
     <string name="settings_app_shortcuts_description_with_enabled_count">Tap any app to view its shortcuts. Enable, disable, or add custom shortcuts.\n\n%1$s shortcuts · %2$s enabled</string>
     <string name="settings_app_shortcuts_edit_dialog_title">Edit Shortcut</string>
     <string name="settings_app_shortcuts_empty">No app shortcuts found.</string>
-    <string name="settings_app_shortcuts_loading">Loading shortcuts…</string>
     <string name="settings_app_shortcuts_disable_all">Disable all shortcuts</string>
     <string name="settings_app_shortcuts_card_all_disabled">All shortcuts disabled</string>
     <string name="settings_app_shortcuts_expand_all">Expand all</string>
@@ -1010,7 +1009,6 @@
     <string name="settings_select_model">Select Model</string>
     <string name="settings_ai_model_with_provider" translatable="false">%1$s · %2$s</string>
     <string name="ai_error_selected_model_unavailable">Selected model isn\'t available. Please choose another model in settings.</string>
-    <string name="settings_loading_models">Loading Models...</string>
     <string name="settings_direct_search_personal_context">Personal Context</string>
     <string name="settings_direct_search_personal_context_hint">Add any context you want AI to use when generating answers.</string>
     <string name="settings_direct_search_personal_context_unsupported">Personal context is not available for this model.</string>
@@ -1086,7 +1084,6 @@
     <string name="settings_feedback_send_desc">Report bugs or request features</string>
     <string name="settings_feedback_send_title">Send Feedback</string>
     <string name="settings_open_source_licenses_load_failed">Unable to load licenses.</string>
-    <string name="settings_open_source_licenses_loading">Loading licenses…</string>
     <string name="settings_open_source_licenses_tap_to_view">Tap to view license text</string>
     <string name="settings_open_source_licenses_title">Open Source Licenses</string>
 
@@ -1234,7 +1231,6 @@
     <string name="widget_icon_center">Center</string>
     <string name="widget_icon_left">Left</string>
     <string name="widget_icon_off">Off</string>
-    <string name="widget_loading_state">Loading widget settings…</string>
     <string name="widget_mic_action_default">Default</string>
     <string name="widget_mic_action_digital_assistant">Assistant</string>
     <string name="widget_mic_action_digital_assistant_current">%1$s is currently set as your digital assistant, tap here to change.</string>
@@ -1268,7 +1264,6 @@
     <string name="widgets_panel_lock_layout">Lock layout</string>
     <string name="widgets_panel_unlock_layout">Unlock layout</string>
     <string name="widgets_picker_empty">No widgets found.</string>
-    <string name="widgets_picker_loading">Loading Widgets...</string>
     <string name="widgets_picker_preview_unavailable">Preview unavailable</string>
     <string name="widgets_picker_title">Add Widget</string>
     <string name="widgets_picker_widget_count">%1$d widgets</string>

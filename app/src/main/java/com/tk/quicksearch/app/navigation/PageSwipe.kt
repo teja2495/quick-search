@@ -383,7 +383,7 @@ internal suspend fun PointerInputScope.detectPageSwipe(
  * is ignored entirely. Otherwise a vertical swipe that drifts sideways would start revealing the
  * neighbouring page.
  */
-private suspend fun PointerInputScope.detectHorizontalDominantDrag(
+internal suspend fun PointerInputScope.detectHorizontalDominantDrag(
     onDragStart: () -> Unit,
     onHorizontalDrag: (change: PointerInputChange, dragAmount: Float) -> Unit,
     onDragEnd: () -> Unit,

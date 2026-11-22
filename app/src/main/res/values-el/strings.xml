@@ -432,7 +432,6 @@
     <string name="settings_app_shortcuts_description_with_enabled_count">Πατήστε σε οποιαδήποτε εφαρμογή για να δείτε τις συντομεύσεις της. Ενεργοποιήστε, απενεργοποιήστε ή προσθέστε προσαρμοσμένες συντομεύσεις.\n\n%1$s συντομεύσεις · %2$s ενεργές</string>
     <string name="settings_app_shortcuts_edit_dialog_title">Επεξεργασία συντόμευσης</string>
     <string name="settings_app_shortcuts_empty">Δεν βρέθηκαν συντομεύσεις εφαρμογών.</string>
-    <string name="settings_app_shortcuts_loading">Φόρτωση συντομεύσεων…</string>
     <string name="settings_app_shortcuts_disable_all">Απενεργοποίηση όλων των συντομεύσεων</string>
     <string name="settings_app_shortcuts_card_all_disabled">Όλες οι συντομεύσεις απενεργοποιημένες</string>
     <string name="settings_app_shortcuts_expand_all">Ανάπτυξη όλων</string>
@@ -979,7 +978,6 @@
     <string name="settings_direct_search_model_label">Μοντέλο</string>
     <string name="settings_select_model">Επιλογή μοντέλου</string>
     <string name="ai_error_selected_model_unavailable">Το επιλεγμένο μοντέλο δεν είναι διαθέσιμο. Επιλέξτε άλλο μοντέλο στις ρυθμίσεις.</string>
-    <string name="settings_loading_models">Φόρτωση μοντέλων…</string>
     <string name="settings_direct_search_personal_context">Προσωπικό πλαίσιο</string>
     <string name="settings_direct_search_personal_context_hint">Προσθέστε οποιοδήποτε πλαίσιο θέλετε να χρησιμοποιεί η AI κατά τη δημιουργία απαντήσεων.</string>
     <string name="settings_direct_search_personal_context_unsupported">Το προσωπικό πλαίσιο δεν είναι διαθέσιμο για αυτό το μοντέλο.</string>
@@ -1046,7 +1044,6 @@
     <string name="settings_feedback_send_desc">Αναφέρετε σφάλματα ή ζητήστε νέες δυνατότητες</string>
     <string name="settings_feedback_send_title">Αποστολή σχολίων</string>
     <string name="settings_open_source_licenses_load_failed">Αδυναμία φόρτωσης αδειών χρήσης.</string>
-    <string name="settings_open_source_licenses_loading">Φόρτωση αδειών χρήσης…</string>
     <string name="settings_open_source_licenses_tap_to_view">Πατήστε για να δείτε το κείμενο της άδειας</string>
     <string name="settings_open_source_licenses_title">Άδειες ανοιχτού κώδικα</string>
 
@@ -1192,7 +1189,6 @@
     <string name="widget_icon_center">Κέντρο</string>
     <string name="widget_icon_left">Αριστερά</string>
     <string name="widget_icon_off">Απενεργοποιημένο</string>
-    <string name="widget_loading_state">Φόρτωση ρυθμίσεων widget…</string>
     <string name="widget_mic_action_default">Προεπιλογή</string>
     <string name="widget_mic_action_digital_assistant">Βοηθός</string>
     <string name="widget_mic_action_digital_assistant_current">Το %1$s έχει οριστεί αυτήν τη στιγμή ως ψηφιακός βοηθός σας, πατήστε εδώ για αλλαγή.</string>
@@ -1226,7 +1222,6 @@
     <string name="widgets_panel_lock_layout">Κλείδωμα διάταξης</string>
     <string name="widgets_panel_unlock_layout">Ξεκλείδωμα διάταξης</string>
     <string name="widgets_picker_empty">Δεν βρέθηκαν widgets.</string>
-    <string name="widgets_picker_loading">Φόρτωση widgets...</string>
     <string name="widgets_picker_preview_unavailable">Η προεπισκόπηση δεν είναι διαθέσιμη</string>
     <string name="widgets_picker_title">Προσθήκη widget</string>
     <string name="widgets_picker_widget_count">%1$d widgets</string>

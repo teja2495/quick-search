@@ -441,7 +441,6 @@
     <string name="settings_app_shortcuts_description_with_enabled_count">اضغط على أي تطبيق لعرض اختصاراته وتفعيلها أو تعطيلها، أو إضافة اختصارات مخصصة.\n\n%1$s اختصار · %2$s مفعّل</string>
     <string name="settings_app_shortcuts_edit_dialog_title">تعديل الاختصار</string>
     <string name="settings_app_shortcuts_empty">لم يتم العثور على اختصارات للتطبيقات.</string>
-    <string name="settings_app_shortcuts_loading">جارٍ تحميل الاختصارات…</string>
     <string name="settings_app_shortcuts_disable_all">تعطيل كل الاختصارات</string>
     <string name="settings_app_shortcuts_card_all_disabled">كل الاختصارات معطّلة</string>
     <string name="settings_app_shortcuts_expand_all">توسيع الكل</string>
@@ -1036,7 +1035,6 @@
     <string name="settings_direct_search_model_label">النموذج</string>
     <string name="settings_select_model">اختيار نموذج</string>
     <string name="ai_error_selected_model_unavailable">النموذج المحدد غير متاح. يُرجى اختيار نموذج آخر من الإعدادات.</string>
-    <string name="settings_loading_models">جارٍ تحميل النماذج…</string>
     <string name="settings_direct_search_personal_context">السياق الشخصي</string>
     <string name="settings_direct_search_personal_context_hint">أضف أي سياق تريد من الذكاء الاصطناعي (AI) استخدامه عند صياغة الإجابات.</string>
     <string name="settings_direct_search_personal_context_unsupported">السياق الشخصي غير مدعوم في هذا النموذج.</string>
@@ -1103,7 +1101,6 @@
     <string name="settings_feedback_send_desc">الإبلاغ عن الأخطاء أو طلب ميزات جديدة</string>
     <string name="settings_feedback_send_title">إرسال الملاحظات</string>
     <string name="settings_open_source_licenses_load_failed">تعذر تحميل التراخيص.</string>
-    <string name="settings_open_source_licenses_loading">جارٍ تحميل التراخيص…</string>
     <string name="settings_open_source_licenses_tap_to_view">اضغط لعرض نص الترخيص</string>
     <string name="settings_open_source_licenses_title">تراخيص مفتوحة المصدر</string>
 
@@ -1249,7 +1246,6 @@
     <string name="widget_icon_center">توسيط</string>
     <string name="widget_icon_left">يسار</string>
     <string name="widget_icon_off">إيقاف</string>
-    <string name="widget_loading_state">جارٍ تحميل إعدادات عنصر واجهة المستخدم…</string>
     <string name="widget_mic_action_default">الافتراضي</string>
     <string name="widget_mic_action_digital_assistant">المساعد</string>
     <string name="widget_mic_action_digital_assistant_current">تم تعيين %1$s حاليًا كمساعدك الرقمي، اضغط هنا للتغيير.</string>
@@ -1283,7 +1279,6 @@
     <string name="widgets_panel_lock_layout">قفل التخطيط</string>
     <string name="widgets_panel_unlock_layout">إلغاء قفل التخطيط</string>
     <string name="widgets_picker_empty">لم يتم العثور على أي عناصر واجهة مستخدم.</string>
-    <string name="widgets_picker_loading">جارٍ تحميل عناصر واجهة المستخدم...</string>
     <string name="widgets_picker_preview_unavailable">المعاينة غير متوفرة</string>
     <string name="widgets_picker_title">إضافة عنصر واجهة مستخدم</string>
     <string name="widgets_picker_widget_count">%1$d من عناصر واجهة المستخدم</string>

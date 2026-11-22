@@ -8,6 +8,7 @@ import com.tk.quicksearch.search.data.notes.NotesRoomStore
 import com.tk.quicksearch.search.data.preferences.TriggerPreferences
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.models.SecondaryRankingSignal
+import com.tk.quicksearch.search.noted.NotedQuickNoteMirror
 import com.tk.quicksearch.search.notes.NotesTextUtils
 import com.tk.quicksearch.widgets.utils.requestNoteWidgetsRefresh
 import java.util.Locale
@@ -43,8 +44,9 @@ class NotesRepository(
             .thenBy { it.title.lowercase(Locale.getDefault()) }
 
     fun getNoteById(noteId: Long): NoteInfo? {
-        ensureQuickNoteExists()
-        return notesStore.getById(noteId)
+        val quickNoteId = ensureQuickNoteExists().noteId
+        val note = notesStore.getById(noteId) ?: return null
+        return if (noteId == quickNoteId) NotedQuickNoteMirror.withNotedText(appContext, note) else note
     }
 
     /** The notes with these ids, in no particular order; one database read for all of them. */
@@ -138,6 +140,13 @@ class NotesRepository(
     ): NoteInfo? {
         val quickNoteId = ensureQuickNoteExists().noteId
         val current = notesStore.getById(noteId) ?: return null
+        if (noteId == quickNoteId && NotedQuickNoteMirror.save(appContext, markdownContent)) {
+            // Noted holds the text; keep the local Quick Note as it was for when the integration is off.
+            val mirrored = current.copy(markdownContent = markdownContent)
+            onNotesWritten()
+            PinnedNotifications.updatePinnedNote(appContext, mirrored)
+            return mirrored
+        }
         val updated =
             current.copy(
                 title =
@@ -197,7 +206,8 @@ class NotesRepository(
         return notesPreferences.getPinnedNoteIds()
     }
 
-    fun getOrCreateQuickNote(): NoteInfo = ensureQuickNoteExists()
+    /** The Quick Note, showing Noted's Quick Note text while Noted Integration is on. Blocking. */
+    fun getOrCreateQuickNote(): NoteInfo = NotedQuickNoteMirror.withNotedText(appContext, ensureQuickNoteExists())
 
     fun isQuickNote(noteId: Long): Boolean = noteId > 0L && notesPreferences.getQuickNoteId() == noteId
 

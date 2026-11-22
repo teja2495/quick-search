@@ -432,7 +432,6 @@
     <string name="settings_app_shortcuts_description_with_enabled_count">Toque em qualquer app para ver seus atalhos. Ative, desative ou adicione atalhos personalizados.\n\n%1$s atalhos · %2$s ativados</string>
     <string name="settings_app_shortcuts_edit_dialog_title">Editar atalho</string>
     <string name="settings_app_shortcuts_empty">Nenhum atalho de app encontrado.</string>
-    <string name="settings_app_shortcuts_loading">Carregando atalhos…</string>
     <string name="settings_app_shortcuts_disable_all">Desativar todos os atalhos</string>
     <string name="settings_app_shortcuts_card_all_disabled">Todos os atalhos desativados</string>
     <string name="settings_app_shortcuts_expand_all">Expandir todos</string>
@@ -979,7 +978,6 @@
     <string name="settings_direct_search_model_label">Modelo</string>
     <string name="settings_select_model">Selecionar modelo</string>
     <string name="ai_error_selected_model_unavailable">O modelo selecionado não está disponível. Escolha outro modelo nas configurações.</string>
-    <string name="settings_loading_models">Carregando modelos…</string>
     <string name="settings_direct_search_personal_context">Contexto pessoal</string>
     <string name="settings_direct_search_personal_context_hint">Adicione qualquer contexto que deseja que a IA utilize ao gerar as respostas.</string>
     <string name="settings_direct_search_personal_context_unsupported">O contexto pessoal não está disponível para este modelo.</string>
@@ -1046,7 +1044,6 @@
     <string name="settings_feedback_send_desc">Reportar bugs ou solicitar recursos</string>
     <string name="settings_feedback_send_title">Enviar feedback</string>
     <string name="settings_open_source_licenses_load_failed">Não foi possível carregar as licenças.</string>
-    <string name="settings_open_source_licenses_loading">Carregando licenças…</string>
     <string name="settings_open_source_licenses_tap_to_view">Toque para visualizar o texto da licença</string>
     <string name="settings_open_source_licenses_title">Licenças de código aberto</string>
 
@@ -1192,7 +1189,6 @@
     <string name="widget_icon_center">Centro</string>
     <string name="widget_icon_left">Esquerda</string>
     <string name="widget_icon_off">Desativado</string>
-    <string name="widget_loading_state">Carregando configurações do widget…</string>
     <string name="widget_mic_action_default">Padrão</string>
     <string name="widget_mic_action_digital_assistant">Assistente</string>
     <string name="widget_mic_action_digital_assistant_current">%1$s está definido no momento como seu assistente digital, toque aqui para alterar.</string>
@@ -1226,7 +1222,6 @@
     <string name="widgets_panel_lock_layout">Bloquear layout</string>
     <string name="widgets_panel_unlock_layout">Desbloquear layout</string>
     <string name="widgets_picker_empty">Nenhum widget encontrado.</string>
-    <string name="widgets_picker_loading">Carregando widgets...</string>
     <string name="widgets_picker_preview_unavailable">Visualização indisponível</string>
     <string name="widgets_picker_title">Adicionar widget</string>
     <string name="widgets_picker_widget_count">%1$d widgets</string>
