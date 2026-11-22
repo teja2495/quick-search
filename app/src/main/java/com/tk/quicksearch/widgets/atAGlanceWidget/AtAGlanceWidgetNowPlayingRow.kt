@@ -129,7 +129,7 @@ private fun seekControl(
     }
 
 /**
- * Home's Now Playing row: album art, the title with a close button, and the controls below. The
+ * Home's Now Playing row: album art, the title and artist with a close button, and the controls below. The
  * pair that suits the media (seeking for long media, track skipping otherwise) sits in outlined
  * circles beside play/pause, and the other pair is centered in the outer slots. [rowWidth] is the
  * width the row is laid out in, which centers the controls when there are no outer slots.
@@ -162,12 +162,20 @@ internal fun AtAGlanceWidgetNowPlayingRow(
         Spacer(modifier = GlanceModifier.width(NowPlayingRowDimens.ART_SPACING))
         Column(modifier = GlanceModifier.defaultWeight()) {
             Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = media.title.orEmpty(),
-                    modifier = GlanceModifier.defaultWeight().clickable(openAction),
-                    style = TextStyle(color = colors.title, fontSize = AtAGlanceWidgetDimens.TITLE_FONT_SIZE * textScale),
-                    maxLines = 1,
-                )
+                Column(modifier = GlanceModifier.defaultWeight().clickable(openAction)) {
+                    Text(
+                        text = media.title.orEmpty(),
+                        style = TextStyle(color = colors.title, fontSize = AtAGlanceWidgetDimens.TITLE_FONT_SIZE * textScale),
+                        maxLines = 1,
+                    )
+                    media.subtitle?.let { subtitle ->
+                        Text(
+                            text = subtitle,
+                            style = TextStyle(color = colors.subtitle, fontSize = AtAGlanceWidgetDimens.SUBTITLE_FONT_SIZE * textScale),
+                            maxLines = 1,
+                        )
+                    }
+                }
                 Box(
                     modifier =
                         GlanceModifier

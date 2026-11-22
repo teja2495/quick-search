@@ -935,6 +935,8 @@
     <string name="settings_at_a_glance_wifi_sign_in_title">Accesso Wi-Fi</string>
     <string name="settings_at_a_glance_wifi_sign_in_desc">Quando una rete Wi-Fi richiede l\'accesso</string>
     <string name="settings_now_playing_desc">Controlli di riproduzione per ciò che è attualmente in riproduzione</string>
+    <string name="settings_now_playing_album_tint_title">Sfumatura colore album</string>
+    <string name="settings_now_playing_album_tint_desc">Colora la scheda multimediale e il widget dei controlli multimediali con il colore della copertina</string>
     <string name="settings_use_system_font_desc">Usa lo stile del carattere del dispositivo</string>
     <string name="settings_use_system_font_title">Usa carattere di sistema</string>
     <string name="settings_accent_color_from_wallpaper">Sfondo</string>

@@ -993,6 +993,8 @@
     <string name="settings_at_a_glance_wifi_sign_in_title">تسجيل الدخول إلى Wi-Fi</string>
     <string name="settings_at_a_glance_wifi_sign_in_desc">عندما تتطلب شبكة Wi-Fi تسجيل الدخول</string>
     <string name="settings_now_playing_desc">أزرار التحكم بالتشغيل لما يتم تشغيله حاليًا</string>
+    <string name="settings_now_playing_album_tint_title">تدرج لون الألبوم</string>
+    <string name="settings_now_playing_album_tint_desc">تلوين بطاقة الوسائط وأداة التحكم في الوسائط بلون صورة الألبوم</string>
     <string name="settings_use_system_font_desc">اتباع خط النظام الافتراضي للجهاز</string>
     <string name="settings_use_system_font_title">استخدام خط النظام</string>
     <string name="settings_accent_color_from_wallpaper">الخلفية</string>

@@ -936,6 +936,8 @@
     <string name="settings_at_a_glance_wifi_sign_in_title">Login no Wi-Fi</string>
     <string name="settings_at_a_glance_wifi_sign_in_desc">Quando uma rede Wi-Fi pedir que você faça login</string>
     <string name="settings_now_playing_desc">Controles de reprodução para o que está tocando no momento</string>
+    <string name="settings_now_playing_album_tint_title">Gradiente com a cor do álbum</string>
+    <string name="settings_now_playing_album_tint_desc">Colore o cartão de mídia e o widget de controles de mídia com a cor da capa do álbum</string>
     <string name="settings_use_system_font_desc">Seguir o estilo de fonte do seu dispositivo</string>
     <string name="settings_use_system_font_title">Usar fonte do sistema</string>
     <string name="settings_accent_color_from_wallpaper">Papel de parede</string>

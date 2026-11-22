@@ -10,6 +10,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.layout.layout
@@ -393,6 +395,8 @@ internal fun AtAGlanceTitle(showWallpaperBackground: Boolean) {
 internal fun AtAGlanceCardShell(
     showWallpaperBackground: Boolean,
     segmented: Boolean = false,
+    /** Drawn edge to edge behind the content, inside the card's shape; ignored in the flat layout. */
+    contentTint: Brush? = null,
     content: @Composable () -> Unit,
 ) {
     if (segmented && LocalSearchCardLayoutEnabled.current) {
@@ -409,6 +413,7 @@ internal fun AtAGlanceCardShell(
         Column(
             modifier =
                 Modifier.fillMaxWidth()
+                    .then(if (contentTint != null && LocalSearchCardLayoutEnabled.current) Modifier.background(contentTint) else Modifier)
                     .padding(
                         horizontal = DesignTokens.SpacingMedium,
                         vertical = resultRowsContainerVerticalPadding(DesignTokens.SpacingXSmall),
@@ -456,6 +461,8 @@ internal fun NowPlayingCard(
     glance: NowPlayingGlance,
     showWallpaperBackground: Boolean,
     showTitle: Boolean = false,
+    /** The album color gradient setting ([com.tk.quicksearch.search.appSettings.BooleanSettings.NOW_PLAYING_ALBUM_TINT]). */
+    albumTint: Boolean = true,
 ) {
     val visibility = remember { MutableTransitionState(true) }
     val currentDismiss by rememberUpdatedState(glance.dismiss)
@@ -478,7 +485,10 @@ internal fun NowPlayingCard(
         // Matches the spacing of the home column the title and card sit in.
         Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)) {
             if (showTitle) AtAGlanceTitle(showWallpaperBackground)
-            AtAGlanceCardShell(showWallpaperBackground = showWallpaperBackground) {
+            AtAGlanceCardShell(
+                showWallpaperBackground = showWallpaperBackground,
+                contentTint = rememberAlbumArtTint(glance.albumArt.takeIf { albumTint }),
+            ) {
                 ResultSegment(index = 0, count = 1, padCompactOuterEdges = true) {
                     NowPlayingRow(glance, onDismiss = { visibility.targetState = false })
                 }

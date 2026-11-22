@@ -972,6 +972,8 @@
     <string name="settings_at_a_glance_wifi_sign_in_title">Logowanie do Wi-Fi</string>
     <string name="settings_at_a_glance_wifi_sign_in_desc">Gdy sieć Wi-Fi wymaga zalogowania</string>
     <string name="settings_now_playing_desc">Sterowanie odtwarzaniem tego, co jest aktualnie odtwarzane</string>
+    <string name="settings_now_playing_album_tint_title">Gradient w kolorze albumu</string>
+    <string name="settings_now_playing_album_tint_desc">Barwi kartę multimediów i widżet sterowania multimediami kolorem okładki albumu</string>
     <string name="settings_use_system_font_desc">Używaj czcionki systemowej urządzenia</string>
     <string name="settings_use_system_font_title">Użyj czcionki systemowej</string>
     <string name="settings_accent_color_from_wallpaper">Tapeta</string>

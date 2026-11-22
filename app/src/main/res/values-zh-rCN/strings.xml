@@ -922,6 +922,8 @@
     <string name="settings_at_a_glance_wifi_sign_in_title">WLAN 登录</string>
     <string name="settings_at_a_glance_wifi_sign_in_desc">WLAN 网络需要登录时</string>
     <string name="settings_now_playing_desc">控制当前正在播放的内容</string>
+    <string name="settings_now_playing_album_tint_title">专辑颜色渐变</string>
+    <string name="settings_now_playing_album_tint_desc">用专辑封面的颜色为媒体卡片和媒体控制小部件着色</string>
     <string name="settings_use_system_font_desc">匹配并跟随您设备的系统字体样式</string>
     <string name="settings_use_system_font_title">使用系统字体</string>
     <string name="settings_accent_color_from_wallpaper">壁纸</string>

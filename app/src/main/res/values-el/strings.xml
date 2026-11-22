@@ -936,6 +936,8 @@
     <string name="settings_at_a_glance_wifi_sign_in_title">Σύνδεση σε Wi-Fi</string>
     <string name="settings_at_a_glance_wifi_sign_in_desc">Όταν ένα δίκτυο Wi-Fi απαιτεί σύνδεση</string>
     <string name="settings_now_playing_desc">Χειριστήρια αναπαραγωγής για ό,τι παίζει αυτήν τη στιγμή</string>
+    <string name="settings_now_playing_album_tint_title">Διαβάθμιση χρώματος άλμπουμ</string>
+    <string name="settings_now_playing_album_tint_desc">Χρωματισμός της κάρτας πολυμέσων και του widget ελέγχου πολυμέσων με το χρώμα του εξωφύλλου</string>
     <string name="settings_use_system_font_desc">Χρήση του στυλ γραμματοσειράς της συσκευής</string>
     <string name="settings_use_system_font_title">Χρήση γραμματοσειράς συστήματος</string>
     <string name="settings_accent_color_from_wallpaper">Ταπετσαρία</string>

@@ -10,6 +10,7 @@ private const val LightColorLuminance = 0.5f
 private const val ProminentCircleBorderAlpha = 0.35f
 private const val ArtPlaceholderAlpha = 0.15f
 private const val ArtPlaceholderIconAlpha = 0.7f
+private const val SubtitleAlpha = 0.7f
 
 /**
  * Media Controls colors from the chosen background and text/icon colors. Play/pause is a filled
@@ -22,6 +23,7 @@ internal data class MediaControlsColors(
 ) {
     val playPauseCircle: Color get() = content
     val playPauseIcon: Color get() = if (content.luminance() > LightColorLuminance) Color.Black else Color.White
+    val subtitle: Color get() = content.copy(alpha = SubtitleAlpha)
     val prominentCircleBorder: Color get() = content.copy(alpha = ProminentCircleBorderAlpha)
     val artPlaceholder: Color get() = content.copy(alpha = ArtPlaceholderAlpha)
     val artPlaceholderIcon: Color get() = content.copy(alpha = ArtPlaceholderIconAlpha)

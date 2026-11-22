@@ -937,6 +937,8 @@
     <string name="settings_at_a_glance_wifi_sign_in_title">Masuk Wi-Fi</string>
     <string name="settings_at_a_glance_wifi_sign_in_desc">Saat jaringan Wi-Fi meminta Anda masuk</string>
     <string name="settings_now_playing_desc">Kontrol pemutaran untuk yang sedang diputar</string>
+    <string name="settings_now_playing_album_tint_title">Gradien warna album</string>
+    <string name="settings_now_playing_album_tint_desc">Warnai kartu media dan widget Kontrol Media dengan warna sampul album</string>
     <string name="settings_use_system_font_desc">Gunakan gaya font perangkat Anda</string>
     <string name="settings_use_system_font_title">Gunakan Font Sistem</string>
     <string name="settings_accent_color_from_wallpaper">Wallpaper</string>

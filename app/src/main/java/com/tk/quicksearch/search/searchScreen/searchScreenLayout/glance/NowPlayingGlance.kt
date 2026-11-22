@@ -10,10 +10,25 @@ import android.media.MediaMetadata
 import android.media.session.MediaController
 import android.media.session.PlaybackState
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.graphicsLayer
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.combinedClickable
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +36,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -46,8 +63,10 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -74,6 +93,14 @@ internal val NowPlayingTransitionStates =
         PlaybackState.STATE_FAST_FORWARDING,
         PlaybackState.STATE_REWINDING,
     )
+
+/** Tighter than titleSmall's 20sp so a wrapped two-line title reads as one block. */
+private val NowPlayingTitleLineHeight = 18.sp
+/** Lifts the close button so its glyph lines up with the first title line rather than the row's top. */
+private val NowPlayingCloseLift = DesignTokens.SpacingSmall
+
+/** The empty space a control's 48dp touch target leaves under its 32dp circle. */
+private val NowPlayingTransportBottomTrim = DesignTokens.SpacingSmall
 
 private val NowPlayingAlbumArtSize = 56.dp
 private val NowPlayingControlIconSize = DesignTokens.IconSizeSmall
@@ -369,24 +396,55 @@ internal fun NowPlayingRow(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             ) {
-                NowPlayingAlbumArt(glance)
-                Column(modifier = Modifier.weight(1f)) {
+                // Track changes swap the art and text with a short motion instead of a cut. Keyed on
+                // the track, so a player re-sending the same metadata (or art arriving late) doesn't replay it.
+                val trackKey = glance.title to glance.subtitle
+                AnimatedContent(
+                    targetState = NowPlayingArtFrame(trackKey, glance.albumArt),
+                    contentKey = { it.trackKey to (it.albumArt != null) },
+                    transitionSpec = {
+                        (scaleIn(AppMotion.fastSpatial(), initialScale = 0.85f) + fadeIn(tween(AppMotion.DurationShort))) togetherWith
+                            fadeOut(tween(AppMotion.DurationQuick))
+                    },
+                    label = "nowPlayingArt",
+                ) { frame -> NowPlayingAlbumArt(frame.albumArt) }
+                // Reserve two title lines plus the artist line (at the user's font scale), so a track
+                // with a shorter title or no artist doesn't change the card's height.
+                val textBlockHeight =
+                    with(LocalDensity.current) {
+                        (NowPlayingTitleLineHeight * 2).toDp() + MaterialTheme.typography.bodySmall.lineHeight.toDp()
+                    }
+                AnimatedContent(
+                    targetState = trackKey,
+                    modifier = Modifier.weight(1f).heightIn(min = textBlockHeight),
+                    transitionSpec = {
+                        val enter =
+                            slideInVertically(AppMotion.defaultSpatial()) { it / 3 } +
+                                fadeIn(tween(AppMotion.DurationShort, delayMillis = AppMotion.DurationMicro))
+                        val exit = slideOutVertically(tween(AppMotion.DurationExit)) { -it / 3 } + fadeOut(tween(AppMotion.DurationExit))
+                        enter togetherWith exit using SizeTransform(clip = false) { _, _ -> snap() }
+                    },
+                    contentAlignment = Alignment.CenterStart,
+                    label = "nowPlayingText",
+                ) { (title, subtitle) ->
+                Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        text = glance.title,
-                        modifier = Modifier.basicMarquee(),
-                        style = MaterialTheme.typography.bodyLarge,
+                        text = title,
+                        style = MaterialTheme.typography.titleSmall.copy(lineHeight = NowPlayingTitleLineHeight),
                         color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
                     )
-                    glance.subtitle?.let { subtitle ->
+                    subtitle?.let { subtitle ->
                         Text(
                             text = subtitle,
-                            modifier = Modifier.basicMarquee(),
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
+                }
                 }
                 if (openGlanceSettings != null) {
                     AppDropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
@@ -394,7 +452,12 @@ internal fun NowPlayingRow(
                     }
                 }
             }
-            AppIconButton(onClick = onDismiss, tooltip = stringResource(R.string.common_close)) {
+            // Pinned to the first title line, so it stays put whether the title wraps or not.
+            AppIconButton(
+                onClick = onDismiss,
+                tooltip = stringResource(R.string.common_close),
+                modifier = Modifier.align(Alignment.Top).offset(y = -NowPlayingCloseLift),
+            ) {
                 Icon(
                     imageVector = MaterialSymbols.Close,
                     contentDescription = stringResource(R.string.common_close),
@@ -452,26 +515,57 @@ private fun NowPlayingTransport(glance: NowPlayingGlance) {
         }
     }
     FlowRow(
-        modifier = Modifier.fillMaxWidth(),
+        // The 48dp touch targets pad below their circles; drop that padding so the card's bottom
+        // edge sits as close to the controls as its top edge does to the art.
+        modifier =
+            Modifier.fillMaxWidth().layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                val trim = NowPlayingTransportBottomTrim.roundToPx().coerceAtMost(placeable.height)
+                layout(placeable.width, placeable.height - trim) { placeable.place(0, 0) }
+            },
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall, Alignment.CenterHorizontally),
     ) {
         outerBack?.let { NowPlayingSkipButton(it, isProminent = false) }
         innerBack?.let { NowPlayingSkipButton(it, isProminent = true) }
         AppIconButton(onClick = glance.playPause, tooltip = stringResource(R.string.media_command_play_pause)) {
+            // Expressive morph: a circle while paused squares off while playing, and the glyph
+            // swaps with a spring scale and rotation instead of cutting.
+            val corner by animateDpAsState(
+                targetValue = if (glance.isPlaying) DesignTokens.CornerSmall else NowPlayingPlayPauseCircleSize / 2,
+                animationSpec = AppMotion.fastSpatial(),
+                label = "playPauseCorner",
+            )
             Box(
                 modifier =
                     Modifier
                         .size(NowPlayingPlayPauseCircleSize)
-                        .clip(AppShapes.full)
+                        .clip(RoundedCornerShape(corner))
                         .background(MaterialTheme.colorScheme.onSurface),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(
-                    imageVector = if (glance.isPlaying) MaterialSymbols.Pause else MaterialSymbols.PlayArrow,
-                    contentDescription = stringResource(R.string.media_command_play_pause),
-                    tint = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.size(NowPlayingPlayPauseIconSize),
-                )
+                AnimatedContent(
+                    targetState = glance.isPlaying,
+                    transitionSpec = {
+                        val enter =
+                            scaleIn(AppMotion.fastSpatial(), initialScale = 0.4f) +
+                                fadeIn(tween(AppMotion.DurationQuick))
+                        val exit =
+                            scaleOut(tween(AppMotion.DurationQuick), targetScale = 0.4f) +
+                                fadeOut(tween(AppMotion.DurationQuick))
+                        enter togetherWith exit using SizeTransform(clip = false)
+                    },
+                    contentAlignment = Alignment.Center,
+                    label = "playPauseIcon",
+                ) { playing ->
+                    val rotation = remember { Animatable(if (playing) -90f else 90f) }
+                    LaunchedEffect(Unit) { rotation.animateTo(0f, AppMotion.fastSpatial()) }
+                    Icon(
+                        imageVector = if (playing) MaterialSymbols.Pause else MaterialSymbols.PlayArrow,
+                        contentDescription = stringResource(R.string.media_command_play_pause),
+                        tint = MaterialTheme.colorScheme.surface,
+                        modifier = Modifier.size(NowPlayingPlayPauseIconSize).graphicsLayer { rotationZ = rotation.value },
+                    )
+                }
             }
         }
         innerForward?.let { NowPlayingSkipButton(it, isProminent = true) }
@@ -575,9 +669,14 @@ private fun NowPlayingSkipButton(
     }
 }
 
+/** The art shown for one track; [trackKey] decides when a change animates. */
+private class NowPlayingArtFrame(
+    val trackKey: Pair<String, String?>,
+    val albumArt: android.graphics.Bitmap?,
+)
+
 @Composable
-private fun NowPlayingAlbumArt(glance: NowPlayingGlance) {
-    val bitmap = glance.albumArt
+private fun NowPlayingAlbumArt(bitmap: android.graphics.Bitmap?) {
     val sizePx = with(LocalDensity.current) { NowPlayingAlbumArtSize.roundToPx() }.coerceAtLeast(1)
     // Players hand over full-size art; draw a copy scaled to the row once it is ready.
     val scaled by produceState<Pair<android.graphics.Bitmap, ImageBitmap>?>(null, bitmap, sizePx) {

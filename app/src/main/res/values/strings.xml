@@ -960,6 +960,8 @@
     <string name="settings_at_a_glance_wifi_sign_in_title">Wi-Fi sign-in</string>
     <string name="settings_at_a_glance_wifi_sign_in_desc">When a Wi-Fi network needs you to sign in</string>
     <string name="settings_now_playing_desc">Playback controls for whatever\'s currently playing</string>
+    <string name="settings_now_playing_album_tint_title">Album color gradient</string>
+    <string name="settings_now_playing_album_tint_desc">Tint the media card and Media Controls widget with the album art\'s color</string>
     <string name="settings_use_system_font_desc">Follow your device font style</string>
     <string name="settings_use_system_font_title">Use System Font</string>
     <string name="settings_accent_color_from_wallpaper">Wallpaper</string>

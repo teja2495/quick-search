@@ -969,6 +969,8 @@
     <string name="settings_at_a_glance_wifi_sign_in_title">Wifi-aanmelding</string>
     <string name="settings_at_a_glance_wifi_sign_in_desc">Als een wifinetwerk vraagt om je aan te melden</string>
     <string name="settings_now_playing_desc">Afspeelbediening voor wat er nu wordt afgespeeld</string>
+    <string name="settings_now_playing_album_tint_title">Albumkleurverloop</string>
+    <string name="settings_now_playing_album_tint_desc">Kleur de mediakaart en de widget Mediabediening in de kleur van de albumhoes</string>
     <string name="settings_use_system_font_desc">Het lettertype van je apparaat volgen</string>
     <string name="settings_use_system_font_title">Systeemlettertype gebruiken</string>
     <string name="settings_accent_color_from_wallpaper">Achtergrond</string>

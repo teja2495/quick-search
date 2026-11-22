@@ -964,6 +964,8 @@
     <string name="settings_at_a_glance_wifi_sign_in_title">Вход в сеть Wi-Fi</string>
     <string name="settings_at_a_glance_wifi_sign_in_desc">Когда сеть Wi-Fi требует входа</string>
 <string name="settings_now_playing_desc">Элементы управления воспроизведением для текущего трека</string>
+<string name="settings_now_playing_album_tint_title">Градиент в цвет альбома</string>
+<string name="settings_now_playing_album_tint_desc">Окрашивать карточку медиа и виджет управления медиа в цвет обложки альбома</string>
 <string name="settings_use_system_font_desc">Использовать системный стиль шрифта вашего устройства</string>
 <string name="settings_use_system_font_title">Системный шрифт</string>
 <string name="settings_accent_color_from_wallpaper">Обои</string>

@@ -118,24 +118,40 @@ private fun PreviewCard(
         Column(
             modifier = Modifier.fillMaxWidth().padding(
                 horizontal = horizontalPadding,
-                vertical = MediaControlsWidgetDimens.CONTENT_PADDING_VERTICAL,
+            ).padding(
+                top = MediaControlsWidgetDimens.stackedTopPadding(MediaControlsWidgetDimens.HEIGHT_DP.dp),
             ),
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth().height(MediaControlsWidgetDimens.TITLE_ROW_HEIGHT),
+                modifier = Modifier.fillMaxWidth().height(MediaControlsWidgetDimens.ALBUM_ART_SIZE),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(MediaControlsWidgetDimens.ART_SPACING),
             ) {
-                PreviewAlbumArt(media, colors, MediaControlsWidgetDimens.albumArtCornerRadius(state.borderRadiusDp))
-                Text(
-                    text = media.title ?: stringResource(
-                        if (media.hasAccess) R.string.widget_media_controls_nothing_playing else R.string.widget_media_controls_grant_access,
-                    ),
-                    color = colors.content,
-                    fontSize = MediaControlsWidgetDimens.TITLE_FONT_SIZE,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                PreviewAlbumArt(
+                    media,
+                    colors,
+                    MediaControlsWidgetDimens.albumArtCornerRadius(state.borderRadiusDp, MediaControlsWidgetDimens.ALBUM_ART_SIZE),
                 )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = media.title ?: stringResource(
+                            if (media.hasAccess) R.string.widget_media_controls_nothing_playing else R.string.widget_media_controls_grant_access,
+                        ),
+                        color = colors.content,
+                        fontSize = MediaControlsWidgetDimens.TITLE_FONT_SIZE,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    media.subtitle?.let { subtitle ->
+                        Text(
+                            text = subtitle,
+                            color = colors.subtitle,
+                            fontSize = MediaControlsWidgetDimens.SUBTITLE_FONT_SIZE,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
             }
             PreviewTransportRow(media, colors, showExtraControls)
         }
@@ -303,7 +319,7 @@ private fun PreviewTransportRow(
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
+        horizontalArrangement = Arrangement.spacedBy(MediaControlsWidgetDimens.CONTROL_SPACING, Alignment.CenterHorizontally),
     ) {
         if (showExtraControls) outerBack?.let { PlainControl(it, colors) }
         innerBack?.let { ProminentControl(it, colors) }

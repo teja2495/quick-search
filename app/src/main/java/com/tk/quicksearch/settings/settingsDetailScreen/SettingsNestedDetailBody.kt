@@ -204,7 +204,12 @@ internal fun ColumnScope.SettingsNestedDetailBody(
         }
 
         SettingsDetailType.AT_A_GLANCE -> {
-            AtAGlanceSettingsSection(modifier = Modifier.fillMaxWidth().weight(1f), searchQuery = atAGlanceSearchQuery)
+            AtAGlanceSettingsSection(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                searchQuery = atAGlanceSearchQuery,
+                booleanSettings = state.booleanSettings,
+                onApplySettingsCommand = callbacks.onApplySettingsCommand,
+            )
         }
 
         SettingsDetailType.EDGE_GESTURE -> {

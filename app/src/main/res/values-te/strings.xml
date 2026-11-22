@@ -936,6 +936,8 @@
     <string name="settings_at_a_glance_wifi_sign_in_title">Wi-Fi సైన్-ఇన్</string>
     <string name="settings_at_a_glance_wifi_sign_in_desc">Wi-Fi నెట్‌వర్క్‌కు మీరు సైన్ ఇన్ చేయాల్సినప్పుడు</string>
     <string name="settings_now_playing_desc">ప్రస్తుతం ప్లే అవుతున్న దాని కోసం ప్లేబ్యాక్ నియంత్రణలు</string>
+    <string name="settings_now_playing_album_tint_title">ఆల్బమ్ రంగు గ్రేడియంట్</string>
+    <string name="settings_now_playing_album_tint_desc">మీడియా కార్డ్ మరియు మీడియా కంట్రోల్స్ విడ్జెట్‌ను ఆల్బమ్ ఆర్ట్ రంగుతో అలంకరించండి</string>
     <string name="settings_use_system_font_desc">మీ పరికర ఫాంట్ శైలిని అనుసరించండి</string>
     <string name="settings_use_system_font_title">సిస్టమ్ ఫాంట్‌ను ఉపయోగించండి</string>
     <string name="settings_accent_color_from_wallpaper">వాల్‌పేపర్</string>

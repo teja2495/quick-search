@@ -936,6 +936,8 @@
     <string name="settings_at_a_glance_wifi_sign_in_title">Connexion au Wi-Fi</string>
     <string name="settings_at_a_glance_wifi_sign_in_desc">Lorsqu\'un réseau Wi-Fi vous demande de vous connecter</string>
 <string name="settings_now_playing_desc">Contrôles de lecture pour ce qui joue actuellement</string>
+<string name="settings_now_playing_album_tint_title">Dégradé aux couleurs de l’album</string>
+<string name="settings_now_playing_album_tint_desc">Teinte la carte multimédia et le widget de commandes multimédias avec la couleur de la pochette</string>
 <string name="settings_use_system_font_desc">Suivre le style de police de votre appareil</string>
 <string name="settings_use_system_font_title">Utiliser la police système</string>
 <string name="settings_accent_color_from_wallpaper">Fond d\'écran</string>

@@ -940,6 +940,8 @@
     <string name="settings_at_a_glance_wifi_sign_in_title">Wi-Fi ログイン</string>
     <string name="settings_at_a_glance_wifi_sign_in_desc">Wi-Fi ネットワークでログインが必要なとき</string>
     <string name="settings_now_playing_desc">現在再生中のコンテンツの再生操作</string>
+    <string name="settings_now_playing_album_tint_title">アルバムカラーのグラデーション</string>
+    <string name="settings_now_playing_album_tint_desc">メディアカードとメディアコントロールウィジェットをアルバムアートの色で色付けします</string>
     <string name="settings_use_system_font_desc">端末のフォントスタイルに従う</string>
     <string name="settings_use_system_font_title">システムフォントを使用</string>
     <string name="settings_accent_color_from_wallpaper">壁紙</string>

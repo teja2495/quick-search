@@ -935,6 +935,8 @@
     <string name="settings_at_a_glance_wifi_sign_in_title">Wi-Fi oturum açma</string>
     <string name="settings_at_a_glance_wifi_sign_in_desc">Bir Wi-Fi ağı oturum açmanızı istediğinde</string>
 <string name="settings_now_playing_desc">O anda çalan içerik için oynatma kontrolleri</string>
+<string name="settings_now_playing_album_tint_title">Albüm rengi gradyanı</string>
+<string name="settings_now_playing_album_tint_desc">Medya kartını ve Medya Kontrolleri widget\'ını albüm kapağının rengiyle renklendirir</string>
 <string name="settings_use_system_font_desc">Cihazının yazı tipi stilini takip et</string>
 <string name="settings_use_system_font_title">Sistem yazı tipini kullan</string>
 <string name="settings_accent_color_from_wallpaper">Duvar kağıdı</string>

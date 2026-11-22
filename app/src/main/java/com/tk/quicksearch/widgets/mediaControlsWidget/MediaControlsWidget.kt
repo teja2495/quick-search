@@ -57,21 +57,40 @@ import kotlin.math.roundToInt
 
 /** Sizes mirror the At a Glance Now Playing row so the widget reads as the same component. */
 internal object MediaControlsWidgetDimens {
-    val ALBUM_ART_SIZE = DesignTokens.SpacingHuge
+    /** Beside the title and artist; one touch target tall so the card keeps room above and below. */
+    val ALBUM_ART_SIZE = DesignTokens.MinTouchTarget
+
+    /** Art in the single-row layout, which a launcher row too short for the stacked one gets. */
+    val COMPACT_ALBUM_ART_SIZE = DesignTokens.SpacingHuge
     private val MIN_ALBUM_ART_CORNER_RADIUS = 4.dp
     val CONTROL_BUTTON_SIZE = DesignTokens.MinTouchTarget
     val CONTROL_ICON_SIZE = 25.dp
     val SECONDARY_CONTROL_ICON_SIZE = 22.dp
     val PROMINENT_CIRCLE_SIZE = 40.dp
     val TITLE_ROW_HEIGHT = DesignTokens.MinTouchTarget
-    val TITLE_FONT_SIZE = 17.sp
+    val TITLE_FONT_SIZE = 15.sp
+    val SUBTITLE_FONT_SIZE = 13.sp
     val ART_PLACEHOLDER_ICON_SIZE = 24.dp
     val CONTENT_PADDING_HORIZONTAL = DesignTokens.SpacingMedium
-    val CONTENT_PADDING_VERTICAL = DesignTokens.SpacingXSmall
-    val ART_SPACING = DesignTokens.SpacingSmall
+    val ART_SPACING = DesignTokens.SpacingMedium
+    val CONTROL_SPACING = DesignTokens.SpacingXSmall
     val PROMINENT_CIRCLE_STROKE = 1.dp
-    val PRIMARY_CONTROLS_WIDTH = CONTROL_BUTTON_SIZE * 3
-    val ALL_CONTROLS_WIDTH = CONTROL_BUTTON_SIZE * 5
+    val PRIMARY_CONTROLS_WIDTH = CONTROL_BUTTON_SIZE * 3 + CONTROL_SPACING * 2
+    val ALL_CONTROLS_WIDTH = CONTROL_BUTTON_SIZE * 5 + CONTROL_SPACING * 4
+
+    /** The stacked layout: the art with its title and artist above the controls. */
+    val STACKED_CONTENT_HEIGHT = ALBUM_ART_SIZE + CONTROL_BUTTON_SIZE
+
+    /** Transparent touch area below the control circles, which reads as part of the bottom margin. */
+    val CONTROL_TOUCH_INSET = (CONTROL_BUTTON_SIZE - PROMINENT_CIRCLE_SIZE) / 2
+
+    /**
+     * Top padding for the stacked layout: the spare height split so the visible gaps above the art
+     * and below the control circles come out equal.
+     */
+    fun stackedTopPadding(height: Dp): Dp =
+        ((height - STACKED_CONTENT_HEIGHT + CONTROL_TOUCH_INSET) / 2)
+            .coerceIn(0.dp, (height - STACKED_CONTENT_HEIGHT).coerceAtLeast(0.dp))
 
     fun horizontalPadding(width: Dp): Dp =
         ((width - ALL_CONTROLS_WIDTH) / 2)
@@ -79,13 +98,16 @@ internal object MediaControlsWidgetDimens {
 
     fun canFitExtraControls(contentWidth: Dp): Boolean = contentWidth >= ALL_CONTROLS_WIDTH
 
-    /** Card height: fits one home-screen row, and stays this compact in taller cells. */
-    const val HEIGHT_DP = 110f
+    /** Card height: the stacked content with 8dp above and below; stays this compact in taller cells. */
+    const val HEIGHT_DP = 120f
 
     /** Keep album artwork rounded in proportion to the widget surface. */
-    fun albumArtCornerRadius(widgetCornerRadiusDp: Float): Dp =
+    fun albumArtCornerRadius(
+        widgetCornerRadiusDp: Float,
+        artSize: Dp,
+    ): Dp =
         (widgetCornerRadiusDp.dp - CONTENT_PADDING_HORIZONTAL)
-            .coerceIn(MIN_ALBUM_ART_CORNER_RADIUS, ALBUM_ART_SIZE / 2)
+            .coerceIn(MIN_ALBUM_ART_CORNER_RADIUS, artSize / 2)
 }
 
 class MediaControlsWidget : GlanceAppWidget() {
@@ -140,12 +162,8 @@ class MediaControlsWidget : GlanceAppWidget() {
             }
 
         val horizontalPadding = MediaControlsWidgetDimens.horizontalPadding(widthDp)
-        val stackHeader = heightDp >= MediaControlsWidgetDimens.TITLE_ROW_HEIGHT + MediaControlsWidgetDimens.CONTROL_BUTTON_SIZE
-        val verticalPadding = if (heightDp >= MediaControlsWidgetDimens.HEIGHT_DP.dp) {
-            MediaControlsWidgetDimens.CONTENT_PADDING_VERTICAL
-        } else {
-            0.dp
-        }
+        val stackHeader = heightDp >= MediaControlsWidgetDimens.STACKED_CONTENT_HEIGHT
+        val artSize = if (stackHeader) MediaControlsWidgetDimens.ALBUM_ART_SIZE else MediaControlsWidgetDimens.COMPACT_ALBUM_ART_SIZE
         Box(modifier = GlanceModifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Box(
                 modifier =
@@ -154,10 +172,11 @@ class MediaControlsWidget : GlanceAppWidget() {
                         .height(heightDp)
                         .then(backgroundBitmap?.let { GlanceModifier.background(ImageProvider(it)) } ?: GlanceModifier)
                         .padding(
-                            horizontal = horizontalPadding,
-                            vertical = verticalPadding,
+                            start = horizontalPadding,
+                            end = horizontalPadding,
+                            top = if (stackHeader) MediaControlsWidgetDimens.stackedTopPadding(heightDp) else 0.dp,
                         ),
-                contentAlignment = Alignment.CenterStart,
+                contentAlignment = if (stackHeader) Alignment.TopStart else Alignment.CenterStart,
             ) {
                 MediaControlsContent(
                     context = context,
@@ -165,7 +184,8 @@ class MediaControlsWidget : GlanceAppWidget() {
                     contentWidth = widthDp - horizontalPadding * 2,
                     media = media,
                     colors = colors,
-                    artCornerRadius = MediaControlsWidgetDimens.albumArtCornerRadius(config.borderRadiusDp),
+                    artSize = artSize,
+                    artCornerRadius = MediaControlsWidgetDimens.albumArtCornerRadius(config.borderRadiusDp, artSize),
                     density = density,
                 )
             }
@@ -180,12 +200,13 @@ private fun MediaControlsContent(
     contentWidth: Dp,
     media: MediaControlsSnapshot,
     colors: MediaControlsColors,
+    artSize: Dp,
     artCornerRadius: Dp,
     density: Float,
 ) {
     if (stackHeader) {
         Column(modifier = GlanceModifier.fillMaxWidth()) {
-            MediaControlsHeader(context, media, colors, artCornerRadius, density, GlanceModifier.fillMaxWidth())
+            MediaControlsHeader(context, media, colors, artSize, artCornerRadius, density, GlanceModifier.fillMaxWidth())
             TransportRow(
                 context,
                 MediaControlsWidgetDimens.canFitExtraControls(contentWidth),
@@ -204,7 +225,7 @@ private fun MediaControlsContent(
         }
         Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             if (transportWidth >= minimumTransportWidth) {
-                MediaControlsHeader(context, media, colors, artCornerRadius, density, GlanceModifier.defaultWeight())
+                MediaControlsHeader(context, media, colors, artSize, artCornerRadius, density, GlanceModifier.defaultWeight())
             }
             TransportRow(
                 context,
@@ -222,6 +243,7 @@ private fun MediaControlsHeader(
     context: Context,
     media: MediaControlsSnapshot,
     colors: MediaControlsColors,
+    artSize: Dp,
     artCornerRadius: Dp,
     density: Float,
     modifier: GlanceModifier,
@@ -239,17 +261,26 @@ private fun MediaControlsHeader(
         else -> context.getString(R.string.widget_media_controls_nothing_playing)
     }
     Row(
-        modifier = modifier.height(MediaControlsWidgetDimens.TITLE_ROW_HEIGHT)
+        modifier = modifier.height(artSize.coerceAtLeast(MediaControlsWidgetDimens.TITLE_ROW_HEIGHT))
             .then(openAction?.let { GlanceModifier.clickable(it) } ?: GlanceModifier),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        AlbumArt(media, colors, artCornerRadius, density)
+        AlbumArt(media, colors, artSize, artCornerRadius, density)
         Spacer(modifier = GlanceModifier.width(MediaControlsWidgetDimens.ART_SPACING))
-        Text(
-            text = title,
-            style = TextStyle(color = ColorProvider(colors.content), fontSize = MediaControlsWidgetDimens.TITLE_FONT_SIZE),
-            maxLines = 1,
-        )
+        Column(modifier = GlanceModifier.defaultWeight()) {
+            Text(
+                text = title,
+                style = TextStyle(color = ColorProvider(colors.content), fontSize = MediaControlsWidgetDimens.TITLE_FONT_SIZE),
+                maxLines = 1,
+            )
+            media.subtitle?.let { subtitle ->
+                Text(
+                    text = subtitle,
+                    style = TextStyle(color = ColorProvider(colors.subtitle), fontSize = MediaControlsWidgetDimens.SUBTITLE_FONT_SIZE),
+                    maxLines = 1,
+                )
+            }
+        }
     }
 }
 
@@ -257,10 +288,11 @@ private fun MediaControlsHeader(
 private fun AlbumArt(
     media: MediaControlsSnapshot,
     colors: MediaControlsColors,
+    size: Dp,
     cornerRadius: Dp,
     density: Float,
 ) {
-    val sizePx = (MediaControlsWidgetDimens.ALBUM_ART_SIZE.value * density).roundToInt().coerceAtLeast(1)
+    val sizePx = (size.value * density).roundToInt().coerceAtLeast(1)
     val art =
         media.albumArt?.let {
             roundedAlbumArt(it, sizePx, cornerRadius.value * density)
@@ -269,15 +301,15 @@ private fun AlbumArt(
         Image(
             provider = ImageProvider(art),
             contentDescription = null,
-            modifier = GlanceModifier.size(MediaControlsWidgetDimens.ALBUM_ART_SIZE),
+            modifier = GlanceModifier.size(size),
         )
     } else {
         Box(
-            modifier = GlanceModifier.size(MediaControlsWidgetDimens.ALBUM_ART_SIZE),
+            modifier = GlanceModifier.size(size),
             contentAlignment = Alignment.Center,
         ) {
             ShapeImage(
-                size = MediaControlsWidgetDimens.ALBUM_ART_SIZE,
+                size = size,
                 cornerRadius = cornerRadius,
                 fill = colors.artPlaceholder,
                 density = density,
@@ -386,11 +418,19 @@ private fun TransportRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (showExtraControls) outerBack?.let { ControlButton(context, colors, it, ControlStyle.PLAIN) }
-        innerBack?.let { ControlButton(context, colors, it, ControlStyle.PROMINENT) }
-        ControlButton(context, colors, Control(playPauseIcon, MediaCommand.PLAY_PAUSE), ControlStyle.PLAY_PAUSE)
-        innerForward?.let { ControlButton(context, colors, it, ControlStyle.PROMINENT) }
-        if (showExtraControls) outerForward?.let { ControlButton(context, colors, it, ControlStyle.PLAIN) }
+        // Spaced like the At a Glance card's controls (RemoteViews rows have no spacedBy).
+        val controls =
+            listOfNotNull(
+                outerBack?.takeIf { showExtraControls }?.let { it to ControlStyle.PLAIN },
+                innerBack?.let { it to ControlStyle.PROMINENT },
+                Control(playPauseIcon, MediaCommand.PLAY_PAUSE) to ControlStyle.PLAY_PAUSE,
+                innerForward?.let { it to ControlStyle.PROMINENT },
+                outerForward?.takeIf { showExtraControls }?.let { it to ControlStyle.PLAIN },
+            )
+        controls.forEachIndexed { index, (control, style) ->
+            if (index > 0) Spacer(modifier = GlanceModifier.width(MediaControlsWidgetDimens.CONTROL_SPACING))
+            ControlButton(context, colors, control, style)
+        }
     }
 }
 

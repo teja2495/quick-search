@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.search.appSettings.BooleanSettings
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -99,6 +100,7 @@ internal fun NonSectionLayoutItem(
                             glance = nowPlaying,
                             showWallpaperBackground = effectiveShowWallpaperBackground,
                             showTitle = showGlanceTitle && !hasOtherGlanceCard,
+                            albumTint = state.isBooleanSettingEnabled(BooleanSettings.NOW_PLAYING_ALBUM_TINT.setting),
                         )
                     }
                     if (hasStandaloneTodayCalendarSection && regularSectionParams.calendarParams != null) {
@@ -135,6 +137,7 @@ internal fun NonSectionLayoutItem(
                             glance = nowPlaying,
                             showWallpaperBackground = effectiveShowWallpaperBackground,
                             showTitle = showGlanceTitle && !hasOtherGlanceCard,
+                            albumTint = state.isBooleanSettingEnabled(BooleanSettings.NOW_PLAYING_ALBUM_TINT.setting),
                         )
                     }
                     onAtAGlanceRendered()

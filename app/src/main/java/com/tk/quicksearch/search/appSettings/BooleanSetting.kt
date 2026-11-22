@@ -32,6 +32,16 @@ enum class BooleanSettings(val setting: BooleanSetting) {
             keywords = listOf("files", "images", "pdf", "open"),
         ),
     ),
+    NOW_PLAYING_ALBUM_TINT(
+        BooleanSetting(
+            preferenceKey = "now_playing_album_tint_enabled",
+            defaultValue = true,
+            searchId = "app_toggle_now_playing_album_tint",
+            titleRes = R.string.settings_now_playing_album_tint_title,
+            descriptionRes = R.string.settings_now_playing_album_tint_desc,
+            keywords = listOf("media", "music", "now playing", "gradient", "tint", "color", "album art"),
+        ),
+    ),
 }
 
 internal val registeredBooleanSettings: List<BooleanSetting>

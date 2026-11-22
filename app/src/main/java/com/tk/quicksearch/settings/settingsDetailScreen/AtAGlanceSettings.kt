@@ -63,6 +63,8 @@ import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
 import com.tk.quicksearch.shared.ui.components.SegmentedTileToggleHorizontalPadding
+import com.tk.quicksearch.search.appSettings.BooleanSettings
+import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.settings.shared.SettingsNestedCheckbox
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.settings.shared.settingsScrollClip
@@ -180,6 +182,9 @@ fun AtAGlanceSettingsSection(
     onWidgetItemsChange: (Map<String, Boolean>) -> Unit = {},
     widgetAppNotificationFilters: AppNotificationFilters? = null,
     onWidgetAppNotificationFiltersChange: (AppNotificationFilters) -> Unit = {},
+    /** App-wide boolean settings, for options nested under a toggle (the album color gradient). */
+    booleanSettings: Map<String, Boolean> = emptyMap(),
+    onApplySettingsCommand: ((SettingsCommand) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val appContext = context.applicationContext
@@ -240,16 +245,20 @@ fun AtAGlanceSettingsSection(
         item: GlanceItem,
         title: String,
         description: String,
+        extras: (@Composable () -> Unit)? = null,
     ) = GlanceToggle("$title $description") { isFirst, isLast ->
         val onCheckedChange = notificationCheckedChanges.getValue(item)
-        SettingsToggleRow(
-            title = title,
-            subtitle = if (hasNotificationAccess) description else needsPermissionText,
-            checked = isShown(item) && hasNotificationAccess,
-            onCheckedChange = onCheckedChange,
-            isFirstItem = isFirst,
-            isLastItem = isLast,
-        )
+        Column {
+            SettingsToggleRow(
+                title = title,
+                subtitle = if (hasNotificationAccess) description else needsPermissionText,
+                checked = isShown(item) && hasNotificationAccess,
+                onCheckedChange = onCheckedChange,
+                isFirstItem = isFirst,
+                isLastItem = isLast,
+            )
+            if (extras != null && hasNotificationAccess && isShown(item)) GlanceToggleExtras { extras() }
+        }
     }
 
     /** A toggle that needs a runtime permission tracked by [gate]; turning it on without it requests it. */
@@ -372,6 +381,18 @@ fun AtAGlanceSettingsSection(
                 item = GlanceItem.NOW_PLAYING,
                 title = stringResource(R.string.section_media),
                 description = stringResource(R.string.settings_now_playing_desc),
+                extras =
+                    onApplySettingsCommand?.takeIf { !isWidget }?.let { onCommand ->
+                        {
+                            val tint = BooleanSettings.NOW_PLAYING_ALBUM_TINT.setting
+                            SettingsNestedCheckbox(
+                                label = stringResource(tint.titleRes),
+                                checked = tint.valueIn(booleanSettings),
+                                onCheckedChange = { onCommand(SettingsCommand.SetBoolean(tint, it)) },
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    },
             ),
             permissionToggle(
                 item = GlanceItem.TODAY_EVENTS,

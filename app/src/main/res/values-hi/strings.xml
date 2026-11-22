@@ -936,6 +936,8 @@
     <string name="settings_at_a_glance_wifi_sign_in_title">Wi-Fi साइन-इन</string>
     <string name="settings_at_a_glance_wifi_sign_in_desc">जब किसी Wi-Fi नेटवर्क पर आपको साइन इन करना हो</string>
     <string name="settings_now_playing_desc">जो अभी चल रहा है उसके लिए प्लेबैक नियंत्रण</string>
+    <string name="settings_now_playing_album_tint_title">एल्बम रंग ग्रेडिएंट</string>
+    <string name="settings_now_playing_album_tint_desc">मीडिया कार्ड और मीडिया कंट्रोल विजेट को एल्बम आर्ट के रंग में रंगें</string>
     <string name="settings_use_system_font_desc">अपने डिवाइस की फ़ॉन्ट शैली का पालन करें</string>
     <string name="settings_use_system_font_title">सिस्टम फ़ॉन्ट उपयोग करें</string>
     <string name="settings_accent_color_from_wallpaper">वॉलपेपर</string>

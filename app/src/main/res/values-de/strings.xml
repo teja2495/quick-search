@@ -936,6 +936,8 @@
     <string name="settings_at_a_glance_wifi_sign_in_title">WLAN-Anmeldung</string>
     <string name="settings_at_a_glance_wifi_sign_in_desc">Wenn ein WLAN eine Anmeldung von dir verlangt</string>
     <string name="settings_now_playing_desc">Wiedergabesteuerung für das, was gerade läuft</string>
+    <string name="settings_now_playing_album_tint_title">Albumfarben-Verlauf</string>
+    <string name="settings_now_playing_album_tint_desc">Medienkarte und Mediensteuerungs-Widget in der Farbe des Albumcovers einfärben</string>
     <string name="settings_use_system_font_desc">Schriftstil des Geräts übernehmen</string>
     <string name="settings_use_system_font_title">Systemschrift verwenden</string>
     <string name="settings_accent_color_from_wallpaper">Hintergrundbild</string>

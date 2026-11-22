@@ -936,6 +936,8 @@
     <string name="settings_at_a_glance_wifi_sign_in_title">Inicio de sesión en Wi-Fi</string>
     <string name="settings_at_a_glance_wifi_sign_in_desc">Cuando una red Wi-Fi te pide iniciar sesión</string>
     <string name="settings_now_playing_desc">Controles de reproducción para lo que suena actualmente</string>
+    <string name="settings_now_playing_album_tint_title">Degradado con el color del álbum</string>
+    <string name="settings_now_playing_album_tint_desc">Tiñe la tarjeta multimedia y el widget de controles multimedia con el color de la portada</string>
     <string name="settings_use_system_font_desc">Usa el estilo de fuente de tu dispositivo</string>
     <string name="settings_use_system_font_title">Usar fuente del sistema</string>
     <string name="settings_accent_color_from_wallpaper">Fondo de pantalla</string>

@@ -30,6 +30,8 @@ internal data class MediaControlsSnapshot(
     val hasAccess: Boolean,
     /** Null when nothing is playing. */
     val title: String?,
+    /** Artist (or album, or the player's own subtitle) under the title; null when the session has none. */
+    val subtitle: String? = null,
     val albumArt: Bitmap?,
     val isPlaying: Boolean,
     val canSeek: Boolean,
@@ -84,6 +86,14 @@ internal fun readMediaControlsSnapshot(context: Context): MediaControlsSnapshot 
                 packageManager.getApplicationInfo(controller.packageName, 0).loadLabel(packageManager).toString()
             }.getOrNull()
             ?: controller.packageName
+    // Same fallbacks as the At a Glance Now Playing card.
+    val subtitle =
+        listOf(
+            MediaMetadata.METADATA_KEY_ARTIST,
+            MediaMetadata.METADATA_KEY_ALBUM_ARTIST,
+            MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE,
+            MediaMetadata.METADATA_KEY_ALBUM,
+        ).firstNotNullOfOrNull { key -> metadata?.getString(key)?.trim()?.takeIf { it.isNotEmpty() && it != title } }
     val appSeek = MediaAppSeek.find(playbackState)
     val iconSizePx =
         (MediaControlsWidgetDimens.CONTROL_ICON_SIZE.value * context.resources.displayMetrics.density)
@@ -94,6 +104,7 @@ internal fun readMediaControlsSnapshot(context: Context): MediaControlsSnapshot 
     return MediaControlsSnapshot(
         hasAccess = hasAccess,
         title = title,
+        subtitle = subtitle,
         albumArt =
             metadata?.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
                 ?: metadata?.getBitmap(MediaMetadata.METADATA_KEY_ART),
