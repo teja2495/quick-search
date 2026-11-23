@@ -617,8 +617,6 @@ internal fun SearchScreenContent(
     }
 
     val swipeActions = rememberSearchScreenSwipeActions(
-        state = state,
-        expandedSection = expandedSection,
         swipeUpAction = swipeUpAction,
         swipeDownAction = swipeDownAction,
         swipeUpAliasTarget = swipeUpAliasTarget,

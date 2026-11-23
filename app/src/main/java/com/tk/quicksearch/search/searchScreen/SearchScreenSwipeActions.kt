@@ -40,7 +40,6 @@ import com.tk.quicksearch.search.apps.LocalAllAppsDrawerController
 import com.tk.quicksearch.search.core.AiSearchStatus
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchTarget
-import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.searchEngines.inline.InsetSearchBarGeometry
 import com.tk.quicksearch.searchEngines.getId
@@ -79,8 +78,6 @@ internal data class SearchScreenSwipeActions(
 
 @Composable
 internal fun rememberSearchScreenSwipeActions(
-    state: SearchUiState,
-    expandedSection: ExpandedSection,
     swipeUpAction: SwipeGestureAction,
     swipeDownAction: SwipeGestureAction,
     swipeUpAliasTarget: String?,
@@ -146,12 +143,12 @@ internal fun rememberSearchScreenSwipeActions(
     // The engine strip and search bar (top or bottom) sit outside the results area, so they need
     // their own vertical drag detector to forward the same swipe gestures. Their inner
     // scrollers are horizontal only, so vertical drags reach this detector unconsumed.
-    // Swipe up mirrors the results area: it only fires on an empty query.
+    // Unlike the results area (where swipe up would compete with scrolling), these surfaces
+    // don't scroll vertically, so both directions fire regardless of the query.
     val currentOnLauncherSwipeUp by rememberUpdatedState(onLauncherSwipeUp)
     val currentOnLauncherSwipeDown by rememberUpdatedState(onLauncherSwipeDown)
-    val bottomBarSwipeUpEnabled = state.query.isBlank() && expandedSection == ExpandedSection.NONE
     val bottomBarSwipeModifier =
-        Modifier.pointerInput(bottomBarSwipeUpEnabled) {
+        Modifier.pointerInput(Unit) {
             // Watch in the Initial pass so children that consume touches (the search
             // TextField's tap/selection handling) can't swallow the swipe first. The gesture
             // is only claimed once it is clearly vertical, so taps, cursor placement, and
@@ -180,7 +177,7 @@ internal fun rememberSearchScreenSwipeActions(
                         claimed = true
                         change.consume()
                         if (totalY < 0f) {
-                            if (bottomBarSwipeUpEnabled) currentOnLauncherSwipeUp()
+                            currentOnLauncherSwipeUp()
                         } else {
                             currentOnLauncherSwipeDown()
                         }
