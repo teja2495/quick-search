@@ -2,7 +2,7 @@
 
 This document highlights all the available features. It also includes details about hidden or non-obvious features that you might miss. Sections from **Overlay Mode** onward follow the order of the Settings screen (Tools settings are covered in the **Tools** section above).
 
-**Version**: 5.0 (Updated November 12, 2026)
+**Version**: 5.1 (Updated November 23, 2026)
 
 ### Search
 
@@ -111,7 +111,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Open in Google Play** - Open an app's Google Play page.
 - **Lock / Unlock App** - Lock an app with biometrics (available when Quick Search is your launcher).
 - **Open in Split Screen** - Open an app in split screen.
-- **SpeedBump** - Add a short delay before an app opens, to help break habitual app opening. It also works when you open apps from other launchers; turn it on in More Options.
+- **SpeedBump** - Add a short delay before an app opens, to help break habitual app opening. It also works when you open apps from other launchers; turn it on in More Options. Tap **Pause SpeedBump** on the SpeedBump screen to skip it for that app for 5, 15, or 30 minutes.
 - **Copy Content** - Copy a note's text to the clipboard.
 - **File Options** - Share a file, open its folder, exclude all files with the same extension, or view file details (type, size, path, last modified).
 
@@ -126,13 +126,13 @@ Available when Quick Search is set as your launcher.
 - **Home Long-Press Menu** - Long-press an empty area on Home to change your wallpaper, open Gesture settings or Settings, or add a widget to Home.
 - **More App Shortcuts** - More app shortcuts are available from the system.
 - **Private Space** - Supports Android Private Space.
-- **App Lock** - Lock apps with biometrics from their long-press menu. If biometrics fail, long-press the unlock button for 4 seconds for other options, such as PIN.
+- **App Lock** - Lock apps with biometrics from their long-press menu. If biometrics fail, long-press the unlock button for 4 seconds for other options, such as PIN. Turn on **Extend App Lock** in More Options to also ask to unlock when locked apps are opened outside Quick Search (requires Accessibility).
 
 ---
 
 ### Widgets
 
-- **Widgets Panel** - A side panel inside Quick Search for your home-screen widgets and Quick Note. You don't need to set Quick Search as your launcher; open it with a swipe gesture.
+- **Widgets Panel** - A side panel inside Quick Search for your home-screen widgets and Quick Note. You don't need to set Quick Search as your launcher; open it with a swipe gesture. Use the lock button to lock the layout so widgets can't be moved or resized by accident.
 - **Add Widgets to Home** - Long-press a widget in the Widgets Panel to pin it to Home, or long-press an empty area on Home and choose **Widgets** from the popup menu. Long-press a widget on Home to move it above or below other Home items, resize it, or remove it.
 - **Search Widget** - Tap to open Quick Search. Supports a mic button and up to 2 custom buttons.
 - **Custom Buttons Widget** - A row of buttons for apps, app shortcuts, contacts, files, device settings, and notes, with customizable layouts and actions.
@@ -201,12 +201,12 @@ Available when Quick Search is set as your launcher.
 - **System Font** - Use your device's system font throughout the app.
 - **Compact Layout** - A card-less design that fits more content on screen.
 - **Font Size** - Choose small, medium, or big text.
-- **Theme** - Choose Light, Dark, or System, then pick a theme (Mono, Forest, Aurora, Sunset) and adjust its intensity. Themes adapt to light and dark mode.
-- **AMOLED / True Black** - With Dark Mono selected, use a true-black background instead of dark gray.
+- **Theme** - Choose Light, Dark, or System, then pick Default or Colorful. Colorful offers palettes such as Rose, Sunset, Amber, Forest, Teal, Aurora, Indigo, Lavender, Mocha, and Slate, and lets you adjust their intensity. Themes adapt to light and dark mode.
+- **AMOLED / True Black** - Use a true-black background instead of dark gray in dark mode.
 - **Material You** - Use your device's Material You colors for the app theme and accents.
-- **Accent Color** - Pick a custom accent color, take it from your wallpaper, or turn accent coloring off.
+- **Accent Color** - With the Default theme, pick a custom accent color, take it from your wallpaper, or turn accent coloring off.
 - **Themed App Icons** - Use themed icons for app results and the Quick Search launcher icon.
-- **Wallpaper Background** - Use your wallpaper or any image as the background, and adjust transparency and blur to keep content readable.
+- **Background** - Use your wallpaper or any image as the background, and adjust transparency and blur to keep content readable.
 - **One-Handed Mode** - Show the most relevant items at the bottom of the screen, within easy reach.
 - **Bottom Searchbar** - Move the search bar to the bottom of the screen.
 - **Search Bar Style** - Customize the Home search bar's border width and color, background color and transparency, and corner radius.
@@ -354,7 +354,7 @@ An optional Home section that shows useful information when it matters.
 - **Clear Query** - Your last query is cleared when you reopen the app. Turn this off to keep it.
 - **Auto-Close App** - Close Quick Search automatically after you open something.
 - **Show in Recents** - Show Quick Search in your device's recent apps.
-- **Notification Dots** - Show or hide notification dots on app icons.
+- **Notification Dots** - Show or hide notification dots on app icons, and choose whether they show a dot or the notification count.
 - **All Apps** - Show a button below app suggestions for browsing all installed apps.
 - **Non-Launchable Apps** - Show system services and other apps that can't be opened directly.
 
@@ -383,7 +383,7 @@ See the status of each permission and grant it from here.
 - **Notification Access** - Needed for notification dots, notification history, and media controls.
 - **Post Notifications** - Needed for reminder notifications and pinning results to the notification panel.
 - **Alarms & Reminders** - Needed to deliver reminder notifications on time.
-- **Accessibility** - Needed for double-tap to lock screen, the edge swipe gesture, and the floating button.
+- **Accessibility** - Needed for double-tap to lock screen, the edge swipe gesture, the floating button, and SpeedBump or App Lock for apps opened outside Quick Search.
 - **Allow Background Usage** - Lets Quick Search start faster.
 
 ---

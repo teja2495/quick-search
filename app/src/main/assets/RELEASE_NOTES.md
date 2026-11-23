@@ -1,6 +1,7 @@
-- Notch Gestures: Tap your device’s notch or camera cutout to open anything you choose. Set it up in Gesture settings.
-- New Search Category: Bookmarks - Save any website or link as a bookmark and find it from search. You can also import your Chrome desktop bookmarks from an exported HTML file.
-- New Widget: World Clock
-- SpeedBump now works even when you open apps from other launchers (enable in more options)
-- Long press settings icon in searchbar to open your device settings
-- Bug fixes and design enhancements
+- Design Overhaul: Updated to Material 3 Expressive design
+- Notification count on app icons
+- Extend App Lock to apps opened outside Quick Search
+- More theme options
+- Pause SpeedBump for 5, 15, or 30 minutes
+- Lock widgets to prevent accidental changes
+- Performance improvements and bug fixes
