@@ -52,6 +52,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.isSpecified
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.text.rememberTextMeasurer
+import kotlin.math.floor
+import com.tk.quicksearch.search.apps.rememberAppIcon
+import com.tk.quicksearch.tools.tickTick.TickTickTaskHandler
 import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
 import com.tk.quicksearch.searchEngines.extendToScreenEdges
@@ -67,8 +78,29 @@ private val QuickActionIconSize = 16.dp
 internal val NumberKeyboardOperatorRowTopPadding = DesignTokens.SpacingSmall
 private val QuickActionMinFontSize = 10.sp
 
+/** Auto-size step in sp, shared by the labels and the size they report to [QuickActionLabelSizing]. */
+private const val AutoSizeStep = 0.25f
+
 /** Container opacity of the search quick actions (50% transparent). */
 private const val QuickActionTranslucentAlpha = 0.5f
+
+/**
+ * Shared label size for one row of quick actions. Each label auto-shrinks on its own, so a longer
+ * label would otherwise end up smaller than its neighbours; every label reports the size it settled
+ * on and the row caps all of them at the smallest. Recreate it when the row's buttons change.
+ */
+@Stable
+internal class QuickActionLabelSizing {
+    var fontSize by mutableStateOf(TextUnit.Unspecified)
+        private set
+
+    fun report(size: TextUnit) {
+        if (!size.isSp) return
+        if (!fontSize.isSpecified || size < fontSize) fontSize = size
+    }
+}
+
+internal val LocalQuickActionLabelSizing = staticCompositionLocalOf<QuickActionLabelSizing?> { null }
 
 /**
  * Material 3 Expressive extra-small button for the search screen's quick actions (Number Keyboard,
@@ -89,6 +121,15 @@ private fun QuickActionButton(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val labelStyle = MaterialTheme.typography.labelLarge
+    val labelSizing = LocalQuickActionLabelSizing.current
+    val sharedFontSize = labelSizing?.fontSize ?: TextUnit.Unspecified
+    val maxFontSize =
+        if (sharedFontSize.isSpecified && sharedFontSize < labelStyle.fontSize) sharedFontSize else labelStyle.fontSize
+    val textMeasurer = rememberTextMeasurer()
+    val fullLabelWidth =
+        remember(label, labelStyle, textMeasurer) {
+            if (labelSizing == null) 0 else textMeasurer.measure(label, labelStyle, maxLines = 1, softWrap = false).size.width
+        }
     Surface(
         modifier = modifier.minimumInteractiveComponentSize().heightIn(min = DesignTokens.ButtonHeightExtraSmall),
         onClick = onClick,
@@ -119,8 +160,24 @@ private fun QuickActionButton(
                 autoSize =
                     TextAutoSize.StepBased(
                         minFontSize = QuickActionMinFontSize,
-                        maxFontSize = labelStyle.fontSize,
+                        maxFontSize = maxFontSize,
+                        stepSize = AutoSizeStep.sp,
                     ),
+                onTextLayout = { result ->
+                    // The layout result keeps the unshrunk style, so derive the size that fits the
+                    // label's width; text width scales linearly with font size.
+                    val available = result.layoutInput.constraints.maxWidth
+                    if (labelSizing != null && available != Constraints.Infinity && fullLabelWidth > 0) {
+                        val fullSize = labelStyle.fontSize.value
+                        val fitted =
+                            if (fullLabelWidth <= available) {
+                                fullSize
+                            } else {
+                                floor(fullSize * available / fullLabelWidth / AutoSizeStep) * AutoSizeStep
+                            }
+                        labelSizing.report(fitted.coerceAtLeast(QuickActionMinFontSize.value).sp)
+                    }
+                },
             )
         }
     }
@@ -242,6 +299,33 @@ internal fun CreateReminderPill(
     modifier = modifier,
     showIcon = showIcon,
 )
+
+@Composable
+internal fun TickTickTaskPill(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    showIcon: Boolean = true,
+) {
+    val appIcon = rememberAppIcon(TickTickTaskHandler.PACKAGE_NAME).bitmap
+    QuickActionButton(
+        label = stringResource(R.string.ticktick_app_name),
+        onClick = onClick,
+        modifier = modifier,
+        leadingIcon = if (!showIcon) null else {
+            {
+                if (appIcon != null) {
+                    Image(
+                        painter = BitmapPainter(appIcon),
+                        contentDescription = null,
+                        modifier = Modifier.size(QuickActionIconSize),
+                    )
+                } else {
+                    QuickActionVectorIcon(MaterialSymbols.CheckCircle)
+                }
+            }
+        },
+    )
+}
 
 @Composable
 private fun ClockActionPill(

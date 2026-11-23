@@ -39,6 +39,7 @@
     <string name="search_hint_bookmarks">Search Bookmarks…</string>
     <string name="search_hint_noted" translatable="false">Search Noted…</string>
     <string name="noted_item_list" translatable="false">List</string>
+    <string name="ticktick_app_name" translatable="false">TickTick</string>
     <string name="noted_integration_title" translatable="false">Noted Integration</string>
     <string name="noted_quick_note_alias_info" translatable="false">Type this alias at the end of your query to add the query to the top of Noted\'s Quick Note.</string>
     <string name="noted_quick_note_added" translatable="false">Added to Quick Note</string>

@@ -5,6 +5,16 @@ import com.tk.quicksearch.search.searchScreen.components.KeyboardSwitchPill
 import com.tk.quicksearch.search.searchScreen.components.PhoneCallPill
 import com.tk.quicksearch.search.searchScreen.components.SetAlarmPill
 import com.tk.quicksearch.search.searchScreen.components.StartTimerPill
+import com.tk.quicksearch.search.searchScreen.components.TickTickTaskPill
+import com.tk.quicksearch.search.searchScreen.components.LocalQuickActionLabelSizing
+import com.tk.quicksearch.search.searchScreen.components.QuickActionLabelSizing
+import androidx.compose.runtime.CompositionLocalProvider
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.rememberResumeRefreshKey
+import com.tk.quicksearch.tools.tickTick.TickTickTaskHandler
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.content.Intent
 import android.net.Uri
@@ -16,6 +26,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -75,6 +86,18 @@ internal fun SearchQuickActionPills(
     val detectedAlarmTime = shown.detectedAlarmTime
     val detectedTimerSeconds = shown.detectedTimerSeconds
     val detectedReminderSchedule = shown.detectedReminderSchedule
+    // TickTick can be installed or removed while Quick Search is in the background.
+    val resumeRefreshKey = rememberResumeRefreshKey()
+    val isTickTickInstalled by
+            produceState(initialValue = false, resumeRefreshKey) {
+                value = withContext(Dispatchers.IO) { TickTickTaskHandler.isInstalled(context) }
+            }
+    // Shown beside every Create Reminder pill: a time, a duration, or a full reminder schedule.
+    val showTickTickAction =
+            isTickTickInstalled &&
+                    (detectedAlarmTime != null ||
+                            detectedTimerSeconds != null ||
+                            detectedReminderSchedule != null)
     val buttonCount =
             listOf(
                     keyboardSwitchText != null,
@@ -85,9 +108,32 @@ internal fun SearchQuickActionPills(
                     detectedTimerSeconds != null,
                     detectedTimerSeconds != null,
                     detectedReminderSchedule != null,
+                    showTickTickAction,
             ).count { it }
     // Three or more buttons drop their icons so the labels keep a readable size on one row.
     val showIcons = buttonCount < 3
+    // A new set of buttons starts its shared label size over at full size.
+    val labelSizing = remember(shown, showTickTickAction) { QuickActionLabelSizing() }
+    val tickTickPill: @Composable RowScope.() -> Unit = {
+        TickTickTaskPill(
+                modifier = Modifier.weight(1f, fill = false),
+                showIcon = showIcons,
+                onClick = {
+                    // TickTick parses the date and time out of the raw text itself.
+                    if (TickTickTaskHandler.launchAddTask(context, query.trim())) {
+                        onQuickActionCompleted()
+                    } else {
+                        AppMessages.show(
+                                context,
+                                context.getString(
+                                        R.string.settings_messaging_app_not_installed,
+                                        context.getString(R.string.ticktick_app_name),
+                                ),
+                        )
+                    }
+                },
+        )
+    }
             // The row's height (padding included) animates with the fade so the space it leaves
             // closes in step with the pills rather than snapping shut after them.
             AnimatedVisibility(
@@ -114,6 +160,7 @@ internal fun SearchQuickActionPills(
                                             animationSpec = tween(AppMotion.DurationShort, easing = AppMotion.EmphasizedAccelerateEasing),
                                     ),
             ) {
+                CompositionLocalProvider(LocalQuickActionLabelSizing provides labelSizing) {
                 Row(
                         modifier =
                                 Modifier.fillMaxWidth()
@@ -261,6 +308,8 @@ onClick = {
                                 },
                         )
                     }
+                    if (showTickTickAction) tickTickPill()
+                }
                 }
             }
 
