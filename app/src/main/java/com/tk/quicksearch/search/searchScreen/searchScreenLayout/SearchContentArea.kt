@@ -8,6 +8,7 @@ import com.tk.quicksearch.search.searchScreen.contentTopInset
 import com.tk.quicksearch.search.searchScreen.resultsClipShape
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -31,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -184,6 +186,17 @@ internal fun SearchContentArea(
             !hideOtherResults &&
             renderingState.expandedSection == ExpandedSection.NONE &&
             !isSearchHistoryExpanded
+    // Clearing the query hands Home its empty-query content (app suggestions); fading that out
+    // would flash it, so hide instantly when the hide comes from the query going empty.
+    // Latched for the whole hide so the exit spec can't switch back to a fade mid-animation.
+    var hadQueryLastFrame by remember { mutableStateOf(hasQuery) }
+    var homeHiddenByQueryClear by remember { mutableStateOf(false) }
+    val homeHideFromQueryClear =
+        hideHomeWhileAwaitingQuery && (homeHiddenByQueryClear || (hadQueryLastFrame && !hasQuery))
+    SideEffect {
+        hadQueryLastFrame = hasQuery
+        homeHiddenByQueryClear = homeHideFromQueryClear
+    }
     val isUrlQuery = remember(state.query) { isLikelyWebUrl(state.query) }
     val alignResultsToBottom =
             useOneHandedMode &&
@@ -538,7 +551,12 @@ internal fun SearchContentArea(
                         AnimatedVisibility(
                             visible = !hideHomeWhileAwaitingQuery,
                             enter = fadeIn(tween(AppMotion.DurationShort)),
-                            exit = fadeOut(tween(AppMotion.DurationExit)),
+                            exit =
+                                if (homeHideFromQueryClear) {
+                                    ExitTransition.None
+                                } else {
+                                    fadeOut(tween(AppMotion.DurationExit))
+                                },
                         ) {
                         key(state.backgroundSource, state.showWallpaperBackground) {
                             ContentLayout(
