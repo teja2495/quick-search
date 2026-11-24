@@ -740,7 +740,7 @@
     <string name="settings_compact_layout_title">Layout compatto</string>
     <string name="settings_compact_layout_desc">Layout senza schede in Home e Ricerca per mostrare più contenuti sullo schermo</string>
     <string name="settings_cache_cleared_toast">Cache svuotata. Ricostruzione dell\u2019indice delle app\u2026</string>
-    <string name="settings_circular_app_icons_desc">Forza le icone delle app circolari</string>
+    <string name="settings_circular_app_icons_desc">Cambia il raggio degli angoli delle icone delle app</string>
     <string name="settings_circular_app_icons_title">Icone app circolari</string>
     <string name="settings_compact_rows_one_row">Una riga</string>
     <string name="settings_compact_rows_two_rows">Due righe</string>

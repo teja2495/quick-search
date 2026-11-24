@@ -474,6 +474,10 @@ open class UserAppPreferencesFeatures(context: Context) : UserAppPreferencesCore
     fun setAppIconShape(shape: com.tk.quicksearch.search.apps.AppIconShape) =
             uiPreferences.setAppIconShape(shape)
 
+    fun getAppIconCornerPercent(): Int = uiPreferences.getAppIconCornerPercent()
+
+    fun setAppIconCornerPercent(percent: Int) = uiPreferences.setAppIconCornerPercent(percent)
+
     fun getLauncherAppIcon(): com.tk.quicksearch.app.LauncherAppIcon =
             uiPreferences.getLauncherAppIcon()
 

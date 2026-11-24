@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.apps.AppIconShape
+import com.tk.quicksearch.search.apps.rememberAppIconMaskShape
 import com.tk.quicksearch.searchEngines.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.getAppPackageCandidates
@@ -64,6 +65,7 @@ fun SearchTargetIcon(
     iconPackPackage: String? = null,
     modifier: Modifier = Modifier,
 ) {
+    val appIconMaskShape = rememberAppIconMaskShape()
     when (target) {
         is SearchTarget.Engine -> {
             val targetEngine = target.engine
@@ -87,7 +89,7 @@ fun SearchTargetIcon(
                     modifier =
                         modifier.size(iconSize).then(
                             if (appIconShape == AppIconShape.CIRCLE) {
-                                Modifier.clip(AppShapes.full)
+                                Modifier.clip(appIconMaskShape)
                             } else {
                                 Modifier
                             },
@@ -219,7 +221,7 @@ fun SearchTargetIcon(
                     modifier =
                         modifier.size(iconSize).then(
                             if (appIconShape == AppIconShape.CIRCLE) {
-                                Modifier.clip(AppShapes.full)
+                                Modifier.clip(appIconMaskShape)
                             } else {
                                 Modifier
                             },

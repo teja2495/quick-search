@@ -741,7 +741,7 @@
     <string name="settings_compact_layout_title">Kompaktes Layout</string>
     <string name="settings_compact_layout_desc">Kartenloses Layout auf Startseite und in der Suche, damit mehr Inhalt auf den Bildschirm passt</string>
     <string name="settings_cache_cleared_toast">Cache geleert. App-Index wird neu aufgebaut…</string>
-    <string name="settings_circular_app_icons_desc">App-Symbole als Kreise erzwingen</string>
+    <string name="settings_circular_app_icons_desc">Eckenradius der App-Symbole ändern</string>
     <string name="settings_circular_app_icons_title">Runde App-Symbole</string>
     <string name="settings_compact_rows_one_row">Eine Reihe</string>
     <string name="settings_compact_rows_two_rows">Zwei Reihen</string>

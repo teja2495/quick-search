@@ -19,7 +19,21 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.produceState
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import com.tk.quicksearch.search.apps.AppIconShape
+import com.tk.quicksearch.search.apps.rememberAppIconCornerPercent
+import com.tk.quicksearch.settings.settingsScreen.circularAppIconBitmap
+import kotlin.math.roundToInt
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
@@ -27,6 +41,16 @@ import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsToggleSliderDetails
+import androidx.compose.animation.animateContentSize
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.Alignment
+import com.tk.quicksearch.shared.ui.components.AppSlider
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
+import com.tk.quicksearch.shared.ui.components.SegmentedTileToggleHorizontalPadding
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
@@ -46,6 +70,7 @@ fun AppIconCard(
         onIconPackClick: () -> Unit,
         appIconShape: AppIconShape,
         onSetAppIconShape: (AppIconShape) -> Unit,
+        onSetAppIconCornerPercent: (Int) -> Unit = {},
         modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
@@ -113,15 +138,10 @@ fun AppIconCard(
         }
 
         SegmentedTile(index = index++, count = count) {
-                SettingsToggleRow(
-                        title = stringResource(R.string.settings_circular_app_icons_title),
-                        subtitle = stringResource(R.string.settings_circular_app_icons_desc),
-                        checked = appIconShape == AppIconShape.CIRCLE,
-                        onCheckedChange = { enabled ->
-                            onSetAppIconShape(if (enabled) AppIconShape.CIRCLE else AppIconShape.DEFAULT)
-                        },
-                        isFirstItem = false,
-                        isLastItem = false,
+                AppIconShapeRow(
+                        appIconShape = appIconShape,
+                        onSetAppIconShape = onSetAppIconShape,
+                        onSetAppIconCornerPercent = onSetAppIconCornerPercent,
                 )
         }
 
@@ -136,6 +156,97 @@ fun AppIconCard(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 },
+            )
+        }
+    }
+}
+
+/**
+ * Circular App Icons switch with its description. When on, a full-width corner radius slider
+ * appears below, with a live preview of the Quick Search icon aligned under the switch.
+ */
+@Composable
+private fun AppIconShapeRow(
+        appIconShape: AppIconShape,
+        onSetAppIconShape: (AppIconShape) -> Unit,
+        onSetAppIconCornerPercent: (Int) -> Unit,
+) {
+    val view = LocalView.current
+    val enabled = appIconShape == AppIconShape.CIRCLE
+    val cornerPercent = rememberAppIconCornerPercent()
+    var lastCornerPercent by remember { mutableStateOf(cornerPercent) }
+    LaunchedEffect(cornerPercent) { lastCornerPercent = cornerPercent }
+    Column(modifier = Modifier.animateContentSize(animationSpec = AppMotion.defaultSpatial())) {
+        SettingsToggleRow(
+                title = stringResource(R.string.settings_circular_app_icons_title),
+                subtitle = stringResource(R.string.settings_circular_app_icons_desc),
+                checked = enabled,
+                onCheckedChange = { checked ->
+                    onSetAppIconShape(if (checked) AppIconShape.CIRCLE else AppIconShape.DEFAULT)
+                },
+                isFirstItem = false,
+                isLastItem = false,
+        )
+        if (enabled) {
+            Row(
+                    modifier =
+                            Modifier.fillMaxWidth()
+                                    .padding(
+                                            start = SegmentedTileToggleHorizontalPadding,
+                                            end = SegmentedTileToggleHorizontalPadding,
+                                            bottom = SegmentedTileContentPadding,
+                                    ),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
+            ) {
+                AppSlider(
+                        value = cornerPercent.toFloat(),
+                        onValueChange = { value ->
+                            val percent = UiPreferences.normalizeAppIconCornerPercent(value.roundToInt())
+                            if (percent != lastCornerPercent) {
+                                hapticToggle(view)()
+                                lastCornerPercent = percent
+                                onSetAppIconCornerPercent(percent)
+                            }
+                        },
+                        valueRange =
+                                UiPreferences.MIN_APP_ICON_CORNER_PERCENT.toFloat()..
+                                        UiPreferences.MAX_APP_ICON_CORNER_PERCENT.toFloat(),
+                        steps =
+                                (UiPreferences.MAX_APP_ICON_CORNER_PERCENT -
+                                        UiPreferences.MIN_APP_ICON_CORNER_PERCENT) /
+                                        UiPreferences.APP_ICON_CORNER_PERCENT_STEP - 1,
+                        modifier = Modifier.weight(1f),
+                )
+                AppIconCornerPreview(cornerPercent = cornerPercent)
+            }
+        }
+    }
+}
+
+/** The Quick Search icon, full-bleed and clipped to [cornerPercent] so slider changes show at once. */
+@Composable
+private fun AppIconCornerPreview(cornerPercent: Int) {
+    val context = LocalContext.current
+    val icon by
+            produceState<ImageBitmap?>(initialValue = null, context) {
+                value =
+                        withContext(Dispatchers.IO) {
+                            runCatching {
+                                circularAppIconBitmap(
+                                                context.packageManager.getApplicationIcon(context.packageName),
+                                        )
+                                        .asImageBitmap()
+                            }.getOrNull()
+                        }
+            }
+    val shape = remember(cornerPercent) { RoundedCornerShape(cornerPercent) }
+    Box(modifier = Modifier.size(DesignTokens.IconSizeXLarge).clip(shape)) {
+        icon?.let { bitmap ->
+            Image(
+                    bitmap = bitmap,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
             )
         }
     }

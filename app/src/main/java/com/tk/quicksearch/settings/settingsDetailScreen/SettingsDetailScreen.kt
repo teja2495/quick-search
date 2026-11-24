@@ -491,6 +491,11 @@ internal fun SettingsDetailLevel1Screen(
                                     SettingsCommand.AppIconShapeSetting(shape),
                                 )
                             },
+                            onSetAppIconCornerPercent = { percent ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.AppIconCornerPercent(percent),
+                                )
+                            },
                             launcherAppIcon = state.launcherAppIcon,
                             onSetLauncherAppIcon = { icon ->
                                 callbacks.onApplySettingsCommand(

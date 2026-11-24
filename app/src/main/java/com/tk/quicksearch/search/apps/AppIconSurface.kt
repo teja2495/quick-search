@@ -145,6 +145,7 @@ internal fun AppIconSurface(
                 colorScheme.primary
             }
     val themedIconContainerShape = AppShapes.full
+    val appIconMaskShape = rememberAppIconMaskShape()
     val pinnedIndicatorInset = (appIconSurfaceSize - appIconSize) / 2
 
     Surface(
@@ -275,13 +276,13 @@ internal fun AppIconSurface(
                                 // again would cut off the badge in the corner.
                                 iconHasProfileBadge -> Modifier
                                 appIconShape == AppIconShape.CIRCLE ->
-                                        Modifier.clip(AppShapes.full)
+                                        Modifier.clip(appIconMaskShape)
                                 iconIsLegacy -> Modifier.clip(AppShapes.large)
                                 else -> Modifier
                             }
                     val bitmapShadowShape =
                             when {
-                                appIconShape == AppIconShape.CIRCLE -> AppShapes.full
+                                appIconShape == AppIconShape.CIRCLE -> appIconMaskShape
                                 iconIsLegacy -> AppShapes.large
                                 else -> AppShapes.large
                             }
@@ -320,7 +321,7 @@ internal fun AppIconSurface(
             } else {
                 val placeholderShape =
                         if (appIconShape == AppIconShape.CIRCLE) {
-                            AppShapes.full
+                            appIconMaskShape
                         } else {
                             AppShapes.large
                         }

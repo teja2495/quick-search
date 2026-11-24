@@ -97,6 +97,11 @@ internal fun decodeStartupPreferences(
             AppSuggestionTabType.parseEnabledTabs(allPrefs[UiPreferences.KEY_ENABLED_APP_SUGGESTION_TABS] as? Set<*>),
         showAppLabels = boolean(UiPreferences.KEY_SHOW_APP_LABELS, true),
         appIconShape = allPrefs.readEnum(UiPreferences.KEY_APP_ICON_SHAPE, AppIconShape.DEFAULT),
+        appIconCornerPercent =
+            UiPreferences.normalizeAppIconCornerPercent(
+                allPrefs[UiPreferences.KEY_APP_ICON_CORNER_PERCENT] as? Int
+                    ?: UiPreferences.DEFAULT_APP_ICON_CORNER_PERCENT,
+            ),
         launcherAppIcon = allPrefs.readEnum(UiPreferences.KEY_LAUNCHER_APP_ICON, LauncherAppIcon.DEFAULT),
         themedIconsEnabled = boolean(UiPreferences.KEY_THEMED_ICONS_ENABLED),
         deviceThemeEnabled = boolean(UiPreferences.KEY_DEVICE_THEME_ENABLED),

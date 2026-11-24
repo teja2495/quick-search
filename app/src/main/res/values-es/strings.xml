@@ -741,7 +741,7 @@
     <string name="settings_compact_layout_title">Diseño compacto</string>
     <string name="settings_compact_layout_desc">Diseño sin tarjetas en Inicio y Búsqueda para que quepa más contenido en la pantalla</string>
     <string name="settings_cache_cleared_toast">Caché borrada. Reconstruyendo el índice de la app\u2026</string>
-    <string name="settings_circular_app_icons_desc">Forzar iconos circulares en las apps</string>
+    <string name="settings_circular_app_icons_desc">Cambiar el radio de las esquinas de los iconos de apps</string>
     <string name="settings_circular_app_icons_title">Iconos de app circulares</string>
     <string name="settings_compact_rows_one_row">Una fila</string>
     <string name="settings_compact_rows_two_rows">Dos filas</string>

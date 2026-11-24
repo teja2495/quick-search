@@ -43,6 +43,23 @@ open class UiPreferencesFeatures(context: Context) : UiPreferencesCore(context) 
         prefs.edit().putString(UiPreferences.KEY_APP_ICON_SHAPE, shape.name).apply()
     }
 
+    fun getAppIconCornerPercent(): Int =
+            UiPreferences.normalizeAppIconCornerPercent(
+                    prefs.getInt(
+                            UiPreferences.KEY_APP_ICON_CORNER_PERCENT,
+                            UiPreferences.DEFAULT_APP_ICON_CORNER_PERCENT,
+                    ),
+            )
+
+    fun setAppIconCornerPercent(percent: Int) {
+        prefs.edit()
+                .putInt(
+                        UiPreferences.KEY_APP_ICON_CORNER_PERCENT,
+                        UiPreferences.normalizeAppIconCornerPercent(percent),
+                )
+                .apply()
+    }
+
     fun getLauncherAppIcon(): LauncherAppIcon {
         val saved = prefs.getString(UiPreferences.KEY_LAUNCHER_APP_ICON, null)
         return saved?.let { runCatching { LauncherAppIcon.valueOf(it) }.getOrNull() }

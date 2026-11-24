@@ -172,6 +172,8 @@ internal interface SearchViewModelPreferencesApi {
 
     fun setAppIconShape(shape: AppIconShape) = preferencesApiDelegate.setAppIconShape(shape)
 
+    fun setAppIconCornerPercent(percent: Int) = preferencesApiDelegate.setAppIconCornerPercent(percent)
+
     fun setLauncherAppIcon(selection: LauncherAppIcon) =
         preferencesApiDelegate.setLauncherAppIcon(selection)
 
@@ -457,6 +459,8 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
         preferencesDelegate.setIconPackUnsupportedIconMaskEnabled(enabled)
 
     fun setAppIconShape(shape: AppIconShape) = preferencesDelegate.setAppIconShape(shape)
+
+    fun setAppIconCornerPercent(percent: Int) = preferencesDelegate.setAppIconCornerPercent(percent)
 
     fun setLauncherAppIcon(selection: LauncherAppIcon) =
         preferencesDelegate.setLauncherAppIcon(selection)

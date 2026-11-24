@@ -60,6 +60,7 @@ class StartupPreferencesFacade(
             val enabledAppSuggestionTabs: Set<AppSuggestionTabType>,
             val showAppLabels: Boolean,
             val appIconShape: AppIconShape,
+            val appIconCornerPercent: Int = UiPreferences.DEFAULT_APP_ICON_CORNER_PERCENT,
             val launcherAppIcon: LauncherAppIcon = LauncherAppIcon.DEFAULT,
             val themedIconsEnabled: Boolean = true,
             val deviceThemeEnabled: Boolean = false,

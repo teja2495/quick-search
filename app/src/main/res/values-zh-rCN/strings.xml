@@ -729,7 +729,7 @@
     <string name="settings_compact_layout_title">紧凑布局</string>
     <string name="settings_compact_layout_desc">主屏幕和搜索采用无卡片布局，让屏幕显示更多内容</string>
     <string name="settings_cache_cleared_toast">缓存已清除。正在重新构建应用索引\u2026</string>
-    <string name="settings_circular_app_icons_desc">强制将应用图标转换为圆形</string>
+    <string name="settings_circular_app_icons_desc">更改应用图标的圆角半径</string>
     <string name="settings_circular_app_icons_title">圆形应用图标</string>
     <string name="settings_compact_rows_one_row">单行</string>
     <string name="settings_compact_rows_two_rows">双行</string>

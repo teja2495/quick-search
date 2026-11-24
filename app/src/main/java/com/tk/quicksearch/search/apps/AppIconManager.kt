@@ -4,11 +4,6 @@ import android.content.Context
 import android.content.pm.LauncherApps
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Matrix
-import android.graphics.Paint
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffXfermode
-import android.graphics.Color as AndroidColor
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.os.Build
@@ -57,12 +52,6 @@ private val appIconCacheEpoch = MutableStateFlow(0L)
 private val packageIconEpochs = MutableStateFlow<Map<String, Long>>(emptyMap())
 
 /**
- * Zoom factor when rasterizing adaptive icons for a circular mask. Keep this slightly above 1.0
- * so circular icons look full, but avoid excessive zoom that can clip edge glyphs on some apps.
- */
-private const val CircularAdaptiveIconContentScale = 1.42f
-
-/**
  * App icons are rendered at a small on-screen size. Keeping an APK's original icon bitmap can
  * exceed the hardware canvas texture limit on some devices, causing Compose to crash while it
  * records the draw pass.
@@ -85,7 +74,7 @@ private var sharedIconPreferences: SharedIconPreferences? = null
  * Process-wide preferences reader for icon composables. The reads stay live (no cached values), so
  * themed-icon, size, mask, and override changes are still picked up on the next recomposition.
  */
-private fun iconPreferences(context: Context): UserAppPreferences {
+internal fun iconPreferences(context: Context): UserAppPreferences {
     val appContext = context.applicationContext
     sharedIconPreferences?.takeIf { it.context === appContext }?.let { return it.preferences }
     return synchronized(iconPreferencesLock) {
@@ -232,6 +221,8 @@ fun rememberAppIcon(
     val iconOverride = userPreferences.getAppIconOverride(packageName)
     val bitmapSize = appIconBitmapSize(context, userPreferences)
     val includeMonochrome = userPreferences.isThemedIconsEnabled()
+    val cornerPercent = rememberAppIconCornerPercent()
+    val maskCornerPercent = if (forceCircularMask) cornerPercent else null
     val cacheEpoch by appIconCacheEpoch.collectAsState()
     val packageEpochFlow =
         remember(request.packageName) {
@@ -248,7 +239,7 @@ fun rememberAppIcon(
             bitmapSize = bitmapSize,
             cacheEpoch = cacheEpoch,
             packageEpoch = packageEpoch,
-            forceCircularMask = forceCircularMask,
+            maskCornerPercent = maskCornerPercent,
             includeArchived = includeArchived,
             includeMonochrome = monochrome,
         )
@@ -305,7 +296,7 @@ fun rememberAppIcon(
                         userHandleId = request.userHandleId,
                         densityDpi = densityDpi,
                         targetSize = bitmapSize,
-                        forceCircularMask = request.forceCircularMask,
+                        maskCornerPercent = maskCornerPercent,
                         includeArchived = request.includeArchived,
                         includeMonochrome = includeMonochrome,
                         onMissingPackage = { AppIconCache.recordMiss(cacheKey) },
@@ -341,7 +332,7 @@ private fun loadAppIconEntry(
     userHandleId: Int?,
     densityDpi: Int,
     targetSize: Int,
-    forceCircularMask: Boolean,
+    maskCornerPercent: Int?,
     includeArchived: Boolean = true,
     includeMonochrome: Boolean = false,
     onMissingPackage: (() -> Unit)? = null,
@@ -378,7 +369,7 @@ private fun loadAppIconEntry(
                     icon = boundedIcon.asAndroidBitmap(),
                     userHandleId = userHandleId,
                     isLegacy = false,
-                    applyCircleMask = forceCircularMask,
+                    maskCornerPercent = maskCornerPercent,
                 )
             }
         }
@@ -389,7 +380,7 @@ private fun loadAppIconEntry(
                 userHandleId = userHandleId,
                 densityDpi = densityDpi,
                 targetSize = targetSize,
-                forceCircularMask = forceCircularMask,
+                maskCornerPercent = maskCornerPercent,
             )
         else ->
             loadSystemAppIcon(
@@ -397,7 +388,7 @@ private fun loadAppIconEntry(
                 packageName = packageName,
                 densityDpi = densityDpi,
                 targetSize = targetSize,
-                forceCircularMask = forceCircularMask,
+                maskCornerPercent = maskCornerPercent,
                 includeArchived = includeArchived,
                 includeMonochrome = includeMonochrome,
                 onMissingPackage = onMissingPackage,
@@ -418,34 +409,22 @@ private fun ImageBitmap.boundedTo(targetSize: Int): ImageBitmap {
 }
 
 /**
- * Builds a work profile icon entry: [icon] is circle-cropped first when [applyCircleMask] is set,
- * then the work badge is drawn on top so it sits in the corner outside the circle.
+ * Builds a work profile icon entry: [icon] is mask-cropped first when [maskCornerPercent] is set,
+ * then the work badge is drawn on top so it sits in the corner outside the mask.
  */
 private fun workProfileIconEntry(
     context: Context,
     icon: Bitmap,
     userHandleId: Int,
     isLegacy: Boolean,
-    applyCircleMask: Boolean,
+    maskCornerPercent: Int?,
 ): AppIconEntry {
-    val shaped = if (applyCircleMask) icon.circleCropped() else icon
+    val shaped = maskCornerPercent?.let { icon.maskCropped(it) } ?: icon
     return AppIconEntry(
         bitmap = addWorkProfileBadge(context, shaped, userHandleId).asImageBitmap(),
-        isLegacy = isLegacy && !applyCircleMask,
+        isLegacy = isLegacy && maskCornerPercent == null,
         hasProfileBadge = true,
     )
-}
-
-private fun Bitmap.circleCropped(): Bitmap {
-    val size = maxOf(width, height)
-    val output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-    val canvas = Canvas(output)
-    val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
-    val radius = size / 2f
-    canvas.drawCircle(radius, radius, radius, paint)
-    paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-    canvas.drawBitmap(this, (size - width) / 2f, (size - height) / 2f, paint)
-    return output
 }
 
 private fun addWorkProfileBadge(
@@ -471,7 +450,7 @@ private fun loadSystemAppIcon(
     packageName: String,
     densityDpi: Int,
     targetSize: Int,
-    forceCircularMask: Boolean,
+    maskCornerPercent: Int?,
     includeArchived: Boolean,
     includeMonochrome: Boolean,
     onMissingPackage: (() -> Unit)? = null,
@@ -489,7 +468,7 @@ private fun loadSystemAppIcon(
                 adaptiveToBitmap(
                     drawable = drawable,
                     targetSize = targetSize,
-                    forceCircularMask = forceCircularMask,
+                    maskCornerPercent = maskCornerPercent,
                 ).asImageBitmap()
             // Only themed icons draw the monochrome layer, so skip rasterizing it otherwise.
             val monochromeData = if (includeMonochrome && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -531,9 +510,9 @@ private fun loadWorkProfileBadgedIcon(
     userHandleId: Int,
     densityDpi: Int,
     targetSize: Int,
-    forceCircularMask: Boolean,
+    maskCornerPercent: Int?,
 ): AppIconEntry? {
-    // Load the unbadged icon so the circle mask is applied before the work badge is drawn.
+    // Load the unbadged icon so the mask is applied before the work badge is drawn.
     val drawable = loadWorkProfileActivityIcon(context, packageName, userHandleId, densityDpi) ?: return null
     return runCatching {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && drawable is AdaptiveIconDrawable) {
@@ -543,11 +522,11 @@ private fun loadWorkProfileBadgedIcon(
                     adaptiveToBitmap(
                         drawable = drawable,
                         targetSize = targetSize,
-                        forceCircularMask = forceCircularMask,
+                        maskCornerPercent = maskCornerPercent,
                     ),
                 userHandleId = userHandleId,
                 isLegacy = false,
-                applyCircleMask = false,
+                maskCornerPercent = null,
             )
         } else {
             workProfileIconEntry(
@@ -555,7 +534,7 @@ private fun loadWorkProfileBadgedIcon(
                 icon = drawable.toBoundedBitmap(targetSize),
                 userHandleId = userHandleId,
                 isLegacy = true,
-                applyCircleMask = forceCircularMask,
+                maskCornerPercent = maskCornerPercent,
             )
         }
     }.getOrNull()
@@ -577,48 +556,6 @@ private fun loadWorkProfileActivityIcon(
     return runCatching {
         launcherApps.getActivityList(packageName, userHandle).firstOrNull()?.getIcon(densityDpi)
     }.getOrNull()
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-private fun adaptiveToBitmap(
-    drawable: AdaptiveIconDrawable,
-    targetSize: Int,
-    forceCircularMask: Boolean,
-): Bitmap {
-    if (!forceCircularMask) {
-        return drawable.toBitmap(width = targetSize, height = targetSize)
-    }
-
-    val composed = Bitmap.createBitmap(targetSize, targetSize, Bitmap.Config.ARGB_8888)
-    val composedCanvas = Canvas(composed)
-    drawable.background?.setBounds(0, 0, targetSize, targetSize)
-    drawable.background?.draw(composedCanvas)
-    drawable.foreground?.setBounds(0, 0, targetSize, targetSize)
-    drawable.foreground?.draw(composedCanvas)
-
-    val output = Bitmap.createBitmap(targetSize, targetSize, Bitmap.Config.ARGB_8888)
-    val outputCanvas = Canvas(output)
-    val paint =
-        Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style = Paint.Style.FILL
-            color = AndroidColor.WHITE
-        }
-    val radius = targetSize / 2f
-    outputCanvas.drawCircle(radius, radius, radius, paint)
-    paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-    val matrix =
-        Matrix().apply {
-            postScale(
-                CircularAdaptiveIconContentScale,
-                CircularAdaptiveIconContentScale,
-                radius,
-                radius,
-            )
-        }
-    outputCanvas.drawBitmap(composed, matrix, paint)
-    composed.recycle()
-
-    return output
 }
 
 private fun android.graphics.drawable.Drawable.toBoundedBitmap(maxSize: Int): Bitmap {
@@ -702,6 +639,7 @@ private suspend fun prefetchAppIconRequestsOnIo(
     val densityDpi = context.resources.displayMetrics.densityDpi
     val bitmapSize = appIconBitmapSize(context, userPreferences)
     val includeMonochrome = userPreferences.isThemedIconsEnabled()
+    val maskCornerPercent = if (forceCircularMask) appIconCornerPercent(context) else null
 
     val requestsToLoad =
         requests
@@ -719,7 +657,7 @@ private suspend fun prefetchAppIconRequestsOnIo(
                         maskUnsupportedIconPackIcons = maskUnsupportedIconPackIcons,
                         userHandleId = request.userHandleId,
                         bitmapSize = bitmapSize,
-                        forceCircularMask = forceCircularMask,
+                        maskCornerPercent = maskCornerPercent,
                         includeArchived = includeArchived,
                         includeMonochrome = includeMonochrome,
                     ),
@@ -748,7 +686,7 @@ private suspend fun prefetchAppIconRequestsOnIo(
                             userHandleId = request.userHandleId,
                             densityDpi = densityDpi,
                             targetSize = bitmapSize,
-                            forceCircularMask = forceCircularMask,
+                            maskCornerPercent = maskCornerPercent,
                             includeArchived = includeArchived,
                             includeMonochrome = includeMonochrome,
                         )
@@ -769,14 +707,14 @@ private fun buildCacheKey(
     bitmapSize: Int,
     cacheEpoch: Long = appIconCacheEpoch.value,
     packageEpoch: Long = packageIconEpochs.value[packageName] ?: 0L,
-    forceCircularMask: Boolean = false,
+    maskCornerPercent: Int? = null,
     includeArchived: Boolean = true,
     includeMonochrome: Boolean = false,
 ): String {
     val prefix = iconPackPackage ?: "system"
     val maskSuffix = if (iconPackPackage != null) ":mask:$maskUnsupportedIconPackIcons" else ""
     val suffix = userHandleId?.let { ":work:$it" } ?: ""
-    val shapeSuffix = if (forceCircularMask) ":circle" else ""
+    val shapeSuffix = maskCornerPercent?.let { ":mask$it" }.orEmpty()
     val overrideSuffix = iconOverride?.let { ":override:${it.iconPackPackage}:${it.drawableName}" }.orEmpty()
     val archivedSuffix = if (includeArchived) "" else ":installedOnly"
     val monochromeSuffix = if (includeMonochrome) ":mono" else ""

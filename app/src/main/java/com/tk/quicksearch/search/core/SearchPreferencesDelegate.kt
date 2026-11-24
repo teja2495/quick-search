@@ -650,6 +650,13 @@ internal class SearchPreferencesDelegate(
         }
     }
 
+    fun setAppIconCornerPercent(percent: Int) {
+        val normalized = UiPreferences.normalizeAppIconCornerPercent(percent)
+        // Icons re-render from this process-wide value right away; persisting follows on IO.
+        com.tk.quicksearch.search.apps.setAppIconCornerPercent(normalized)
+        scope.launch(Dispatchers.IO) { userPreferences.setAppIconCornerPercent(normalized) }
+    }
+
     fun setLauncherAppIcon(selection: LauncherAppIcon) {
         scope.launch(Dispatchers.IO) {
             if (stateAccess.launcherAppIcon == selection) return@launch

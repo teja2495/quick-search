@@ -384,6 +384,17 @@ class UiPreferences(context: Context) : UiPreferencesFeatures(context) {
         const val KEY_ICON_PACK_UNSUPPORTED_ICON_MASK_ENABLED =
                 "icon_pack_unsupported_icon_mask_enabled"
         const val KEY_APP_ICON_SHAPE = "app_icon_shape"
+        const val KEY_APP_ICON_CORNER_PERCENT = "app_icon_corner_percent"
+        const val MIN_APP_ICON_CORNER_PERCENT = 0
+        const val MAX_APP_ICON_CORNER_PERCENT = 50
+        const val APP_ICON_CORNER_PERCENT_STEP = 5
+        // 50% of the icon size rounds every corner into a full circle.
+        const val DEFAULT_APP_ICON_CORNER_PERCENT = MAX_APP_ICON_CORNER_PERCENT
+
+        fun normalizeAppIconCornerPercent(percent: Int): Int {
+            val clamped = percent.coerceIn(MIN_APP_ICON_CORNER_PERCENT, MAX_APP_ICON_CORNER_PERCENT)
+            return Math.round(clamped / APP_ICON_CORNER_PERCENT_STEP.toFloat()) * APP_ICON_CORNER_PERCENT_STEP
+        }
         const val KEY_LAUNCHER_APP_ICON = "launcher_app_icon"
         const val KEY_THEMED_ICONS_ENABLED = "themed_icons_enabled"
         const val KEY_DEVICE_THEME_ENABLED = "device_theme_enabled"

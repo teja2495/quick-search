@@ -14,6 +14,7 @@ import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.apps.AppSearchPerformanceLogger
 import com.tk.quicksearch.search.apps.AppIconRequest
 import com.tk.quicksearch.search.apps.prefetchAppIconRequests
+import com.tk.quicksearch.search.apps.setAppIconCornerPercent
 import com.tk.quicksearch.searchEngines.getAppPackageCandidates
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.util.PackageConstants
@@ -287,6 +288,8 @@ internal suspend fun SearchStartupLifecycleDelegate.loadRemainingStartupPreferen
     }
 
 internal fun SearchStartupLifecycleDelegate.applyStartupPreferences(prefs: StartupPreferencesFacade.StartupPreferences) {
+        // Also runs after a settings import, so restored icon corners apply without a restart.
+        setAppIconCornerPercent(prefs.appIconCornerPercent)
         setPrefCache(
             SearchPreferenceCache.from(
                 prefs = prefs,

@@ -107,6 +107,7 @@ fun AppearanceSettingsSection(
         onSearchIconPacks: () -> Unit,
         appIconShape: AppIconShape,
         onSetAppIconShape: (AppIconShape) -> Unit,
+        onSetAppIconCornerPercent: (Int) -> Unit = {},
         launcherAppIcon: LauncherAppIcon,
         onSetLauncherAppIcon: (LauncherAppIcon) -> Unit,
         searchBarStyle: SearchBarStyle,
@@ -374,6 +375,7 @@ fun AppearanceSettingsSection(
                 },
                 appIconShape = appIconShape,
                 onSetAppIconShape = onSetAppIconShape,
+                onSetAppIconCornerPercent = onSetAppIconCornerPercent,
         )
     }
 
