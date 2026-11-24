@@ -424,6 +424,9 @@ class CalendarRepository(
         val rows = mutableListOf<CalendarEventInfo>()
         // Instances of one event share their title and rule; keep one copy of each string.
         val sharedStrings = HashMap<String, String>()
+        // The same event can come from several synced calendars (holiday calendars, shared or
+        // duplicated accounts). Keep one row per title and start time.
+        val seenInstances = HashSet<Pair<String, Long>>()
         val cursor =
             contentResolver.query(
                 uri,
@@ -456,7 +459,7 @@ class CalendarRepository(
                 val startMillis = if (allDay) utcMidnightToLocalMidnight(rawStartMillis) else rawStartMillis
                 val endMillis = if (allDay) utcMidnightToLocalMidnight(rawEndMillis) else rawEndMillis
 
-                if (title.isNotBlank()) {
+                if (title.isNotBlank() && seenInstances.add(title.lowercase() to startMillis)) {
                     val recurrenceRule =
                         if (rruleIndex >= 0) {
                             cursor.getString(rruleIndex)?.trim()?.takeIf(String::isNotBlank)
