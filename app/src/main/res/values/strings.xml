@@ -44,6 +44,10 @@
     <string name="noted_quick_note_alias_info" translatable="false">Type this alias at the end of your query to add the query to the top of Noted\'s Quick Note.</string>
     <string name="noted_quick_note_added" translatable="false">Added to Quick Note</string>
     <string name="noted_quick_note_failed" translatable="false">Couldn\'t add to Quick Note</string>
+    <string name="noted_task_alias_target" translatable="false">To Do</string>
+    <string name="noted_task_alias_info" translatable="false">Type this alias at the end of your query to add the query as a task to Noted\'s To Do list.</string>
+    <string name="noted_task_added" translatable="false">Added to To Do</string>
+    <string name="noted_task_failed" translatable="false">Couldn\'t add to To Do</string>
     <string name="search_hint_settings">Search Device Settings…</string>
     <string name="search_hint_static">Search Anything</string>
     <string name="search_hint_world_clock">Enter any place to get their local time</string>

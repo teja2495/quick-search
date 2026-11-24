@@ -74,6 +74,7 @@ import com.tk.quicksearch.widgetsPanel.rememberWidgetsPanelHost
 import com.tk.quicksearch.shared.ui.components.AppMessageSnackbarHost
 import com.tk.quicksearch.shared.ui.components.LocalSegmentedItemModifier
 import com.tk.quicksearch.onboarding.welcomeExitItem
+import com.tk.quicksearch.search.searchScreen.components.searchTouchDebugLog
 
 enum class RootDestination {
     WidgetsPanel,
@@ -483,7 +484,7 @@ private fun NavigationContent(
     val openKeyboardPillMemory = remember { OpenKeyboardPillMemory() }
     val settingsPageData = remember { SettingsPageData() }
     val widgetsPanelHost = rememberWidgetsPanelHost()
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().searchTouchDebugLog("root", destination) { com.tk.quicksearch.search.searchScreen.components.pageSwipeDebugState(destination, pageSwipeController) }) {
         // Keep the backdrop warm across Settings unless the system requests memory.
         val wallpaper = rememberSharedPageWallpaper(
             state = uiState,

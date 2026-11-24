@@ -37,7 +37,7 @@ import com.tk.quicksearch.search.data.ReminderRepository
 import com.tk.quicksearch.search.data.userAppPreferences.StartupPreferencesFacade
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.UiPreferences
-import com.tk.quicksearch.search.noted.NotedQuickNoteAlias
+import com.tk.quicksearch.search.noted.NotedEndAlias
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsManagementHandler
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
@@ -606,7 +606,7 @@ class SearchViewModel(
         queryCoordinator.onQueryChange(newQuery)
         refreshScreenTimeResult(newQuery)
         // Clears only if nothing was typed while Noted saved it.
-        NotedQuickNoteAlias.sendIfTriggered(appContext, newQuery) { if (uiState.value.query == newQuery) clearQuery() }
+        NotedEndAlias.sendIfTriggered(appContext, newQuery) { if (uiState.value.query == newQuery) clearQuery() }
     }
 
     fun toggleOtherSearchItemPin(itemId: OtherSearchItemId) = toggleOtherItemPin(itemId)

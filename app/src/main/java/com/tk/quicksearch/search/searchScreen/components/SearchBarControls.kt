@@ -321,7 +321,14 @@ internal fun SearchBarTrailingIcon(
     ) { target ->
         when (target) {
             SearchBarTrailingAction.Clear ->
-                AppIconButton(onClick = onClear, tooltip = stringResource(R.string.desc_clear_search)) {
+                AppIconButton(
+                    onClick = {
+                        searchTouchLog("clear onClick")
+                        onClear()
+                    },
+                    tooltip = stringResource(R.string.desc_clear_search),
+                    modifier = Modifier.searchTouchDebugLog("clear"),
+                ) {
                     Icon(
                         imageVector = MaterialSymbols.Close,
                         contentDescription = stringResource(R.string.desc_clear_search),
@@ -348,6 +355,7 @@ internal fun SearchBarTrailingIcon(
                         modifier =
                             Modifier
                                 .size(DesignTokens.Spacing48)
+                                .searchTouchDebugLog("gear")
                                 .clip(AppShapes.full)
                                 .combinedClickable(
                                     hapticFeedbackEnabled = false,
@@ -357,7 +365,10 @@ internal fun SearchBarTrailingIcon(
                                         hapticStrong(view)()
                                         openDeviceSettings(context)
                                     },
-                                    onClick = onSettings,
+                                    onClick = {
+                                        searchTouchLog("gear onClick")
+                                        onSettings()
+                                    },
                                 ),
                     ) {
                         Icon(

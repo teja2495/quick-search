@@ -70,12 +70,12 @@ class NotedRepository(
     }
 
     /**
-     * Adds a task to Noted's To Do list. A date-only task passes local midnight of its day.
-     * Returns false when Noted is unavailable or refused it, so the caller can save it elsewhere.
+     * Adds a task to Noted's To Do list. A date-only task passes local midnight of its day; a null
+     * [dueAtMillis] adds an unscheduled task. Returns false when Noted is unavailable or refused it, so the caller can save it elsewhere.
      */
     suspend fun createTask(
         title: String,
-        dueAtMillis: Long,
+        dueAtMillis: Long?,
         isDueTimeSet: Boolean,
         repeat: ScheduleRepeat? = null,
     ): Boolean {
@@ -83,8 +83,10 @@ class NotedRepository(
         val values =
             ContentValues().apply {
                 put(NotedIntegration.COLUMN_TITLE, title)
-                put(NotedIntegration.COLUMN_DUE_AT, dueAtMillis)
-                put(NotedIntegration.COLUMN_DUE_TIME_SET, if (isDueTimeSet) 1 else 0)
+                if (dueAtMillis != null) {
+                    put(NotedIntegration.COLUMN_DUE_AT, dueAtMillis)
+                    put(NotedIntegration.COLUMN_DUE_TIME_SET, if (isDueTimeSet) 1 else 0)
+                }
                 if (repeat != null) {
                     put(NotedIntegration.COLUMN_REPEAT_INTERVAL, repeat.interval)
                     put(NotedIntegration.COLUMN_REPEAT_UNIT, ReminderRepeat.unitName(repeat.unit))

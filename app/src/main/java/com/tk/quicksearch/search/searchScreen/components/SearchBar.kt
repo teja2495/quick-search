@@ -550,8 +550,10 @@ internal fun PersistentSearchBar(
             modifier =
                 Modifier
                     .fillMaxWidth()
+                    .searchTouchDebugLog("field") { "pageSettled=${latestPageSettled.value}" }
                     .focusRequester(focusRequester)
                     .onFocusChanged { focusState ->
+                        searchTouchLog("field focus=${focusState.isFocused}")
                         if (focusState.isFocused) {
                             StartupTrace.mark("QS.Home.SearchFieldFocused")
                         }

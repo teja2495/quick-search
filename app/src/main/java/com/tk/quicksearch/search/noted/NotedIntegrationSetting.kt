@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.noted
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.layout.layout
 import androidx.compose.runtime.Composable
@@ -10,6 +11,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.AnnotatedString
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.ReminderRepository
@@ -25,7 +27,7 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 /**
  * More Options card for the Noted integration; renders nothing unless Noted is connected. The toggle
  * sends new reminders to Noted, lists Noted's reminders in Reminders settings, hides Quick Search's
- * Quick Note from search, and turns on the Quick Note alias shown under it.
+ * Quick Note from search, and turns on the Quick Note and To Do task aliases shown under it.
  */
 @Composable
 internal fun NotedIntegrationSettingCard(modifier: Modifier = Modifier) {
@@ -33,8 +35,9 @@ internal fun NotedIntegrationSettingCard(modifier: Modifier = Modifier) {
     if (!remember(context) { NotedIntegration.ensureChecked(context) }) return
     val reminderPreferences = remember(context) { ReminderPreferences(context) }
     var enabled by remember { mutableStateOf(reminderPreferences.isUseNotedEnabled()) }
-    var alias by remember { mutableStateOf(NotedQuickNoteAlias.get(context)) }
-    var showAliasDialog by remember { mutableStateOf(false) }
+    var quickNoteAlias by remember { mutableStateOf(NotedQuickNoteAlias.get(context)) }
+    var taskAlias by remember { mutableStateOf(NotedTaskAlias.get(context)) }
+    var editingAlias by remember { mutableStateOf<NotedEndAlias?>(null) }
 
     SegmentedTile(index = 0, count = 1, modifier = modifier.fillMaxWidth()) {
         SettingsToggleRow(
@@ -47,14 +50,27 @@ internal fun NotedIntegrationSettingCard(modifier: Modifier = Modifier) {
                 ReminderRepository.notifyChanged()
             },
             subtitleContent = {
-                NotedQuickNoteAliasPill(
-                    alias = alias,
-                    onEdit = { showAliasDialog = true },
-                    onClear = {
-                        NotedQuickNoteAlias.set(context, "")
-                        alias = ""
-                    },
-                )
+                // Each pill trims its top touch inset, which leaves an 8dp gap between the stacked chips.
+                Column {
+                    NotedAliasPill(
+                        alias = quickNoteAlias,
+                        icon = MaterialSymbols.EditNote,
+                        onEdit = { editingAlias = NotedQuickNoteAlias },
+                        onClear = {
+                            NotedQuickNoteAlias.set(context, "")
+                            quickNoteAlias = ""
+                        },
+                    )
+                    NotedAliasPill(
+                        alias = taskAlias,
+                        icon = MaterialSymbols.CheckCircle,
+                        onEdit = { editingAlias = NotedTaskAlias },
+                        onClear = {
+                            NotedTaskAlias.set(context, "")
+                            taskAlias = ""
+                        },
+                    )
+                }
             },
             leadingIcon = MaterialSymbols.EditNote,
             isFirstItem = true,
@@ -62,40 +78,48 @@ internal fun NotedIntegrationSettingCard(modifier: Modifier = Modifier) {
         )
     }
 
-    if (showAliasDialog) {
+    editingAlias?.let { target ->
+        val isQuickNote = target === NotedQuickNoteAlias
+        val currentAlias = if (isQuickNote) quickNoteAlias else taskAlias
         val preferences = remember(context) { UserAppPreferences(context) }
         val existingAliases = remember { preferences.getAllAliasWordsById() }
         val triggerWords = remember { preferences.getAllTriggerWordsById().values.toList() }
-        val quickNoteName = stringResource(R.string.notes_quick_note_title)
+        val targetName =
+            stringResource(if (isQuickNote) R.string.notes_quick_note_title else R.string.noted_task_alias_target)
         AddEditAliasDialog(
-            currentCode = alias,
+            currentCode = currentAlias,
             existingShortcuts = existingAliases,
-            currentShortcutId = NotedQuickNoteAlias.ALIAS_TARGET_ID,
+            currentShortcutId = target.aliasTargetId,
             onSave = { code ->
-                NotedQuickNoteAlias.set(context, code)
-                alias = NotedQuickNoteAlias.get(context)
+                target.set(context, code)
+                if (isQuickNote) quickNoteAlias = target.get(context) else taskAlias = target.get(context)
             },
-            aliasTargetName = quickNoteName,
+            aliasTargetName = targetName,
             dialogTitle =
                 stringResource(
-                    if (alias.isBlank()) {
+                    if (currentAlias.isBlank()) {
                         R.string.dialog_add_alias_for_search_type_title
                     } else {
                         R.string.dialog_edit_alias_for_search_type_title
                     },
-                    quickNoteName,
+                    targetName,
                 ),
             existingTriggerWords = triggerWords,
-            infoText = stringResource(R.string.noted_quick_note_alias_info),
-            onDismiss = { showAliasDialog = false },
+            infoText =
+                stringResource(if (isQuickNote) R.string.noted_quick_note_alias_info else R.string.noted_task_alias_info),
+            onDismiss = { editingAlias = null },
         )
     }
 }
 
-/** The alias pill, styled like search engine aliases: the code with a clear button, or "Setup Alias". */
+/**
+ * An alias pill, styled like search engine aliases: the code with a clear button, or "Setup Alias".
+ * [icon] tells the Quick Note and task pills apart.
+ */
 @Composable
-private fun NotedQuickNoteAliasPill(
+private fun NotedAliasPill(
     alias: String,
+    icon: ImageVector,
     onEdit: () -> Unit,
     onClear: () -> Unit,
 ) {
@@ -110,7 +134,7 @@ private fun NotedQuickNoteAliasPill(
     if (alias.isNotBlank()) {
         AliasPill(
             text = AnnotatedString(alias),
-            leadingIcon = MaterialSymbols.Bolt,
+            leadingIcon = icon,
             onClick = onEdit,
             onClearClick = onClear,
             modifier = modifier,
@@ -118,7 +142,7 @@ private fun NotedQuickNoteAliasPill(
     } else {
         AliasPill(
             text = AnnotatedString(stringResource(R.string.settings_add_alias)),
-            leadingIcon = MaterialSymbols.Bolt,
+            leadingIcon = icon,
             onClick = onEdit,
             modifier = modifier,
         )

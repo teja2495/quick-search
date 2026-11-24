@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.searchScreen.components.searchTouchDebugLog
 import com.tk.quicksearch.search.apps.LocalAllAppsDrawerController
 import com.tk.quicksearch.search.core.AiSearchStatus
 import com.tk.quicksearch.search.core.SearchSection
@@ -148,7 +149,7 @@ internal fun rememberSearchScreenSwipeActions(
     val currentOnLauncherSwipeUp by rememberUpdatedState(onLauncherSwipeUp)
     val currentOnLauncherSwipeDown by rememberUpdatedState(onLauncherSwipeDown)
     val bottomBarSwipeModifier =
-        Modifier.pointerInput(Unit) {
+        Modifier.searchTouchDebugLog("bar").pointerInput(Unit) {
             // Watch in the Initial pass so children that consume touches (the search
             // TextField's tap/selection handling) can't swallow the swipe first. The gesture
             // is only claimed once it is clearly vertical, so taps, cursor placement, and
