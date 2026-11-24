@@ -29,6 +29,7 @@ This document highlights all the available features. It also includes details ab
 - **Browser Integration** - Installed browsers automatically appear as search engines.
 - **In-App Browser** - Open links inside Quick Search instead of an external browser.
 - **Supported Search Engines** (31 total): AI Search, Google, ChatGPT, Gemini, Perplexity, Grok, Google Maps, Waze, Google Drive, Google Photos, Google Play, Google Translate, Kagi, Kagi Assistant, Muse, YouTube, YouTube Music, Spotify, Reddit, Amazon, X (Twitter), Facebook Marketplace, Bing, DuckDuckGo, Brave, Startpage, You.com, AI Mode, Claude, Wikipedia, F-Droid. Waze, Kagi Assistant, and Muse require their apps to be installed.
+- **YouTube Searches in LibreTube or NewPipe** - The YouTube search engine opens YouTube links, so it can open in LibreTube, NewPipe, or another YouTube client. In Android's App Info for that client, open Set as default, turn on Open supported links, and check every link. Then do the opposite for the YouTube app: turn off Open supported links.
 - **AI Search** - Get AI answers directly in Quick Search once an AI provider is set up, and ask follow-up questions to continue the conversation.
 - **Web Search Suggestions** - Suggestions appear as you type. Turn them off or change how many appear in Search Results settings.
 

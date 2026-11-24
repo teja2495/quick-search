@@ -74,6 +74,15 @@ A fast, private Android search app and launcher. Search **apps, app shortcuts, c
 - **F-Droid**: [F-Droid](https://f-droid.org/en/packages/com.tk.quicksearch/) for repository-based updates
 - **APK**: Latest APK from the [Releases](https://github.com/teja2495/quick-search/releases) page
 
+### Verify the APK
+APKs on the [Releases](https://github.com/teja2495/quick-search/releases) page are signed with this certificate (SHA-256):
+
+```
+21:49:D9:6B:24:B9:F5:14:67:89:3C:9B:BC:85:9D:6C:18:33:60:7E:0A:32:6E:43:1A:F8:E0:23:AE:07:5B:8A
+```
+
+Check a downloaded APK with `apksigner verify --print-certs app-standard-release.apk` (Android SDK build-tools), or with [AppVerifier](https://github.com/soupslurpr/AppVerifier) on your phone. Play Store and F-Droid builds are signed by their stores, so their fingerprints differ.
+
 ### Build from Source
 ```bash
 git clone https://github.com/teja2495/quick-search.git
