@@ -502,8 +502,6 @@
     <string name="error_whatsapp_video_call_missing_data">WhatsApp वीडियो कॉल नहीं की जा सकती - कॉन्टैक्ट डेटा नहीं है</string>
     <string name="error_whatsapp_video_call_unavailable">WhatsApp पर वीडियो कॉल उपलब्ध नहीं है</string>
     <string name="settings_call_permission_title">फोन</string>
-    <string name="permissions_background_usage_title">बैकग्राउंड में उपयोग की अनुमति दें</string>
-    <string name="permissions_background_usage_desc">तेज़ ऐप स्टार्टअप के लिए बैकग्राउंड उपयोग की अनुमति दें।</string>
     <string name="settings_calls_texts_title">कॉल्स और टेक्स्ट्स</string>
     <string name="settings_contact_first_button_title">पहला बटन</string>
     <string name="settings_contact_second_button_title">दूसरा बटन</string>

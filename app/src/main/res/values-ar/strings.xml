@@ -511,8 +511,6 @@
     <string name="error_whatsapp_video_call_missing_data">تعذر إجراء مكالمة فيديو WhatsApp - بيانات جهة الاتصال مفقودة</string>
     <string name="error_whatsapp_video_call_unavailable">مكالمات فيديو WhatsApp غير متاحة</string>
     <string name="settings_call_permission_title">الهاتف</string>
-    <string name="permissions_background_usage_title">السماح بالاستخدام في الخلفية</string>
-    <string name="permissions_background_usage_desc">السماح بالاستخدام في الخلفية لبدء تشغيل التطبيقات بشكل أسرع.</string>
     <string name="settings_calls_texts_title">المكالمات والرسائل النصية</string>
     <string name="settings_contact_first_button_title">الزر الأول</string>
     <string name="settings_contact_second_button_title">الزر الثاني</string>

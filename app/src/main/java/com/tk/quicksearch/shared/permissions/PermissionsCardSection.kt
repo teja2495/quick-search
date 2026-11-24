@@ -50,8 +50,6 @@ data class PermissionCardTexts(
     val notificationAccessDescription: String,
     val accessibilityTitle: String,
     val accessibilityDescription: String,
-    val backgroundUsageTitle: String,
-    val backgroundUsageDescription: String,
 )
 
 data class PermissionCardStates(
@@ -79,7 +77,6 @@ fun PermissionsCardSection(
     showNotificationsPermission: Boolean = true,
     showAccessibilityPermission: Boolean = true,
     showNotificationAccessPermission: Boolean = true,
-    showBackgroundUsage: Boolean = false,
     onRequestUsagePermission: () -> Unit = {},
     onRequestFilePermission: () -> Unit = {},
     onRequestNotificationsPermission: () -> Unit = {},
@@ -406,22 +403,6 @@ fun PermissionsCardSection(
                             }
                         },
                         onGrantedClick = { NotificationDotsPermission.openNotificationListenerSettings(context) },
-                    ),
-                )
-            }
-            if (showBackgroundUsage) {
-                add(
-                    PermissionCardItem(
-                        title = texts.backgroundUsageTitle,
-                        icon = MaterialSymbols.BatteryFull,
-                        description = texts.backgroundUsageDescription,
-                        permissionState = PermissionState.initial(),
-                        isMandatory = false,
-                        onToggleChange = {},
-                        isNavigationItem = true,
-                        onNavigationClick = {
-                            PermissionHelper.launchBatteryOptimizationSettings(context)
-                        },
                     ),
                 )
             }

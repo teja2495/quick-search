@@ -500,8 +500,6 @@
     <string name="error_whatsapp_video_call_missing_data">无法进行 WhatsApp 视频通话 - 缺少联系人数据</string>
     <string name="error_whatsapp_video_call_unavailable">WhatsApp 目前不支持视频通话</string>
     <string name="settings_call_permission_title">电话</string>
-    <string name="permissions_background_usage_title">允许后台运行</string>
-    <string name="permissions_background_usage_desc">允许后台运行，以更快启动应用。</string>
     <string name="settings_calls_texts_title">通话与短信</string>
     <string name="settings_contact_first_button_title">第一个按钮</string>
     <string name="settings_contact_second_button_title">第二个按钮</string>

@@ -502,8 +502,6 @@
     <string name="error_whatsapp_video_call_missing_data">Tidak dapat melakukan panggilan video WhatsApp - data kontak tidak lengkap</string>
     <string name="error_whatsapp_video_call_unavailable">WhatsApp tidak tersedia untuk panggilan video</string>
     <string name="settings_call_permission_title">Telepon</string>
-    <string name="permissions_background_usage_title">Izinkan Penggunaan di Latar Belakang</string>
-    <string name="permissions_background_usage_desc">Izinkan penggunaan di latar belakang untuk peluncuran aplikasi yang lebih cepat.</string>
     <string name="settings_calls_texts_title">Panggilan &amp; SMS</string>
     <string name="settings_contact_first_button_title">Tombol Pertama</string>
     <string name="settings_contact_second_button_title">Tombol Kedua</string>

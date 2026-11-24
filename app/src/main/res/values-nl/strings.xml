@@ -520,8 +520,6 @@
     <string name="error_whatsapp_video_call_missing_data">Kan WhatsApp-videogesprek niet plaatsen – contactgegevens ontbreken</string>
     <string name="error_whatsapp_video_call_unavailable">WhatsApp is niet beschikbaar voor videogesprekken</string>
     <string name="settings_call_permission_title">Telefoon</string>
-    <string name="permissions_background_usage_title">Achtergrondgebruik toestaan</string>
-    <string name="permissions_background_usage_desc">Achtergrondgebruik toestaan voor sneller opstarten van de app.</string>
     <string name="settings_calls_texts_title">Oproepen &amp; berichten</string>
     <string name="settings_contact_first_button_title">Eerste knop</string>
     <string name="settings_contact_second_button_title">Tweede knop</string>

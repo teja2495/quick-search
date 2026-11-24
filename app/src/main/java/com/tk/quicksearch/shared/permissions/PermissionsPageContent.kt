@@ -17,7 +17,6 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 internal fun PermissionsPageContent(
     isOnboarding: Boolean,
     modifier: Modifier = Modifier,
-    showBackgroundUsage: Boolean = false,
     onRequestUsagePermission: () -> Unit = {},
     onRequestFilePermission: () -> Unit = {},
     onStatesChanged: (PermissionCardStates) -> Unit = {},
@@ -51,8 +50,6 @@ internal fun PermissionsPageContent(
                     notificationAccessDescription = stringResource(R.string.permissions_notification_access_desc),
                     accessibilityTitle = stringResource(R.string.permissions_accessibility_lock_screen_title),
                     accessibilityDescription = stringResource(R.string.permissions_accessibility_lock_screen_desc),
-                    backgroundUsageTitle = stringResource(R.string.permissions_background_usage_title),
-                    backgroundUsageDescription = stringResource(R.string.permissions_background_usage_desc),
                 ),
             modifier =
                 if (isOnboarding) {
@@ -66,7 +63,6 @@ internal fun PermissionsPageContent(
             showCallingPermission = !isOnboarding,
             showNotificationsPermission = !isOnboarding,
             showAccessibilityPermission = !isOnboarding,
-            showBackgroundUsage = showBackgroundUsage && !isOnboarding,
             segmented = true,
             showItemIcons = false,
             cardContainer = { cardModifier, content ->

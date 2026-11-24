@@ -502,8 +502,6 @@
     <string name="error_whatsapp_video_call_missing_data">WhatsApp వీడియో కాల్ చేయలేము - పరిచయాల డేటా లేదు</string>
     <string name="error_whatsapp_video_call_unavailable">వీడియో కాల్స్ కోసం WhatsApp అందుబాటులో లేదు</string>
     <string name="settings_call_permission_title">ఫోన్</string>
-    <string name="permissions_background_usage_title">బ్యాక్‌గ్రౌండ్ వినియోగాన్ని అనుమతించు</string>
-    <string name="permissions_background_usage_desc">వేగవంతమైన యాప్ ప్రారంభం కోసం బ్యాక్‌గ్రౌండ్ వినియోగాన్ని అనుమతించండి.</string>
     <string name="settings_calls_texts_title">కాల్స్ &amp; టెక్స్ట్‌లు</string>
     <string name="settings_contact_first_button_title">మొదటి బటన్</string>
     <string name="settings_contact_second_button_title">రెండవ బటన్</string>

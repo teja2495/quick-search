@@ -501,8 +501,6 @@
     <string name="error_whatsapp_video_call_missing_data">Impossibile avviare la videochiamata WhatsApp - dati del contatto mancanti</string>
     <string name="error_whatsapp_video_call_unavailable">WhatsApp non è disponibile per le videochiamate</string>
     <string name="settings_call_permission_title">Telefono</string>
-    <string name="permissions_background_usage_title">Consenti l\'uso in background</string>
-    <string name="permissions_background_usage_desc">Consenti l\'uso in background per un avvio più rapido delle app.</string>
     <string name="settings_calls_texts_title">Chiamate e SMS</string>
     <string name="settings_contact_first_button_title">Primo pulsante</string>
     <string name="settings_contact_second_button_title">Secondo pulsante</string>
