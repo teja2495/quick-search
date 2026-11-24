@@ -1228,6 +1228,8 @@
     <string name="widget_countdown_format_progress">Progress %</string>
     <string name="widget_countdown_progress_hint">Shows how much of the time from when you set the date has passed.</string>
     <string name="widget_world_clock_widget_title">World Clock Widget</string>
+    <string name="widget_reminders_widget_title">Reminders Widget</string>
+    <string name="widget_reminders_empty">No upcoming reminders</string>
     <string name="widget_world_clock_locations">Locations</string>
     <string name="widget_world_clock_add_location">Add location</string>
     <string name="widget_world_clock_search_hint">Search country or time zone</string>

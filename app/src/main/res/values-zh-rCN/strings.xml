@@ -1167,6 +1167,8 @@
     <string name="widget_countdown_format_progress">进度 %</string>
     <string name="widget_countdown_progress_hint">显示自设定日期以来已过去的时间比例。</string>
     <string name="widget_world_clock_widget_title">世界时钟小部件</string>
+    <string name="widget_reminders_widget_title">提醒小部件</string>
+    <string name="widget_reminders_empty">没有即将到来的提醒</string>
     <string name="widget_world_clock_locations">地点</string>
     <string name="widget_world_clock_add_location">添加地点</string>
     <string name="widget_world_clock_search_hint">搜索国家/地区或时区</string>

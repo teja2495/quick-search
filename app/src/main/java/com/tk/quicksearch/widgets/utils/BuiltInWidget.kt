@@ -15,6 +15,9 @@ import com.tk.quicksearch.widgets.countdownWidget.CountdownWidget
 import com.tk.quicksearch.widgets.countdownWidget.CountdownWidgetReceiver
 import com.tk.quicksearch.widgets.noteWidget.NoteWidget
 import com.tk.quicksearch.widgets.noteWidget.NoteWidgetReceiver
+import com.tk.quicksearch.widgets.remindersWidget.RemindersWidget
+import com.tk.quicksearch.widgets.remindersWidget.RemindersWidgetConfigContent
+import com.tk.quicksearch.widgets.remindersWidget.RemindersWidgetReceiver
 import com.tk.quicksearch.widgets.searchWidget.SearchWidget
 import com.tk.quicksearch.widgets.searchWidget.SearchWidgetReceiver
 import com.tk.quicksearch.widgets.worldClockWidget.WorldClockWidget
@@ -70,6 +73,12 @@ internal enum class BuiltInWidget(
         ::WorldClockWidget,
         { WorldClockWidget.DEFAULT_SIZE },
         configure = { id, save, cancel -> WorldClockWidgetConfigContent(id, save, cancel) },
+    ),
+    REMINDERS(
+        RemindersWidgetReceiver::class.java,
+        ::RemindersWidget,
+        { RemindersWidget.DEFAULT_SIZE },
+        configure = { id, save, cancel -> RemindersWidgetConfigContent(id, save, cancel) },
     ),
     AT_A_GLANCE(
         AtAGlanceWidgetReceiver::class.java,

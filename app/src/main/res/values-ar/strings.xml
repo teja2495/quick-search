@@ -1238,6 +1238,8 @@
     <string name="widget_countdown_format_progress">التقدّم %</string>
     <string name="widget_countdown_progress_hint">يعرض مقدار ما مضى من الوقت منذ تعيين التاريخ.</string>
     <string name="widget_world_clock_widget_title">أداة الساعة العالمية</string>
+    <string name="widget_reminders_widget_title">أداة التذكيرات</string>
+    <string name="widget_reminders_empty">لا توجد تذكيرات قادمة</string>
     <string name="widget_world_clock_locations">المواقع</string>
     <string name="widget_world_clock_add_location">إضافة موقع</string>
     <string name="widget_world_clock_search_hint">ابحث عن دولة أو منطقة زمنية</string>

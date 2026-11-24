@@ -10,6 +10,7 @@ import com.tk.quicksearch.search.noted.NotedGlanceTasks
 import com.tk.quicksearch.search.utils.SearchRankingUtils
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import com.tk.quicksearch.shared.time.ScheduleRepeat
+import com.tk.quicksearch.widgets.utils.requestRemindersWidgetsRefresh
 import java.time.LocalDate
 import java.time.ZoneId
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -310,6 +311,7 @@ class ReminderRepository(context: Context) {
             writeReminders(transform(readReminders()))
         }
         notifyChanged()
+        requestRemindersWidgetsRefresh(appContext)
     }
 
     private fun readReminders(): List<ReminderInfo> {

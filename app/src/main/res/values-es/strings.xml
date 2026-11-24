@@ -1181,6 +1181,8 @@
     <string name="widget_countdown_format_progress">Progreso %</string>
     <string name="widget_countdown_progress_hint">Muestra cuánto tiempo ha pasado desde que estableciste la fecha.</string>
     <string name="widget_world_clock_widget_title">Widget de reloj mundial</string>
+    <string name="widget_reminders_widget_title">Widget de recordatorios</string>
+    <string name="widget_reminders_empty">No hay recordatorios próximos</string>
     <string name="widget_world_clock_locations">Ubicaciones</string>
     <string name="widget_world_clock_add_location">Añadir ubicación</string>
     <string name="widget_world_clock_search_hint">Buscar país o zona horaria</string>

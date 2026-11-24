@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher picker preview and initial layout; mirrors RemindersWidget's default look (the Note
+     widget's 60% opaque card that follows the system theme) with grey bars standing in for reminders. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_note_placeholder_background"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="@string/section_reminders"
+        android:textColor="@color/widget_note_placeholder_content"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_reminder"
+            android:tint="@color/widget_note_placeholder_content" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="40dp"
+            android:alpha="0.25"
+            android:background="@drawable/widget_note_placeholder_line" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_reminder"
+            android:tint="@color/widget_note_placeholder_content" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="80dp"
+            android:alpha="0.25"
+            android:background="@drawable/widget_note_placeholder_line" />
+
+    </LinearLayout>
+
+</LinearLayout>

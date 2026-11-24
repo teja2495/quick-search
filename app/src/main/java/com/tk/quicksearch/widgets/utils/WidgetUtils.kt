@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 
 private val MediaPlaybackRevisionKey = longPreferencesKey("media_playback_revision")
 
-private val noteWidgetRefreshScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+private val widgetRefreshScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
 fun requestAddQuickSearchWidget(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -106,18 +106,29 @@ private const val ONE_UI_RESIZE_RATIO_OPTION = "hsResizeRatio"
 suspend fun refreshAtAGlanceWidgets(context: Context) = refreshBuiltInWidget(context, BuiltInWidget.AT_A_GLANCE)
 
 /** Fire-and-forget [refreshNoteWidgets] for callers outside a coroutine. */
-fun requestNoteWidgetsRefresh(context: Context) {
+fun requestNoteWidgetsRefresh(context: Context) = requestBuiltInWidgetRefresh(context, BuiltInWidget.NOTE)
+
+suspend fun refreshRemindersWidgets(context: Context) = refreshBuiltInWidget(context, BuiltInWidget.REMINDERS)
+
+/** Fire-and-forget [refreshRemindersWidgets], e.g. after a reminder is added, edited or marked done. */
+fun requestRemindersWidgetsRefresh(context: Context) = requestBuiltInWidgetRefresh(context, BuiltInWidget.REMINDERS)
+
+/** Redraws [definition]'s placed widgets in the background; does nothing when none are placed. */
+private fun requestBuiltInWidgetRefresh(
+    context: Context,
+    definition: BuiltInWidget,
+) {
     val appContext = context.applicationContext
     // Devices without widget support have no AppWidgetManager.
-    val hasNoteWidgets =
+    val isPlaced =
         runCatching {
             AppWidgetManager
                 .getInstance(appContext)
-                .getAppWidgetIds(ComponentName(appContext, BuiltInWidget.NOTE.receiver))
+                .getAppWidgetIds(ComponentName(appContext, definition.receiver))
                 .isNotEmpty()
         }.getOrDefault(false)
-    if (!hasNoteWidgets) return
-    noteWidgetRefreshScope.launch { runCatching { refreshNoteWidgets(appContext) } }
+    if (!isPlaced) return
+    widgetRefreshScope.launch { runCatching { refreshBuiltInWidget(appContext, definition) } }
 }
 
 /** The Glance widget that renders [variant]'s placed instances. */

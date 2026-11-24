@@ -1181,6 +1181,8 @@
 <string name="widget_countdown_format_progress">Progression %</string>
 <string name="widget_countdown_progress_hint">Indique la part du temps écoulée depuis que vous avez choisi la date.</string>
 <string name="widget_world_clock_widget_title">Widget d\'horloge mondiale</string>
+<string name="widget_reminders_widget_title">Widget de rappels</string>
+<string name="widget_reminders_empty">Aucun rappel à venir</string>
 <string name="widget_world_clock_locations">Lieux</string>
 <string name="widget_world_clock_add_location">Ajouter un lieu</string>
 <string name="widget_world_clock_search_hint">Rechercher un pays ou un fuseau horaire</string>

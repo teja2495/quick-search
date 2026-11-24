@@ -1181,6 +1181,8 @@
     <string name="widget_countdown_format_progress">పురోగతి %</string>
     <string name="widget_countdown_progress_hint">మీరు తేదీని సెట్ చేసినప్పటి నుండి ఎంత సమయం గడిచిందో చూపిస్తుంది.</string>
     <string name="widget_world_clock_widget_title">ప్రపంచ గడియారం విడ్జెట్</string>
+    <string name="widget_reminders_widget_title">రిమైండర్‌ల విడ్జెట్</string>
+    <string name="widget_reminders_empty">రాబోయే రిమైండర్‌లు లేవు</string>
     <string name="widget_world_clock_locations">ప్రదేశాలు</string>
     <string name="widget_world_clock_add_location">ప్రదేశాన్ని జోడించండి</string>
     <string name="widget_world_clock_search_hint">దేశం లేదా టైమ్ జోన్ వెతకండి</string>

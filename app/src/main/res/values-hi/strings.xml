@@ -1181,6 +1181,8 @@
     <string name="widget_countdown_format_progress">प्रगति %</string>
     <string name="widget_countdown_progress_hint">दिखाता है कि तारीख सेट करने के बाद से कितना समय बीत चुका है।</string>
     <string name="widget_world_clock_widget_title">विश्व घड़ी विजेट</string>
+    <string name="widget_reminders_widget_title">रिमाइंडर विजेट</string>
+    <string name="widget_reminders_empty">कोई आगामी रिमाइंडर नहीं</string>
     <string name="widget_world_clock_locations">स्थान</string>
     <string name="widget_world_clock_add_location">स्थान जोड़ें</string>
     <string name="widget_world_clock_search_hint">देश या समय क्षेत्र खोजें</string>

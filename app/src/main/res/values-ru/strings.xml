@@ -1209,6 +1209,8 @@
 <string name="widget_countdown_format_progress">Прогресс %</string>
 <string name="widget_countdown_progress_hint">Показывает, какая часть времени прошла с момента выбора даты.</string>
 <string name="widget_world_clock_widget_title">Виджет мировых часов</string>
+<string name="widget_reminders_widget_title">Виджет напоминаний</string>
+<string name="widget_reminders_empty">Нет предстоящих напоминаний</string>
 <string name="widget_world_clock_locations">Места</string>
 <string name="widget_world_clock_add_location">Добавить место</string>
 <string name="widget_world_clock_search_hint">Поиск страны или часового пояса</string>
