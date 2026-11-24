@@ -124,8 +124,8 @@ internal object NotedQuickNoteAlias : NotedEndAlias(aliasTargetId = "noted_quick
     override suspend fun send(repository: NotedRepository, text: String) = repository.addToQuickNote(text)
 }
 
-/** "nt": adds the query as an unscheduled task to Noted's To Do list. */
-internal object NotedTaskAlias : NotedEndAlias(aliasTargetId = "noted_task", defaultAlias = "nt") {
+/** "ntt": adds the query as an unscheduled task to Noted's To Do list. */
+internal object NotedTaskAlias : NotedEndAlias(aliasTargetId = "noted_task", defaultAlias = "ntt") {
     override val addedMessage = R.string.noted_task_added
     override val failedMessage = R.string.noted_task_failed
 
