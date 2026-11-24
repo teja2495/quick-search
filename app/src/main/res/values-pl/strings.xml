@@ -1224,6 +1224,13 @@ www.google.com/search?q={{query}}</string>
     <string name="widget_world_clock_widget_title">Widżet zegara światowego</string>
     <string name="widget_reminders_widget_title">Widżet przypomnień</string>
     <string name="widget_reminders_empty">Brak nadchodzących przypomnień</string>
+    <string name="widget_reminders_show_today_tomorrow">Pokaż nadchodzące przypomnienia na dziś i jutro</string>
+    <plurals name="widget_reminders_show_next_days">
+        <item quantity="one">Pokaż nadchodzące przypomnienia na następny %d dzień</item>
+        <item quantity="few">Pokaż nadchodzące przypomnienia na następne %d dni</item>
+        <item quantity="many">Pokaż nadchodzące przypomnienia na następne %d dni</item>
+        <item quantity="other">Pokaż nadchodzące przypomnienia na następne %d dnia</item>
+    </plurals>
     <string name="widget_world_clock_locations">Lokalizacje</string>
     <string name="widget_world_clock_add_location">Dodaj lokalizację</string>
     <string name="widget_world_clock_search_hint">Szukaj kraju lub strefy czasowej</string>

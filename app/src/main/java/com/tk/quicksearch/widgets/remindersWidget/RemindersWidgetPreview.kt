@@ -56,8 +56,12 @@ fun RemindersWidgetPreview(
     wallpaperBitmap: ImageBitmap?,
 ) {
     val context = LocalContext.current
-    val rows by produceState<List<AtAGlanceWidgetRow>?>(initialValue = null) {
-        value = withContext(Dispatchers.IO) { loadRemindersWidgetSnapshot(context).rows.take(PREVIEW_MAX_ROWS) }
+    // Keeps the last rows while the next ones load, so dragging the days slider doesn't flicker.
+    val rows by produceState<List<AtAGlanceWidgetRow>?>(initialValue = null, config.upcomingDays) {
+        value =
+            withContext(Dispatchers.IO) {
+                loadRemindersWidgetSnapshot(context, config.upcomingDays).rows.take(PREVIEW_MAX_ROWS)
+            }
     }
     val style = config.style
     val colors = NoteWidgetColors.forWidget(style, isSystemDark = isSystemInDarkTheme())

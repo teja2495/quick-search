@@ -1229,6 +1229,11 @@ www.google.com/search?q={{query}}</string>
     <string name="widget_world_clock_widget_title">Wereldklok-widget</string>
     <string name="widget_reminders_widget_title">Herinneringenwidget</string>
     <string name="widget_reminders_empty">Geen komende herinneringen</string>
+    <string name="widget_reminders_show_today_tomorrow">Toon komende herinneringen voor vandaag en morgen</string>
+    <plurals name="widget_reminders_show_next_days">
+        <item quantity="one">Toon komende herinneringen voor de volgende %d dag</item>
+        <item quantity="other">Toon komende herinneringen voor de komende %d dagen</item>
+    </plurals>
     <string name="widget_world_clock_locations">Locaties</string>
     <string name="widget_world_clock_add_location">Locatie toevoegen</string>
     <string name="widget_world_clock_search_hint">Zoek land of tijdzone</string>

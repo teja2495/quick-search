@@ -1186,6 +1186,10 @@
     <string name="widget_world_clock_widget_title">Widget Jam Dunia</string>
     <string name="widget_reminders_widget_title">Widget Pengingat</string>
     <string name="widget_reminders_empty">Tidak ada pengingat mendatang</string>
+    <string name="widget_reminders_show_today_tomorrow">Tampilkan pengingat mendatang untuk hari ini dan besok</string>
+    <plurals name="widget_reminders_show_next_days">
+        <item quantity="other">Tampilkan pengingat mendatang untuk %d hari ke depan</item>
+    </plurals>
     <string name="widget_world_clock_locations">Lokasi</string>
     <string name="widget_world_clock_add_location">Tambah lokasi</string>
     <string name="widget_world_clock_search_hint">Cari negara atau zona waktu</string>

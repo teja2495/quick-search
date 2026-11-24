@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.graphics.Color
 import com.tk.quicksearch.R
@@ -152,6 +153,30 @@ private fun formatBorderWidth(value: Float): String =
 @Composable
 internal fun SliderRow(
     label: String,
+    value: Float,
+    valueRange: ClosedFloatingPointRange<Float>,
+    steps: Int,
+    valueFormatter: (Float) -> String,
+    labelTextStyle: TextStyle = MaterialTheme.typography.titleMedium,
+    labelColor: Color = MaterialTheme.colorScheme.onSurface,
+    showTicks: Boolean = true,
+    onValueChange: (Float) -> Unit,
+) = SliderRow(
+    label = AnnotatedString(label),
+    value = value,
+    valueRange = valueRange,
+    steps = steps,
+    valueFormatter = valueFormatter,
+    labelTextStyle = labelTextStyle,
+    labelColor = labelColor,
+    showTicks = showTicks,
+    onValueChange = onValueChange,
+)
+
+/** A [SliderRow] whose label can carry styled spans, such as a bold count. */
+@Composable
+internal fun SliderRow(
+    label: AnnotatedString,
     value: Float,
     valueRange: ClosedFloatingPointRange<Float>,
     steps: Int,

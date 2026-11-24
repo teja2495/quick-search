@@ -1183,6 +1183,11 @@
 <string name="widget_world_clock_widget_title">Widget d\'horloge mondiale</string>
 <string name="widget_reminders_widget_title">Widget de rappels</string>
 <string name="widget_reminders_empty">Aucun rappel à venir</string>
+<string name="widget_reminders_show_today_tomorrow">Afficher les rappels à venir pour aujourd\'hui et demain</string>
+<plurals name="widget_reminders_show_next_days">
+    <item quantity="one">Afficher les rappels à venir pour le prochain %d jour</item>
+    <item quantity="other">Afficher les rappels à venir pour les %d prochains jours</item>
+</plurals>
 <string name="widget_world_clock_locations">Lieux</string>
 <string name="widget_world_clock_add_location">Ajouter un lieu</string>
 <string name="widget_world_clock_search_hint">Rechercher un pays ou un fuseau horaire</string>

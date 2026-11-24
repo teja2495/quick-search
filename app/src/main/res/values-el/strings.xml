@@ -1183,6 +1183,11 @@
     <string name="widget_world_clock_widget_title">Γραφικό στοιχείο παγκόσμιου ρολογιού</string>
     <string name="widget_reminders_widget_title">Γραφικό στοιχείο υπενθυμίσεων</string>
     <string name="widget_reminders_empty">Δεν υπάρχουν επερχόμενες υπενθυμίσεις</string>
+    <string name="widget_reminders_show_today_tomorrow">Εμφάνιση επερχόμενων υπενθυμίσεων για σήμερα και αύριο</string>
+    <plurals name="widget_reminders_show_next_days">
+        <item quantity="one">Εμφάνιση επερχόμενων υπενθυμίσεων για την επόμενη %d ημέρα</item>
+        <item quantity="other">Εμφάνιση επερχόμενων υπενθυμίσεων για τις επόμενες %d ημέρες</item>
+    </plurals>
     <string name="widget_world_clock_locations">Τοποθεσίες</string>
     <string name="widget_world_clock_add_location">Προσθήκη τοποθεσίας</string>
     <string name="widget_world_clock_search_hint">Αναζήτηση χώρας ή ζώνης ώρας</string>

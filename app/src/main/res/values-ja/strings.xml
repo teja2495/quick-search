@@ -1192,6 +1192,10 @@ www.google.com/search?q={{query}}</string>
     <string name="widget_world_clock_widget_title">世界時計ウィジェット</string>
     <string name="widget_reminders_widget_title">リマインダーウィジェット</string>
     <string name="widget_reminders_empty">今後のリマインダーはありません</string>
+    <string name="widget_reminders_show_today_tomorrow">今日と明日のリマインダーを表示</string>
+    <plurals name="widget_reminders_show_next_days">
+        <item quantity="other">今後%d日間のリマインダーを表示</item>
+    </plurals>
     <string name="widget_world_clock_locations">地域</string>
     <string name="widget_world_clock_add_location">地域を追加</string>
     <string name="widget_world_clock_search_hint">国または時間帯を検索</string>

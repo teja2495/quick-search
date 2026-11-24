@@ -1240,6 +1240,15 @@
     <string name="widget_world_clock_widget_title">أداة الساعة العالمية</string>
     <string name="widget_reminders_widget_title">أداة التذكيرات</string>
     <string name="widget_reminders_empty">لا توجد تذكيرات قادمة</string>
+    <string name="widget_reminders_show_today_tomorrow">عرض التذكيرات القادمة لليوم وغدًا</string>
+    <plurals name="widget_reminders_show_next_days">
+        <item quantity="zero">عرض التذكيرات القادمة للـ%d يوم التالية</item>
+        <item quantity="one">عرض التذكيرات القادمة لليوم التالي</item>
+        <item quantity="two">عرض التذكيرات القادمة لليومين التاليين</item>
+        <item quantity="few">عرض التذكيرات القادمة للأيام الـ%d التالية</item>
+        <item quantity="many">عرض التذكيرات القادمة للـ%d يومًا التالية</item>
+        <item quantity="other">عرض التذكيرات القادمة للـ%d يوم التالية</item>
+    </plurals>
     <string name="widget_world_clock_locations">المواقع</string>
     <string name="widget_world_clock_add_location">إضافة موقع</string>
     <string name="widget_world_clock_search_hint">ابحث عن دولة أو منطقة زمنية</string>

@@ -1211,6 +1211,13 @@
 <string name="widget_world_clock_widget_title">Виджет мировых часов</string>
 <string name="widget_reminders_widget_title">Виджет напоминаний</string>
 <string name="widget_reminders_empty">Нет предстоящих напоминаний</string>
+<string name="widget_reminders_show_today_tomorrow">Показывать предстоящие напоминания на сегодня и завтра</string>
+<plurals name="widget_reminders_show_next_days">
+    <item quantity="one">Показывать предстоящие напоминания на следующий %d день</item>
+    <item quantity="few">Показывать предстоящие напоминания на следующие %d дня</item>
+    <item quantity="many">Показывать предстоящие напоминания на следующие %d дней</item>
+    <item quantity="other">Показывать предстоящие напоминания на следующие %d дня</item>
+</plurals>
 <string name="widget_world_clock_locations">Места</string>
 <string name="widget_world_clock_add_location">Добавить место</string>
 <string name="widget_world_clock_search_hint">Поиск страны или часового пояса</string>

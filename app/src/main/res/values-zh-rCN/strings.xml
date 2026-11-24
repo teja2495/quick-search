@@ -1169,6 +1169,10 @@
     <string name="widget_world_clock_widget_title">世界时钟小部件</string>
     <string name="widget_reminders_widget_title">提醒小部件</string>
     <string name="widget_reminders_empty">没有即将到来的提醒</string>
+    <string name="widget_reminders_show_today_tomorrow">显示今天和明天即将到来的提醒</string>
+    <plurals name="widget_reminders_show_next_days">
+        <item quantity="other">显示接下来%d天即将到来的提醒</item>
+    </plurals>
     <string name="widget_world_clock_locations">地点</string>
     <string name="widget_world_clock_add_location">添加地点</string>
     <string name="widget_world_clock_search_hint">搜索国家/地区或时区</string>

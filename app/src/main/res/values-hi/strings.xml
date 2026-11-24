@@ -1183,6 +1183,11 @@
     <string name="widget_world_clock_widget_title">विश्व घड़ी विजेट</string>
     <string name="widget_reminders_widget_title">रिमाइंडर विजेट</string>
     <string name="widget_reminders_empty">कोई आगामी रिमाइंडर नहीं</string>
+    <string name="widget_reminders_show_today_tomorrow">आज और कल के आगामी रिमाइंडर दिखाएं</string>
+    <plurals name="widget_reminders_show_next_days">
+        <item quantity="one">अगले %d दिन के आगामी रिमाइंडर दिखाएं</item>
+        <item quantity="other">अगले %d दिनों के आगामी रिमाइंडर दिखाएं</item>
+    </plurals>
     <string name="widget_world_clock_locations">स्थान</string>
     <string name="widget_world_clock_add_location">स्थान जोड़ें</string>
     <string name="widget_world_clock_search_hint">देश या समय क्षेत्र खोजें</string>

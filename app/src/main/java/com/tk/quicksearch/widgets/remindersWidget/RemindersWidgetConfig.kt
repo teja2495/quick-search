@@ -5,6 +5,7 @@ import android.os.Parcelable
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.ReminderRepository
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -26,26 +27,43 @@ import kotlinx.parcelize.Parcelize
 private object RemindersWidgetKeys {
     /** Set on the first save, so an unsaved widget starts from the Note look instead of the shared defaults. */
     val SAVED = booleanPreferencesKey("reminders_widget_saved")
+    val UPCOMING_DAYS = intPreferencesKey("reminders_widget_upcoming_days")
 }
 
 internal object RemindersWidgetDefaults {
-    /** Upcoming reminders are listed through this many days after today. */
-    const val UPCOMING_DAYS = 3L
+    /** Upcoming reminders are listed through this many days after today, unless the widget sets otherwise. */
+    const val UPCOMING_DAYS = 3
+    const val UPCOMING_DAYS_MIN = 1
+    const val UPCOMING_DAYS_MAX = 7
 
     /** RemoteViews collections are sent in one parcel, so the list stops well short of its size limit. */
     const val MAX_ROWS = 30
 }
 
-/** A Reminders widget's settings: the Note widget's background, text color, corner radius and transparency. */
+/**
+ * A Reminders widget's settings: how many days ahead it lists, and the Note widget's background, text
+ * color, corner radius and transparency plus a text size.
+ */
 @Parcelize
 data class RemindersWidgetConfig(
     val style: WidgetPreferences = WidgetPreferences.Default.withNoteWidgetDefaults(),
-) : Parcelable
+    val upcomingDays: Int = RemindersWidgetDefaults.UPCOMING_DAYS,
+) : Parcelable {
+    fun coerceToValidRanges(): RemindersWidgetConfig =
+        copy(
+            style = style.coerceToValidRanges(),
+            upcomingDays =
+                upcomingDays.coerceIn(RemindersWidgetDefaults.UPCOMING_DAYS_MIN, RemindersWidgetDefaults.UPCOMING_DAYS_MAX),
+        )
+}
 
 /** Reads a Reminders widget's settings; a widget that was never saved gets the defaults. */
 fun Preferences.toRemindersWidgetConfig(context: Context): RemindersWidgetConfig =
     if (this[RemindersWidgetKeys.SAVED] == true) {
-        RemindersWidgetConfig(style = toWidgetPreferences(context).coerceToValidRanges())
+        RemindersWidgetConfig(
+            style = toWidgetPreferences(context),
+            upcomingDays = this[RemindersWidgetKeys.UPCOMING_DAYS] ?: RemindersWidgetDefaults.UPCOMING_DAYS,
+        ).coerceToValidRanges()
     } else {
         RemindersWidgetConfig()
     }
@@ -54,7 +72,9 @@ fun MutablePreferences.applyRemindersWidgetConfig(
     config: RemindersWidgetConfig,
     context: Context,
 ) {
-    applyWidgetPreferences(config.style.coerceToValidRanges(), context)
+    val validated = config.coerceToValidRanges()
+    applyWidgetPreferences(validated.style, context)
+    this[RemindersWidgetKeys.UPCOMING_DAYS] = validated.upcomingDays
     this[RemindersWidgetKeys.SAVED] = true
 }
 
@@ -65,11 +85,11 @@ internal data class RemindersWidgetSnapshot(
 )
 
 /**
- * Every undone reminder that is overdue or due from today through [RemindersWidgetDefaults.UPCOMING_DAYS]
- * days ahead, soonest first, worded as on the At a Glance widget. Blocking; call off the main thread.
+ * Every undone reminder that is overdue or due from today through [upcomingDays] days ahead, soonest first, worded as on the At a Glance widget. Blocking; call off the main thread.
  */
 internal fun loadRemindersWidgetSnapshot(
     context: Context,
+    upcomingDays: Int,
     nowMillis: Long = System.currentTimeMillis(),
 ): RemindersWidgetSnapshot {
     val appContext = context.applicationContext
@@ -79,7 +99,7 @@ internal fun loadRemindersWidgetSnapshot(
             .ofEpochMilli(nowMillis)
             .atZone(ZoneId.systemDefault())
             .toLocalDate()
-            .plusDays(RemindersWidgetDefaults.UPCOMING_DAYS)
+            .plusDays(upcomingDays.toLong())
     val reminders =
         ReminderRepository(appContext)
             .getAllReminders()

@@ -1183,6 +1183,11 @@
     <string name="widget_world_clock_widget_title">Weltuhr-Widget</string>
     <string name="widget_reminders_widget_title">Erinnerungs-Widget</string>
     <string name="widget_reminders_empty">Keine anstehenden Erinnerungen</string>
+    <string name="widget_reminders_show_today_tomorrow">Anstehende Erinnerungen für heute und morgen anzeigen</string>
+    <plurals name="widget_reminders_show_next_days">
+        <item quantity="one">Anstehende Erinnerungen für den nächsten %d Tag anzeigen</item>
+        <item quantity="other">Anstehende Erinnerungen für die nächsten %d Tage anzeigen</item>
+    </plurals>
     <string name="widget_world_clock_locations">Orte</string>
     <string name="widget_world_clock_add_location">Ort hinzufügen</string>
     <string name="widget_world_clock_search_hint">Land oder Zeitzone suchen</string>

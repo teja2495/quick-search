@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,8 +20,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
@@ -34,9 +41,12 @@ import com.tk.quicksearch.widgets.utils.WidgetConfigConstants
 import com.tk.quicksearch.widgets.utils.drawNow
 import com.tk.quicksearch.widgets.utils.rememberWidgetPreviewWallpaper
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetConfigScaffold
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.SliderRow
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetLoadingState
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetSettingTile
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetSlidersSection
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetTextSizeSection
+import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 /** Loads [appWidgetId]'s Reminders widget settings, shows [RemindersWidgetConfigScreen] and saves on Save. */
@@ -72,7 +82,7 @@ fun RemindersWidgetConfigContent(
     )
 }
 
-/** Settings for a Reminders widget: the Note widget's background, text color, corner radius and transparency, plus text size. */
+/** Settings for a Reminders widget: how many days ahead it lists, and its look. */
 @Composable
 fun RemindersWidgetConfigScreen(
     config: RemindersWidgetConfig,
@@ -103,6 +113,27 @@ fun RemindersWidgetConfigScreen(
                         ),
                 verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.SECTION_SPACING),
             ) {
+                WidgetSettingTile {
+                    val days = config.upcomingDays
+                    SliderRow(
+                        // Days are counted after today, so 1 lists today and tomorrow.
+                        label =
+                            if (days == 1) {
+                                AnnotatedString(stringResource(R.string.widget_reminders_show_today_tomorrow))
+                            } else {
+                                boldCount(pluralStringResource(R.plurals.widget_reminders_show_next_days, days, days), days)
+                            },
+                        labelTextStyle = MaterialTheme.typography.bodyLarge,
+                        value = days.toFloat(),
+                        valueRange =
+                            RemindersWidgetDefaults.UPCOMING_DAYS_MIN.toFloat()..RemindersWidgetDefaults.UPCOMING_DAYS_MAX.toFloat(),
+                        // One stop per day between the ends.
+                        steps = RemindersWidgetDefaults.UPCOMING_DAYS_MAX - RemindersWidgetDefaults.UPCOMING_DAYS_MIN - 1,
+                        // The label already says the count.
+                        valueFormatter = { "" },
+                        onValueChange = { onConfigChange(config.copy(upcomingDays = it.roundToInt())) },
+                    )
+                }
                 SegmentedGroup {
                     NoteWidgetBackgroundSection(
                         state = config.style,
@@ -128,6 +159,21 @@ fun RemindersWidgetConfigScreen(
                 )
             }
         }
+    }
+}
+
+/** [text] with the first [count] in it bold; the number is formatted as the plural resource formats it. */
+@Composable
+private fun boldCount(
+    text: String,
+    count: Int,
+): AnnotatedString {
+    val locale = LocalConfiguration.current.locales[0]
+    val number = String.format(locale, "%d", count)
+    val start = text.indexOf(number)
+    return buildAnnotatedString {
+        append(text)
+        if (start >= 0) addStyle(SpanStyle(fontWeight = FontWeight.Bold), start, start + number.length)
     }
 }
 

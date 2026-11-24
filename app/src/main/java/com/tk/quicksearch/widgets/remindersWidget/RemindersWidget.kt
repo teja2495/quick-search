@@ -74,7 +74,7 @@ class RemindersWidget : GlanceAppWidget() {
         val prefs = currentState<Preferences>()
         val context = LocalContext.current
         val config = prefs.toRemindersWidgetConfig(context)
-        val snapshot = loadRemindersWidgetSnapshot(context)
+        val snapshot = loadRemindersWidgetSnapshot(context, config.upcomingDays)
         LaunchedEffect(snapshot.nextChangeMillis) {
             RemindersWidgetReceiver.scheduleRefresh(context, snapshot.nextChangeMillis)
         }
