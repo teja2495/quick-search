@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="58dp"
-    android:background="@drawable/widget_quick_search_placeholder_outline"
+    android:background="@drawable/widget_preview_pill_background"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingStart="20dp"
@@ -15,7 +15,7 @@
         android:layout_height="20dp"
         android:src="@drawable/ic_widget_search"
         android:contentDescription="@string/common_search"
-        android:tint="@android:color/white" />
+        android:tint="@color/widget_note_placeholder_content" />
 
     <TextView
         android:layout_width="0dp"
@@ -24,7 +24,7 @@
         android:layout_weight="1"
         android:gravity="center"
         android:text="@string/app_name"
-        android:textColor="@android:color/white"
+        android:textColor="@color/widget_note_placeholder_content"
         android:textStyle="bold" />
 
     <ImageView
@@ -32,6 +32,6 @@
         android:layout_height="20dp"
         android:src="@drawable/ic_widget_mic"
         android:contentDescription="@string/desc_voice_search_icon"
-        android:tint="@android:color/white" />
+        android:tint="@color/widget_note_placeholder_content" />
 
 </LinearLayout>

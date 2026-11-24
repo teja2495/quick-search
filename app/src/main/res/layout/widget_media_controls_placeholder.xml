@@ -30,7 +30,8 @@
                     android:layout_gravity="center"
                     android:alpha="0.7"
                     android:importantForAccessibility="no"
-                    android:src="@drawable/ic_media_controls_music_note" />
+                    android:src="@drawable/ic_media_controls_music_note"
+                    android:tint="@color/widget_note_placeholder_content" />
 
             </FrameLayout>
 
@@ -42,7 +43,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="@string/widget_media_controls_nothing_playing"
-                android:textColor="@android:color/white"
+                android:textColor="@color/widget_note_placeholder_content"
                 android:textSize="15sp" />
 
         </LinearLayout>
@@ -63,7 +64,8 @@
                     android:layout_height="18dp"
                     android:layout_gravity="center"
                     android:contentDescription="@string/media_seek_back"
-                    android:src="@drawable/ic_media_controls_rewind" />
+                    android:src="@drawable/ic_media_controls_rewind"
+                    android:tint="@color/widget_note_placeholder_content" />
 
             </FrameLayout>
 
@@ -82,7 +84,8 @@
                         android:layout_height="21dp"
                         android:layout_gravity="center"
                         android:contentDescription="@string/media_command_previous"
-                        android:src="@drawable/ic_media_controls_previous" />
+                        android:src="@drawable/ic_media_controls_previous"
+                        android:tint="@color/widget_note_placeholder_content" />
 
                 </FrameLayout>
 
@@ -104,7 +107,7 @@
                         android:layout_gravity="center"
                         android:contentDescription="@string/media_command_play_pause"
                         android:src="@drawable/ic_media_controls_play"
-                        android:tint="@android:color/black" />
+                        android:tint="@color/widget_preview_on_content" />
 
                 </FrameLayout>
 
@@ -125,7 +128,8 @@
                         android:layout_height="21dp"
                         android:layout_gravity="center"
                         android:contentDescription="@string/media_command_next"
-                        android:src="@drawable/ic_media_controls_next" />
+                        android:src="@drawable/ic_media_controls_next"
+                        android:tint="@color/widget_note_placeholder_content" />
 
                 </FrameLayout>
 
@@ -141,7 +145,8 @@
                     android:layout_height="18dp"
                     android:layout_gravity="center"
                     android:contentDescription="@string/media_seek_forward"
-                    android:src="@drawable/ic_media_controls_fast_forward" />
+                    android:src="@drawable/ic_media_controls_fast_forward"
+                    android:tint="@color/widget_note_placeholder_content" />
 
             </FrameLayout>
 

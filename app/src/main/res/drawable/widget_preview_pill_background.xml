@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Picker preview pill for the search bar and custom buttons widgets; shares the other previews'
+     surface (a white card in light theme, the dark card in dark theme). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <corners android:radius="29dp" />
+
+    <solid android:color="@color/widget_note_placeholder_surface" />
+
+</shape>

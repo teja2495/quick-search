@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Launcher picker preview and initial layout; mirrors NoteWidget's default look (a 60% opaque card
+<!-- Launcher picker preview and initial layout; mirrors NoteWidget's default look (a card
      that follows the system theme) with grey bars standing in for the note's text. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"

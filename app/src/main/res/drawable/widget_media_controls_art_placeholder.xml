@@ -5,6 +5,6 @@
     <!-- Concentric with the 29dp placeholder card: 29dp minus the 10dp inset. -->
     <corners android:radius="19dp" />
 
-    <solid android:color="#26FFFFFF" />
+    <solid android:color="@color/widget_preview_subtle_fill" />
 
 </shape>

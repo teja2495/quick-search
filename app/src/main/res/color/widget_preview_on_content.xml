@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon color on a filled widget_note_placeholder_content shape (the media preview's play button). -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="#FFFFFFFF" />
+</selector>

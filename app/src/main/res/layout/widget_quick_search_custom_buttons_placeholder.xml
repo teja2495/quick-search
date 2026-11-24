@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="58dp"
-    android:background="@drawable/widget_quick_search_placeholder_outline"
+    android:background="@drawable/widget_preview_pill_background"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingStart="20dp"
@@ -16,7 +16,7 @@
         android:layout_weight="1"
         android:src="@drawable/ic_widget_contact"
         android:contentDescription="@string/widget_custom_buttons_widget_title"
-        android:tint="@android:color/white" />
+        android:tint="@color/widget_note_placeholder_content" />
 
     <ImageView
         android:layout_width="0dp"
@@ -24,7 +24,7 @@
         android:layout_weight="1"
         android:src="@drawable/ic_widget_apps"
         android:contentDescription="@string/widget_custom_buttons_widget_title"
-        android:tint="@android:color/white" />
+        android:tint="@color/widget_note_placeholder_content" />
 
     <ImageView
         android:layout_width="0dp"
@@ -32,7 +32,7 @@
         android:layout_weight="1"
         android:src="@drawable/ic_widget_folder"
         android:contentDescription="@string/widget_custom_buttons_widget_title"
-        android:tint="@android:color/white" />
+        android:tint="@color/widget_note_placeholder_content" />
 
     <ImageView
         android:layout_width="0dp"
@@ -40,7 +40,7 @@
         android:layout_weight="1"
         android:src="@drawable/ic_widget_file"
         android:contentDescription="@string/widget_custom_buttons_widget_title"
-        android:tint="@android:color/white" />
+        android:tint="@color/widget_note_placeholder_content" />
 
     <ImageView
         android:layout_width="0dp"
@@ -48,7 +48,7 @@
         android:layout_weight="1"
         android:src="@drawable/ic_widget_shortcut"
         android:contentDescription="@string/widget_custom_buttons_widget_title"
-        android:tint="@android:color/white" />
+        android:tint="@color/widget_note_placeholder_content" />
 
     <ImageView
         android:layout_width="0dp"
@@ -56,6 +56,6 @@
         android:layout_weight="1"
         android:src="@drawable/ic_widget_settings"
         android:contentDescription="@string/widget_custom_buttons_widget_title"
-        android:tint="@android:color/white" />
+        android:tint="@color/widget_note_placeholder_content" />
 
 </LinearLayout>

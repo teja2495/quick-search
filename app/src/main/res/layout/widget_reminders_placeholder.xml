@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Launcher picker preview and initial layout; mirrors RemindersWidget's default look (the Note
-     widget's 60% opaque card that follows the system theme) with grey bars standing in for reminders. -->
+     widget's theme-aware card) with grey bars standing in for reminders. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
