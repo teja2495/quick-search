@@ -126,6 +126,8 @@
     <string name="settings_gesture_swipe_right">Swipe Right</string>
     <string name="settings_gesture_widget_panel">Widget Panel</string>
     <string name="widget_pinned_to_home">Added to Home</string>
+    <string name="widget_move_to_panel">Move to Widget Panel</string>
+    <string name="widget_moved_to_panel">Moved to Widget Panel</string>
     <string name="settings_gesture_swipe_left">Swipe Left</string>
     <string name="settings_gesture_swipe_up">Swipe Up</string>
     <string name="settings_gesture_swipe_down">Swipe Down</string>

@@ -14,9 +14,6 @@ import com.tk.quicksearch.search.core.AppTheme
 /** Frosted card fill for light app-theme (gradient) result surfaces; mirrors dark wallpaper scrim alpha. */
 internal const val LightResultCardFrostAlpha = 0.72f
 
-/** Alpha applied to the compact search engine strip and open-keyboard button in all scenarios. */
-internal const val CompactSectionAlpha = 0.8f
-
 /** Search result card scrim over wallpaper / custom image background in light mode. */
 internal const val LightWallpaperSearchResultCardAlpha = 0.9f
 

@@ -120,6 +120,8 @@
     <string name="settings_gesture_swipe_right">दाएँ स्वाइप करें</string>
     <string name="settings_gesture_widget_panel">विजेट पैनल</string>
     <string name="widget_pinned_to_home">होम में जोड़ा गया</string>
+    <string name="widget_move_to_panel">विजेट पैनल में ले जाएं</string>
+    <string name="widget_moved_to_panel">विजेट पैनल में ले जाया गया</string>
     <string name="settings_gesture_swipe_left">बाएँ स्वाइप करें</string>
     <string name="settings_gesture_swipe_up">ऊपर स्वाइप करें</string>
     <string name="settings_gesture_swipe_down">नीचे स्वाइप करें</string>

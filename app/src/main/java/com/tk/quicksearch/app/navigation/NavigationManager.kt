@@ -74,7 +74,6 @@ import com.tk.quicksearch.widgetsPanel.rememberWidgetsPanelHost
 import com.tk.quicksearch.shared.ui.components.AppMessageSnackbarHost
 import com.tk.quicksearch.shared.ui.components.LocalSegmentedItemModifier
 import com.tk.quicksearch.onboarding.welcomeExitItem
-import com.tk.quicksearch.search.searchScreen.components.searchTouchDebugLog
 
 enum class RootDestination {
     WidgetsPanel,
@@ -484,7 +483,8 @@ private fun NavigationContent(
     val openKeyboardPillMemory = remember { OpenKeyboardPillMemory() }
     val settingsPageData = remember { SettingsPageData() }
     val widgetsPanelHost = rememberWidgetsPanelHost()
-    Box(modifier = Modifier.fillMaxSize().searchTouchDebugLog("root", destination) { com.tk.quicksearch.search.searchScreen.components.pageSwipeDebugState(destination, pageSwipeController) }) {
+    val homeWidgetHost = com.tk.quicksearch.widgetsPanel.rememberHomeWidgetHost()
+    Box(modifier = Modifier.fillMaxSize()) {
         // Keep the backdrop warm across Settings unless the system requests memory.
         val wallpaper = rememberSharedPageWallpaper(
             state = uiState,
@@ -504,6 +504,7 @@ private fun NavigationContent(
             LocalSharedPageWallpaper provides wallpaper,
             LocalSettingsPageData provides settingsPageData,
             LocalHomeAppearedContentKeys provides homeAppearedContentKeys,
+            com.tk.quicksearch.widgetsPanel.LocalHomeWidgetHost provides homeWidgetHost,
             LocalPageSwipeController provides if (returnToOverlay) null else pageSwipeController,
         ) {
             PageSwipeHost(controller = pageSwipeController, destination = destination) { targetDestination ->
@@ -530,9 +531,7 @@ private fun NavigationContent(
                             previousSettingsDetailType = previousSettingsDetailType,
                             settingsDetailAnimationDirectionOverride = settingsDetailAnimationDirectionOverride,
                             onSettingsDetailTypeChange = onSettingsDetailTypeChange,
-                            onSettingsDetailAnimationDirectionConsumed = {
-                                settingsDetailAnimationDirectionOverride = null
-                            },
+                            onSettingsDetailAnimationDirectionConsumed = { settingsDetailAnimationDirectionOverride = null },
                             onRootAnimationDirectionChange = { rootAnimationDirectionOverride = it },
                             onDestinationChange = onDestinationChange,
                             pendingSettingsImportUri = pendingSettingsImportUri,

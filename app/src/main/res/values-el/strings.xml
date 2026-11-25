@@ -120,6 +120,8 @@
     <string name="settings_gesture_swipe_right">Σάρωση δεξιά</string>
     <string name="settings_gesture_widget_panel">Πίνακας widget</string>
     <string name="widget_pinned_to_home">Προστέθηκε στην Αρχική</string>
+    <string name="widget_move_to_panel">Μετακίνηση στον πίνακα widget</string>
+    <string name="widget_moved_to_panel">Μετακινήθηκε στον πίνακα widget</string>
     <string name="settings_gesture_swipe_left">Σάρωση αριστερά</string>
     <string name="settings_gesture_swipe_up">Σάρωση προς τα πάνω</string>
     <string name="settings_gesture_swipe_down">Σάρωση προς τα κάτω</string>

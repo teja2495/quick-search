@@ -121,6 +121,8 @@
     <string name="settings_gesture_swipe_right">Przesunięcie w prawo</string>
     <string name="settings_gesture_widget_panel">Panel widżetów</string>
     <string name="widget_pinned_to_home">Dodano do ekranu głównego</string>
+    <string name="widget_move_to_panel">Przenieś do panelu widżetów</string>
+    <string name="widget_moved_to_panel">Przeniesiono do panelu widżetów</string>
     <string name="settings_gesture_swipe_left">Przesunięcie w lewo</string>
     <string name="settings_gesture_swipe_up">Przesunięcie w górę</string>
     <string name="settings_gesture_swipe_down">Przesunięcie w dół</string>

@@ -106,7 +106,7 @@ internal fun decodeStartupPreferences(
         themedIconsEnabled = boolean(UiPreferences.KEY_THEMED_ICONS_ENABLED),
         deviceThemeEnabled = boolean(UiPreferences.KEY_DEVICE_THEME_ENABLED),
         amoledThemeEnabled = boolean(UiPreferences.KEY_AMOLED_THEME_ENABLED),
-        searchChromeBlurEnabled = boolean(UiPreferences.KEY_SEARCH_CHROME_BLUR_ENABLED),
+        searchChromeBlurEnabled = boolean(UiPreferences.KEY_SEARCH_CHROME_BLUR_ENABLED, true),
         accentColorMode = UiPreferences.resolveAccentColorMode(
             savedModeName = allPrefs[UiPreferences.KEY_ACCENT_COLOR_MODE] as? String,
             wallpaperAccentEnabled = boolean(UiPreferences.KEY_WALLPAPER_ACCENT_ENABLED, true),

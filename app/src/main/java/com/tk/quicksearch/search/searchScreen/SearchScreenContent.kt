@@ -61,14 +61,13 @@ import com.tk.quicksearch.tools.setAlarm.SetAlarmHandler
 import com.tk.quicksearch.tools.setAlarm.StartTimerHandler
 import com.tk.quicksearch.reminders.ReminderNaturalLanguageParser
 import com.tk.quicksearch.shared.util.cachedDefaultHomeAppStatus
-import com.tk.quicksearch.shared.util.openNotificationShade
+import androidx.compose.ui.zIndex
 import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
 import com.tk.quicksearch.search.other.OtherSearchItemRegistry
 import com.tk.quicksearch.search.other.OtherSearchItemId
 import com.tk.quicksearch.search.other.OtherSearchItemActionHandler
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
-import com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity
 import com.tk.quicksearch.app.startup.StartupTrace
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
@@ -611,6 +610,8 @@ internal fun SearchScreenContent(
         )
     }
 
+    val homeWidgetEditGuard = com.tk.quicksearch.widgetsPanel.LocalHomeWidgetEditGuard.current
+    val isHomeWidgetEditing = { homeWidgetEditGuard?.isEditing == true }
     val swipeActions = rememberSearchScreenSwipeActions(
         swipeUpAction = swipeUpAction,
         swipeDownAction = swipeDownAction,
@@ -627,6 +628,7 @@ internal fun SearchScreenContent(
         isImeVisible = isImeVisible,
         searchFocusRequester = searchFocusRequester,
         keyboardController = keyboardController,
+        isGestureBlocked = isHomeWidgetEditing,
     )
     val onLauncherSwipeUp = swipeActions.onLauncherSwipeUp
     val onLauncherSwipeDown = swipeActions.onLauncherSwipeDown
@@ -638,10 +640,12 @@ internal fun SearchScreenContent(
         LocalSearchResultQuery provides state.query.trim(),
         LocalInsetCardBackdrop provides searchBarGeometry.insetCardBackdrop,
         LocalSearchChromeBlurEnabled provides state.searchChromeBlurEnabled,
+        LocalOverlayResultCardColor provides overlayCardColor,
         com.tk.quicksearch.tools.calculator.LocalCalculatorResultQueryHandler provides onQueryChanged,
     ) {
     Column(modifier = contentModifier, verticalArrangement = Arrangement.Top) {
-        if (showSearchField && !showBottomSearchBar) Box(Modifier.fillMaxWidth().then(bottomBarSwipeModifier)) { searchFieldContent() }
+        // Above the results, which extend up behind it and would otherwise take its taps.
+        if (showSearchField && !showBottomSearchBar) Box(Modifier.fillMaxWidth().zIndex(1f).then(bottomBarSwipeModifier)) { searchFieldContent() }
         if (!showSearchField) PinnedGlanceFocusTarget(searchFocusRequester)
 
         if (showSearchField && !showBottomSearchBar && !state.oneHandedMode) {
@@ -711,19 +715,23 @@ internal fun SearchScreenContent(
                 aiSearchState = state.AiSearchState,
                 isOverlayPresentation = isOverlayPresentation,
                 onBottomOneHandedOverscrollUp = {
-                    searchFocusRequester.requestFocus()
-                    keyboardController?.show()
+                    if (!isHomeWidgetEditing()) {
+                        searchFocusRequester.requestFocus()
+                        keyboardController?.show()
+                    }
                 },
                 onLauncherOverscrollUp = onLauncherSwipeUp,
                 onLauncherOverscrollDown = onLauncherSwipeDown,
                 onHomeDoubleTap = {
-                    homeDoubleTapAction.performHomeGesture(
-                        homeDoubleTapCustomActionJson,
-                        homeDoubleTapAliasTarget,
-                        context,
-                        { action, target -> onGestureAliasTarget(action, target) },
-                        onCloseQuickSearch,
-                    )
+                    if (!isHomeWidgetEditing()) {
+                        homeDoubleTapAction.performHomeGesture(
+                            homeDoubleTapCustomActionJson,
+                            homeDoubleTapAliasTarget,
+                            context,
+                            { action, target -> onGestureAliasTarget(action, target) },
+                            onCloseQuickSearch,
+                        )
+                    }
                 },
                 selectedTopMatchIndex = selectedTopMatchIndex,
                 topMatches = topMatchSubmission.topMatches,

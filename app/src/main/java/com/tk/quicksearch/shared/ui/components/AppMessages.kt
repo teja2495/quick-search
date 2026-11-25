@@ -1,9 +1,9 @@
 package com.tk.quicksearch.shared.ui.components
 
-import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,7 +48,7 @@ object AppMessages {
             if (host != null) {
                 host.show(text, if (long) SnackbarDuration.Long else SnackbarDuration.Short)
             } else {
-                AppMessages.show(appContext, text, long = true)
+                Toast.makeText(appContext, text, if (long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT).show()
             }
         }
         if (Looper.myLooper() == Looper.getMainLooper()) run() else mainHandler.post(run)

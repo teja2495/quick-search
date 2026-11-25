@@ -270,9 +270,9 @@ fun SearchBarStyleCard(
                 onClick = {
                     onSetSearchBarStyle(SearchBarStyle())
                     if (!settingsIconEnabled) onToggleSettingsIcon(true)
-                    if (searchChromeBlurEnabled) onToggleSearchChromeBlur(false)
+                    if (!searchChromeBlurEnabled) onToggleSearchChromeBlur(true)
                 },
-                enabled = !previewStyle.isDefault || !settingsIconEnabled || searchChromeBlurEnabled,
+                enabled = !previewStyle.isDefault || !settingsIconEnabled || !searchChromeBlurEnabled,
                 modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
             )
       }

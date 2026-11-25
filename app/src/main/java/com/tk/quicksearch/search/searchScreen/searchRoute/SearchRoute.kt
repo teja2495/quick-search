@@ -393,6 +393,7 @@ fun SearchRoute(
             LocalShowUndoSnackbar provides undoActions.showUndoSnackbarWithIcon,
             LocalUndoSnackbarAnchor provides undoActions.snackbarAnchor,
             LocalOpenPopupTracker provides openPopupTracker,
+            com.tk.quicksearch.widgetsPanel.LocalHomeWidgetEditGuard provides gestures.homeWidgetEditGuard,
         ) {
             SearchScreenComposable(
                 modifier =

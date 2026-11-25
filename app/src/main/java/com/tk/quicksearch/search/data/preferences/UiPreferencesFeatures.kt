@@ -88,7 +88,7 @@ open class UiPreferencesFeatures(context: Context) : UiPreferencesCore(context) 
         setBooleanPref(UiPreferences.KEY_AMOLED_THEME_ENABLED, enabled)
     }
 
-    fun isSearchChromeBlurEnabled(): Boolean = getBooleanPref(UiPreferences.KEY_SEARCH_CHROME_BLUR_ENABLED, false)
+    fun isSearchChromeBlurEnabled(): Boolean = getBooleanPref(UiPreferences.KEY_SEARCH_CHROME_BLUR_ENABLED, true)
 
     fun setSearchChromeBlurEnabled(enabled: Boolean) {
         setBooleanPref(UiPreferences.KEY_SEARCH_CHROME_BLUR_ENABLED, enabled)

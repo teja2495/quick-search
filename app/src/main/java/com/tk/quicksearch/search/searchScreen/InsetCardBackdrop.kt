@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
 import com.tk.quicksearch.shared.ui.theme.LocalAmoledThemeActive
-import com.tk.quicksearch.shared.ui.theme.FrostedResultCardScrimFactor
+import com.tk.quicksearch.search.searchScreen.shared.readableFrostedCardScrim
 
 /** Blur applied to results showing through the bottom chrome surfaces. */
 private val InsetCardBackdropBlurRadius = 20.dp
@@ -259,7 +259,7 @@ internal fun Modifier.insetCardBackdrop(enabled: Boolean, shape: Shape, anywhere
 
 /**
  * Surface colour, made translucent while it draws the blurred results behind it. Over a frosted
- * wallpaper it takes the result cards' lighter scrim ([FrostedResultCardScrimFactor]) so the
+ * wallpaper it takes the result cards' scrim ([readableFrostedCardScrim]) so the
  * chrome shows the same blur as the cards. With chrome blur off it is made opaque instead.
  */
 @Composable
@@ -269,13 +269,12 @@ internal fun insetCardBackground(enabled: Boolean, color: Color, anywhere: Boole
     if (!LocalSearchChromeBlurEnabled.current) {
         return if (eligible && color.alpha > 0f && color.alpha < 1f) solidChromeColor(color) else color
     }
-    val frosted = eligible && LocalFrostedCardSource.current?.isActive == true
+    // Over a frosted wallpaper, the exact scrim the result cards use.
+    if (eligible && LocalFrostedCardSource.current?.isActive == true) return readableFrostedCardScrim(color)
     val backdrop = LocalInsetCardBackdrop.current
     val blurred = eligible && backdrop != null && backdrop.blurSupported
-    var alpha = color.alpha
-    if (blurred) alpha = alpha.coerceAtMost(InsetCardBlurredBackgroundMaxAlpha)
-    if (frosted) alpha = minOf(alpha, color.alpha * FrostedResultCardScrimFactor)
-    return if (alpha == color.alpha) color else color.copy(alpha = alpha)
+    if (!blurred || color.alpha <= InsetCardBlurredBackgroundMaxAlpha) return color
+    return color.copy(alpha = InsetCardBlurredBackgroundMaxAlpha)
 }
 
 @Composable

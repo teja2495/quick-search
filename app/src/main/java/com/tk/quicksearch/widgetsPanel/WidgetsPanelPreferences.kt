@@ -16,42 +16,102 @@ data class PanelWidgetInfo(
     val row: Int? = null,
     val columnSpan: Int? = null,
     val rowSpan: Int? = null,
-    /** False after a Home-pinned widget is removed from the widgets panel. */
+    /** True for a widgets panel record; false for a Home record. */
     val isInPanel: Boolean = true,
-    /** Home placement; null when the widget is only in the widgets panel. */
+    /**
+     * Home placement, set only on Home records. The panel and Home keep separate records (and
+     * separate widget instances), so a widget on one is independent of any on the other.
+     */
     val home: HomeWidgetPlacement? = null,
     /**
      * Further pages of a widget stack, after this widget, which is the first page and owns the
-     * stack's panel placement. Empty for a regular widget. Home shows only the first page.
+     * stack's placement. Empty for a regular widget.
      */
     val stack: List<StackedPanelWidget> = emptyList(),
 )
+
+/** True for a Home record, false for a widgets panel record. */
+internal val PanelWidgetInfo.isOnHome: Boolean
+    get() = home != null
+
+/** The record on Home ([onHome]) or in the panel whose first page is [ownerId]. */
+internal fun PanelWidgetInfo.isOwner(
+    ownerId: Int,
+    onHome: Boolean,
+): Boolean = appWidgetId == ownerId && isOnHome == onHome
+
+/**
+ * Splits records from before the panel and Home kept separate records: a widget that was in the
+ * panel and pinned to Home becomes a panel record (with its stack) and a Home record showing its
+ * first page, as Home did then. Both keep using the one widget id they shared.
+ */
+internal fun List<PanelWidgetInfo>.splitSharedRecords(): List<PanelWidgetInfo> =
+    flatMap { widget ->
+        if (widget.isInPanel && widget.home != null) {
+            listOf(widget.copy(home = null), widget.copy(isInPanel = false, stack = emptyList()))
+        } else {
+            listOf(widget)
+        }
+    }
+
+/** Whether any record still shows [appWidgetId], so its widget id must not be released. */
+/**
+ * Turns the Home record [ownerId] into a panel record that keeps its size; the grid places it in
+ * the first free spot. Pages the panel already shows are dropped so no widget id appears there
+ * twice, and if that leaves nothing the Home record is simply removed.
+ */
+internal fun List<PanelWidgetInfo>.withHomeWidgetMovedToPanel(ownerId: Int): List<PanelWidgetInfo> {
+    val source = firstOrNull { it.isOwner(ownerId, onHome = true) } ?: return this
+    val home = source.home ?: return this
+    val shownInPanel = filter { it.isInPanel }.flatMap { it.pageIds }.toSet()
+    val stack = source.stack.filterNot { it.appWidgetId in shownInPanel }
+    val moved =
+        when {
+            source.appWidgetId !in shownInPanel -> source.copy(stack = stack)
+            stack.isNotEmpty() ->
+                source.copy(
+                    appWidgetId = stack.first().appWidgetId,
+                    providerPackage = stack.first().providerPackage,
+                    providerClassName = stack.first().providerClassName,
+                    stack = stack.drop(1),
+                )
+            else -> null
+        }?.copy(
+            isInPanel = true,
+            home = null,
+            column = null,
+            row = null,
+            columnSpan = home.columnSpan,
+            rowSpan = home.rowSpan,
+        )
+    return mapNotNull { widget -> if (widget === source) moved else widget }
+}
+
+internal fun List<PanelWidgetInfo>.referencesWidgetId(appWidgetId: Int): Boolean =
+    any { appWidgetId in it.pageIds }
 
 /** See [WidgetsPanelPreferences.removeStackPage]. */
 internal fun List<PanelWidgetInfo>.withoutStackPage(
     ownerId: Int,
     pageId: Int,
+    onHome: Boolean = false,
 ): List<PanelWidgetInfo> =
     flatMap { widget ->
         when {
-            widget.appWidgetId != ownerId -> listOf(widget)
+            !widget.isOwner(ownerId, onHome) -> listOf(widget)
             pageId != ownerId ->
                 listOf(widget.copy(stack = widget.stack.filterNot { it.appWidgetId == pageId }))
-            widget.stack.isEmpty() ->
-                listOfNotNull(widget.copy(isInPanel = false).takeIf { widget.home != null })
+            widget.stack.isEmpty() -> emptyList()
             else -> {
+                // The next page takes over the stack's record, keeping its place.
                 val promoted = widget.stack.first()
-                listOfNotNull(
+                listOf(
                     widget.copy(
                         appWidgetId = promoted.appWidgetId,
                         providerPackage = promoted.providerPackage,
                         providerClassName = promoted.providerClassName,
-                        home = null,
-                        isInPanel = true,
                         stack = widget.stack.drop(1),
                     ),
-                    // The first page stays on Home on its own.
-                    widget.copy(isInPanel = false, stack = emptyList()).takeIf { widget.home != null },
                 )
             }
         }
@@ -59,15 +119,15 @@ internal fun List<PanelWidgetInfo>.withoutStackPage(
 
 /**
  * Puts the pages of the stack owned by [ownerId] in [orderedIds] order. The new first page takes
- * over the stack's record, keeping its panel placement (and Home placement: Home shows the first
- * page). Left unchanged when [orderedIds] isn't a reordering of the stack's pages.
+ * over the stack's record, keeping its placement. Left unchanged when [orderedIds] isn't a reordering of the stack's pages.
  */
 internal fun List<PanelWidgetInfo>.withStackOrder(
     ownerId: Int,
     orderedIds: List<Int>,
+    onHome: Boolean = false,
 ): List<PanelWidgetInfo> =
     map { widget ->
-        if (widget.appWidgetId != ownerId) return@map widget
+        if (!widget.isOwner(ownerId, onHome)) return@map widget
         val pages =
             (listOf(StackedPanelWidget(widget.appWidgetId, widget.providerPackage, widget.providerClassName)) + widget.stack)
                 .associateBy { it.appWidgetId }
@@ -96,8 +156,6 @@ internal fun List<PanelWidgetInfo>.dropUnboundPages(unboundIds: Set<Int>): List<
                     appWidgetId = pages.first().appWidgetId,
                     providerPackage = pages.first().providerPackage,
                     providerClassName = pages.first().providerClassName,
-                    home = null,
-                    isInPanel = true,
                     stack = pages.drop(1),
                 )
         }
@@ -233,7 +291,7 @@ class WidgetsPanelPreferences(
                         )
                     }
                 }
-            }
+            }.splitSharedRecords()
         } catch (_: JSONException) {
             emptyList()
         }
@@ -284,7 +342,7 @@ class WidgetsPanelPreferences(
         val page = StackedPanelWidget(QUICK_NOTE_PANEL_WIDGET_ID, QUICK_NOTE_PROVIDER, QUICK_NOTE_PROVIDER)
         val next =
             current.map { widget ->
-                if (widget.appWidgetId == ownerId) widget.copy(stack = widget.stack + page) else widget
+                if (widget.isOwner(ownerId, onHome = false)) widget.copy(stack = widget.stack + page) else widget
             }
         setWidgets(next)
         return next
@@ -331,31 +389,33 @@ class WidgetsPanelPreferences(
         return next
     }
 
-    /** Adds [appWidgetId] as the last page of the stack owned by [ownerId]. */
+    /** Adds [appWidgetId] as the last page of the stack owned by [ownerId], on Home or in the panel. */
     fun addToStack(
         ownerId: Int,
         appWidgetId: Int,
         provider: ComponentName,
+        onHome: Boolean = false,
     ): List<PanelWidgetInfo> {
         val page = StackedPanelWidget(appWidgetId, provider.packageName, provider.className)
         val next =
             getWidgets().map { widget ->
-                if (widget.appWidgetId == ownerId) widget.copy(stack = widget.stack + page) else widget
+                if (widget.isOwner(ownerId, onHome)) widget.copy(stack = widget.stack + page) else widget
             }
         setWidgets(next)
         return next
     }
 
     /**
-     * Removes one page of a stack from the panel. Removing the first page promotes the next one to
-     * own the stack's placement, so the stack keeps its place; a stack left with one page becomes a
+     * Removes one page of a stack on Home or in the panel. Removing the first page promotes the
+     * next one to own the stack's placement, so the stack keeps its place; a stack left with one page becomes a
      * regular widget. Ids no longer shown anywhere are for the caller to release.
      */
     fun reorderStack(
         ownerId: Int,
         orderedIds: List<Int>,
+        onHome: Boolean = false,
     ): List<PanelWidgetInfo> {
-        val next = getWidgets().withStackOrder(ownerId, orderedIds)
+        val next = getWidgets().withStackOrder(ownerId, orderedIds, onHome)
         setWidgets(next)
         return next
     }
@@ -363,29 +423,36 @@ class WidgetsPanelPreferences(
     fun removeStackPage(
         ownerId: Int,
         pageId: Int,
+        onHome: Boolean = false,
     ): List<PanelWidgetInfo> {
-        val next = getWidgets().withoutStackPage(ownerId, pageId)
+        val next = getWidgets().withoutStackPage(ownerId, pageId, onHome)
         setWidgets(next)
         return next
     }
 
     /**
-     * Replaces the Home placements of the given widgets, leaving their panel placement alone.
-     * Widgets left in neither Home nor the panel are dropped; returns their ids so the caller can
-     * release them.
+     * Replaces the placements of the given Home widgets; a null placement removes the widget from
+     * Home. Returns the widget ids no record shows any more, so the caller can release them.
      */
     fun setHomePlacements(placements: Map<Int, HomeWidgetPlacement?>): List<Int> {
         val updated =
             getWidgets().map { widget ->
-                if (widget.appWidgetId in placements) {
+                if (widget.isOnHome && widget.appWidgetId in placements) {
                     widget.copy(home = placements[widget.appWidgetId])
                 } else {
                     widget
                 }
             }
-        val (orphaned, next) = updated.partition { !it.isInPanel && it.home == null }
+        val (removed, next) = updated.partition { !it.isInPanel && it.home == null }
         setWidgets(next)
-        return orphaned.map { it.appWidgetId }
+        return removed.flatMap { it.pageIds }.filterNot { isQuickNotePage(it) || next.referencesWidgetId(it) }
+    }
+
+    /** Moves a Home widget (with its stack) to the panel. Returns the updated widget list. */
+    fun moveHomeWidgetToPanel(ownerId: Int): List<PanelWidgetInfo> {
+        val next = getWidgets().withHomeWidgetMovedToPanel(ownerId)
+        setWidgets(next)
+        return next
     }
 
     private companion object {

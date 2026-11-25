@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.core.ItemPriorityConfig
 import com.tk.quicksearch.widgetsPanel.HomeWidgetStack
+import com.tk.quicksearch.widgetsPanel.LocalHomeWidgetHost
 import com.tk.quicksearch.widgetsPanel.rememberHomePinnedWidgets
 import com.tk.quicksearch.widgetsPanel.rememberHomeWidgetHost
 
@@ -34,7 +35,8 @@ internal fun ContentLayoutColumn(
     val homeWidgets = rememberHomePinnedWidgets(enabled = !isOverlayPresentation)
     // The container only depends on whether any widget is pinned, so typing a query keeps the same
     // layout tree instead of rebuilding every section.
-    val homeWidgetHost = if (homeWidgets.isNotEmpty()) rememberHomeWidgetHost() else null
+    val sharedHomeWidgetHost = LocalHomeWidgetHost.current
+    val homeWidgetHost = if (homeWidgets.isNotEmpty()) sharedHomeWidgetHost ?: rememberHomeWidgetHost() else null
 
     if (homeWidgetHost != null) {
         HomeWidgetStack(

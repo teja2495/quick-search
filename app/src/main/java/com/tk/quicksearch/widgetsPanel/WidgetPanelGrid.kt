@@ -704,8 +704,8 @@ private fun BoxScope.WidgetPanelGridItem(
                 minColumnSpan = spec?.minColumnSpan ?: 1,
                 minRowSpan = spec?.minRowSpan ?: 1,
                 hasConfigure = configureIntent != null,
-                // Home shows a single widget, so a stack stays in the panel.
-                canPinToHome = widget.home == null && !isStack,
+                // Home has no Quick Note, so a stack holding it stays in the panel.
+                canPinToHome = pageIds.none(::isQuickNotePage),
                 onMoveBy = onMoveBy,
                 onMovePreview = onMovePreview,
                 onResizePreview = onResizePreview,

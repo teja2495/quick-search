@@ -115,22 +115,17 @@ internal fun resolveWidgetGridLayout(
             )
     }
 
-    return compactEmptyRows(widgets.map { placedById[it.appWidgetId] ?: it })
+    return widgets.map { placedById[it.appWidgetId] ?: it }
 }
 
 /**
- * Reorders the dragged widget to the requested cell and re-stacks the whole layout so there are
- * never gaps or overlaps, regardless of the widgets having different heights.
+ * Places the dragged widget at the requested cell, keeping any empty space the user left between
+ * widgets. Widgets the dragged one doesn't touch stay exactly where they are.
  *
- * The dragged widget's order position is decided by its *leading edge* crossing a neighbour's
- * centre — its bottom edge when it sits below a neighbour, its top edge when above. A reorder
- * therefore triggers only once the dragged widget is pushed past the midpoint of the neighbour it
- * is crossing, which feels stable in both directions and works even when the two widgets have very
- * different heights (a pure centre-vs-centre test can never lift a tall widget above a short one).
- * Every widget then keeps its column and is packed into the topmost row where it fits — this both
- * preserves side-by-side arrangements and closes any empty rows left behind by the move.
- *
- * All vertical positions are scaled by 2 so centres (row + rowSpan / 2) stay in integer space.
+ * When the target lands on exactly one same-sized widget, the two swap. Otherwise each widget the
+ * dragged one now covers moves, within its own column, to the nearest rows where it fits (upward
+ * on a tie, so it can take the space the dragged widget left). The dragged widget can't go past
+ * the bottom of the other widgets, so a move never adds empty rows at the end of the panel.
  */
 internal fun moveWidgetToCell(
     widgets: List<PanelWidgetInfo>,
@@ -141,15 +136,20 @@ internal fun moveWidgetToCell(
     val current = widgets.firstOrNull { it.appWidgetId == appWidgetId } ?: return widgets
     val columnSpan = current.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN
     val rowSpan = current.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN
+    val others = widgets.filterNot { it.appWidgetId == appWidgetId }
+    val maxRow = others.maxOfOrNull { it.bottomRow() } ?: 0
     val clampedTargetColumn = targetColumn.coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - columnSpan)
-    val clampedTargetRow = targetRow.coerceAtLeast(0)
+    val clampedTargetRow = targetRow.coerceIn(0, maxRow)
     val moved = current.copy(column = clampedTargetColumn, row = clampedTargetRow)
+    if (moved == current) return widgets
 
-    // Fast path: if the target rect lands on exactly one same-sized widget, swap the two. This
-    // keeps a clean swap for equal-size neighbours on either axis (e.g. two half-width widgets
-    // sitting side by side). Such a swap is always valid: the two rects were each in-bounds and
-    // occupied only by the other widget, so nothing else can overlap after the exchange.
-    val overlapping = widgets.filter { it.appWidgetId != appWidgetId && widgetsOverlap(it, moved) }
+    val overlapping = others.filter { widgetsOverlap(it, moved) }
+    if (overlapping.isEmpty()) {
+        return widgets.map { if (it.appWidgetId == appWidgetId) moved else it }
+    }
+
+    // Fast path: if the target rect lands on exactly one same-sized widget, swap the two. Such a
+    // swap is always valid: the two rects were each in-bounds and occupied only by the other.
     val swapTarget = overlapping.singleOrNull()
     if (
         swapTarget != null &&
@@ -165,52 +165,52 @@ internal fun moveWidgetToCell(
         }
     }
 
-    val baseCenter = (current.row ?: 0) * 2 + rowSpan
-    val topEdge = clampedTargetRow * 2
-    val bottomEdge = (clampedTargetRow + rowSpan) * 2
-
-    val others =
-        widgets
-            .filterNot { it.appWidgetId == appWidgetId }
-            .sortedWith(
-                compareBy(
-                    { (it.row ?: 0) * 2 + (it.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN) },
-                    { it.column ?: 0 },
-                ),
+    val displacedIds = overlapping.mapTo(mutableSetOf()) { it.appWidgetId }
+    val occupied = mutableSetOf<Pair<Int, Int>>()
+    markOccupied(occupied, clampedTargetColumn, clampedTargetRow, columnSpan, rowSpan)
+    others
+        .filterNot { it.appWidgetId in displacedIds }
+        .forEach { item ->
+            markOccupied(
+                occupied,
+                item.column ?: 0,
+                item.rowOrZero(),
+                item.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN,
+                item.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN,
             )
-    val insertionIndex =
-        others.count { item ->
-            val itemCenter = (item.row ?: 0) * 2 + (item.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN)
-            // Count neighbours that end up above the dragged widget.
-            if (itemCenter <= baseCenter) {
-                // Originally at/above: stays above until the dragged top rises past its centre.
-                topEdge >= itemCenter
-            } else {
-                // Originally below: moves above once the dragged bottom passes its centre.
-                bottomEdge > itemCenter
-            }
         }
 
-    val ordered = others.toMutableList().apply { add(insertionIndex, moved) }
-
-    val occupied = mutableSetOf<Pair<Int, Int>>()
-    val placedById = mutableMapOf<Int, PanelWidgetInfo>()
-    ordered.forEach { item ->
+    val placedById = mutableMapOf(appWidgetId to moved)
+    overlapping.sortedWith(compareBy({ it.rowOrZero() }, { it.column ?: 0 })).forEach { item ->
         val itemColumnSpan = item.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN
         val itemRowSpan = item.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN
         val itemColumn = (item.column ?: 0).coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - itemColumnSpan)
-        var row = 0
-        while (!canPlace(occupied, itemColumn, row, itemColumnSpan, itemRowSpan)) row++
+        val row = nearestFreeRow(occupied, itemColumn, item.rowOrZero(), itemColumnSpan, itemRowSpan)
         markOccupied(occupied, itemColumn, row, itemColumnSpan, itemRowSpan)
         placedById[item.appWidgetId] = item.copy(column = itemColumn, row = row)
     }
     return widgets.map { placedById[it.appWidgetId] ?: it }
 }
 
-/**
- * Move by one column or past the closest widget in the requested vertical direction. A single
- * row of drag can fall short of a tall neighbour's midpoint and leave the layout unchanged.
- */
+/** The free row closest to [preferredRow] for a rect in [column]; upward wins a tie. */
+private fun nearestFreeRow(
+    occupied: Set<Pair<Int, Int>>,
+    column: Int,
+    preferredRow: Int,
+    columnSpan: Int,
+    rowSpan: Int,
+): Int {
+    var distance = 0
+    while (true) {
+        val up = preferredRow - distance
+        if (up >= 0 && canPlace(occupied, column, up, columnSpan, rowSpan)) return up
+        val down = preferredRow + distance
+        if (distance > 0 && canPlace(occupied, column, down, columnSpan, rowSpan)) return down
+        distance++
+    }
+}
+
+/** Move by one column or one row; the result keeps any empty space between widgets. */
 internal fun moveWidgetByStep(
     widgets: List<PanelWidgetInfo>,
     appWidgetId: Int,
@@ -218,25 +218,15 @@ internal fun moveWidgetByStep(
     rowDelta: Int,
 ): List<PanelWidgetInfo>? {
     val widget = widgets.firstOrNull { it.appWidgetId == appWidgetId } ?: return null
-    val column = widget.column ?: 0
-    val row = widget.rowOrZero()
-    if (columnDelta != 0) {
-        val moved = moveWidgetToCell(widgets, appWidgetId, column + columnDelta, row)
-        return moved.takeUnless { it == widgets }
-    }
-
-    val targetRows =
-        when {
-            rowDelta < 0 -> row - 1 downTo 0
-            rowDelta > 0 -> row + 1..widgets.maxOf { it.bottomRow() }
-            else -> return null
-        }
-    for (targetRow in targetRows) {
-        val moved = moveWidgetToCell(widgets, appWidgetId, column, targetRow)
-        val nextRow = moved.first { it.appWidgetId == appWidgetId }.rowOrZero()
-        if ((rowDelta < 0 && nextRow < row) || (rowDelta > 0 && nextRow > row)) return moved
-    }
-    return null
+    if (columnDelta == 0 && rowDelta == 0) return null
+    val moved =
+        moveWidgetToCell(
+            widgets,
+            appWidgetId,
+            (widget.column ?: 0) + columnDelta.coerceIn(-1, 1),
+            widget.rowOrZero() + rowDelta.coerceIn(-1, 1),
+        )
+    return moved.takeUnless { it == widgets }
 }
 
 /**
@@ -458,32 +448,6 @@ private fun findFirstAvailablePosition(
             }
         }
         row++
-    }
-}
-
-/** Removes fully empty grid rows while preserving widget order, spans, and columns. */
-private fun compactEmptyRows(widgets: List<PanelWidgetInfo>): List<PanelWidgetInfo> {
-    if (widgets.isEmpty()) return widgets
-
-    val occupiedRows = mutableSetOf<Int>()
-    widgets.forEach { widget ->
-        val top = widget.row ?: 0
-        val bottom = top + (widget.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN)
-        for (row in top until bottom) occupiedRows += row
-    }
-
-    val highestBottom = occupiedRows.maxOrNull()?.plus(1) ?: return widgets
-    val emptyRowsBefore = IntArray(highestBottom)
-    var emptyRowCount = 0
-    for (row in 0 until highestBottom) {
-        emptyRowsBefore[row] = emptyRowCount
-        if (row !in occupiedRows) emptyRowCount++
-    }
-    if (emptyRowCount == 0) return widgets
-
-    return widgets.map { widget ->
-        val row = widget.row ?: 0
-        widget.copy(row = row - emptyRowsBefore[row])
     }
 }
 

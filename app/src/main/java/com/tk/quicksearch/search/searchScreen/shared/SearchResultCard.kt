@@ -114,17 +114,8 @@ object SearchResultCardDefaults {
                 showWallpaperBackground = showWallpaperBackground,
                 overlayContainerColor = overlayContainerColor,
             )
-        val frost = LocalFrostedCardSource.current
-        if (!showWallpaperBackground || overlayContainerColor != null || frost?.isActive != true) {
-            return base
-        }
-        val tint = frost.tint
-        val foreground = MaterialTheme.colorScheme.onSurfaceVariant
-        val isDarkTheme = LocalAppIsDarkTheme.current
-        return remember(base, tint, foreground, isDarkTheme) {
-            val worstWallpaper = tint.compositeOver(if (isDarkTheme) Color.White else Color.Black)
-            readableFrostedScrim(base, foreground, worstWallpaper, isDarkTheme)
-        }
+        if (!showWallpaperBackground || overlayContainerColor != null) return base
+        return readableFrostedCardScrim(base)
     }
 
     /**
@@ -138,6 +129,24 @@ object SearchResultCardDefaults {
     ): Color =
         overlayDividerColor
             ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant
+}
+
+/**
+ * [base] lightened to the frosted-card scrim while a frosted wallpaper is drawn behind it, raised
+ * only as far as card text needs to stay readable. Shared by result cards and the search chrome.
+ */
+@Composable
+internal fun readableFrostedCardScrim(base: Color): Color {
+    val frost = LocalFrostedCardSource.current
+    // A transparent surface (the bar inside the compact-engine card) stays transparent.
+    if (frost?.isActive != true || base.alpha <= 0f) return base
+    val tint = frost.tint
+    val foreground = MaterialTheme.colorScheme.onSurfaceVariant
+    val isDarkTheme = LocalAppIsDarkTheme.current
+    return remember(base, tint, foreground, isDarkTheme) {
+        val worstWallpaper = tint.compositeOver(if (isDarkTheme) Color.White else Color.Black)
+        readableFrostedScrim(base, foreground, worstWallpaper, isDarkTheme)
+    }
 }
 
 /** Keeps the lightest usable scrim even over a fully white or black custom image. */

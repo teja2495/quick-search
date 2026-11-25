@@ -376,7 +376,8 @@ fun SearchScreen(
         }
     }
 
-    val homeWidgetEditGuard = remember { HomeWidgetEditGuard() }
+    val routeHomeWidgetEditGuard = LocalHomeWidgetEditGuard.current
+    val homeWidgetEditGuard = remember(routeHomeWidgetEditGuard) { routeHomeWidgetEditGuard ?: HomeWidgetEditGuard() }
     CompositionLocalProvider(
         LocalImageBackgroundIsDark provides imageBackgroundIsDark,
         LocalHomeTextColorOverride provides state.homeTextColorOverride,

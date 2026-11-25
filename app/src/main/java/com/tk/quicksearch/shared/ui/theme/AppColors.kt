@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp 
 import com.tk.quicksearch.search.core.AppTheme
+import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 
 object AppColors {
     // Theme-aware semantic colors ------------------------------------------------------------
@@ -508,24 +509,13 @@ object AppColors {
     ): Color = overlayContainerColor ?: getResultCardContainerColor(showWallpaperBackground)
 
     /**
-     * Background color for the custom search engine section strip.
-     * In light mode with wallpaper/custom image, uses a slightly stronger scrim for readability.
+     * Background for the search chrome: the search bar, the compact engine strip and the bands
+     * beside them. Uses the result cards' fill, including the theme-gradient card tint, so the
+     * chrome takes the cards' transparency; insetCardBackground then applies the cards' frosted scrim.
      */
     @Composable
-    fun getSearchEngineSectionBackground(showWallpaperBackground: Boolean): Color {
-        if (showWallpaperBackground && LocalDeviceDynamicColorsActive.current) {
-            // Dark Material You matches the Pixel Launcher's Google bar: a tinted secondary container.
-            return if (LocalAppIsDarkTheme.current) {
-                MaterialTheme.colorScheme.secondaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceContainerHigh
-            }
-        }
-        val isLightWithWallpaper = !LocalAppIsDarkTheme.current && showWallpaperBackground
-        val base = if (!LocalAppIsDarkTheme.current) Color.White else Color.Black
-        val alpha = if (isLightWithWallpaper) LightWallpaperSearchResultCardAlpha else CompactSectionAlpha
-        return base.copy(alpha = alpha)
-    }
+    fun getSearchEngineSectionBackground(showWallpaperBackground: Boolean): Color =
+        LocalOverlayResultCardColor.current ?: getResultCardContainerColor(showWallpaperBackground)
 
     /**
      * Background color for settings cards and the management search bar.

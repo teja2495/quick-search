@@ -120,6 +120,8 @@
     <string name="settings_gesture_swipe_right">Deslizar para a direita</string>
     <string name="settings_gesture_widget_panel">Painel de widgets</string>
     <string name="widget_pinned_to_home">Adicionado ao Início</string>
+    <string name="widget_move_to_panel">Mover para o painel de widgets</string>
+    <string name="widget_moved_to_panel">Movido para o painel de widgets</string>
     <string name="settings_gesture_swipe_left">Deslizar para a esquerda</string>
     <string name="settings_gesture_swipe_up">Deslizar para cima</string>
     <string name="settings_gesture_swipe_down">Deslizar para baixo</string>

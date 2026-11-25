@@ -323,7 +323,7 @@ data class SearchUiState(
         val themedIconsEnabled: Boolean = true,
         val deviceThemeEnabled: Boolean = false,
         val amoledThemeEnabled: Boolean = false,
-        val searchChromeBlurEnabled: Boolean = false,
+        val searchChromeBlurEnabled: Boolean = true,
         val appSuggestionsEnabled: Boolean = true,
         val showAllAppsButton: Boolean = false,
         val includeNonLaunchableAppsInSearch: Boolean = false,

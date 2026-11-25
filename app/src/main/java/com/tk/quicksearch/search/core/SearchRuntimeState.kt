@@ -46,7 +46,7 @@ internal data class SearchRuntimeState(
     var themedIconsEnabled: Boolean = false,
     var deviceThemeEnabled: Boolean = false,
     var amoledThemeEnabled: Boolean = false,
-    var searchChromeBlurEnabled: Boolean = false,
+    var searchChromeBlurEnabled: Boolean = true,
     var wallpaperBackgroundAlpha: Float,
     var wallpaperBlurRadius: Float,
     var appTheme: AppTheme = AppTheme.MONOCHROME,

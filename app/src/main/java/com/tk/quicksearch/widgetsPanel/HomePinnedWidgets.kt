@@ -90,28 +90,15 @@ internal const val HOME_STACK_LEADING_KEY = "home-stack-leading"
 internal const val HOME_STACK_TRAILING_KEY = "home-stack-trailing"
 
 /**
- * A widget only holds empty space at the open end of Home, where nothing renders past it: the
- * bottom normally, and the top in one-handed mode, where the layout is reversed and bottom
- * aligned. Sections with nothing to show take no room, so they do not close the end. Anywhere
- * else the widget takes a slot between items and Home reflows around it as usual.
- */
-internal fun List<HomeLayoutEntry>.isOpenEndIndex(
-    index: Int,
-    isReversed: Boolean,
-    heightOf: (HomeLayoutEntry) -> Int,
-): Boolean {
-    val beyond = if (isReversed) take(index) else drop(index)
-    return beyond.none { heightOf(it) > 0 }
-}
-
-/**
  * Screen-wide guard for Home widget edit mode. While a widget is selected, a touch anywhere
  * outside it only leaves edit mode: the whole gesture is consumed before Compose content or
  * Android views (other widgets, the search bar, scrolling) can act on it.
  */
 internal class HomeWidgetEditGuard {
     internal var editingBoundsInWindow: () -> Rect? = { null }
-    internal var onDismiss: (() -> Unit)? = null
+    // Snapshot state so screen-level gestures can switch off while a widget is in edit mode.
+    internal var onDismiss: (() -> Unit)? by mutableStateOf(null)
+    internal val isEditing: Boolean get() = onDismiss != null
     internal var originInWindow: Offset = Offset.Zero
 }
 
@@ -190,16 +177,32 @@ internal object HomePinnedWidgetsStore {
         }
     }
 
+    /** Moves a Home widget to the panel: drops it from Home right away and persists off the main thread. */
+    fun moveToPanel(
+        context: Context,
+        ownerId: Int,
+    ) {
+        state.value = state.value.filterNot { it.appWidgetId == ownerId }
+        val appContext = context.applicationContext
+        persistScope.launch { WidgetsPanelPreferences(appContext).moveHomeWidgetToPanel(ownerId) }
+    }
+
     private fun List<PanelWidgetInfo>.homePinned(): List<PanelWidgetInfo> =
-        filter { it.home != null && !it.isQuickNoteWidget() }
+        filter { widget -> widget.isOnHome && widget.pageIds.any { !isQuickNotePage(it) } }
 }
 
-/** New Home widgets land right below the app grid (above it in one-handed mode). */
+/**
+ * The At a Glance item. It always sits between the app grid and every Home widget: below the
+ * widgets' side of Home in regular layout, mirrored with the rest of Home in one-handed mode.
+ */
+private val HOME_WIDGET_FLOOR_ITEM = ItemPriorityConfig.ItemType.UPCOMING_ALARM
+
+/** New Home widgets land right after At a Glance (below it; above it in one-handed mode). */
 internal fun defaultHomePlacement(
     widget: PanelWidgetInfo,
     allWidgets: List<PanelWidgetInfo>,
 ): HomeWidgetPlacement {
-    val anchor = ItemPriorityConfig.ItemType.UPCOMING_ALARM.name
+    val anchor = ItemPriorityConfig.ItemType.RECENT_QUERIES.name
     val firstOrderAtAnchor =
         allWidgets.mapNotNull { it.home?.takeIf { home -> home.anchor == anchor }?.order }.minOrNull()
     val columnSpan =
@@ -240,13 +243,22 @@ internal fun homeLayoutEntries(
     widgets: List<PanelWidgetInfo>,
 ): List<HomeLayoutEntry> {
     val logicalOrder = if (isReversed) layoutOrder.reversed() else layoutOrder
-    val anchors = logicalOrder.mapTo(HashSet()) { it.name }
+    val anchorIndex = logicalOrder.withIndex().associate { (index, itemType) -> itemType.name to index }
+    // Widgets anchored at or before At a Glance move to just after it, keeping their order.
+    val floorIndex = logicalOrder.indexOf(HOME_WIDGET_FLOOR_ITEM)
+    val floorAnchor = logicalOrder.getOrNull(floorIndex + 1)?.name ?: HOME_WIDGET_ANCHOR_END
     val widgetsByAnchor =
         widgets
             .filter { it.home != null }
-            .sortedBy { it.home?.order ?: 0 }
-            .groupBy { widget ->
-                widget.home?.anchor?.takeIf { it in anchors } ?: HOME_WIDGET_ANCHOR_END
+            .sortedWith(
+                compareBy<PanelWidgetInfo>({ anchorIndex[it.home?.anchor] ?: Int.MAX_VALUE }, { it.home?.order ?: 0 }),
+            ).groupBy { widget ->
+                val index = anchorIndex[widget.home?.anchor]
+                when {
+                    index == null -> HOME_WIDGET_ANCHOR_END
+                    floorIndex >= 0 && index <= floorIndex -> floorAnchor
+                    else -> widget.home?.anchor ?: HOME_WIDGET_ANCHOR_END
+                }
             }
     val logicalEntries =
         buildList {
@@ -274,7 +286,7 @@ internal fun moveHomeWidget(
             ?: return visualEntries.filterIsInstance<HomeLayoutEntry.Widget>().map { it.widget }
     val nextVisual =
         visualEntries.filterNot { it === dragged }.toMutableList().apply {
-            add(targetIndex.coerceIn(0, size), dragged)
+            add(clampHomeWidgetTargetIndex(this, targetIndex, isReversed), dragged)
         }
     val logical = if (isReversed) nextVisual.reversed() else nextVisual
     val result = mutableListOf<PanelWidgetInfo>()
@@ -298,6 +310,32 @@ internal fun moveHomeWidget(
     return result
 }
 
+/**
+ * Keeps a widget's slot in [others] (the visual entries without it) on the far side of At a
+ * Glance from the app grid.
+ */
+internal fun clampHomeWidgetTargetIndex(
+    others: List<HomeLayoutEntry>,
+    targetIndex: Int,
+    isReversed: Boolean,
+): Int {
+    val index = targetIndex.coerceIn(0, others.size)
+    val floorIndex = others.indexOfFirst { it is HomeLayoutEntry.Item && it.itemType == HOME_WIDGET_FLOOR_ITEM }
+    if (floorIndex < 0) return index
+    return if (isReversed) index.coerceAtMost(floorIndex) else index.coerceAtLeast(floorIndex + 1)
+}
+
+/** Whether a step move of [widgetId] to [targetIndex] lands where it asked, not clamped away. */
+internal fun canMoveHomeWidgetTo(
+    visualEntries: List<HomeLayoutEntry>,
+    widgetId: Int,
+    targetIndex: Int,
+    isReversed: Boolean,
+): Boolean {
+    val others = visualEntries.filterNot { it is HomeLayoutEntry.Widget && it.widget.appWidgetId == widgetId }
+    return targetIndex in 0..others.size && clampHomeWidgetTargetIndex(others, targetIndex, isReversed) == targetIndex
+}
+
 @Composable
 internal fun rememberHomePinnedWidgets(enabled: Boolean): List<PanelWidgetInfo> {
     val context = LocalContext.current
@@ -306,7 +344,14 @@ internal fun rememberHomePinnedWidgets(enabled: Boolean): List<PanelWidgetInfo> 
     return if (enabled) widgets else emptyList()
 }
 
-/** Widget host for Home; only composed while Home has pinned widgets. */
+/**
+ * Home's widget host, owned above the root pages: the Search page is disposed while Widgets or
+ * Settings is shown, and keeping the host keeps its widget views, so coming back shows them at
+ * once instead of an empty slot followed by a fresh inflation.
+ */
+internal val LocalHomeWidgetHost = staticCompositionLocalOf<WidgetPanelHost?> { null }
+
+/** Widget host for Home; see [LocalHomeWidgetHost]. */
 @Composable
 internal fun rememberHomeWidgetHost(): WidgetPanelHost {
     val appContext = LocalContext.current.applicationContext
@@ -357,17 +402,31 @@ internal fun HomePinnedWidgetItem(
     onResizePreview: (WidgetGridResize) -> Unit,
     onRemove: () -> Unit,
     onConfigure: (Intent) -> Unit,
+    onAddToStack: (WidgetStackFit) -> Unit,
+    onReorderStack: () -> Unit,
+    onMoveToPanel: () -> Unit,
 ) {
     val context = LocalContext.current
     val home = widget.home ?: return
-    val providerInfo =
-        remember(widget.appWidgetId, appWidgetHost) {
-            appWidgetHost.providerInfo(widget.appWidgetId)
-        } ?: return
+    // Home has no Quick Note, so a stack shows its widget pages only.
+    val pageIds = widget.pageIds
+    val pageInfos =
+        remember(pageIds, appWidgetHost) {
+            pageIds.mapNotNull { id ->
+                if (isQuickNotePage(id)) null else appWidgetHost.providerInfo(id)?.let { id to it }
+            }
+        }
+    if (pageInfos.isEmpty()) return
+    val isStack = pageInfos.size > 1
+    val stackState = rememberWidgetStackState()
+    SyncWidgetStackPages(pageCount = pageInfos.size, state = stackState)
+    // Edit actions act on the page in view.
+    val currentPageId = pageInfos.getOrNull(stackState.settledPage)?.first ?: pageInfos.first().first
+    val currentPageInfo = pageInfos.firstOrNull { it.first == currentPageId }?.second
     val configureIntent =
-        remember(providerInfo, widget.appWidgetId) {
-            providerInfo.configure?.let {
-                WidgetConfigureTrampolineActivity.intent(context, widget.appWidgetId)
+        remember(currentPageInfo, currentPageId) {
+            currentPageInfo?.configure?.let {
+                WidgetConfigureTrampolineActivity.intent(context, currentPageId)
             }
         }
     val density = LocalDensity.current
@@ -376,24 +435,20 @@ internal fun HomePinnedWidgetItem(
 
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val cellWidth = (maxWidth - gap * (WIDGET_PANEL_GRID_COLUMNS - 1)) / WIDGET_PANEL_GRID_COLUMNS
-        val minColumnSpan =
-            remember(providerInfo, cellWidth) {
-                val minWidthPx = providerInfo.minResizeWidth.takeIf { it > 0 } ?: providerInfo.minWidth
-                calculateGridColumnSpan(
-                    minWidthDp = with(density) { minWidthPx.toDp().value },
-                    cellWidthDp = cellWidth.value,
-                    gapDp = gap.value,
-                )
+        // A stack can't shrink below what any of its pages needs.
+        val minSpec =
+            remember(pageInfos, cellWidth, density) {
+                pageInfos
+                    .map { (_, info) -> widgetMinGridSpec(info, density, cellWidth.value) }
+                    .reduce { a, b ->
+                        WidgetGridSpec(
+                            minColumnSpan = maxOf(a.minColumnSpan, b.minColumnSpan),
+                            minRowSpan = maxOf(a.minRowSpan, b.minRowSpan),
+                        )
+                    }
             }
-        val minRowSpan =
-            remember(providerInfo) {
-                val minHeightPx = providerInfo.minResizeHeight.takeIf { it > 0 } ?: providerInfo.minHeight
-                calculateGridRowSpan(
-                    minHeightDp = with(density) { minHeightPx.toDp().value },
-                    rowHeightDp = rowHeight.value,
-                    gapDp = gap.value,
-                )
-            }
+        val minColumnSpan = minSpec.minColumnSpan
+        val minRowSpan = minSpec.minRowSpan
         val width = cellWidth * home.columnSpan + gap * (home.columnSpan - 1)
         val height = rowHeight * home.rowSpan + gap * (home.rowSpan - 1)
         val x = (cellWidth + gap) * home.column
@@ -439,18 +494,27 @@ internal fun HomePinnedWidgetItem(
                         }
                     },
         ) {
-            if (showHostedWidget) {
-                HostedWidget(
-                    appWidgetId = widget.appWidgetId,
-                    providerInfo = providerInfo,
-                    appWidgetManager = appWidgetManager,
-                    appWidgetHost = appWidgetHost,
-                    width = width,
-                    height = height,
-                    columnSpan = home.columnSpan,
-                    rowSpan = home.rowSpan,
-                    modifier = Modifier.fillMaxSize(),
-                )
+            // A single widget goes through the stack layout too, so its hosted view keeps its
+            // place when a second page turns it into a stack.
+            WidgetStackPager(
+                pageIds = pageInfos.map { it.first },
+                state = stackState,
+                userScrollEnabled = !isEditing,
+            ) { pageId ->
+                val pageInfo = pageInfos.firstOrNull { it.first == pageId }?.second
+                if (showHostedWidget && pageInfo != null) {
+                    HostedWidget(
+                        appWidgetId = pageId,
+                        providerInfo = pageInfo,
+                        appWidgetManager = appWidgetManager,
+                        appWidgetHost = appWidgetHost,
+                        width = width,
+                        height = height,
+                        columnSpan = home.columnSpan,
+                        rowSpan = home.rowSpan,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             }
             AnimatedWidgetEditOverlay(visible = isEditing) {
                 HomeWidgetEditOverlay(
@@ -470,6 +534,9 @@ internal fun HomePinnedWidgetItem(
                     onResizePreview = onResizePreview,
                     onRemove = onRemove,
                     onConfigure = configureIntent?.let { intent -> { onConfigure(intent) } },
+                    onAddToStack = { onAddToStack(WidgetStackFit(home.columnSpan, home.rowSpan, cellWidth.value)) },
+                    onReorderStack = onReorderStack.takeIf { isStack },
+                    onMoveToPanel = onMoveToPanel,
                 )
             }
         }
@@ -494,6 +561,9 @@ private fun BoxScope.HomeWidgetEditOverlay(
     onResizePreview: (WidgetGridResize) -> Unit,
     onRemove: () -> Unit,
     onConfigure: (() -> Unit)?,
+    onAddToStack: () -> Unit,
+    onReorderStack: (() -> Unit)?,
+    onMoveToPanel: () -> Unit,
 ) {
     val currentOnMoveStart by rememberUpdatedState(onMoveStart)
     val currentOnMove by rememberUpdatedState(onMove)
@@ -564,6 +634,12 @@ private fun BoxScope.HomeWidgetEditOverlay(
                 modifier = Modifier.align(edge.alignment),
             )
         }
-        WidgetEditActionButtons(onRemove = onRemove, onConfigure = onConfigure)
+        WidgetEditActionButtons(
+            onRemove = onRemove,
+            onConfigure = onConfigure,
+            onAddToStack = onAddToStack,
+            onReorderStack = onReorderStack,
+            onMoveToPanel = onMoveToPanel,
+        )
     }
 }

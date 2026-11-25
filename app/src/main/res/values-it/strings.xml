@@ -119,6 +119,8 @@
     <string name="settings_gesture_swipe_right">Scorri a destra</string>
     <string name="settings_gesture_widget_panel">Pannello widget</string>
     <string name="widget_pinned_to_home">Aggiunto alla Home</string>
+    <string name="widget_move_to_panel">Sposta nel pannello widget</string>
+    <string name="widget_moved_to_panel">Spostato nel pannello widget</string>
     <string name="settings_gesture_swipe_left">Scorri a sinistra</string>
     <string name="settings_gesture_swipe_up">Scorri verso l\'alto</string>
     <string name="settings_gesture_swipe_down">Scorri verso il basso</string>

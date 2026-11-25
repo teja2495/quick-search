@@ -36,7 +36,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.searchScreen.components.searchTouchDebugLog
 import com.tk.quicksearch.search.apps.LocalAllAppsDrawerController
 import com.tk.quicksearch.search.core.AiSearchStatus
 import com.tk.quicksearch.search.core.SearchSection
@@ -94,11 +93,13 @@ internal fun rememberSearchScreenSwipeActions(
     isImeVisible: Boolean,
     searchFocusRequester: FocusRequester,
     keyboardController: androidx.compose.ui.platform.SoftwareKeyboardController?,
+    isGestureBlocked: () -> Boolean = { false },
 ): SearchScreenSwipeActions {
     val context = LocalContext.current
     val allAppsDrawer = LocalAllAppsDrawerController.current
     val onLauncherSwipeUp: () -> Unit = {
         when {
+            isGestureBlocked() -> Unit
             swipeUpAction == SwipeGestureAction.OPEN_KEYBOARD && !isImeVisible -> {
                 searchFocusRequester.requestFocus()
                 keyboardController?.show()
@@ -121,6 +122,7 @@ internal fun rememberSearchScreenSwipeActions(
     }
     val onLauncherSwipeDown: () -> Unit = {
         when {
+            isGestureBlocked() -> Unit
             swipeDownAction == SwipeGestureAction.OPEN_KEYBOARD && !isImeVisible -> {
                 searchFocusRequester.requestFocus()
                 keyboardController?.show()
@@ -149,7 +151,7 @@ internal fun rememberSearchScreenSwipeActions(
     val currentOnLauncherSwipeUp by rememberUpdatedState(onLauncherSwipeUp)
     val currentOnLauncherSwipeDown by rememberUpdatedState(onLauncherSwipeDown)
     val bottomBarSwipeModifier =
-        Modifier.searchTouchDebugLog("bar").pointerInput(Unit) {
+        Modifier.pointerInput(Unit) {
             // Watch in the Initial pass so children that consume touches (the search
             // TextField's tap/selection handling) can't swallow the swipe first. The gesture
             // is only claimed once it is clearly vertical, so taps, cursor placement, and

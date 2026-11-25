@@ -10,6 +10,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.biometric.BiometricManager
 import androidx.compose.runtime.Composable
+import com.tk.quicksearch.widgetsPanel.HomeWidgetEditGuard
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.DisposableEffect
@@ -66,6 +67,7 @@ internal data class RouteGestures(
     val handleHomeHorizontalSwipe: (HomeHorizontalSwipe) -> Unit,
     val swipeNavigationModifier: Modifier,
     val allAppsDrawer: AllAppsDrawerController,
+    val homeWidgetEditGuard: HomeWidgetEditGuard,
 )
 
 @Composable
@@ -297,18 +299,22 @@ internal fun rememberRouteGestures(
             allAppsDrawer::open,
         )
     }
+    val homeWidgetEditGuard = remember { HomeWidgetEditGuard() }
     val twoFingerSwipeModifier =
         Modifier.twoFingerVerticalSwipe(
             enabled =
                 uiState.query.isBlank() &&
                     (twoFingerSwipeUp.action != HomeSwipeGestureAction.NONE ||
                         twoFingerSwipeDown.action != HomeSwipeGestureAction.NONE),
-            onSwipeUp = { performTwoFingerSwipe(twoFingerSwipeUp) },
-            onSwipeDown = { performTwoFingerSwipe(twoFingerSwipeDown) },
+            onSwipeUp = { if (!homeWidgetEditGuard.isEditing) performTwoFingerSwipe(twoFingerSwipeUp) },
+            onSwipeDown = { if (!homeWidgetEditGuard.isEditing) performTwoFingerSwipe(twoFingerSwipeDown) },
         )
     val pageSwipeController = LocalPageSwipeController.current
     val view = LocalView.current
     val latestHomeSwipe by rememberUpdatedState(handleHomeHorizontalSwipe)
+    // No page or two-finger swipes while a Home widget is in edit mode. Checked when the gesture
+    // runs rather than by swapping modifiers, so entering edit mode never disturbs the touch that
+    // long-pressed the widget and is now dragging it.
     val swipeNavigationModifier =
         twoFingerSwipeModifier.pointerInput(isDefaultLauncher, isLauncherSwipeRightEnabled, swipeActions, customSwipeActions, pageSwipeController) {
             detectPageSwipe(
@@ -316,6 +322,7 @@ internal fun rememberRouteGestures(
                 thresholdPx = SWIPE_NAVIGATION_THRESHOLD_PX,
                 targetFor = { direction ->
                     when {
+                        homeWidgetEditGuard.isEditing -> null
                         direction > 0 && isDefaultLauncher ->
                             RootDestination.WidgetsPanel.takeIf {
                                 isLauncherSwipeRightEnabled && swipeActions[0] != SwipeGestureAction.ALL_APPS
@@ -326,7 +333,7 @@ internal fun rememberRouteGestures(
                     }
                 },
                 onSwipe = { direction ->
-                    latestHomeSwipe(
+                    if (!homeWidgetEditGuard.isEditing) latestHomeSwipe(
                         if (direction > 0) HomeHorizontalSwipe.RIGHT else HomeHorizontalSwipe.LEFT,
                     )
                 },
@@ -381,6 +388,7 @@ internal fun rememberRouteGestures(
         handleHomeHorizontalSwipe = handleHomeHorizontalSwipe,
         swipeNavigationModifier = swipeNavigationModifier,
         allAppsDrawer = allAppsDrawer,
+        homeWidgetEditGuard = homeWidgetEditGuard,
     )
 }
 

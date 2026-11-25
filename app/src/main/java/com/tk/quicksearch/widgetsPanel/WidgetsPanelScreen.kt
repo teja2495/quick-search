@@ -212,12 +212,14 @@ internal fun WidgetsPanelScreen(
         HomePinnedWidgetsStore.publish(next)
     }
 
-    fun pinWidgetToHome(widget: PanelWidgetInfo) {
-        if (widget.isQuickNoteWidget() || widget.home != null) return
+    // Moves the widget (or stack) out of the panel onto Home; the panel and Home never share one.
+    fun moveWidgetToHome(widget: PanelWidgetInfo) {
+        // Home has no Quick Note.
+        if (widget.pageIds.any(::isQuickNotePage)) return
         persistWidgets(
             widgets.map { item ->
-                if (item.appWidgetId == widget.appWidgetId) {
-                    item.copy(home = defaultHomePlacement(item, widgets))
+                if (item.isOwner(widget.appWidgetId, onHome = false)) {
+                    item.copy(isInPanel = false, column = null, row = null, home = defaultHomePlacement(item, widgets))
                 } else {
                     item
                 }
@@ -238,20 +240,18 @@ internal fun WidgetsPanelScreen(
         widget: PanelWidgetInfo,
         pageId: Int,
     ) {
-        when {
-            isQuickNotePage(pageId) -> Unit
-            // Only the first page can also be on Home.
-            pageId != widget.appWidgetId || widget.home == null -> appWidgetHost.deleteAppWidgetId(pageId)
-            else -> appWidgetHost.removeSnapshot(pageId)
-        }
-        persistWidgets(preferences.removeStackPage(widget.appWidgetId, pageId))
+        val next = preferences.removeStackPage(widget.appWidgetId, pageId)
+        // Home widgets saved before the panel and Home kept separate instances can still share
+        // an id with a panel widget; that id stays bound while Home shows it.
+        if (!isQuickNotePage(pageId) && !next.referencesWidgetId(pageId)) appWidgetHost.deleteAppWidgetId(pageId)
+        persistWidgets(next)
     }
 
     val requestAddWidget =
         rememberWidgetAddFlow(appWidgetHost) { appWidgetId, provider, columnSpan, rowSpan ->
             val ownerId = stackTarget?.first
             widgets =
-                if (ownerId != null && widgets.any { it.appWidgetId == ownerId }) {
+                if (ownerId != null && widgets.any { it.isOwner(ownerId, onHome = false) }) {
                     preferences.addToStack(ownerId, appWidgetId, provider.provider)
                 } else {
                     preferences.addWidget(
@@ -588,7 +588,7 @@ internal fun WidgetsPanelScreen(
                                     runCatching { configureExistingLauncher.launch(configureIntent) }
                                     editingWidgetId = null
                                 },
-                                onPinWidgetToHome = ::pinWidgetToHome,
+                                onPinWidgetToHome = ::moveWidgetToHome,
                                 modifier = Modifier.fillMaxWidth(),
                                 stackIndicatorRevealKey = stackIndicatorRevealKey,
                             )
@@ -604,14 +604,9 @@ internal fun WidgetsPanelScreen(
             if (showPicker && restoredWidgetIdsValidated && layoutLocked == false) {
                 WidgetPickerSheet(
                     appWidgetManager = appWidgetManager,
-                    // Home shows only a stack's first page, so the Quick Note stays out of the
-                    // stack of a widget that is also on Home.
                     showQuickNote =
                         !widgets.containsQuickNote() &&
-                            stackTarget?.let { (ownerId, fit) ->
-                                fit.columnSpan >= WIDGET_PANEL_GRID_COLUMNS &&
-                                    widgets.firstOrNull { it.appWidgetId == ownerId }?.home == null
-                            } != false,
+                            stackTarget?.let { (_, fit) -> fit.columnSpan >= WIDGET_PANEL_GRID_COLUMNS } != false,
                     stackFit = stackTarget?.second,
                     onDismiss = {
                         showPicker = false
@@ -620,7 +615,7 @@ internal fun WidgetsPanelScreen(
                     onAddQuickNote = {
                         val ownerId = stackTarget?.first
                         persistWidgets(
-                            if (ownerId != null && widgets.any { it.appWidgetId == ownerId }) {
+                            if (ownerId != null && widgets.any { it.isOwner(ownerId, onHome = false) }) {
                                 preferences.addQuickNoteToStack(ownerId)
                             } else {
                                 preferences.addQuickNote()
@@ -634,7 +629,7 @@ internal fun WidgetsPanelScreen(
                 )
             }
 
-            val reorderOwner = reorderStackOwnerId?.let { id -> widgets.firstOrNull { it.appWidgetId == id } }
+            val reorderOwner = reorderStackOwnerId?.let { id -> widgets.firstOrNull { it.isOwner(id, onHome = false) } }
             if (reorderOwner != null && reorderOwner.stack.isNotEmpty()) {
                 WidgetStackReorderSheet(
                     pageIds = reorderOwner.pageIds,
@@ -649,7 +644,7 @@ internal fun WidgetsPanelScreen(
                         // one page is a plain widget, which closes the drawer below.
                         reorderStackOwnerId =
                             reorderOwner.pageIds.firstOrNull { it != pageId }
-                                ?.let { remaining -> widgets.stackOwnerOf(remaining)?.appWidgetId }
+                                ?.let { remaining -> widgets.filter { it.isInPanel }.stackOwnerOf(remaining)?.appWidgetId }
                     },
                     onDismiss = { reorderStackOwnerId = null },
                 )

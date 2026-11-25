@@ -504,7 +504,8 @@ internal fun BoxScope.WidgetEditOverlay(
 }
 
 /**
- * Edit badges along the widget's top edge: Add to stack, Reorder stack and Add to Home packed at the top-start
+ * Edit badges along the widget's top edge: Add to stack, Reorder stack, Add to Home and Move to Widget Panel
+ * packed at the top-start
  * corner, then Settings and Remove packed at the top-end corner. Unavailable actions are omitted.
  */
 @Composable
@@ -514,6 +515,7 @@ internal fun BoxScope.WidgetEditActionButtons(
     onPinToHome: (() -> Unit)? = null,
     onAddToStack: (() -> Unit)? = null,
     onReorderStack: (() -> Unit)? = null,
+    onMoveToPanel: (() -> Unit)? = null,
 ) {
     WidgetEditBadgeScrim()
     // Each badge lays out at its 48dp touch target, so pull them together until the visible
@@ -548,6 +550,15 @@ internal fun BoxScope.WidgetEditActionButtons(
             WidgetActionButton(
                 icon = MaterialSymbols.Home,
                 contentDescription = stringResource(R.string.action_add_to_home),
+                tint = MaterialTheme.colorScheme.onPrimary,
+                background = MaterialTheme.colorScheme.primary,
+                onClick = onClick,
+            )
+        }
+        onMoveToPanel?.let { onClick ->
+            WidgetActionButton(
+                icon = MaterialSymbols.Widgets,
+                contentDescription = stringResource(R.string.widget_move_to_panel),
                 tint = MaterialTheme.colorScheme.onPrimary,
                 background = MaterialTheme.colorScheme.primary,
                 onClick = onClick,
