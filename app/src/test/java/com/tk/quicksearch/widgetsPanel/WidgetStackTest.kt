@@ -93,4 +93,34 @@ class WidgetStackTest {
         assertEquals(stack, stack.withStackOrder(1, listOf(2, 5)))
         assertEquals(stack, stack.withStackOrder(1, listOf(2, 2)))
     }
+
+    private val quickNotePage =
+        StackedPanelWidget(QUICK_NOTE_PANEL_WIDGET_ID, QUICK_NOTE_PROVIDER, QUICK_NOTE_PROVIDER)
+
+    @Test
+    fun removingQuickNoteOwnerPromotesWidgetPage() {
+        val quickNote = newQuickNotePanelWidget().copy(column = 0, row = 1, stack = listOf(page(2)))
+        val result = listOf(quickNote).withoutStackPage(QUICK_NOTE_PANEL_WIDGET_ID, QUICK_NOTE_PANEL_WIDGET_ID)
+        assertEquals(
+            listOf(quickNote.copy(appWidgetId = 2, providerPackage = "pkg2", providerClassName = "cls2", stack = emptyList())),
+            result,
+        )
+        assertEquals(false, result.containsQuickNote())
+    }
+
+    @Test
+    fun quickNoteAsStackPageCounts() {
+        val stack = listOf(widget(1, listOf(quickNotePage)))
+        assertEquals(true, stack.containsQuickNote())
+        assertEquals(listOf(widget(1)), stack.withoutStackPage(1, QUICK_NOTE_PANEL_WIDGET_ID))
+        assertEquals(false, listOf(widget(1)).containsQuickNote())
+    }
+
+    @Test
+    fun soloQuickNoteRemovedEntirely() {
+        assertEquals(
+            emptyList<PanelWidgetInfo>(),
+            listOf(newQuickNotePanelWidget()).withoutStackPage(QUICK_NOTE_PANEL_WIDGET_ID, QUICK_NOTE_PANEL_WIDGET_ID),
+        )
+    }
 }

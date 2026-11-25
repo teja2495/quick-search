@@ -242,6 +242,14 @@ internal class WidgetStackState(initialPage: Int) {
     var isMoving by mutableStateOf(false)
         private set
 
+    /** Bumped to show the page indicator for a moment without moving the pages. */
+    var indicatorRevealCount by mutableIntStateOf(0)
+        private set
+
+    fun revealIndicator() {
+        indicatorRevealCount++
+    }
+
     private var settleJob: Job? = null
 
     fun stop() {
@@ -312,10 +320,15 @@ internal fun SyncWidgetStackPages(
     state: WidgetStackState,
 ) {
     val scope = rememberCoroutineScope()
-    var lastPageCount by remember { mutableIntStateOf(pageCount) }
+    // Saved so a page added from a bind or configure screen that recreated the activity still
+    // counts as added.
+    var lastPageCount by rememberSaveable { mutableIntStateOf(pageCount) }
     LaunchedEffect(pageCount) {
         when {
-            pageCount > lastPageCount -> state.animateToPage(scope, pageCount - 1)
+            pageCount > lastPageCount -> {
+                state.animateToPage(scope, pageCount - 1)
+                state.revealIndicator()
+            }
             state.settledPage > pageCount - 1 -> state.snapToPage((pageCount - 1).coerceAtLeast(0))
         }
         lastPageCount = pageCount
@@ -408,11 +421,16 @@ internal fun BoxScope.WidgetStackPager(
         }
     }
 
-    // Shown while the pages move, then faded out once they have rested for a moment.
+    // Shown while the pages move or when revealed, then faded out once they have rested for a moment.
     var indicatorVisible by remember { mutableStateOf(false) }
     LaunchedEffect(state) {
-        snapshotFlow { state.isMoving }
-            .collectLatest { moving ->
+        var handledReveals = state.indicatorRevealCount
+        snapshotFlow { state.isMoving to state.indicatorRevealCount }
+            .collectLatest { (moving, reveals) ->
+                if (reveals != handledReveals) {
+                    handledReveals = reveals
+                    indicatorVisible = true
+                }
                 if (moving) {
                     indicatorVisible = true
                 } else {

@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.ContentScale
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.scale
 import androidx.core.view.HapticFeedbackConstantsCompat
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.segmentedTileContainerColor
@@ -64,6 +66,8 @@ private class StackPageRow(
     val label: String,
     val appLabel: String,
     val thumbnail: ImageBitmap?,
+    /** Drawn instead of a thumbnail, for the Quick Note page. */
+    val icon: ImageVector? = null,
 )
 
 /**
@@ -75,6 +79,7 @@ internal fun WidgetStackReorderSheet(
     pageIds: List<Int>,
     appWidgetHost: WidgetPanelHost,
     onReorder: (List<Int>) -> Unit,
+    onRemove: (pageId: Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val view = LocalView.current
@@ -84,16 +89,23 @@ internal fun WidgetStackReorderSheet(
     val orderedIds = remember(pageIds) { pageIds.toMutableStateList() }
     val moveUp = stringResource(R.string.action_move_up)
     val moveDown = stringResource(R.string.action_move_down)
+    val removeLabel = stringResource(R.string.action_remove)
     val thumbWidthPx = with(density) { StackThumbnailWidth.roundToPx() }
     val thumbHeightPx = with(density) { StackThumbnailHeight.roundToPx() }
+    val quickNoteLabel = stringResource(R.string.notes_quick_note_title)
+    val quickSearchLabel = stringResource(R.string.app_name)
 
     // Keyed by the set of pages, not their order, so reordering doesn't reload the rows.
     val pageKey = remember(pageIds) { pageIds.toSet() }
-    val rows by produceState(emptyMap<Int, StackPageRow>(), pageKey) {
+    val rows by produceState(emptyMap<Int, StackPageRow>(), pageKey, quickNoteLabel, quickSearchLabel) {
         value = withContext(Dispatchers.IO) {
             val packageManager = context.packageManager
             pageKey.mapNotNull { id ->
                 coroutineContext.ensureActive()
+                if (isQuickNotePage(id)) {
+                    return@mapNotNull id to
+                        StackPageRow(quickNoteLabel, quickSearchLabel, thumbnail = null, icon = MaterialSymbols.EditNote)
+                }
                 val info = appWidgetHost.providerInfo(id) ?: return@mapNotNull null
                 val label = runCatching { info.loadLabel(packageManager) }.getOrNull().orEmpty()
                 val appLabel =
@@ -178,8 +190,9 @@ internal fun WidgetStackReorderSheet(
                         Row(
                             modifier =
                                 Modifier.fillMaxWidth().padding(
-                                    start = DesignTokens.SpacingLarge,
+                                    start = DesignTokens.SpacingXSmall,
                                     top = DesignTokens.SpacingMedium,
+                                    end = DesignTokens.SpacingXSmall,
                                     bottom = DesignTokens.SpacingMedium,
                                 ).semantics {
                                     customActions =
@@ -193,7 +206,18 @@ internal fun WidgetStackReorderSheet(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
                         ) {
-                            StackPageThumbnail(row?.thumbnail)
+                            Icon(
+                                imageVector = MaterialSymbols.DragHandle,
+                                contentDescription = stringResource(R.string.settings_action_reorder),
+                                tint = if (isDragging) AppColors.Accent else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier =
+                                    Modifier.size(DesignTokens.Spacing48)
+                                        .draggableHandle(
+                                            onDragStarted = dragStarted,
+                                            onDragStopped = dragStopped,
+                                        ).padding(DesignTokens.SpacingMedium),
+                            )
+                            StackPageThumbnail(row?.thumbnail, row?.icon)
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = row?.label.orEmpty(),
@@ -210,17 +234,16 @@ internal fun WidgetStackReorderSheet(
                                     overflow = TextOverflow.Ellipsis,
                                 )
                             }
-                            Icon(
-                                imageVector = MaterialSymbols.DragHandle,
-                                contentDescription = stringResource(R.string.settings_action_reorder),
-                                tint = if (isDragging) AppColors.Accent else MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier =
-                                    Modifier.size(DesignTokens.Spacing48)
-                                        .draggableHandle(
-                                            onDragStarted = dragStarted,
-                                            onDragStopped = dragStopped,
-                                        ).padding(DesignTokens.SpacingMedium),
-                            )
+                            AppIconButton(
+                                onClick = { onRemove(id) },
+                                tooltip = removeLabel,
+                            ) {
+                                Icon(
+                                    imageVector = MaterialSymbols.DeleteOutline,
+                                    contentDescription = removeLabel,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
                         }
                     }
                 }
@@ -230,7 +253,10 @@ internal fun WidgetStackReorderSheet(
 }
 
 @Composable
-private fun StackPageThumbnail(thumbnail: ImageBitmap?) {
+private fun StackPageThumbnail(
+    thumbnail: ImageBitmap?,
+    icon: ImageVector?,
+) {
     Box(
         modifier =
             Modifier.size(StackThumbnailWidth, StackThumbnailHeight)
@@ -245,6 +271,8 @@ private fun StackPageThumbnail(thumbnail: ImageBitmap?) {
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.matchParentSize(),
             )
+        } else if (icon != null) {
+            Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

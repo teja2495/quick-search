@@ -209,7 +209,7 @@ internal fun WidgetPickerSheet(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             ) {
-                if (showQuickNote && stackFit == null) {
+                if (showQuickNote) {
                     item(key = "quick_note") { QuickNotePickerRow(onClick = onAddQuickNote) }
                 }
                 items(filteredApps, key = { it.key }) { app ->
@@ -222,7 +222,7 @@ internal fun WidgetPickerSheet(
                         onSelectWidget = onSelectWidget,
                     )
                 }
-                if (filteredApps.isEmpty()) {
+                if (filteredApps.isEmpty() && !showQuickNote) {
                     item {
                         AppPickerDrawerMessage(
                             text =

@@ -108,6 +108,7 @@ internal fun BoxScope.QuickNotePanelGridItem(
     onResizePreview: (WidgetGridResize) -> Unit,
     onInteractionEnd: () -> Unit,
     onRemove: () -> Unit,
+    onAddToStack: () -> Unit,
 ) {
     val density = LocalDensity.current
     val column = widget.column ?: 0
@@ -184,6 +185,7 @@ internal fun BoxScope.QuickNotePanelGridItem(
                 onResizePreview = onResizePreview,
                 onInteractionEnd = onInteractionEnd,
                 onRemove = onRemove,
+                onAddToStack = onAddToStack,
             )
         }
     }
@@ -263,6 +265,7 @@ internal fun BoxScope.QuickNoteEditOverlay(
     onResizePreview: ((WidgetGridResize) -> Unit)? = null,
     onInteractionEnd: () -> Unit = {},
     onRemove: () -> Unit,
+    onAddToStack: (() -> Unit)? = null,
 ) {
     Box(
         modifier =
@@ -306,15 +309,10 @@ internal fun BoxScope.QuickNoteEditOverlay(
                 )
             }
         }
-        WidgetEditBadgeScrim()
-        WidgetActionButton(
-            icon = MaterialSymbols.Close,
-            contentDescription = stringResource(R.string.action_remove),
-            tint = MaterialTheme.colorScheme.onError,
-            background = MaterialTheme.colorScheme.error,
-            onClick = onRemove,
-            modifier =
-                Modifier.align(Alignment.TopEnd),
+        WidgetEditActionButtons(
+            onRemove = onRemove,
+            onConfigure = null,
+            onAddToStack = onAddToStack,
         )
     }
 }

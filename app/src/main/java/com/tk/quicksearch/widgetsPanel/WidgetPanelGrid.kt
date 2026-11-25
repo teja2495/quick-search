@@ -7,6 +7,7 @@ import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import android.app.Activity
 import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
@@ -250,6 +251,8 @@ internal fun WidgetPanelGrid(
     onAddToStack: (PanelWidgetInfo, WidgetStackFit) -> Unit,
     onReorderStack: (PanelWidgetInfo) -> Unit,
     modifier: Modifier = Modifier,
+    /** Bumped to flash every stack's page indicator, such as when the panel comes into view. */
+    stackIndicatorRevealKey: Int = 0,
 ) {
     val horizontalSign = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1 else 1
     BoxWithConstraints(modifier = modifier) {
@@ -263,23 +266,22 @@ internal fun WidgetPanelGrid(
         val specs =
             remember(widgets, appWidgetHost, cellWidth) {
                 widgets.associate { widget ->
+                    // A stack is as small as its largest page allows.
                     widget.appWidgetId to
-                        if (widget.isQuickNoteWidget()) {
-                            WidgetGridSpec(
-                                minColumnSpan = WIDGET_PANEL_GRID_COLUMNS,
-                                minRowSpan = 1,
-                            )
-                        } else {
-                            // A stack is as small as its largest page allows.
-                            widget.pageIds
-                                .map { id -> widgetMinGridSpec(appWidgetHost.providerInfo(id), density, cellWidth.value) }
-                                .reduce { a, b ->
-                                    WidgetGridSpec(
-                                        minColumnSpan = maxOf(a.minColumnSpan, b.minColumnSpan),
-                                        minRowSpan = maxOf(a.minRowSpan, b.minRowSpan),
-                                    )
+                        widget.pageIds
+                            .map { id ->
+                                if (isQuickNotePage(id)) {
+                                    QuickNoteGridSpec
+                                } else {
+                                    widgetMinGridSpec(appWidgetHost.providerInfo(id), density, cellWidth.value)
                                 }
-                        }
+                            }
+                            .reduce { a, b ->
+                                WidgetGridSpec(
+                                    minColumnSpan = maxOf(a.minColumnSpan, b.minColumnSpan),
+                                    minRowSpan = maxOf(a.minRowSpan, b.minRowSpan),
+                                )
+                            }
                 }
             }
 
@@ -327,7 +329,7 @@ internal fun WidgetPanelGrid(
             val nextRow =
                 ((start.row ?: 0) + (totalDragY / gridUnitHeightPx).roundToInt())
                     .coerceAtLeast(0)
-            previewMove(QUICK_NOTE_PANEL_WIDGET_ID, nextColumn, nextRow)
+            previewMove(start.appWidgetId, nextColumn, nextRow)
         }
 
         SideEffect {
@@ -524,6 +526,7 @@ internal fun WidgetPanelGrid(
                             if (final != null && final != laidOut) onPersist(final)
                         },
                         onQuickNoteFocusChanged = onQuickNoteFocusChanged,
+                        stackIndicatorRevealKey = stackIndicatorRevealKey,
                     )
                 }
             }
@@ -561,6 +564,7 @@ private fun BoxScope.WidgetPanelGridItem(
     onQuickNoteDrag: (totalDragX: Float, totalDragY: Float) -> Unit,
     onQuickNoteDragEnd: () -> Unit,
     onQuickNoteFocusChanged: (Boolean) -> Unit,
+    stackIndicatorRevealKey: Int,
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -587,7 +591,7 @@ private fun BoxScope.WidgetPanelGridItem(
         label = "widgetEditScale",
     )
 
-    if (widget.isQuickNoteWidget()) {
+    if (widget.isQuickNoteWidget() && widget.stack.isEmpty()) {
         QuickNotePanelGridItem(
             widget = widget,
             isEditing = isEditing,
@@ -604,19 +608,26 @@ private fun BoxScope.WidgetPanelGridItem(
             onResizePreview = onResizePreview,
             onInteractionEnd = onInteractionEnd,
             onRemove = { onRemove(QUICK_NOTE_PANEL_WIDGET_ID) },
+            onAddToStack = { onAddToStack(WidgetStackFit(columnSpan, rowSpan, cellWidth.value)) },
         )
         return
     }
 
     val pageIds = widget.pageIds
-    val pageInfos =
+    // The Quick Note page has no provider info; every other page needs one to be shown.
+    val pageInfos: List<Pair<Int, AppWidgetProviderInfo?>> =
         remember(pageIds, appWidgetHost) {
-            pageIds.mapNotNull { id -> appWidgetHost.providerInfo(id)?.let { id to it } }
+            pageIds.mapNotNull { id ->
+                if (isQuickNotePage(id)) id to null else appWidgetHost.providerInfo(id)?.let { id to it }
+            }
         }
     if (pageInfos.isEmpty()) return
     val isStack = pageInfos.size > 1
     val stackState = rememberWidgetStackState()
     SyncWidgetStackPages(pageCount = pageInfos.size, state = stackState)
+    LaunchedEffect(stackIndicatorRevealKey) {
+        if (stackIndicatorRevealKey > 0) stackState.revealIndicator()
+    }
     // Edit actions act on the page in view.
     val currentPageId = pageInfos.getOrNull(stackState.settledPage)?.first ?: pageInfos.first().first
     val currentPageInfo = pageInfos.firstOrNull { it.first == currentPageId }?.second
@@ -646,7 +657,17 @@ private fun BoxScope.WidgetPanelGridItem(
                 },
     ) {
         val pageContent: @Composable BoxScope.(Int) -> Unit = { pageId ->
-            pageInfos.firstOrNull { it.first == pageId }?.let { (id, info) ->
+            if (isQuickNotePage(pageId)) {
+                QuickNoteStackPage(
+                    layoutEditingEnabled = layoutEditingEnabled,
+                    onFocusChanged = onQuickNoteFocusChanged,
+                    onDragStart = onQuickNoteDragStart,
+                    onDrag = onQuickNoteDrag,
+                    onDragEnd = onQuickNoteDragEnd,
+                )
+            }
+            pageInfos.firstOrNull { it.first == pageId }?.second?.let { info ->
+                val id = pageId
                 WidgetPanelPageContent(
                     appWidgetId = id,
                     providerInfo = info,
@@ -699,4 +720,39 @@ private fun BoxScope.WidgetPanelGridItem(
             )
         }
     }
+}
+
+private val QuickNoteGridSpec = WidgetGridSpec(minColumnSpan = WIDGET_PANEL_GRID_COLUMNS, minRowSpan = 1)
+
+/** The Quick Note as a page of a widget stack; a long press on its title drags the whole stack. */
+@Composable
+private fun QuickNoteStackPage(
+    layoutEditingEnabled: Boolean,
+    onFocusChanged: (Boolean) -> Unit,
+    onDragStart: () -> Unit,
+    onDrag: (totalDragX: Float, totalDragY: Float) -> Unit,
+    onDragEnd: () -> Unit,
+) {
+    var totalDragX by remember { mutableFloatStateOf(0f) }
+    var totalDragY by remember { mutableFloatStateOf(0f) }
+    CompactQuickNoteWidget(
+        modifier = Modifier.fillMaxSize(),
+        onFocusChanged = onFocusChanged,
+        onDragStart =
+            if (layoutEditingEnabled) {
+                {
+                    totalDragX = 0f
+                    totalDragY = 0f
+                    onDragStart()
+                }
+            } else {
+                null
+            },
+        onDrag = { dragX, dragY ->
+            totalDragX += dragX
+            totalDragY += dragY
+            onDrag(totalDragX, totalDragY)
+        },
+        onDragEnd = onDragEnd,
+    )
 }

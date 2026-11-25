@@ -2,6 +2,7 @@ package com.tk.quicksearch.widgetsPanel
 
 import android.content.ComponentName
 import android.content.Context
+import android.content.SharedPreferences
 import com.tk.quicksearch.search.data.preferences.BasePreferences
 import org.json.JSONArray
 import org.json.JSONException
@@ -143,8 +144,26 @@ internal const val HOME_WIDGET_ANCHOR_END = "END"
 
 internal const val QUICK_NOTE_PANEL_WIDGET_ID = -2
 
+/** Placeholder provider stored for the Quick Note, which is not a hosted app widget. */
+internal const val QUICK_NOTE_PROVIDER = "quick_note"
+
 internal fun PanelWidgetInfo.isQuickNoteWidget(): Boolean =
     appWidgetId == QUICK_NOTE_PANEL_WIDGET_ID
+
+internal fun isQuickNotePage(appWidgetId: Int): Boolean = appWidgetId == QUICK_NOTE_PANEL_WIDGET_ID
+
+/** True when the Quick Note is in the panel, on its own or as a page of a stack. */
+internal fun List<PanelWidgetInfo>.containsQuickNote(): Boolean =
+    any { widget -> widget.isInPanel && widget.pageIds.any(::isQuickNotePage) }
+
+internal fun newQuickNotePanelWidget(): PanelWidgetInfo =
+    PanelWidgetInfo(
+        appWidgetId = QUICK_NOTE_PANEL_WIDGET_ID,
+        providerPackage = QUICK_NOTE_PROVIDER,
+        providerClassName = QUICK_NOTE_PROVIDER,
+        columnSpan = WIDGET_PANEL_GRID_COLUMNS,
+        rowSpan = WIDGET_PANEL_DEFAULT_ROW_SPAN,
+    )
 
 class WidgetsPanelPreferences(
     context: Context,
@@ -154,6 +173,35 @@ class WidgetsPanelPreferences(
     fun setLayoutLocked(locked: Boolean) = setBooleanPref(KEY_LAYOUT_LOCKED, locked)
 
     fun getWidgets(): List<PanelWidgetInfo> {
+        val widgets = readWidgets()
+        if (prefs.getBoolean(KEY_QUICK_NOTE_IN_WIDGETS, false)) return widgets
+        return migrateQuickNote(widgets)
+    }
+
+    /**
+     * The Quick Note used to keep its own placement keys beside the widget list. It now lives in
+     * the list like any widget, so it can own a stack or be a page of one.
+     */
+    private fun migrateQuickNote(widgets: List<PanelWidgetInfo>): List<PanelWidgetInfo> {
+        val next =
+            if (prefs.getBoolean(BasePreferences.KEY_QUICK_NOTE_ENABLED, true) && !widgets.containsQuickNote()) {
+                listOf(
+                    newQuickNotePanelWidget().copy(
+                        column = prefs.getInt(KEY_QUICK_NOTE_COLUMN, 0).coerceAtLeast(0),
+                        row = prefs.getInt(KEY_QUICK_NOTE_ROW, 0).coerceAtLeast(0),
+                        rowSpan =
+                            prefs.getInt(KEY_QUICK_NOTE_ROW_SPAN, WIDGET_PANEL_DEFAULT_ROW_SPAN)
+                                .coerceIn(1, WIDGET_PANEL_MAX_ROW_SPAN),
+                    ),
+                ) + widgets
+            } else {
+                widgets
+            }
+        writeWidgets(next, prefs.edit().putBoolean(KEY_QUICK_NOTE_IN_WIDGETS, true))
+        return next
+    }
+
+    private fun readWidgets(): List<PanelWidgetInfo> {
         val stored = prefs.getString(KEY_WIDGETS_PANEL_ITEMS, null).orEmpty()
         if (stored.isBlank()) return emptyList()
         return try {
@@ -192,6 +240,13 @@ class WidgetsPanelPreferences(
     }
 
     fun setWidgets(widgets: List<PanelWidgetInfo>) {
+        writeWidgets(widgets, prefs.edit().putBoolean(KEY_QUICK_NOTE_IN_WIDGETS, true))
+    }
+
+    private fun writeWidgets(
+        widgets: List<PanelWidgetInfo>,
+        editor: SharedPreferences.Editor,
+    ) {
         val array = JSONArray()
         widgets.forEach { widget ->
             array.put(
@@ -210,29 +265,29 @@ class WidgetsPanelPreferences(
                     },
             )
         }
-        prefs.edit().putString(KEY_WIDGETS_PANEL_ITEMS, array.toString()).apply()
+        editor.putString(KEY_WIDGETS_PANEL_ITEMS, array.toString()).apply()
     }
 
-    fun getQuickNoteWidget(): PanelWidgetInfo =
-        PanelWidgetInfo(
-            appWidgetId = QUICK_NOTE_PANEL_WIDGET_ID,
-            providerPackage = "",
-            providerClassName = "",
-            column = prefs.getInt(KEY_QUICK_NOTE_COLUMN, 0).coerceAtLeast(0),
-            row = prefs.getInt(KEY_QUICK_NOTE_ROW, 0).coerceAtLeast(0),
-            columnSpan = WIDGET_PANEL_GRID_COLUMNS,
-            rowSpan =
-                prefs.getInt(KEY_QUICK_NOTE_ROW_SPAN, WIDGET_PANEL_DEFAULT_ROW_SPAN)
-                    .coerceIn(1, WIDGET_PANEL_MAX_ROW_SPAN),
-        )
+    /** Adds the Quick Note to the panel on its own. */
+    fun addQuickNote(): List<PanelWidgetInfo> {
+        val current = getWidgets()
+        if (current.containsQuickNote()) return current
+        val next = current + newQuickNotePanelWidget()
+        setWidgets(next)
+        return next
+    }
 
-    fun setQuickNoteWidget(widget: PanelWidgetInfo) {
-        require(widget.isQuickNoteWidget())
-        prefs.edit()
-            .putInt(KEY_QUICK_NOTE_COLUMN, widget.column ?: 0)
-            .putInt(KEY_QUICK_NOTE_ROW, widget.row ?: 0)
-            .putInt(KEY_QUICK_NOTE_ROW_SPAN, widget.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN)
-            .apply()
+    /** Adds the Quick Note as the last page of the stack owned by [ownerId]. */
+    fun addQuickNoteToStack(ownerId: Int): List<PanelWidgetInfo> {
+        val current = getWidgets()
+        if (current.containsQuickNote()) return current
+        val page = StackedPanelWidget(QUICK_NOTE_PANEL_WIDGET_ID, QUICK_NOTE_PROVIDER, QUICK_NOTE_PROVIDER)
+        val next =
+            current.map { widget ->
+                if (widget.appWidgetId == ownerId) widget.copy(stack = widget.stack + page) else widget
+            }
+        setWidgets(next)
+        return next
     }
 
     fun addWidget(
@@ -349,6 +404,7 @@ class WidgetsPanelPreferences(
         const val KEY_QUICK_NOTE_COLUMN = "quick_note_widget_column"
         const val KEY_QUICK_NOTE_ROW = "quick_note_widget_row"
         const val KEY_QUICK_NOTE_ROW_SPAN = "quick_note_widget_row_span"
+        const val KEY_QUICK_NOTE_IN_WIDGETS = "widgets_panel_quick_note_in_items"
     }
 }
 
