@@ -98,6 +98,9 @@ internal fun AllAppsDrawer(
     AppPickerDrawer(
             title = title,
             onDismiss = onDismiss,
+            // Opening the drawer closes the Home keyboard; following its inset would grow the
+            // sheet and relayout the grid on every frame of that animation.
+            avoidKeyboard = false,
     ) {
         val gridState = rememberLazyGridState()
         var scrollbarDragFraction by remember { mutableStateOf<Float?>(null) }

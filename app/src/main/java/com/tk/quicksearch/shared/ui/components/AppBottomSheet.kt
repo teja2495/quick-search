@@ -6,6 +6,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -44,6 +49,9 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
  *   scrim tap or swipe), before the close animation finishes and [onDismissRequest] is called.
  * @param scrimColor Dims the screen behind the sheet; pass [Color.Transparent] to keep the screen
  *   behind fully visible (as when previewing a change live).
+ * @param avoidKeyboard Whether the sheet sits above the keyboard. Pass false for sheets without a
+ *   text field: opening one closes the keyboard, and tracking its inset would resize the sheet on
+ *   every frame of the keyboard's close animation.
  * @param background Drawn behind the whole sheet, drag handle included, in place of the dialog
  *   color.
  * @param content Receives `dismiss`, which animates the sheet closed and then calls
@@ -58,6 +66,7 @@ fun AppBottomSheet(
     onFullyExpanded: (() -> Unit)? = null,
     onDismissStarted: (() -> Unit)? = null,
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
+    avoidKeyboard: Boolean = true,
     background: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.(dismiss: () -> Unit) -> Unit,
 ) {
@@ -86,6 +95,15 @@ fun AppBottomSheet(
         currentOnDismissStarted?.invoke()
     }
 
+    val sheetInsets =
+        if (avoidKeyboard) {
+            BottomSheetDefaults.modalWindowInsets
+        } else {
+            WindowInsets.systemBars
+                .union(WindowInsets.displayCutout)
+                .only(WindowInsetsSides.Bottom + WindowInsetsSides.Top)
+        }
+
     ReportOpenPopupEffect()
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -110,7 +128,7 @@ fun AppBottomSheet(
         // With a background, the handle and the bottom inset move inside it so it covers them too.
         contentWindowInsets =
             if (background == null) {
-                { BottomSheetDefaults.modalWindowInsets }
+                { sheetInsets }
             } else {
                 { WindowInsets(0) }
             },
@@ -126,7 +144,7 @@ fun AppBottomSheet(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .windowInsetsPadding(BottomSheetDefaults.modalWindowInsets),
+                                .windowInsetsPadding(sheetInsets),
                     ) {
                         if (swipeToDismissEnabled) {
                             Box(modifier = Modifier.align(Alignment.CenterHorizontally)) { DragHandle() }

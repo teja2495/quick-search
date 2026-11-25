@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.searchScreen.components
 
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -43,6 +44,9 @@ private const val EXPAND_ICON_SIZE = 18
 private val COMPACT_EXPAND_BUTTON_MIN_HEIGHT = 48.dp
 private val EXPAND_SEGMENT_MIN_HEIGHT = 40.dp
 private val COLLAPSE_BUTTON_HEIGHT = 48.dp
+
+// M3 small button height; the Surface still keeps a 48dp touch target around it.
+private val COMPACT_SECTION_ACTION_PILL_HEIGHT = 40.dp
 
 /**
  * Divider between a section's last row and its More button. Only flat rows (card layout off) get
@@ -159,6 +163,9 @@ internal fun CollapseButton(
  * The Collapse button's pill, for other section-level actions that should match it (such as All
  * Apps): frosted result-tile surface, primary icon and `labelLarge` label, corners that square
  * while pressed.
+ *
+ * @param compact Uses the 40dp small-button height and tighter padding, for actions that sit under
+ *   dense content (All Apps under the app grid).
  */
 @Composable
 internal fun SectionActionPill(
@@ -167,25 +174,39 @@ internal fun SectionActionPill(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     showWallpaperBackground: Boolean = false,
+    compact: Boolean = false,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val contentColor = MaterialTheme.colorScheme.primary
     val shape = floatingActionShape(interactionSource)
+    val containerColor = SearchResultCardDefaults.containerColor(showWallpaperBackground)
     Surface(
         onClick = onClick,
-        // Frosted like the result cards it floats over, with their lighter frosted scrim.
-        modifier = modifier.height(COLLAPSE_BUTTON_HEIGHT).frostedCardBackground(shape),
+        modifier = modifier.height(if (compact) COMPACT_SECTION_ACTION_PILL_HEIGHT else COLLAPSE_BUTTON_HEIGHT),
         shape = shape,
-        color = SearchResultCardDefaults.containerColor(showWallpaperBackground),
+        color = Color.Transparent,
         contentColor = contentColor,
         interactionSource = interactionSource,
     ) {
-        ExpandCollapseButtonContent(
-            text = text,
-            icon = icon,
-            contentColor = contentColor,
-            modifier = Modifier.padding(start = DesignTokens.SpacingLarge, end = DesignTokens.SpacingXLarge),
-        )
+        // Frosted like the result cards it floats over, with their lighter frosted scrim. Drawn
+        // inside the Surface so it matches the visible pill: on the Surface's own modifier it
+        // would take the 48dp touch-target size and show as a halo around the compact pill.
+        Box(
+            modifier = Modifier.frostedCardBackground(shape).background(containerColor, shape),
+            contentAlignment = Alignment.Center,
+        ) {
+            ExpandCollapseButtonContent(
+                text = text,
+                icon = icon,
+                contentColor = contentColor,
+                modifier =
+                    if (compact) {
+                        Modifier.padding(start = DesignTokens.SpacingMedium, end = DesignTokens.SpacingLarge)
+                    } else {
+                        Modifier.padding(start = DesignTokens.SpacingLarge, end = DesignTokens.SpacingXLarge)
+                    },
+            )
+        }
     }
 }
 

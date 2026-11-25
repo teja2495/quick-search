@@ -577,11 +577,19 @@ fun AppGridView(
                     )
                 }
                 if (shouldShowAllAppsButton) {
-                    AllAppsPill(onClick = allAppsDrawer::open, showWallpaperBackground = showWallpaperBackground)
+                    AllAppsPill(
+                        onClick = allAppsDrawer::open,
+                        showWallpaperBackground = showWallpaperBackground,
+                        aboveBottomSearchBar = oneHandedMode,
+                )
                 }
             }
         } else if (shouldShowAllAppsButton) {
-            AllAppsPill(onClick = allAppsDrawer::open, showWallpaperBackground = showWallpaperBackground)
+            AllAppsPill(
+                        onClick = allAppsDrawer::open,
+                        showWallpaperBackground = showWallpaperBackground,
+                        aboveBottomSearchBar = oneHandedMode,
+                )
         }
     }
 

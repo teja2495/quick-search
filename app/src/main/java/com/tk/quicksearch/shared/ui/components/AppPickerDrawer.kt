@@ -77,6 +77,7 @@ class AppPickerDrawerSearch(
  * @param header Shown between the search field and [content], such as filter chips or a note.
  * @param footer Pinned below [content], such as an option that applies to the whole list.
  * @param onDismissStarted Called as soon as the drawer starts closing.
+ * @param avoidKeyboard See [AppBottomSheet]. Ignored with a [search] field, which needs the keyboard.
  * @param heightFraction Height limit, or fixed height when [search] is set.
  * @param content Receives `dismiss`, which animates the drawer closed and then calls [onDismiss].
  */
@@ -91,6 +92,7 @@ fun AppPickerDrawer(
     header: (@Composable ColumnScope.() -> Unit)? = null,
     footer: (@Composable ColumnScope.() -> Unit)? = null,
     heightFraction: Float = DEFAULT_PICKER_DRAWER_HEIGHT_FRACTION,
+    avoidKeyboard: Boolean = true,
     content: @Composable BoxScope.(dismiss: () -> Unit) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -102,6 +104,7 @@ fun AppPickerDrawer(
         onDismissRequest = onDismiss,
         swipeToDismissEnabled = false,
         dismissOnClickOutside = dismissOnClickOutside,
+        avoidKeyboard = avoidKeyboard || search != null,
         // Show the keyboard only after the open animation settles; bringing it up mid-animation
         // resizes the sheet and makes the slide-in stutter.
         onFullyExpanded =
