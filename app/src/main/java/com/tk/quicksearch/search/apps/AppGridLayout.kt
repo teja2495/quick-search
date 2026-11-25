@@ -86,7 +86,6 @@ internal fun AppGrid(
         themedIconsEnabled: Boolean = true,
         showWallpaperBackground: Boolean = false,
         notificationBadges: NotificationBadges = NotificationBadges.None,
-        showPinnedIndicators: Boolean = false,
         reorderPinnedApps: Boolean = false,
         scrollableRowCount: Int? = null,
         shortcutActions: AppGridShortcutActions? = null,
@@ -591,7 +590,6 @@ internal fun AppGrid(
                                 themedIconsEnabled = themedIconsEnabled,
                                 showWallpaperBackground = showWallpaperBackground,
                                 notificationBadges = notificationBadges,
-                                showPinnedIndicators = showPinnedIndicators,
                                 onItemMeasured = { height ->
                                     measuredItemHeightPx = height.toFloat()
                                 },
@@ -730,7 +728,6 @@ internal fun AppGrid(
                                     themedIconsEnabled = themedIconsEnabled,
                                     showWallpaperBackground = showWallpaperBackground,
                                     notificationBadges = notificationBadges,
-                                    showPinnedIndicators = showPinnedIndicators,
                                     isDragging = isThisDragging,
                                     isMergeSource = isMergeSource,
                                     fadeMergeSource = fadeMergeSource,

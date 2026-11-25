@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -51,7 +50,6 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.notificationDots.AppNotificationBadge
 import com.tk.quicksearch.search.apps.AppIconShape
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
-import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.ui.theme.LocalDeviceDynamicColorsActive
@@ -84,7 +82,6 @@ internal fun AppIconSurface(
         oneHandedMode: Boolean = false,
         themedIconsEnabled: Boolean = true,
         showWallpaperBackground: Boolean = false,
-        showPinnedIndicator: Boolean = false,
         notificationCount: Int = 0,
         showNotificationCount: Boolean = false,
         folderPreviewMember: AppFolderMember? = null,
@@ -146,7 +143,7 @@ internal fun AppIconSurface(
             }
     val themedIconContainerShape = AppShapes.full
     val appIconMaskShape = rememberAppIconMaskShape()
-    val pinnedIndicatorInset = (appIconSurfaceSize - appIconSize) / 2
+    val badgeInset = (appIconSurfaceSize - appIconSize) / 2
 
     Surface(
             modifier = Modifier.requiredSize(appIconSurfaceSize).then(gestureModifier),
@@ -338,27 +335,10 @@ internal fun AppIconSurface(
                                         ),
                 )
             }
-            if (showPinnedIndicator) {
-                Icon(
-                        imageVector = MaterialSymbols.PushPin,
-                        contentDescription = null,
-                        modifier =
-                                Modifier
-                                        .align(Alignment.TopEnd)
-                                        .padding(top = pinnedIndicatorInset, end = pinnedIndicatorInset)
-                                        .size(12.dp),
-                        tint = colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentSecondaryAlpha),
-                )
-            }
             AppNotificationBadge(
                     count = notificationCount,
                     showCount = showNotificationCount,
-                    modifier =
-                            if (showPinnedIndicator) {
-                                Modifier.padding(top = pinnedIndicatorInset + DesignTokens.SpacingMedium, end = pinnedIndicatorInset)
-                            } else {
-                                Modifier.padding(top = pinnedIndicatorInset, end = pinnedIndicatorInset)
-                            },
+                    modifier = Modifier.padding(top = badgeInset, end = badgeInset),
             )
         }
     }

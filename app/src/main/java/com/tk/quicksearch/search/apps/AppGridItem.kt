@@ -61,7 +61,6 @@ internal fun AppGridItem(
         themedIconsEnabled: Boolean = true,
         showWallpaperBackground: Boolean = false,
         notificationBadges: NotificationBadges = NotificationBadges.None,
-        showPinnedIndicators: Boolean = false,
         isDragging: Boolean = false,
         dragOffset: IntOffset? = null,
         onItemMeasured: (Int) -> Unit = {},
@@ -230,7 +229,6 @@ internal fun AppGridItem(
                     oneHandedMode = oneHandedMode,
                     themedIconsEnabled = themedIconsEnabled,
                     showWallpaperBackground = showWallpaperBackground,
-                    showPinnedIndicator = showPinnedIndicators && appState.isPinned,
                     notificationCount = notificationBadges.countFor(appInfo),
                     showNotificationCount = notificationBadges.showCount,
                     folderPreviewMember =
