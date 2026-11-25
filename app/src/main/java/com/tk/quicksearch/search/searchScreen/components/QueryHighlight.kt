@@ -8,6 +8,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
+import com.tk.quicksearch.shared.ui.theme.AppColors
 
 internal val LocalSearchResultQuery = staticCompositionLocalOf { "" }
 
@@ -17,8 +18,9 @@ private val QUERY_SEPARATOR_REGEX = Regex("[^\\p{L}\\p{Nd}]+")
 internal fun rememberQueryHighlightedText(
     text: String,
     query: String = LocalSearchResultQuery.current,
-): AnnotatedString =
-    remember(text, query) {
+): AnnotatedString {
+    val highlightColor = AppColors.Accent
+    return remember(text, query, highlightColor) {
         val ranges = queryHighlightRanges(text, query)
         if (ranges.isEmpty()) {
             AnnotatedString(text)
@@ -27,7 +29,7 @@ internal fun rememberQueryHighlightedText(
                 append(text)
                 ranges.forEach { range ->
                     addStyle(
-                        style = SpanStyle(fontWeight = FontWeight.Bold),
+                        style = SpanStyle(color = highlightColor, fontWeight = FontWeight.Bold),
                         start = range.first,
                         end = range.last + 1,
                     )
@@ -35,6 +37,7 @@ internal fun rememberQueryHighlightedText(
             }
         }
     }
+}
 
 internal fun queryHighlightRanges(
     text: String,

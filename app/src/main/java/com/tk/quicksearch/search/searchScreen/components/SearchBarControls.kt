@@ -12,8 +12,8 @@ import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
+import androidx.compose.animation.EnterExitState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -40,6 +40,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -300,25 +302,31 @@ internal fun SearchBarTrailingIcon(
             showSettings -> SearchBarTrailingAction.Settings
             else -> SearchBarTrailingAction.None
         }
-    // The old icon shrinks away, then the new one grows in from the same spot.
+    // The old icon shrinks away, then the new one grows in from the same spot. The scale is applied
+    // only when drawing: a scaleIn/scaleOut layer could leave the button's hit-test transform stuck
+    // at scale 0 after the animation, so taps on the visible icon fell through to the text field.
     AnimatedContent(
         targetState = action,
         transitionSpec = {
-            (
-                fadeIn(tween(TrailingIconGrowMs, delayMillis = TrailingIconShrinkMs, easing = AppMotion.EmphasizedDecelerateEasing)) +
-                    scaleIn(
-                        tween(TrailingIconGrowMs, delayMillis = TrailingIconShrinkMs, easing = AppMotion.EmphasizedEasing),
-                        initialScale = 0f,
-                    )
-            ).togetherWith(
-                fadeOut(tween(TrailingIconShrinkMs, easing = AppMotion.EmphasizedAccelerateEasing)) +
-                    scaleOut(tween(TrailingIconShrinkMs, easing = AppMotion.EmphasizedEasing), targetScale = 0f),
-            ).using(SizeTransform(clip = false))
+            fadeIn(tween(TrailingIconGrowMs, delayMillis = TrailingIconShrinkMs, easing = AppMotion.EmphasizedDecelerateEasing))
+                .togetherWith(fadeOut(tween(TrailingIconShrinkMs, easing = AppMotion.EmphasizedAccelerateEasing)))
+                .using(SizeTransform(clip = false))
         },
         contentAlignment = Alignment.Center,
         modifier = Modifier.padding(end = DesignTokens.SpacingXSmall),
         label = "SearchBarTrailingIcon",
     ) { target ->
+        val drawScale by transition.animateFloat(
+            transitionSpec = {
+                if (targetState == EnterExitState.Visible) {
+                    tween(TrailingIconGrowMs, delayMillis = TrailingIconShrinkMs, easing = AppMotion.EmphasizedEasing)
+                } else {
+                    tween(TrailingIconShrinkMs, easing = AppMotion.EmphasizedEasing)
+                }
+            },
+            label = "SearchBarTrailingIconScale",
+        ) { state -> if (state == EnterExitState.Visible) 1f else 0f }
+        Box(Modifier.drawWithContent { scale(drawScale) { this@drawWithContent.drawContent() } }) {
         when (target) {
             SearchBarTrailingAction.Clear ->
                 AppIconButton(
@@ -381,6 +389,7 @@ internal fun SearchBarTrailingIcon(
             }
 
             SearchBarTrailingAction.None -> Unit
+        }
         }
     }
 }
