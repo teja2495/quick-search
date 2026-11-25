@@ -109,11 +109,8 @@ fun AppGridView(
     val recentsTitle = stringResource(R.string.app_suggestions_tab_recent)
     val newUpdatedTitle = stringResource(R.string.app_suggestions_tab_new_updated)
     val mostUsedTitle = stringResource(R.string.common_most_used)
-    val allAppsTitle = stringResource(R.string.settings_app_shortcuts_filter_all_apps)
     val gridColumns = getAppGridColumns(phoneColumnOverride)
     val suggestionSlotCount = (rowCount * gridColumns).coerceAtLeast(1)
-    val alphabeticalApps =
-            remember(allApps) { allApps.sortedForAllApps() }
     // Folders only live in the Pinned tab, which can't be turned off while suggestions are on.
     val pinnedFolders =
             remember(appFolders, allApps, appShortcuts, disabledShortcutIds, isSearching) {
@@ -422,7 +419,9 @@ fun AppGridView(
             } else {
                 Modifier
             }
-    var showAllAppsDialog by remember { mutableStateOf(false) }
+    // The pill opens the same drawer as the All Apps gesture, which lives outside the Home
+    // text-contrast theme so both use the app theme's sheet colors.
+    val allAppsDrawer = LocalAllAppsDrawerController.current
     val shouldShowAllAppsButton = showAllAppsButton && !isSearching && allApps.isNotEmpty()
     Column(
             modifier = modifier.fillMaxWidth().then(tabSwipeModifier),
@@ -578,11 +577,11 @@ fun AppGridView(
                     )
                 }
                 if (shouldShowAllAppsButton) {
-                    AllAppsPill(onClick = { showAllAppsDialog = true })
+                    AllAppsPill(onClick = allAppsDrawer::open, showWallpaperBackground = showWallpaperBackground)
                 }
             }
         } else if (shouldShowAllAppsButton) {
-            AllAppsPill(onClick = { showAllAppsDialog = true })
+            AllAppsPill(onClick = allAppsDrawer::open, showWallpaperBackground = showWallpaperBackground)
         }
     }
 
@@ -684,36 +683,5 @@ fun AppGridView(
                             ),
             )
         }
-    }
-
-    if (showAllAppsDialog) {
-        AllAppsDrawer(
-                title = allAppsTitle,
-                apps = alphabeticalApps,
-                onDismiss = { showAllAppsDialog = false },
-                onAppClick = { app ->
-                    showAllAppsDialog = false
-                    onAppClick(app)
-                },
-                onAppShortcutClick = onAppShortcutClick,
-                onAppInfoClick = onAppInfoClick,
-                onUninstallClick = onUninstallClick,
-                onHideApp = onHideAppIncludingFolders,
-                onDisableAppShortcut = onDisableAppShortcut,
-                onPinApp = onPinApp,
-                onUnpinApp = onUnpinAppIncludingFolders,
-                onNicknameClick = onNicknameClick,
-                onTriggerClick = onTriggerClick,
-                onOpenInSplitScreen = onOpenInSplitScreen,
-                getAppNickname = getAppNickname,
-                getAppTrigger = getAppTrigger,
-                pinnedPackageNames = effectivePinnedPackageNames,
-                shortcutsByPackage = shortcutsByPackage,
-                phoneColumnOverride = phoneColumnOverride,
-                appIconSizeStep = appIconSizeStep,
-                iconPackPackage = iconPackPackage,
-                appIconShape = appIconShape,
-                notificationBadges = notificationBadges,
-        )
     }
 }

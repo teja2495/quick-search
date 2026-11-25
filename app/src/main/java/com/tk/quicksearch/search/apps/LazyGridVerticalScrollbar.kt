@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -63,6 +64,8 @@ internal fun LazyGridVerticalScrollbar(
         state: LazyGridState,
         modifier: Modifier = Modifier,
         onDragFractionChange: (Float?) -> Unit = {},
+        /** Draws the thumb this far past the strip's end edge, e.g. into the container's padding. */
+        thumbEndOutset: Dp = 0.dp,
 ) {
     val metrics by remember {
         derivedStateOf { scrollbarMetrics(state) }
@@ -117,6 +120,9 @@ internal fun LazyGridVerticalScrollbar(
                     modifier
                             .fillMaxHeight()
                             .width(LazyGridScrollbarTouchWidth)
+                            // The strip overlays the grid's last column, so it takes touches only
+                            // while the thumb is showing; otherwise taps reach the items under it.
+                            .then(if (!thumbVisible) Modifier else Modifier
                             .pointerInput(state) {
                                 detectTapGestures { offset ->
                                     val snapshot = currentMetrics.value ?: return@detectTapGestures
@@ -175,7 +181,7 @@ internal fun LazyGridVerticalScrollbar(
                                     change.consume()
                                     updateDrag(change.position.y)
                                 }
-                            },
+                            }),
             contentAlignment = Alignment.TopEnd,
     ) {
         val trackHeightPx = constraints.maxHeight.toFloat()
@@ -189,7 +195,7 @@ internal fun LazyGridVerticalScrollbar(
                         Modifier
                                 .offset {
                                     val fraction = dragFraction ?: resolved.scrollFraction
-                                    IntOffset(0, (maxOffsetPx * fraction).roundToInt())
+                                    IntOffset(thumbEndOutset.roundToPx(), (maxOffsetPx * fraction).roundToInt())
                                 }
                                 .padding(end = ThumbEndInset)
                                 .alpha(thumbAlpha)

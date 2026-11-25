@@ -262,13 +262,19 @@ internal fun SetAlarmPill(
 internal fun AllAppsPill(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    showWallpaperBackground: Boolean = false,
 ) {
-    Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-        ClockActionPill(
+    // Bottom padding keeps the taller pill off the bottom search bar.
+    Box(
+        modifier = modifier.fillMaxWidth().padding(bottom = DesignTokens.SpacingMedium),
+        contentAlignment = Alignment.Center,
+    ) {
+        // Same pill as the Collapse button so the two section actions match.
+        SectionActionPill(
+            text = stringResource(R.string.settings_app_shortcuts_filter_all_apps),
             icon = MaterialSymbols.Apps,
-            label = stringResource(R.string.settings_app_shortcuts_filter_all_apps),
             onClick = onClick,
-            translucent = false,
+            showWallpaperBackground = showWallpaperBackground,
         )
     }
 }

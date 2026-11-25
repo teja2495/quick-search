@@ -147,6 +147,26 @@ internal fun CollapseButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     showWallpaperBackground: Boolean = false,
+) = SectionActionPill(
+    text = stringResource(R.string.desc_collapse),
+    icon = MaterialSymbols.ExpandLess,
+    onClick = onClick,
+    modifier = modifier,
+    showWallpaperBackground = showWallpaperBackground,
+)
+
+/**
+ * The Collapse button's pill, for other section-level actions that should match it (such as All
+ * Apps): frosted result-tile surface, primary icon and `labelLarge` label, corners that square
+ * while pressed.
+ */
+@Composable
+internal fun SectionActionPill(
+    text: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    showWallpaperBackground: Boolean = false,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val contentColor = MaterialTheme.colorScheme.primary
@@ -161,8 +181,8 @@ internal fun CollapseButton(
         interactionSource = interactionSource,
     ) {
         ExpandCollapseButtonContent(
-            text = stringResource(R.string.desc_collapse),
-            icon = MaterialSymbols.ExpandLess,
+            text = text,
+            icon = icon,
             contentColor = contentColor,
             modifier = Modifier.padding(start = DesignTokens.SpacingLarge, end = DesignTokens.SpacingXLarge),
         )

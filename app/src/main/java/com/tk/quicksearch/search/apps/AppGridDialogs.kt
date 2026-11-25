@@ -105,10 +105,7 @@ internal fun AllAppsDrawer(
             LazyVerticalGrid(
                     state = gridState,
                     columns = GridCells.Fixed(dialogColumns),
-                    modifier =
-                            Modifier
-                                    .fillMaxWidth()
-                                    .padding(end = LazyGridScrollbarTouchWidth),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                     verticalArrangement = Arrangement.spacedBy(AllAppsDialogRowSpacing),
             ) {
@@ -187,6 +184,8 @@ internal fun AllAppsDrawer(
             LazyGridVerticalScrollbar(
                     state = gridState,
                     modifier = Modifier.align(Alignment.CenterEnd),
+                    // Sit the thumb in the drawer's end padding, clear of the last column.
+                    thumbEndOutset = DesignTokens.ContentHorizontalPadding - DesignTokens.SpacingSmall,
                     onDragFractionChange = { scrollbarDragFraction = it },
             )
         }
