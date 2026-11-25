@@ -171,11 +171,7 @@ private fun AppIconShapeRow(
         onSetAppIconShape: (AppIconShape) -> Unit,
         onSetAppIconCornerPercent: (Int) -> Unit,
 ) {
-    val view = LocalView.current
     val enabled = appIconShape == AppIconShape.CIRCLE
-    val cornerPercent = rememberAppIconCornerPercent()
-    var lastCornerPercent by remember { mutableStateOf(cornerPercent) }
-    LaunchedEffect(cornerPercent) { lastCornerPercent = cornerPercent }
     Column(modifier = Modifier.animateContentSize(animationSpec = AppMotion.defaultSpatial())) {
         SettingsToggleRow(
                 title = stringResource(R.string.settings_circular_app_icons_title),
@@ -188,39 +184,54 @@ private fun AppIconShapeRow(
                 isLastItem = false,
         )
         if (enabled) {
-            Row(
+            AppIconCornerSlider(
+                    onSetAppIconCornerPercent = onSetAppIconCornerPercent,
                     modifier =
-                            Modifier.fillMaxWidth()
-                                    .padding(
-                                            start = SegmentedTileToggleHorizontalPadding,
-                                            end = SegmentedTileToggleHorizontalPadding,
-                                            bottom = SegmentedTileContentPadding,
-                                    ),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
-            ) {
-                AppSlider(
-                        value = cornerPercent.toFloat(),
-                        onValueChange = { value ->
-                            val percent = UiPreferences.normalizeAppIconCornerPercent(value.roundToInt())
-                            if (percent != lastCornerPercent) {
-                                hapticToggle(view)()
-                                lastCornerPercent = percent
-                                onSetAppIconCornerPercent(percent)
-                            }
-                        },
-                        valueRange =
-                                UiPreferences.MIN_APP_ICON_CORNER_PERCENT.toFloat()..
-                                        UiPreferences.MAX_APP_ICON_CORNER_PERCENT.toFloat(),
-                        steps =
-                                (UiPreferences.MAX_APP_ICON_CORNER_PERCENT -
-                                        UiPreferences.MIN_APP_ICON_CORNER_PERCENT) /
-                                        UiPreferences.APP_ICON_CORNER_PERCENT_STEP - 1,
-                        modifier = Modifier.weight(1f),
-                )
-                AppIconCornerPreview(cornerPercent = cornerPercent)
-            }
+                            Modifier.padding(
+                                    start = SegmentedTileToggleHorizontalPadding,
+                                    end = SegmentedTileToggleHorizontalPadding,
+                                    bottom = SegmentedTileContentPadding,
+                            ),
+            )
         }
+    }
+}
+
+/** Corner radius slider for circular app icons, with a live preview of the Quick Search icon. */
+@Composable
+internal fun AppIconCornerSlider(
+        onSetAppIconCornerPercent: (Int) -> Unit,
+        modifier: Modifier = Modifier,
+) {
+    val view = LocalView.current
+    val cornerPercent = rememberAppIconCornerPercent()
+    var lastCornerPercent by remember { mutableStateOf(cornerPercent) }
+    LaunchedEffect(cornerPercent) { lastCornerPercent = cornerPercent }
+    Row(
+            modifier = modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
+    ) {
+        AppSlider(
+                value = cornerPercent.toFloat(),
+                onValueChange = { value ->
+                    val percent = UiPreferences.normalizeAppIconCornerPercent(value.roundToInt())
+                    if (percent != lastCornerPercent) {
+                        hapticToggle(view)()
+                        lastCornerPercent = percent
+                        onSetAppIconCornerPercent(percent)
+                    }
+                },
+                valueRange =
+                        UiPreferences.MIN_APP_ICON_CORNER_PERCENT.toFloat()..
+                                UiPreferences.MAX_APP_ICON_CORNER_PERCENT.toFloat(),
+                steps =
+                        (UiPreferences.MAX_APP_ICON_CORNER_PERCENT -
+                                UiPreferences.MIN_APP_ICON_CORNER_PERCENT) /
+                                UiPreferences.APP_ICON_CORNER_PERCENT_STEP - 1,
+                modifier = Modifier.weight(1f),
+        )
+        AppIconCornerPreview(cornerPercent = cornerPercent)
     }
 }
 

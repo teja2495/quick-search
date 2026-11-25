@@ -32,6 +32,7 @@ import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.HomeTextColor
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.settings.appearanceSettings.AccentColorChoices
+import com.tk.quicksearch.settings.appearanceSettings.AppIconCornerSlider
 import com.tk.quicksearch.settings.appearanceSettings.FONT_SIZE_STEPS
 import com.tk.quicksearch.settings.searchEngineSettings.SearchEngineCompactRowChoices
 import com.tk.quicksearch.settings.searchEngineSettings.SearchEngineStyleChoices
@@ -68,6 +69,9 @@ data class AppSettingInlineControls(
     val onSearchEngineCompactRowCountChange: (Int) -> Unit = {},
     val recentQueriesDisplayCount: Int = UiPreferences.DEFAULT_RECENT_QUERIES_DISPLAY_COUNT,
     val onRecentQueriesDisplayCountChange: (Int) -> Unit = {},
+    val notificationCountsEnabled: Boolean = false,
+    val onNotificationCountsEnabledChange: (Boolean) -> Unit = {},
+    val onAppIconCornerPercentChange: (Int) -> Unit = {},
     val appTheme: AppTheme = AppTheme.MONOCHROME,
     val deviceThemeEnabled: Boolean = false,
     val wallpaperAccentAvailable: Boolean = false,
@@ -238,6 +242,36 @@ internal fun SearchHistoryCountSlider() {
                 controls.onRecentQueriesDisplayCountChange(options[selectedIndex])
             }
         },
+    )
+}
+
+/** Dots or Count for the notification badge, shown under the enabled notification dots row. */
+@Composable
+internal fun NotificationBadgeStyleInlineChoice() {
+    val controls = LocalAppSettingInlineControls.current
+    ConnectedChoiceGroup(
+        options =
+            listOf(
+                ChoiceOption(false, stringResource(R.string.notification_dots_style_dots)),
+                ChoiceOption(true, stringResource(R.string.notification_dots_style_count)),
+            ),
+        selected = controls.notificationCountsEnabled,
+        onSelect = { showCount ->
+            if (showCount != controls.notificationCountsEnabled) {
+                controls.onNotificationCountsEnabledChange(showCount)
+            }
+        },
+        modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
+    )
+}
+
+/** Corner radius slider shown under the enabled Circular App Icons row. */
+@Composable
+internal fun AppIconCornerInlineSlider() {
+    val controls = LocalAppSettingInlineControls.current
+    AppIconCornerSlider(
+        onSetAppIconCornerPercent = controls.onAppIconCornerPercentChange,
+        modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
     )
 }
 

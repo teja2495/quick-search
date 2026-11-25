@@ -34,6 +34,9 @@ internal fun appSettingInlineControls(
         onSearchEngineCompactRowCountChange = viewModel::setSearchEngineCompactRowCount,
         recentQueriesDisplayCount = uiState.recentQueriesDisplayCount,
         onRecentQueriesDisplayCountChange = viewModel::setRecentQueriesDisplayCount,
+        notificationCountsEnabled = uiState.notificationCountsEnabled,
+        onNotificationCountsEnabledChange = viewModel::setNotificationCountsEnabled,
+        onAppIconCornerPercentChange = viewModel::setAppIconCornerPercent,
         appTheme = uiState.appTheme,
         deviceThemeEnabled = uiState.deviceThemeEnabled,
         wallpaperAccentAvailable = hasWallpaperColorSource(

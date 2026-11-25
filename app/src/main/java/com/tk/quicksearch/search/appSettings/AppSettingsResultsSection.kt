@@ -222,6 +222,7 @@ internal fun AppSettingResultRow(
     val isWebSuggestionsToggle = setting.toggleKey == AppSettingsToggleKey.WEB_SUGGESTIONS
     val isAppsPerRowSetting = setting.toggleKey == AppSettingsToggleKey.APPS_PER_ROW
     val isAppResultRowsSetting = setting.toggleKey == AppSettingsToggleKey.APP_RESULT_ROWS
+    val isNotificationDotsSetting = setting.toggleKey == AppSettingsToggleKey.NOTIFICATION_DOTS
     val context = LocalContext.current
     // Cached status: the live check queries RoleManager and writes a preference on every recomposition.
     val isDefaultLauncher = context.cachedDefaultHomeAppStatus()
@@ -241,6 +242,9 @@ internal fun AppSettingResultRow(
             setting.toggleKey == AppSettingsToggleKey.HOME_TEXT_COLOR &&
                 !LocalSearchCardLayoutEnabled.current
         ) {
+            null
+        } else if (isNotificationDotsSetting && checked) {
+            // The Dots/Count choice replaces the description once enabled.
             null
         } else {
             setting.description
@@ -335,6 +339,10 @@ internal fun AppSettingResultRow(
                 )
             } else if (checked && setting.toggleKey == AppSettingsToggleKey.RECENT_QUERIES) {
                 SearchHistoryCountSlider()
+            } else if (checked && isNotificationDotsSetting) {
+                NotificationBadgeStyleInlineChoice()
+            } else if (checked && setting.toggleKey == AppSettingsToggleKey.CIRCULAR_APP_ICONS) {
+                AppIconCornerInlineSlider()
             }
         }
 
