@@ -312,6 +312,7 @@ internal fun rememberRouteGestures(
     val pageSwipeController = LocalPageSwipeController.current
     val view = LocalView.current
     val latestHomeSwipe by rememberUpdatedState(handleHomeHorizontalSwipe)
+    val hasQuery by rememberUpdatedState(uiState.query.isNotBlank())
     // No page or two-finger swipes while a Home widget is in edit mode. Checked when the gesture
     // runs rather than by swapping modifiers, so entering edit mode never disturbs the touch that
     // long-pressed the widget and is now dragging it.
@@ -322,7 +323,7 @@ internal fun rememberRouteGestures(
                 thresholdPx = SWIPE_NAVIGATION_THRESHOLD_PX,
                 targetFor = { direction ->
                     when {
-                        homeWidgetEditGuard.isEditing -> null
+                        homeWidgetEditGuard.isEditing || hasQuery -> null
                         direction > 0 && isDefaultLauncher ->
                             RootDestination.WidgetsPanel.takeIf {
                                 isLauncherSwipeRightEnabled && swipeActions[0] != SwipeGestureAction.ALL_APPS
@@ -333,7 +334,7 @@ internal fun rememberRouteGestures(
                     }
                 },
                 onSwipe = { direction ->
-                    if (!homeWidgetEditGuard.isEditing) latestHomeSwipe(
+                    if (!homeWidgetEditGuard.isEditing && !hasQuery) latestHomeSwipe(
                         if (direction > 0) HomeHorizontalSwipe.RIGHT else HomeHorizontalSwipe.LEFT,
                     )
                 },

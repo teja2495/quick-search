@@ -94,6 +94,8 @@ internal fun rememberSearchScreenSwipeActions(
     searchFocusRequester: FocusRequester,
     keyboardController: androidx.compose.ui.platform.SoftwareKeyboardController?,
     isGestureBlocked: () -> Boolean = { false },
+    // While a query is typed, only the keyboard open/close swipes run; every other action is off.
+    hasQuery: Boolean = false,
 ): SearchScreenSwipeActions {
     val context = LocalContext.current
     val allAppsDrawer = LocalAllAppsDrawerController.current
@@ -107,6 +109,7 @@ internal fun rememberSearchScreenSwipeActions(
             swipeUpAction == SwipeGestureAction.CLOSE_KEYBOARD_OR_NOTIFICATIONS && isImeVisible -> {
                 keyboardController?.hide()
             }
+            hasQuery -> Unit
             swipeUpAction == SwipeGestureAction.SEARCH_ENGINE || swipeUpAction == SwipeGestureAction.TOOL ->
                 swipeUpAliasTarget?.let { onGestureAliasTarget(swipeUpAction, it) }
             else ->
@@ -130,6 +133,7 @@ internal fun rememberSearchScreenSwipeActions(
             swipeDownAction == SwipeGestureAction.CLOSE_KEYBOARD_OR_NOTIFICATIONS && isImeVisible -> {
                 keyboardController?.hide()
             }
+            hasQuery -> Unit
             swipeDownAction == SwipeGestureAction.SEARCH_ENGINE || swipeDownAction == SwipeGestureAction.TOOL ->
                 swipeDownAliasTarget?.let { onGestureAliasTarget(swipeDownAction, it) }
             else ->

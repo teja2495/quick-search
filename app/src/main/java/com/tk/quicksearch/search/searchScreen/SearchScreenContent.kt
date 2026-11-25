@@ -611,7 +611,7 @@ internal fun SearchScreenContent(
 
     val homeWidgetEditGuard = com.tk.quicksearch.widgetsPanel.LocalHomeWidgetEditGuard.current
     val isHomeWidgetEditing = { homeWidgetEditGuard?.isEditing == true }
-    val swipeActions = rememberSearchScreenSwipeActions(
+    val (onLauncherSwipeUp, onLauncherSwipeDown, bottomBarSwipeModifier) = rememberSearchScreenSwipeActions(
         swipeUpAction = swipeUpAction,
         swipeDownAction = swipeDownAction,
         swipeUpAliasTarget = swipeUpAliasTarget,
@@ -628,10 +628,8 @@ internal fun SearchScreenContent(
         searchFocusRequester = searchFocusRequester,
         keyboardController = keyboardController,
         isGestureBlocked = isHomeWidgetEditing,
+        hasQuery = state.query.isNotBlank(),
     )
-    val onLauncherSwipeUp = swipeActions.onLauncherSwipeUp
-    val onLauncherSwipeDown = swipeActions.onLauncherSwipeDown
-    val bottomBarSwipeModifier = swipeActions.bottomBarSwipeModifier
 
     CompositionLocalProvider(
         LocalSearchColorTheme provides searchColorTheme,
@@ -722,7 +720,7 @@ internal fun SearchScreenContent(
                 onLauncherOverscrollUp = onLauncherSwipeUp,
                 onLauncherOverscrollDown = onLauncherSwipeDown,
                 onHomeDoubleTap = {
-                    if (!isHomeWidgetEditing()) {
+                    if (!isHomeWidgetEditing() && state.query.isBlank()) {
                         homeDoubleTapAction.performHomeGesture(
                             homeDoubleTapCustomActionJson,
                             homeDoubleTapAliasTarget,
