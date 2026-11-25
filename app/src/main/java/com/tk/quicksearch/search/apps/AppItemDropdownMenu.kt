@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +27,9 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
@@ -515,30 +519,75 @@ fun AppItemDropdownMenu(
     }
 }
 
-/** The package name, with the app's version in a subtle pill below it, centered at the bottom of the menu. */
+/**
+ * The package name, with the app's version in a subtle pill below it, centered at the bottom of the menu.
+ * Either line is ellipsized when too long; tapping the caption toggles both to their full text over multiple lines.
+ */
 @Composable
 private fun AppPackageCaption(packageName: String, versionName: String?) {
     val style = MaterialTheme.typography.labelSmall
     val color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentHighAlpha)
+    var isExpanded by remember(packageName, versionName) { mutableStateOf(false) }
+    var isPackageTruncated by remember(packageName) { mutableStateOf(false) }
+    var isVersionTruncated by remember(versionName) { mutableStateOf(false) }
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(
+                enabled = isExpanded || isPackageTruncated || isVersionTruncated,
+                interactionSource = null,
+                indication = null,
+                role = Role.Button,
+            ) { isExpanded = !isExpanded },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
     ) {
-        Text(text = packageName, style = style, color = color, textAlign = TextAlign.Center)
+        ExpandableCaptionText(
+            text = packageName,
+            style = style,
+            color = color,
+            expanded = isExpanded,
+            onTruncatedChange = { isPackageTruncated = it },
+        )
         versionName?.let {
-            Text(
+            ExpandableCaptionText(
                 text = stringResource(R.string.app_menu_version, it),
                 style = style,
                 color = color,
-                maxLines = 1,
+                expanded = isExpanded,
+                onTruncatedChange = { truncated -> isVersionTruncated = truncated },
                 modifier = Modifier
-                    .clip(AppShapes.full)
+                    .clip(if (isExpanded) AppShapes.medium else AppShapes.full)
                     .background(MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintFaintAlpha))
                     .padding(horizontal = DesignTokens.SpacingSmall, vertical = 2.dp),
             )
         }
     }
+}
+
+/** One centered caption line capped at 300dp: ellipsized when collapsed, wrapped in full when expanded. */
+@Composable
+private fun ExpandableCaptionText(
+    text: String,
+    style: TextStyle,
+    color: Color,
+    expanded: Boolean,
+    onTruncatedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = text,
+        style = style,
+        color = color,
+        textAlign = TextAlign.Center,
+        maxLines = if (expanded) Int.MAX_VALUE else 1,
+        softWrap = expanded,
+        overflow = if (expanded) TextOverflow.Clip else TextOverflow.Ellipsis,
+        onTextLayout = { layout ->
+            if (!expanded) onTruncatedChange(layout.hasVisualOverflow || layout.isLineEllipsized(0))
+        },
+        modifier = Modifier.widthIn(max = 300.dp).then(modifier),
+    )
 }
 
 /** Small popup shown on long press of an assigned Swipe up / Swipe down button. */

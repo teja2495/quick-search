@@ -124,8 +124,8 @@ internal fun resolveWidgetGridLayout(
  *
  * When the target lands on exactly one same-sized widget, the two swap. Otherwise each widget the
  * dragged one now covers moves, within its own column, to the nearest rows where it fits (upward
- * on a tie, so it can take the space the dragged widget left). The dragged widget can't go past
- * the bottom of the other widgets, so a move never adds empty rows at the end of the panel.
+ * on a tie, so it can take the space the dragged widget left). Any widget, including the last,
+ * can move down to leave empty space above it.
  */
 internal fun moveWidgetToCell(
     widgets: List<PanelWidgetInfo>,
@@ -137,9 +137,8 @@ internal fun moveWidgetToCell(
     val columnSpan = current.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN
     val rowSpan = current.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN
     val others = widgets.filterNot { it.appWidgetId == appWidgetId }
-    val maxRow = others.maxOfOrNull { it.bottomRow() } ?: 0
     val clampedTargetColumn = targetColumn.coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - columnSpan)
-    val clampedTargetRow = targetRow.coerceIn(0, maxRow)
+    val clampedTargetRow = targetRow.coerceAtLeast(0)
     val moved = current.copy(column = clampedTargetColumn, row = clampedTargetRow)
     if (moved == current) return widgets
 

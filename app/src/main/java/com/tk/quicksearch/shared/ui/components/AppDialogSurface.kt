@@ -16,9 +16,11 @@ fun AppDialogSurface(
     properties: DialogProperties = DialogProperties(),
     content: @Composable () -> Unit,
 ) {
+    val hostKeyboardOpen = rememberHostKeyboardOpen()
     PreserveHostKeyboardStateEffect()
     ReportOpenPopupEffect()
     Dialog(onDismissRequest = onDismissRequest, properties = properties) {
+        DialogWindowIgnoresHostKeyboardEffect(hostKeyboardOpen)
         Surface(
             modifier = modifier,
             shape = AppShapes.extraLarge,

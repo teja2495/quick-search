@@ -10,7 +10,6 @@ import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -104,6 +103,7 @@ fun AppBottomPopup(
     val offsetY = remember { Animatable(0f) }
     val coroutineScope = rememberCoroutineScope()
     val dismissThresholdPx = with(LocalDensity.current) { 150.dp.toPx() }
+    val hostKeyboardOpen = rememberHostKeyboardOpen()
     PreserveHostKeyboardStateEffect()
     ReportOpenPopupEffect()
 
@@ -119,7 +119,7 @@ fun AppBottomPopup(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .safeDrawingPadding(),
+                .safeDrawingPaddingIgnoringHostKeyboard(hostKeyboardOpen),
             contentAlignment = Alignment.BottomCenter,
         ) {
             // The scrim is a sibling of the sheet. Back and the header close action handle dismissal

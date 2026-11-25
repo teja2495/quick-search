@@ -85,7 +85,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.sin
+import com.tk.quicksearch.shared.ui.components.DialogWindowIgnoresHostKeyboardEffect
 import com.tk.quicksearch.shared.ui.components.PreserveHostKeyboardStateEffect
+import com.tk.quicksearch.shared.ui.components.rememberHostKeyboardOpen
 import com.tk.quicksearch.shared.ui.components.ReportOpenPopupEffect
 import com.tk.quicksearch.shared.ui.components.AppButton
 import com.tk.quicksearch.shared.ui.components.AppButtonTone
@@ -197,6 +199,7 @@ fun SpeedBumpOverlay(
             forceCircularMask = appIconShape == AppIconShape.CIRCLE,
         )
 
+    val hostKeyboardOpen = rememberHostKeyboardOpen()
     PreserveHostKeyboardStateEffect()
     ReportOpenPopupEffect()
 
@@ -209,6 +212,7 @@ fun SpeedBumpOverlay(
                 dismissOnClickOutside = false,
             ),
     ) {
+        DialogWindowIgnoresHostKeyboardEffect(hostKeyboardOpen)
         BoxWithConstraints(
             modifier =
                 Modifier

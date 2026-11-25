@@ -68,11 +68,16 @@ fun AppAlertDialog(
     tonalElevation: Dp = AlertDialogDefaults.TonalElevation,
     properties: DialogProperties = DialogProperties(),
 ) {
+    val hostKeyboardOpen = rememberHostKeyboardOpen()
     PreserveHostKeyboardStateEffect()
     ReportOpenPopupEffect()
     AlertDialog(
         onDismissRequest = onDismissRequest,
-        confirmButton = confirmButton,
+        confirmButton = {
+            // The one slot every alert has, composed inside the dialog's own window.
+            DialogWindowIgnoresHostKeyboardEffect(hostKeyboardOpen)
+            confirmButton()
+        },
         modifier = modifier,
         dismissButton = dismissButton,
         icon = icon,

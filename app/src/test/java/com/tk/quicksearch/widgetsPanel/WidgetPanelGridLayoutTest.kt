@@ -37,14 +37,15 @@ class WidgetPanelGridLayoutTest {
     }
 
     @Test
-    fun `a widget cannot be dragged past the bottom of the others`() {
+    fun `the bottom widget can move down to leave space above it`() {
         val a = widget(id = 1, column = 0, row = 0, columnSpan = 4, rowSpan = 2)
         val b = widget(id = 2, column = 0, row = 2, columnSpan = 4, rowSpan = 3)
 
-        val result = moveWidgetToCell(listOf(a, b), appWidgetId = 1, targetColumn = 0, targetRow = 20)
+        val result = moveWidgetToCell(listOf(a, b), appWidgetId = 2, targetColumn = 0, targetRow = 6)
 
-        assertEquals(5, result.byId(1).row)
-        assertEquals(2, result.byId(2).row)
+        assertEquals(0, result.byId(1).row)
+        assertEquals(6, result.byId(2).row)
+        assertEquals(7, checkNotNull(moveWidgetByStep(result, 2, columnDelta = 0, rowDelta = 1)).byId(2).row)
     }
 
     @Test

@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalView
 @Stable
 class OpenPopupTracker(
     private val onFirstPopupOpened: () -> Unit = {},
+    private val onLastPopupClosed: () -> Unit = {},
 ) {
     private var openCount by mutableIntStateOf(0)
 
@@ -35,7 +36,9 @@ class OpenPopupTracker(
     }
 
     internal fun closed() {
-        openCount = (openCount - 1).coerceAtLeast(0)
+        if (openCount == 0) return
+        openCount--
+        if (openCount == 0) onLastPopupClosed()
     }
 }
 
@@ -61,7 +64,8 @@ fun ReportOpenPopupEffect(active: Boolean = true) {
  * the keyboard again even if it was closed before. When the first popup opens with the keyboard
  * closed, this drops the field's focus so closing the popup leaves it closed; an open keyboard
  * keeps its focus and comes back as before. A hardware keyboard keeps the focus so typing still
- * works.
+ * works. While the keyboard is away for a popup, the surface keeps its keyboard layout
+ * ([HostImeInsetsHold]) so it doesn't reflow behind the popup.
  */
 @Composable
 fun rememberSearchSurfacePopupTracker(): OpenPopupTracker {
@@ -71,16 +75,20 @@ fun rememberSearchSurfacePopupTracker(): OpenPopupTracker {
     val hasHardwareKeyboard by rememberUpdatedState(
         LocalConfiguration.current.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO,
     )
-    return remember(view, imeInsets) {
+    val imeHold = remember(view) { HostImeInsetsHold(view) }
+    DisposableEffect(imeHold) { onDispose { imeHold.dispose() } }
+    return remember(view, imeInsets, imeHold) {
         OpenPopupTracker(
             onFirstPopupOpened = {
                 // Read now, before the popup's window starts hiding the keyboard.
                 val keyboardOpen = imeInsets.getBottom(density) > 0
+                imeHold.onPopupOpened()
                 if (!keyboardOpen && !hasHardwareKeyboard) {
                     // Outside the effect that reported the popup, so focus isn't changed mid-apply.
                     view.post { view.clearFocus() }
                 }
             },
+            onLastPopupClosed = imeHold::onPopupsClosed,
         )
     }
 }
