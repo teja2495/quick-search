@@ -104,6 +104,14 @@ internal fun rememberSettingsBackSeek(
         if (current != null && current.isNestedDetail()) current.resolveBackDestination(previousSettingsDetailType) else null
     LaunchedEffect(settingsDetailType) {
         val state = seek.transitionState
+        if (state.targetState != settingsDetailType) {
+            // animateTo() samples its start frame before the new page composes, so a slow first
+            // composition counts as elapsed time and the slide can finish in a single frame. Set
+            // the target first (seekTo waits for composition and resets the frame clock), let the
+            // page lay out for a frame, then start timing the slide.
+            state.seekTo(0f, targetState = settingsDetailType)
+            withFrameNanos { }
+        }
         if (state.currentState != settingsDetailType || state.targetState != settingsDetailType) {
             state.animateTo(settingsDetailType)
         }

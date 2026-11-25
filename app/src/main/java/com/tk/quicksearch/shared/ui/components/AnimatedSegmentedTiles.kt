@@ -8,12 +8,17 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.layout
 import com.tk.quicksearch.shared.ui.theme.AppMotion
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /** Enter transition for a settings row or group that appears because another setting changed. */
 val SettingsRevealEnter: EnterTransition =
@@ -99,10 +104,24 @@ fun ColumnScope.AnimatedSegmentedTiles(
     val entries = AnimatedSegmentedTilesScope().apply(content).entries
     val count = firstIndex + entries.count { it.visible } + trailingCount
     var visibleIndex = firstIndex
-    entries.forEachIndexed { position, entry ->
-        val index = if (entry.visible) visibleIndex++ else visibleIndex
-        key(entry.key ?: position) {
-            AnimatedSegmentedTile(entry.visible, index, count, entry.content)
+    // Each tile carries the segmented gap above it inside its own reveal, so a hiding tile takes
+    // its gap with it as it shrinks. Left to the parent's spacedBy, the gap would stay until the
+    // exit fully settles and then drop in one jump. The block hides its first gap above its top,
+    // where the parent's own gap (or nothing, when it leads the group) already is.
+    Column(
+        modifier =
+            Modifier.fillMaxWidth().layout { measurable, constraints ->
+                val gap = DesignTokens.SegmentedListGap.roundToPx()
+                val placeable = measurable.measure(constraints.copy(minHeight = 0))
+                val height = (placeable.height - gap).coerceAtLeast(0)
+                layout(placeable.width, height) { placeable.place(0, -gap) }
+            },
+    ) {
+        entries.forEachIndexed { position, entry ->
+            val index = if (entry.visible) visibleIndex++ else visibleIndex
+            key(entry.key ?: position) {
+                AnimatedSegmentedTile(entry.visible, index, count, entry.content)
+            }
         }
     }
 }
@@ -121,6 +140,8 @@ private fun ColumnScope.AnimatedSegmentedTile(
         shown[1] = count
     }
     SettingsRevealVisibility(visible = visible) {
-        if (visible) content(index, count) else content(shown[0], shown[1])
+        Column(modifier = Modifier.padding(top = DesignTokens.SegmentedListGap)) {
+            if (visible) content(index, count) else content(shown[0], shown[1])
+        }
     }
 }
