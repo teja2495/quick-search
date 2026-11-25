@@ -6,18 +6,21 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imeAnimationTarget
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 
@@ -67,4 +70,47 @@ internal fun rememberImeSettledHeight(height: Dp, holdWhile: () -> Boolean = { f
     }
     val heldHeight = remember(isHolding) { height }
     return if (isHolding) heldHeight else height
+}
+
+/** Whether the keyboard is open or animating open: its animation target is above the screen edge. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun rememberImeTargetVisible(): State<Boolean> {
+    val density = LocalDensity.current
+    val imeTarget = WindowInsets.imeAnimationTarget
+    return remember(imeTarget, density) { derivedStateOf { imeTarget.getBottom(density) > 0 } }
+}
+
+/** Whether the keyboard is mid-way through opening (not yet at its target height). */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun rememberImeOpening(): State<Boolean> {
+    val density = LocalDensity.current
+    val ime = WindowInsets.ime
+    val imeTarget = WindowInsets.imeAnimationTarget
+    return remember(ime, imeTarget, density) {
+        derivedStateOf {
+            val target = imeTarget.getBottom(density)
+            target > 0 && ime.getBottom(density) < target
+        }
+    }
+}
+
+/**
+ * Lets the opening keyboard cover this bottom-anchored content instead of pushing it up: its height
+ * shrinks by how far the keyboard has risen past the navigation bar, so it holds still on screen
+ * while the keyboard slides over it, and the content above only starts moving once it is covered.
+ * Height is read in layout, so the keyboard animation relayouts without recomposing.
+ */
+@Composable
+internal fun Modifier.collapseUnderRisingKeyboard(): Modifier {
+    val ime = WindowInsets.ime
+    val navigationBars = WindowInsets.navigationBars
+    return layout { measurable, constraints ->
+        val placeable = measurable.measure(constraints)
+        val navigationBottom = navigationBars.getBottom(this)
+        val keyboardRise = maxOf(ime.getBottom(this), navigationBottom) - navigationBottom
+        val height = (placeable.height - keyboardRise).coerceIn(0, placeable.height)
+        layout(placeable.width, height) { placeable.place(0, 0) }
+    }
 }

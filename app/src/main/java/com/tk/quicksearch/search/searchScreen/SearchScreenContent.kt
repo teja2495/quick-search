@@ -181,7 +181,6 @@ internal fun SearchScreenContent(
     var delayedOpenKeyboardActionVisible by remember {
         mutableStateOf(returningFromInAppPage && openKeyboardPillMemory.visibleWhenLeft)
     }
-    var hideOpenKeyboardActionInstantly by remember { mutableStateOf(false) }
     var hasSeenStartupKeyboardVisible by
             remember(isOverlayPresentation) { mutableStateOf(false) }
     var hasClosedStartupKeyboardAfterLaunch by
@@ -217,6 +216,8 @@ internal fun SearchScreenContent(
     val isImeVisible by remember(imeInsets, density) {
         derivedStateOf { imeInsets.getBottom(density) > 0 }
     }
+    val isImeTargetVisible by rememberImeTargetVisible()
+    val isImeOpening by rememberImeOpening()
     LaunchedEffect(isImeVisible) {
         if (isImeVisible) {
             StartupTrace.mark("QS.Home.KeyboardVisible")
@@ -318,7 +319,8 @@ internal fun SearchScreenContent(
     val shouldShowOpenKeyboardAction =
             expandedSection == ExpandedSection.NONE &&
                     !showBottomSearchBar &&
-                    !isImeVisible &&
+                    // An already visible pill stays while the keyboard opens over it, then goes.
+                    (if (isImeTargetVisible) isImeOpening && delayedOpenKeyboardActionVisible else !isImeVisible) &&
                     !isPhysicalKeyboardConnected &&
                     canShowOpenKeyboardPill &&
                     hasClosedStartupKeyboardAfterLaunch &&
@@ -333,7 +335,6 @@ internal fun SearchScreenContent(
         }
         if (delayedOpenKeyboardActionVisible) return@LaunchedEffect
 
-        hideOpenKeyboardActionInstantly = false
         delayedOpenKeyboardActionVisible = false
         delay(OPEN_KEYBOARD_ACTION_APPEAR_DELAY_MS)
         delayedOpenKeyboardActionVisible = true
@@ -557,12 +558,6 @@ internal fun SearchScreenContent(
                 onClearDetectedShortcut = onClearDetectedShortcut,
                 onSectionSelected = onSectionSelected,
                 onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
-                onPressWhileKeyboardClosed = {
-                    if (!isImeVisible) {
-                        hideOpenKeyboardActionInstantly = true
-                        delayedOpenKeyboardActionVisible = false
-                    }
-                },
                 focusRequester = searchFocusRequester,
                 forceRestingOutline = showBottomSearchBar,
                 transparentBackground = useInsetEngineStrip,
@@ -778,12 +773,12 @@ internal fun SearchScreenContent(
             searchFieldContent = searchFieldContent,
             shouldShowOpenKeyboardAction = shouldShowOpenKeyboardAction,
             delayedOpenKeyboardActionVisible = delayedOpenKeyboardActionVisible,
-            hideOpenKeyboardActionInstantly = hideOpenKeyboardActionInstantly,
+            // The opening keyboard has already covered it; collapsing it again would jump.
+            hideOpenKeyboardActionInstantly = isImeTargetVisible,
             openKeyboardText = openKeyboardText,
             onVoiceClick = onVoiceClick,
             onOpenKeyboardActionClicked = {
                 if (delayedOpenKeyboardActionVisible) {
-                    delayedOpenKeyboardActionVisible = false
                     searchFocusRequester.requestFocus()
                     openKeyboardActionScope.launch {
                         withFrameNanos { }
