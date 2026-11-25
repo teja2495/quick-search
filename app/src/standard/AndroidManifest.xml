@@ -8,13 +8,14 @@
     <uses-permission android:name="com.tk.noted.permission.READ_CONTENT" />
 
     <application>
-        <!-- Noted's broadcast when its dated tasks change; Noted sends it only to holders of its read
-             permission. It carries no data and only triggers a redraw. -->
+        <!-- Noted's broadcasts when its dated tasks or hidden calendar events change; Noted sends them
+             only to holders of its read permission. They carry no data and only trigger a redraw. -->
         <receiver
             android:name="com.tk.quicksearch.search.noted.NotedTasksChangedReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.tk.noted.action.DUE_TASKS_CHANGED" />
+                <action android:name="com.tk.noted.action.HIDDEN_CALENDAR_EVENTS_CHANGED" />
             </intent-filter>
         </receiver>
     </application>

@@ -11,17 +11,20 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 /**
- * Noted's broadcast after its open dated tasks change. Redraws the At a Glance widget, and home and
- * search while they are open. It carries no data, so a stray sender can only cause a redraw.
+ * Noted's broadcasts after its open dated tasks or its hidden calendar event names change. Redraws
+ * the At a Glance widget, and home and search while they are open. They carry no data, so a stray
+ * sender can only cause a redraw.
  */
 class NotedTasksChangedReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action != ACTION_DUE_TASKS_CHANGED) return
+        val action = intent.action
+        if (action != ACTION_DUE_TASKS_CHANGED && action != ACTION_HIDDEN_CALENDAR_EVENTS_CHANGED) return
         val appContext = context.applicationContext
         val pending = goAsync()
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
                 if (NotedIntegration.ensureChecked(appContext)) {
+                    if (action == ACTION_HIDDEN_CALENDAR_EVENTS_CHANGED) NotedHiddenCalendarEvents.invalidate()
                     ReminderRepository.notifyChanged()
                     refreshAtAGlanceWidgets(appContext)
                 }
@@ -33,5 +36,6 @@ class NotedTasksChangedReceiver : BroadcastReceiver() {
 
     private companion object {
         const val ACTION_DUE_TASKS_CHANGED = "com.tk.noted.action.DUE_TASKS_CHANGED"
+        const val ACTION_HIDDEN_CALENDAR_EVENTS_CHANGED = "com.tk.noted.action.HIDDEN_CALENDAR_EVENTS_CHANGED"
     }
 }

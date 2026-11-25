@@ -34,6 +34,9 @@ object NotedIntegration {
      * [COLUMN_TEXT] row with its full text (none while locked), or update with [COLUMN_TEXT] to replace it.
      */
     const val QUICK_NOTE_PATH = "quick_note"
+
+    /** One [COLUMN_TITLE] row per normalized calendar event name hidden in Noted's Calendar. */
+    const val HIDDEN_CALENDAR_EVENTS_PATH = "hidden_calendar_events"
     const val COLUMN_TEXT = "text"
     const val QUERY_PARAM = "q"
     const val LIMIT_PARAM = "limit"
@@ -82,6 +85,7 @@ object NotedIntegration {
         packageName = notedPackage
         isAvailable = available
         checked = true
+        if (changed) NotedHiddenCalendarEvents.invalidate()
         return changed
     }
 

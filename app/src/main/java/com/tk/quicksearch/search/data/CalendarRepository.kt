@@ -11,6 +11,7 @@ import android.provider.CalendarContract
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.search.models.CalendarEventInfo
+import com.tk.quicksearch.search.noted.NotedHiddenCalendarEvents
 import com.tk.quicksearch.search.utils.SearchRankingUtils
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import java.time.Instant
@@ -427,6 +428,9 @@ class CalendarRepository(
         // The same event can come from several synced calendars (holiday calendars, shared or
         // duplicated accounts). Keep one row per title and start time.
         val seenInstances = HashSet<Pair<String, Long>>()
+        // Events hidden in Noted stay hidden here; titles repeat across instances, so check each once.
+        val hiddenNames = NotedHiddenCalendarEvents.namesBlocking(context)
+        val hiddenByTitle = HashMap<String, Boolean>()
         val cursor =
             contentResolver.query(
                 uri,
@@ -459,7 +463,10 @@ class CalendarRepository(
                 val startMillis = if (allDay) utcMidnightToLocalMidnight(rawStartMillis) else rawStartMillis
                 val endMillis = if (allDay) utcMidnightToLocalMidnight(rawEndMillis) else rawEndMillis
 
-                if (title.isNotBlank() && seenInstances.add(title.lowercase() to startMillis)) {
+                val isHidden =
+                    hiddenNames.isNotEmpty() &&
+                        hiddenByTitle.getOrPut(title) { NotedHiddenCalendarEvents.isHidden(title, hiddenNames) }
+                if (title.isNotBlank() && !isHidden && seenInstances.add(title.lowercase() to startMillis)) {
                     val recurrenceRule =
                         if (rruleIndex >= 0) {
                             cursor.getString(rruleIndex)?.trim()?.takeIf(String::isNotBlank)
