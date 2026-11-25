@@ -367,7 +367,7 @@ settings and add a property in sorted order.
 | `SearchResultCard`, `SearchResultCardDefaults` (`searchScreen/shared/`) | Every Home and result card. In Compact Layout (`LocalSearchCardLayoutEnabled` false) it drops its container and border and draws a full-width divider under each card. A stack with a gap other than `SpacingMedium` provides `LocalCardlessStackSpacing` |
 | `ResultSegment`, `ResultRowDivider`, `ExpandButtonSegment` (`SegmentedResultRows.kt`) | Segmented result rows: each row is its own tile when cards are on, with dividers on one card otherwise. Sections opt in with `segmented = true` on `ExpandableResultsCard` |
 | `ExpandButton`, `CollapseButton` | A section's More and Collapse actions: chevron and `labelLarge` in `primary` |
-| `SectionActionPill` | The Collapse button's frosted pill, reused by other section actions that should match it; `compact` gives the 40dp small size (All Apps) |
+| `SectionActionPill` | The Collapse button's frosted pill, reused by other section actions that should match it; `compact` gives a 36dp size with a 16dp icon (All Apps) |
 | `InformationCard`, `InformationCardFooter` | Tool and AI answer cards. The footer is the Material card action area: source at the start, outlined 20dp `IconButton`s with tooltips at the end |
 | `QuickActionButton` and pills (`searchScreen/components/Pills.kt`) | Search quick actions: 32dp tonal extra-small buttons that share one line and shrink labels instead of wrapping |
 | `OpenKeyboardAction` | Home's bottom keyboard strip, as a `ConnectedButtonRow` |

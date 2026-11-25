@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.searchScreen.frostedCardBackground
@@ -45,8 +46,10 @@ private val COMPACT_EXPAND_BUTTON_MIN_HEIGHT = 48.dp
 private val EXPAND_SEGMENT_MIN_HEIGHT = 40.dp
 private val COLLAPSE_BUTTON_HEIGHT = 48.dp
 
-// M3 small button height; the Surface still keeps a 48dp touch target around it.
-private val COMPACT_SECTION_ACTION_PILL_HEIGHT = 40.dp
+// Between the M3 extra-small (32dp) and small (40dp) buttons; the Surface still keeps a 48dp
+// touch target around it.
+private val COMPACT_SECTION_ACTION_PILL_HEIGHT = 36.dp
+private val COMPACT_SECTION_ACTION_ICON_SIZE = 16.dp
 
 /**
  * Divider between a section's last row and its More button. Only flat rows (card layout off) get
@@ -164,7 +167,7 @@ internal fun CollapseButton(
  * Apps): frosted result-tile surface, primary icon and `labelLarge` label, corners that square
  * while pressed.
  *
- * @param compact Uses the 40dp small-button height and tighter padding, for actions that sit under
+ * @param compact Uses a 36dp height, a 16dp icon, and tighter padding, for actions that sit under
  *   dense content (All Apps under the app grid).
  */
 @Composable
@@ -199,6 +202,7 @@ internal fun SectionActionPill(
                 text = text,
                 icon = icon,
                 contentColor = contentColor,
+                iconSize = if (compact) COMPACT_SECTION_ACTION_ICON_SIZE else EXPAND_ICON_SIZE.dp,
                 modifier =
                     if (compact) {
                         Modifier.padding(start = DesignTokens.SpacingMedium, end = DesignTokens.SpacingLarge)
@@ -217,6 +221,7 @@ private fun ExpandCollapseButtonContent(
     icon: ImageVector,
     contentColor: Color,
     modifier: Modifier = Modifier,
+    iconSize: Dp = EXPAND_ICON_SIZE.dp,
 ) {
     Row(
         modifier = modifier,
@@ -227,7 +232,7 @@ private fun ExpandCollapseButtonContent(
             imageVector = icon,
             contentDescription = null,
             tint = contentColor,
-            modifier = Modifier.size(EXPAND_ICON_SIZE.dp),
+            modifier = Modifier.size(iconSize),
         )
         Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
         Text(

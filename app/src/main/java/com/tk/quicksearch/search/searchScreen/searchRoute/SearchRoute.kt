@@ -2,7 +2,7 @@ package com.tk.quicksearch.search.searchScreen.searchRoute
 
 import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.shared.ui.components.LocalOpenPopupTracker
-import com.tk.quicksearch.shared.ui.components.OpenPopupTracker
+import com.tk.quicksearch.shared.ui.components.rememberSearchSurfacePopupTracker
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.search.appSettings.AppSettingsTarget
 import com.tk.quicksearch.search.searchScreen.LocalPinnedGlanceOnly
@@ -379,7 +379,7 @@ fun SearchRoute(
         )
     }
 
-    val openPopupTracker = remember { OpenPopupTracker() }
+    val openPopupTracker = rememberSearchSurfacePopupTracker()
     Box(modifier = containerModifier) {
         CompositionLocalProvider(
             LocalHomeHorizontalSwipeHandler provides handleHomeHorizontalSwipe,
