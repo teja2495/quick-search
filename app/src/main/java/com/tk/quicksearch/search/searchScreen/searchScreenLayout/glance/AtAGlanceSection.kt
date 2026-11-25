@@ -6,8 +6,9 @@ import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerVerticalPadding
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.expandVertically
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
@@ -78,6 +79,10 @@ private class RetainedAtAGlanceItems {
     var visibility: MutableTransitionState<Boolean>? = null
     var hasShownRows = false
 }
+
+/** At a Glance appears with the same fade as other Home content, at its final height. */
+private val GlanceEnterTransition =
+    fadeIn(tween(durationMillis = AppMotion.DurationShort, easing = AppMotion.EmphasizedEasing))
 
 private const val AT_A_GLANCE_CARD_APPEARED_KEY = "at-a-glance-card"
 private const val AT_A_GLANCE_ROW_APPEARED_KEY_PREFIX = "at-a-glance-row-"
@@ -276,7 +281,7 @@ internal fun AtAGlanceRows(
             key(row.item.key) {
                 AnimatedVisibility(
                     visibleState = row.visibility,
-                    enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                    enter = GlanceEnterTransition,
                     exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
                 ) {
                     Column {
@@ -312,7 +317,7 @@ private class AnimatedGlanceRows {
 
 /**
  * [items] with the rows that just left kept in their old places until they finish collapsing, so
- * a dismissed row shrinks away and new rows (such as the ones "Show more" unfolds) grow in. Rows
+ * a dismissed row shrinks away and new rows (such as the ones "Show more" unfolds) fade in. Rows
  * present the first time the group is shown appear without animating.
  */
 @Composable
@@ -426,7 +431,7 @@ internal fun AtAGlanceCardShell(
 
 /**
  * The At a Glance card when there are no today's events to host the rows, with its title. The card
- * grows in when rows appear and collapses away once the last one is dismissed.
+ * fades in when rows appear and collapses away once the last one is dismissed.
  */
 @Composable
 internal fun AtAGlanceCard(
@@ -437,7 +442,7 @@ internal fun AtAGlanceCard(
     if (items.isEmpty()) return
     AnimatedVisibility(
         visibleState = items.visibility,
-        enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+        enter = GlanceEnterTransition,
         exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
     ) {
         // Matches the spacing of the home column the title and card sit in.

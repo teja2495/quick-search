@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
 import com.tk.quicksearch.search.searchScreen.rememberImeSettledHeight
+import com.tk.quicksearch.search.searchScreen.rememberImeTargetVisible
 import com.tk.quicksearch.search.searchScreen.SearchTopMatchesState
 import com.tk.quicksearch.search.searchScreen.LocalInsetCardBackdrop
 import com.tk.quicksearch.search.searchScreen.contentBottomInset
@@ -177,11 +178,15 @@ internal fun SearchContentArea(
     val isImeVisible by remember(imeInsets, imeDensity) {
         derivedStateOf { imeInsets.getBottom(imeDensity) > 0 }
     }
+    // Swap back as soon as the keyboard starts closing, mirroring how opening swaps on its first
+    // frame; waiting for the inset to reach zero left the grid alone on screen before Home faded in.
+    val isImeTargetVisible by rememberImeTargetVisible()
     // With Open Keyboard off, focusing the bar means the user is about to type: clear Home
     // and wait for the query instead of showing suggestions behind the keyboard.
     val hideHomeWhileAwaitingQuery =
         !state.openKeyboardOnLaunch &&
             isImeVisible &&
+            isImeTargetVisible &&
             !hasQuery &&
             !hideOtherResults &&
             renderingState.expandedSection == ExpandedSection.NONE &&
