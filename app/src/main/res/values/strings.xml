@@ -1280,6 +1280,12 @@
     <string name="widgets_picker_title">Add Widget</string>
     <string name="widgets_picker_widget_count">%1$d widgets</string>
     <string name="widgets_picker_widget_grid_size">%1$d x %2$d</string>
+    <string name="widget_add_to_stack">Add to Stack</string>
+    <string name="widget_stack_picker_empty">No widgets fit this size.</string>
+    <string name="widget_stack_picker_subtitle">Widgets that can fit in this stack</string>
+    <string name="widget_reorder_stack">Reorder Stack</string>
+    <string name="widget_reorder_stack_info">Drag to reorder. The top widget is shown first.</string>
+    <string name="widget_stack_page_indicator">Page %1$d of %2$d</string>
 
     <!-- ============================================================================
          Permissions &amp; Onboarding

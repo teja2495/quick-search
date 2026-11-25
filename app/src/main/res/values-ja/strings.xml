@@ -1241,6 +1241,12 @@ www.google.com/search?q={{query}}</string>
     <string name="widgets_picker_title">ウィジェットを追加</string>
     <string name="widgets_picker_widget_count">%1$d個のウィジェット</string>
     <string name="widgets_picker_widget_grid_size">%1$d x %2$d</string>
+    <string name="widget_add_to_stack">スタックに追加</string>
+    <string name="widget_stack_picker_empty">このサイズに収まるウィジェットはありません。</string>
+    <string name="widget_stack_picker_subtitle">このスタックに収まるウィジェット</string>
+    <string name="widget_reorder_stack">スタックを並べ替え</string>
+    <string name="widget_reorder_stack_info">ドラッグして並べ替えます。一番上のウィジェットが最初に表示されます。</string>
+    <string name="widget_stack_page_indicator">%2$d ページ中 %1$d ページ目</string>
 
     <!-- ============================================================================
          Permissions &amp; Onboarding

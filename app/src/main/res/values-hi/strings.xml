@@ -1233,6 +1233,12 @@
     <string name="widgets_picker_title">विजेट जोड़ें</string>
     <string name="widgets_picker_widget_count">%1$d विजेट्स</string>
     <string name="widgets_picker_widget_grid_size">%1$d x %2$d</string>
+    <string name="widget_add_to_stack">स्टैक में जोड़ें</string>
+    <string name="widget_stack_picker_empty">इस आकार में कोई विजेट फ़िट नहीं होता।</string>
+    <string name="widget_stack_picker_subtitle">इस स्टैक में फ़िट हो सकने वाले विजेट</string>
+    <string name="widget_reorder_stack">स्टैक का क्रम बदलें</string>
+    <string name="widget_reorder_stack_info">क्रम बदलने के लिए खींचें। सबसे ऊपर वाला विजेट पहले दिखता है।</string>
+    <string name="widget_stack_page_indicator">पेज %1$d / %2$d</string>
 
     <!-- ============================================================================
          Permissions &amp; Onboarding

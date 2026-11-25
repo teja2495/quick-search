@@ -409,6 +409,8 @@ internal fun BoxScope.WidgetEditOverlay(
     onRemove: () -> Unit,
     onConfigure: () -> Unit,
     onPinToHome: () -> Unit,
+    onAddToStack: () -> Unit,
+    onReorderStack: (() -> Unit)? = null,
 ) {
     val horizontalSign = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1 else 1
     val currentColumn by rememberUpdatedState(column)
@@ -497,39 +499,66 @@ internal fun BoxScope.WidgetEditOverlay(
             onRemove = onRemove,
             onConfigure = onConfigure.takeIf { hasConfigure },
             onPinToHome = onPinToHome.takeIf { canPinToHome },
+            onAddToStack = onAddToStack,
+            onReorderStack = onReorderStack,
         )
     }
 }
 
 /**
- * Edit badges along the widget's top edge: Add to Home alone at the top-start corner, then Settings
- * and Remove packed at the top-end corner. Unavailable actions are omitted.
+ * Edit badges along the widget's top edge: Add to stack, Reorder stack and Add to Home packed at the top-start
+ * corner, then Settings and Remove packed at the top-end corner. Unavailable actions are omitted.
  */
 @Composable
 internal fun BoxScope.WidgetEditActionButtons(
     onRemove: () -> Unit,
     onConfigure: (() -> Unit)?,
     onPinToHome: (() -> Unit)? = null,
+    onAddToStack: (() -> Unit)? = null,
+    onReorderStack: (() -> Unit)? = null,
 ) {
     WidgetEditBadgeScrim()
-    onPinToHome?.let { onClick ->
-        WidgetActionButton(
-            icon = MaterialSymbols.Home,
-            contentDescription = stringResource(R.string.action_add_to_home),
-            tint = MaterialTheme.colorScheme.onPrimary,
-            background = MaterialTheme.colorScheme.primary,
-            onClick = onClick,
-            modifier = Modifier.align(Alignment.TopStart),
+    // Each badge lays out at its 48dp touch target, so pull them together until the visible
+    // badges sit SpacingSmall apart; their touch targets overlap slightly at the seams.
+    val badgeArrangement =
+        Arrangement.spacedBy(
+            DesignTokens.SpacingSmall - (DesignTokens.MinTouchTarget - WidgetActionButtonSize),
         )
+    Row(
+        modifier = Modifier.align(Alignment.TopStart),
+        horizontalArrangement = badgeArrangement,
+    ) {
+        onAddToStack?.let { onClick ->
+            WidgetActionButton(
+                icon = MaterialSymbols.Add,
+                contentDescription = stringResource(R.string.widget_add_to_stack),
+                tint = MaterialTheme.colorScheme.onPrimary,
+                background = MaterialTheme.colorScheme.primary,
+                onClick = onClick,
+            )
+        }
+        onReorderStack?.let { onClick ->
+            WidgetActionButton(
+                icon = MaterialSymbols.Reorder,
+                contentDescription = stringResource(R.string.widget_reorder_stack),
+                tint = MaterialTheme.colorScheme.onPrimary,
+                background = MaterialTheme.colorScheme.primary,
+                onClick = onClick,
+            )
+        }
+        onPinToHome?.let { onClick ->
+            WidgetActionButton(
+                icon = MaterialSymbols.Home,
+                contentDescription = stringResource(R.string.action_add_to_home),
+                tint = MaterialTheme.colorScheme.onPrimary,
+                background = MaterialTheme.colorScheme.primary,
+                onClick = onClick,
+            )
+        }
     }
     Row(
         modifier = Modifier.align(Alignment.TopEnd),
-        // Each badge lays out at its 48dp touch target, so pull them together until the visible
-        // badges sit SpacingSmall apart; their touch targets overlap slightly at the seams.
-        horizontalArrangement =
-            Arrangement.spacedBy(
-                DesignTokens.SpacingSmall - (DesignTokens.MinTouchTarget - WidgetActionButtonSize),
-            ),
+        horizontalArrangement = badgeArrangement,
     ) {
         onConfigure?.let { onClick ->
             WidgetActionButton(

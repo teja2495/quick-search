@@ -1233,6 +1233,12 @@
     <string name="widgets_picker_title">Widget hinzufügen</string>
     <string name="widgets_picker_widget_count">%1$d Widgets</string>
     <string name="widgets_picker_widget_grid_size">%1$d × %2$d</string>
+    <string name="widget_add_to_stack">Zum Stapel hinzufügen</string>
+    <string name="widget_stack_picker_empty">Keine Widgets passen in diese Größe.</string>
+    <string name="widget_stack_picker_subtitle">Widgets, die in diesen Stapel passen</string>
+    <string name="widget_reorder_stack">Stapel neu anordnen</string>
+    <string name="widget_reorder_stack_info">Zum Neuanordnen ziehen. Das oberste Widget wird zuerst angezeigt.</string>
+    <string name="widget_stack_page_indicator">Seite %1$d von %2$d</string>
 
     <!-- ============================================================================
          Permissions &amp; Onboarding

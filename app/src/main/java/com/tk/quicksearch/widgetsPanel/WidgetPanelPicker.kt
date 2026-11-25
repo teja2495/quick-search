@@ -116,15 +116,19 @@ internal fun WidgetPickerSheet(
     onDismiss: () -> Unit,
     onAddQuickNote: () -> Unit,
     onSelectWidget: (AppWidgetProviderInfo) -> Unit,
+    /** When set, the picker adds to a widget stack and lists only widgets that fit its size. */
+    stackFit: WidgetStackFit? = null,
 ) {
     val context = LocalContext.current
     val packageManager = context.packageManager
-    val appIconSizePx = with(LocalDensity.current) { DesignTokens.Spacing40.roundToPx() }
+    val density = LocalDensity.current
+    val appIconSizePx = with(density) { DesignTokens.Spacing40.roundToPx() }
     var query by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
-    val apps by produceState<List<WidgetPickerApp>?>(initialValue = null, appWidgetManager, packageManager) {
+    val apps by produceState<List<WidgetPickerApp>?>(initialValue = null, appWidgetManager, packageManager, stackFit) {
         value =
             withContext(Dispatchers.IO) {
                 appWidgetManager.installedProviders
+                    .filter { provider -> stackFit == null || stackFit.fits(provider, density) }
                     .groupBy { it.provider.packageName to UserHandleUtils.getIdentifier(it.profile) }
                     .map { (appKey, providers) ->
                         val (packageName, profileId) = appKey
@@ -178,13 +182,25 @@ internal fun WidgetPickerSheet(
         }
     var expandedApps by rememberSaveable { mutableStateOf(setOf<String>()) }
     AppPickerDrawer(
-        title = stringResource(R.string.widgets_picker_title),
+        title = stringResource(if (stackFit != null) R.string.widget_add_to_stack else R.string.widgets_picker_title),
         onDismiss = onDismiss,
         search = AppPickerDrawerSearch(
             query = query,
             onQueryChange = { query = it },
             placeholder = stringResource(R.string.common_search),
         ),
+        header =
+            if (stackFit != null) {
+                {
+                    Text(
+                        text = stringResource(R.string.widget_stack_picker_subtitle),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            } else {
+                null
+            },
     ) {
         if (apps == null) {
             WidgetPickerLoading()
@@ -193,7 +209,7 @@ internal fun WidgetPickerSheet(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             ) {
-                if (showQuickNote) {
+                if (showQuickNote && stackFit == null) {
                     item(key = "quick_note") { QuickNotePickerRow(onClick = onAddQuickNote) }
                 }
                 items(filteredApps, key = { it.key }) { app ->
@@ -207,7 +223,18 @@ internal fun WidgetPickerSheet(
                     )
                 }
                 if (filteredApps.isEmpty()) {
-                    item { AppPickerDrawerMessage(text = stringResource(R.string.widgets_picker_empty)) }
+                    item {
+                        AppPickerDrawerMessage(
+                            text =
+                                stringResource(
+                                    if (stackFit != null && query.text.isBlank()) {
+                                        R.string.widget_stack_picker_empty
+                                    } else {
+                                        R.string.widgets_picker_empty
+                                    },
+                                ),
+                        )
+                    }
                 }
             }
         }
@@ -522,7 +549,7 @@ private fun BitmapImage(
  * never past the overall preview limits, so the picker holds pixels it draws rather than full-size
  * previews. Returns null if the drawable cannot be drawn.
  */
-private fun rasterize(
+internal fun rasterize(
     drawable: Drawable,
     maxWidthPx: Int,
     maxHeightPx: Int,

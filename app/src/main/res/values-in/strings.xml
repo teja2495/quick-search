@@ -1235,6 +1235,12 @@
     <string name="widgets_picker_title">Tambah Widget</string>
     <string name="widgets_picker_widget_count">%1$d widget</string>
     <string name="widgets_picker_widget_grid_size">%1$d x %2$d</string>
+    <string name="widget_add_to_stack">Tambahkan ke Tumpukan</string>
+    <string name="widget_stack_picker_empty">Tidak ada widget yang muat di ukuran ini.</string>
+    <string name="widget_stack_picker_subtitle">Widget yang muat di tumpukan ini</string>
+    <string name="widget_reorder_stack">Ubah Urutan Tumpukan</string>
+    <string name="widget_reorder_stack_info">Seret untuk mengubah urutan. Widget teratas ditampilkan pertama.</string>
+    <string name="widget_stack_page_indicator">Halaman %1$d dari %2$d</string>
 
     <!-- ============================================================================
          Permissions &amp; Onboarding

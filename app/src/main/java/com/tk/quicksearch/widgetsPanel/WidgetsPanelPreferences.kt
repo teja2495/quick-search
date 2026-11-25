@@ -19,7 +19,104 @@ data class PanelWidgetInfo(
     val isInPanel: Boolean = true,
     /** Home placement; null when the widget is only in the widgets panel. */
     val home: HomeWidgetPlacement? = null,
+    /**
+     * Further pages of a widget stack, after this widget, which is the first page and owns the
+     * stack's panel placement. Empty for a regular widget. Home shows only the first page.
+     */
+    val stack: List<StackedPanelWidget> = emptyList(),
 )
+
+/** See [WidgetsPanelPreferences.removeStackPage]. */
+internal fun List<PanelWidgetInfo>.withoutStackPage(
+    ownerId: Int,
+    pageId: Int,
+): List<PanelWidgetInfo> =
+    flatMap { widget ->
+        when {
+            widget.appWidgetId != ownerId -> listOf(widget)
+            pageId != ownerId ->
+                listOf(widget.copy(stack = widget.stack.filterNot { it.appWidgetId == pageId }))
+            widget.stack.isEmpty() ->
+                listOfNotNull(widget.copy(isInPanel = false).takeIf { widget.home != null })
+            else -> {
+                val promoted = widget.stack.first()
+                listOfNotNull(
+                    widget.copy(
+                        appWidgetId = promoted.appWidgetId,
+                        providerPackage = promoted.providerPackage,
+                        providerClassName = promoted.providerClassName,
+                        home = null,
+                        isInPanel = true,
+                        stack = widget.stack.drop(1),
+                    ),
+                    // The first page stays on Home on its own.
+                    widget.copy(isInPanel = false, stack = emptyList()).takeIf { widget.home != null },
+                )
+            }
+        }
+    }
+
+/**
+ * Puts the pages of the stack owned by [ownerId] in [orderedIds] order. The new first page takes
+ * over the stack's record, keeping its panel placement (and Home placement: Home shows the first
+ * page). Left unchanged when [orderedIds] isn't a reordering of the stack's pages.
+ */
+internal fun List<PanelWidgetInfo>.withStackOrder(
+    ownerId: Int,
+    orderedIds: List<Int>,
+): List<PanelWidgetInfo> =
+    map { widget ->
+        if (widget.appWidgetId != ownerId) return@map widget
+        val pages =
+            (listOf(StackedPanelWidget(widget.appWidgetId, widget.providerPackage, widget.providerClassName)) + widget.stack)
+                .associateBy { it.appWidgetId }
+        if (orderedIds.size != pages.size || orderedIds.toSet() != pages.keys) return@map widget
+        val first = pages.getValue(orderedIds.first())
+        widget.copy(
+            appWidgetId = first.appWidgetId,
+            providerPackage = first.providerPackage,
+            providerClassName = first.providerClassName,
+            stack = orderedIds.drop(1).map(pages::getValue),
+        )
+    }
+
+/**
+ * Drops widgets whose ids are no longer bound, as [WidgetsPanelPreferences.removeStackPage] would:
+ * a stack keeps its place while any of its pages is still bound.
+ */
+internal fun List<PanelWidgetInfo>.dropUnboundPages(unboundIds: Set<Int>): List<PanelWidgetInfo> =
+    mapNotNull { widget ->
+        val pages = widget.stack.filterNot { it.appWidgetId in unboundIds }
+        when {
+            widget.appWidgetId !in unboundIds -> widget.copy(stack = pages)
+            pages.isEmpty() -> null
+            else ->
+                widget.copy(
+                    appWidgetId = pages.first().appWidgetId,
+                    providerPackage = pages.first().providerPackage,
+                    providerClassName = pages.first().providerClassName,
+                    home = null,
+                    isInPanel = true,
+                    stack = pages.drop(1),
+                )
+        }
+    }
+
+/** A widget shown as a later page of a widget stack in the panel. */
+data class StackedPanelWidget(
+    val appWidgetId: Int,
+    val providerPackage: String,
+    val providerClassName: String,
+)
+
+/** Every hosted widget id in this panel item: the first page, then the stacked pages. */
+internal val PanelWidgetInfo.pageIds: List<Int>
+    get() = listOf(appWidgetId) + stack.map { it.appWidgetId }
+
+/** The panel item that shows [appWidgetId], as its first page or as a stacked page. */
+internal fun List<PanelWidgetInfo>.stackOwnerOf(appWidgetId: Int): PanelWidgetInfo? =
+    firstOrNull { it.appWidgetId == appWidgetId } ?:
+        firstOrNull { item -> item.stack.any { it.appWidgetId == appWidgetId } }
 
 /**
  * Where a widget pinned to Home renders. [anchor] is the name of the Home layout item the widget
@@ -83,6 +180,7 @@ class WidgetsPanelPreferences(
                                 rowSpan = item.optGridInt(FIELD_ROW_SPAN),
                                 isInPanel = item.optBoolean(FIELD_IS_IN_PANEL, true),
                                 home = item.optJSONObject(FIELD_HOME)?.toHomePlacement(),
+                                stack = item.optJSONArray(FIELD_STACK)?.toStackedWidgets().orEmpty(),
                             ),
                         )
                     }
@@ -108,6 +206,7 @@ class WidgetsPanelPreferences(
                         widget.rowSpan?.let { put(FIELD_ROW_SPAN, it) }
                         if (!widget.isInPanel) put(FIELD_IS_IN_PANEL, false)
                         widget.home?.let { put(FIELD_HOME, it.toJson()) }
+                        if (widget.stack.isNotEmpty()) put(FIELD_STACK, widget.stack.toJson())
                     },
             )
         }
@@ -177,17 +276,40 @@ class WidgetsPanelPreferences(
         return next
     }
 
-    fun removeWidget(appWidgetId: Int): List<PanelWidgetInfo> {
+    /** Adds [appWidgetId] as the last page of the stack owned by [ownerId]. */
+    fun addToStack(
+        ownerId: Int,
+        appWidgetId: Int,
+        provider: ComponentName,
+    ): List<PanelWidgetInfo> {
+        val page = StackedPanelWidget(appWidgetId, provider.packageName, provider.className)
         val next =
-            getWidgets().mapNotNull { widget ->
-                if (widget.appWidgetId != appWidgetId) {
-                    widget
-                } else if (widget.home != null) {
-                    widget.copy(isInPanel = false)
-                } else {
-                    null
-                }
+            getWidgets().map { widget ->
+                if (widget.appWidgetId == ownerId) widget.copy(stack = widget.stack + page) else widget
             }
+        setWidgets(next)
+        return next
+    }
+
+    /**
+     * Removes one page of a stack from the panel. Removing the first page promotes the next one to
+     * own the stack's placement, so the stack keeps its place; a stack left with one page becomes a
+     * regular widget. Ids no longer shown anywhere are for the caller to release.
+     */
+    fun reorderStack(
+        ownerId: Int,
+        orderedIds: List<Int>,
+    ): List<PanelWidgetInfo> {
+        val next = getWidgets().withStackOrder(ownerId, orderedIds)
+        setWidgets(next)
+        return next
+    }
+
+    fun removeStackPage(
+        ownerId: Int,
+        pageId: Int,
+    ): List<PanelWidgetInfo> {
+        val next = getWidgets().withoutStackPage(ownerId, pageId)
         setWidgets(next)
         return next
     }
@@ -223,6 +345,7 @@ class WidgetsPanelPreferences(
         const val FIELD_COLUMN_SPAN = "columnSpan"
         const val FIELD_ROW_SPAN = "rowSpan"
         const val FIELD_HOME = "home"
+        const val FIELD_STACK = "stack"
         const val KEY_QUICK_NOTE_COLUMN = "quick_note_widget_column"
         const val KEY_QUICK_NOTE_ROW = "quick_note_widget_row"
         const val KEY_QUICK_NOTE_ROW_SPAN = "quick_note_widget_row_span"
@@ -235,6 +358,9 @@ private const val FIELD_HOME_COLUMN = "column"
 private const val FIELD_HOME_COLUMN_SPAN = "columnSpan"
 private const val FIELD_HOME_ROW_SPAN = "rowSpan"
 private const val FIELD_HOME_GAP_STEPS = "gapSteps"
+private const val FIELD_STACK_APP_WIDGET_ID = "appWidgetId"
+private const val FIELD_STACK_PROVIDER_PACKAGE = "providerPackage"
+private const val FIELD_STACK_PROVIDER_CLASS = "providerClassName"
 
 private fun HomeWidgetPlacement.toJson(): JSONObject =
     JSONObject()
@@ -259,6 +385,31 @@ private fun JSONObject.toHomePlacement(): HomeWidgetPlacement? {
         gapSteps = optInt(FIELD_HOME_GAP_STEPS, 0).coerceIn(0, HOME_WIDGET_GAP_STEPS_MAX),
     )
 }
+
+private fun List<StackedPanelWidget>.toJson(): JSONArray =
+    JSONArray().also { array ->
+        forEach { page ->
+            array.put(
+                JSONObject()
+                    .put(FIELD_STACK_APP_WIDGET_ID, page.appWidgetId)
+                    .put(FIELD_STACK_PROVIDER_PACKAGE, page.providerPackage)
+                    .put(FIELD_STACK_PROVIDER_CLASS, page.providerClassName),
+            )
+        }
+    }
+
+private fun JSONArray.toStackedWidgets(): List<StackedPanelWidget> =
+    buildList {
+        for (index in 0 until length()) {
+            val item = optJSONObject(index) ?: continue
+            val appWidgetId = item.optInt(FIELD_STACK_APP_WIDGET_ID, -1)
+            val providerPackage = item.optString(FIELD_STACK_PROVIDER_PACKAGE)
+            val providerClassName = item.optString(FIELD_STACK_PROVIDER_CLASS)
+            if (appWidgetId != -1 && providerPackage.isNotBlank() && providerClassName.isNotBlank()) {
+                add(StackedPanelWidget(appWidgetId, providerPackage, providerClassName))
+            }
+        }
+    }
 
 private fun JSONObject.optGridInt(field: String): Int? =
     if (has(field)) {

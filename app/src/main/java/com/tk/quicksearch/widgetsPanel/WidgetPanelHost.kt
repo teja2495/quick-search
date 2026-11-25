@@ -222,6 +222,15 @@ internal class WidgetPanelHost(
         // Listening again would make the system resend, and this host re-apply, every widget's views.
         if (activeHosts.lastOrNull() === this) return
         activeHosts.remove(this)
+        val current = activeHosts.lastOrNull()
+        if (!isPanelHost && current != null && current.isPanelHost && !current.isSuspended) {
+            // The panel is on screen. Returning from a widget's bind or configure screen starts
+            // every host again; taking updates from the panel here would send a just-added
+            // widget's first views to this host, leaving the panel's view loading. Queue behind
+            // the panel instead, taking over when it stops listening.
+            activeHosts.add(activeHosts.size - 1, this)
+            return
+        }
         activeHosts.add(this)
         startListening()
     }

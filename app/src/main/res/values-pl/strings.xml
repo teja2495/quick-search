@@ -1276,6 +1276,12 @@ www.google.com/search?q={{query}}</string>
     <string name="widgets_picker_title">Dodaj widżet</string>
     <string name="widgets_picker_widget_count">%1$d widżetów</string>
     <string name="widgets_picker_widget_grid_size">%1$d x %2$d</string>
+    <string name="widget_add_to_stack">Dodaj do stosu</string>
+    <string name="widget_stack_picker_empty">Żaden widżet nie pasuje do tego rozmiaru.</string>
+    <string name="widget_stack_picker_subtitle">Widżety, które zmieszczą się w tym stosie</string>
+    <string name="widget_reorder_stack">Zmień kolejność stosu</string>
+    <string name="widget_reorder_stack_info">Przeciągnij, aby zmienić kolejność. Górny widżet jest pokazywany jako pierwszy.</string>
+    <string name="widget_stack_page_indicator">Strona %1$d z %2$d</string>
 
     <!-- ============================================================================
          Permissions &amp; Onboarding

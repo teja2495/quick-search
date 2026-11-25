@@ -1,7 +1,6 @@
 package com.tk.quicksearch.widgetsPanel
 
 import androidx.compose.ui.semantics.semantics
-import com.tk.quicksearch.shared.ui.components.AppLoadingIndicator
 import androidx.compose.ui.semantics.heading
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.AppShapes
@@ -11,8 +10,6 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
-import android.graphics.Bitmap
-import android.os.Process
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.fadeIn
@@ -69,9 +66,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -85,8 +80,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.searchScreen.LocalFrostedCardSource
-import com.tk.quicksearch.search.searchScreen.frostedCardBackground
-import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.homeTextColor
@@ -251,9 +244,11 @@ internal fun WidgetPanelGrid(
     onSetEditingWidgetId: (Int?) -> Unit,
     onWidgetTouch: (Int) -> Boolean,
     onQuickNoteFocusChanged: (Boolean) -> Unit,
-    onRemoveWidget: (PanelWidgetInfo) -> Unit,
+    onRemoveWidget: (widget: PanelWidgetInfo, pageId: Int) -> Unit,
     onConfigureWidget: (PanelWidgetInfo, Intent) -> Unit,
     onPinWidgetToHome: (PanelWidgetInfo) -> Unit,
+    onAddToStack: (PanelWidgetInfo, WidgetStackFit) -> Unit,
+    onReorderStack: (PanelWidgetInfo) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val horizontalSign = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1 else 1
@@ -275,27 +270,15 @@ internal fun WidgetPanelGrid(
                                 minRowSpan = 1,
                             )
                         } else {
-                            val info = appWidgetHost.providerInfo(widget.appWidgetId)
-                            val minWidthDp =
-                                (info?.minResizeWidth?.takeIf { it > 0 } ?: info?.minWidth ?: 0)
-                                    .let { with(density) { it.toDp().value } }
-                            val minHeightDp =
-                                (info?.minResizeHeight?.takeIf { it > 0 } ?: info?.minHeight ?: 0)
-                                    .let { with(density) { it.toDp().value } }
-                            WidgetGridSpec(
-                                minColumnSpan =
-                                    calculateGridColumnSpan(
-                                        minWidthDp = minWidthDp,
-                                        cellWidthDp = cellWidth.value,
-                                        gapDp = gap.value,
-                                    ),
-                                minRowSpan =
-                                    calculateGridRowSpan(
-                                        minHeightDp = minHeightDp,
-                                        rowHeightDp = rowHeight.value,
-                                        gapDp = gap.value,
-                                    ),
-                            )
+                            // A stack is as small as its largest page allows.
+                            widget.pageIds
+                                .map { id -> widgetMinGridSpec(appWidgetHost.providerInfo(id), density, cellWidth.value) }
+                                .reduce { a, b ->
+                                    WidgetGridSpec(
+                                        minColumnSpan = maxOf(a.minColumnSpan, b.minColumnSpan),
+                                        minRowSpan = maxOf(a.minRowSpan, b.minRowSpan),
+                                    )
+                                }
                         }
                 }
             }
@@ -349,21 +332,23 @@ internal fun WidgetPanelGrid(
 
         SideEffect {
             appWidgetHost.onWidgetLongPress = if (layoutEditingEnabled) {
-                { id ->
-                    val widget = currentLaidOut.firstOrNull { it.appWidgetId == id }
+                { pageId ->
+                    // A long-press on any page of a stack edits the whole stack.
+                    val widget = currentLaidOut.stackOwnerOf(pageId)
                     if (widget != null) {
                         movePreview.reset()
                         hostDragStart = widget
                         scrollAtDragStart = panelScrollState.value
-                        currentOnSetEditing(id)
+                        currentOnSetEditing(widget.appWidgetId)
                     }
                 }
             } else {
                 null
             }
-            appWidgetHost.onWidgetDragMove = { id, dx, dy ->
+            appWidgetHost.onWidgetDragMove = { pageId, dx, dy ->
                 val start = hostDragStart
-                if (start != null && start.appWidgetId == id) {
+                if (start != null && pageId in start.pageIds) {
+                    val id = start.appWidgetId
                     val columnSpan = start.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN
                     // Fold the auto-scroll distance into the vertical delta so the widget keeps
                     // tracking the finger as the page scrolls under it.
@@ -384,7 +369,9 @@ internal fun WidgetPanelGrid(
                 movePreview.reset()
                 if (final != null && final != currentLaidOut) currentOnPersist(final)
             }
-            appWidgetHost.onWidgetTouch = { widgetId -> currentOnWidgetTouch(widgetId) }
+            appWidgetHost.onWidgetTouch = { pageId ->
+                currentOnWidgetTouch(currentLaidOut.stackOwnerOf(pageId)?.appWidgetId ?: pageId)
+            }
         }
 
         // Auto-scroll the panel while a widget is being dragged near the viewport's top/bottom edge
@@ -482,7 +469,7 @@ internal fun WidgetPanelGrid(
                         showHostedWidget = canHost && (isNearViewport || isEditing),
                         appWidgetManager = appWidgetManager,
                         appWidgetHost = appWidgetHost,
-                        hasWidgetContent = widgetContentAvailable[widget.appWidgetId] == true,
+                        widgetContentAvailable = widgetContentAvailable,
                         isEditing = isEditing,
                         layoutEditingEnabled = layoutEditingEnabled,
                         cellWidth = cellWidth,
@@ -516,9 +503,11 @@ internal fun WidgetPanelGrid(
                             movePreview.reset()
                             if (final != null && final != laidOut) onPersist(final)
                         },
-                        onRemove = { onRemoveWidget(widget) },
+                        onRemove = { pageId -> onRemoveWidget(widget, pageId) },
                         onConfigure = { intent -> onConfigureWidget(widget, intent) },
                         onPinToHome = { onPinWidgetToHome(widget) },
+                        onAddToStack = { onAddToStack(widget, it) },
+                        onReorderStack = { onReorderStack(widget) },
                         onQuickNoteDragStart = {
                             movePreview.reset()
                             quickNoteDragStart = widget
@@ -549,7 +538,7 @@ private fun BoxScope.WidgetPanelGridItem(
     showHostedWidget: Boolean,
     appWidgetManager: AppWidgetManager,
     appWidgetHost: WidgetPanelHost,
-    hasWidgetContent: Boolean,
+    widgetContentAvailable: Map<Int, Boolean>,
     isEditing: Boolean,
     layoutEditingEnabled: Boolean,
     cellWidth: Dp,
@@ -563,9 +552,11 @@ private fun BoxScope.WidgetPanelGridItem(
     onMovePreview: (column: Int, row: Int) -> Unit,
     onResizePreview: (WidgetGridResize) -> Unit,
     onInteractionEnd: () -> Unit,
-    onRemove: () -> Unit,
+    onRemove: (pageId: Int) -> Unit,
     onConfigure: (Intent) -> Unit,
     onPinToHome: () -> Unit,
+    onAddToStack: (WidgetStackFit) -> Unit,
+    onReorderStack: () -> Unit,
     onQuickNoteDragStart: () -> Unit,
     onQuickNoteDrag: (totalDragX: Float, totalDragY: Float) -> Unit,
     onQuickNoteDragEnd: () -> Unit,
@@ -612,37 +603,28 @@ private fun BoxScope.WidgetPanelGridItem(
             onMoveBy = onMoveBy,
             onResizePreview = onResizePreview,
             onInteractionEnd = onInteractionEnd,
-            onRemove = onRemove,
+            onRemove = { onRemove(QUICK_NOTE_PANEL_WIDGET_ID) },
         )
         return
     }
 
-    val providerInfo = remember(widget.appWidgetId, appWidgetHost) {
-        appWidgetHost.providerInfo(widget.appWidgetId)
-    }
-    if (providerInfo == null) return
-
-    val showsLiveContent = showHostedWidget && hasWidgetContent
-    val shouldReadSnapshot =
-        isNearViewport && !showsLiveContent && providerInfo.profile == Process.myUserHandle()
-    var snapshot by remember(widget.appWidgetId, providerInfo.provider, shouldReadSnapshot) {
-        mutableStateOf<Bitmap?>(null)
-    }
-    var snapshotPending by remember(widget.appWidgetId, providerInfo.provider, shouldReadSnapshot) {
-        mutableStateOf(shouldReadSnapshot)
-    }
-    LaunchedEffect(widget.appWidgetId, providerInfo.provider, shouldReadSnapshot) {
-        if (shouldReadSnapshot) {
-            snapshot = WidgetPanelSnapshots.read(context.applicationContext, widget.appWidgetId, providerInfo.provider)
-            snapshotPending = false
+    val pageIds = widget.pageIds
+    val pageInfos =
+        remember(pageIds, appWidgetHost) {
+            pageIds.mapNotNull { id -> appWidgetHost.providerInfo(id)?.let { id to it } }
         }
-    }
-    val preview = remember(snapshot) { snapshot?.asImageBitmap() }
+    if (pageInfos.isEmpty()) return
+    val isStack = pageInfos.size > 1
+    val stackState = rememberWidgetStackState()
+    SyncWidgetStackPages(pageCount = pageInfos.size, state = stackState)
+    // Edit actions act on the page in view.
+    val currentPageId = pageInfos.getOrNull(stackState.settledPage)?.first ?: pageInfos.first().first
+    val currentPageInfo = pageInfos.firstOrNull { it.first == currentPageId }?.second
 
     val configureIntent =
-        remember(providerInfo, widget.appWidgetId) {
-            providerInfo.configure?.let {
-                WidgetConfigureTrampolineActivity.intent(context, widget.appWidgetId)
+        remember(currentPageInfo, currentPageId) {
+            currentPageInfo?.configure?.let {
+                WidgetConfigureTrampolineActivity.intent(context, currentPageId)
             }
         }
 
@@ -663,53 +645,31 @@ private fun BoxScope.WidgetPanelGridItem(
                     scaleY = editScale
                 },
     ) {
-        if (preview != null) {
-            Image(
-                bitmap = preview,
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds,
-                modifier = Modifier.matchParentSize().clip(AppShapes.widgetPanelCard),
-            )
-        }
-        if (showHostedWidget) {
-            HostedWidget(
-                appWidgetId = widget.appWidgetId,
-                providerInfo = providerInfo,
-                appWidgetManager = appWidgetManager,
-                appWidgetHost = appWidgetHost,
-                width = width,
-                height = height,
-                columnSpan = columnSpan,
-                rowSpan = rowSpan,
-                modifier = Modifier.fillMaxSize().clip(AppShapes.widgetPanelCard),
-            )
-        }
-        if (isNearViewport && !showsLiveContent && preview == null && !snapshotPending) {
-            // A plain Box rather than Surface: Surface consumes touches, which would block the host
-            // view's long-press and leave a widget whose provider never sends content impossible
-            // to edit or remove.
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .frostedCardBackground(AppShapes.widgetPanelCard)
-                        .background(
-                            color =
-                                if (LocalFrostedCardSource.current?.isActive == true) {
-                                    SearchResultCardDefaults.containerColor(
-                                        showWallpaperBackground = true,
-                                        overlayContainerColor = null,
-                                    )
-                                } else {
-                                    MaterialTheme.colorScheme.surfaceVariant
-                                },
-                            shape = AppShapes.widgetPanelCard,
-                        ),
-                contentAlignment = Alignment.Center,
-            ) {
-                AppLoadingIndicator()
+        val pageContent: @Composable BoxScope.(Int) -> Unit = { pageId ->
+            pageInfos.firstOrNull { it.first == pageId }?.let { (id, info) ->
+                WidgetPanelPageContent(
+                    appWidgetId = id,
+                    providerInfo = info,
+                    isNearViewport = isNearViewport,
+                    showHostedWidget = showHostedWidget,
+                    hasWidgetContent = widgetContentAvailable[id] == true,
+                    appWidgetManager = appWidgetManager,
+                    appWidgetHost = appWidgetHost,
+                    width = width,
+                    height = height,
+                    columnSpan = columnSpan,
+                    rowSpan = rowSpan,
+                )
             }
         }
+        // A single widget goes through the stack layout too, so its hosted view keeps its place
+        // (and its loaded content) when a second page turns it into a stack.
+        WidgetStackPager(
+            pageIds = pageInfos.map { it.first },
+            state = stackState,
+            userScrollEnabled = !isEditing,
+            pageContent = pageContent,
+        )
 
         AnimatedWidgetEditOverlay(visible = isEditing) {
             if (!layoutEditingEnabled) return@AnimatedWidgetEditOverlay
@@ -723,14 +683,19 @@ private fun BoxScope.WidgetPanelGridItem(
                 minColumnSpan = spec?.minColumnSpan ?: 1,
                 minRowSpan = spec?.minRowSpan ?: 1,
                 hasConfigure = configureIntent != null,
-                canPinToHome = widget.home == null,
+                // Home shows a single widget, so a stack stays in the panel.
+                canPinToHome = widget.home == null && !isStack,
                 onMoveBy = onMoveBy,
                 onMovePreview = onMovePreview,
                 onResizePreview = onResizePreview,
                 onInteractionEnd = onInteractionEnd,
-                onRemove = onRemove,
+                onRemove = { onRemove(currentPageId) },
                 onConfigure = { configureIntent?.let(onConfigure) },
                 onPinToHome = onPinToHome,
+                onAddToStack = {
+                    onAddToStack(WidgetStackFit(columnSpan, rowSpan, cellWidth.value))
+                },
+                onReorderStack = onReorderStack.takeIf { isStack },
             )
         }
     }

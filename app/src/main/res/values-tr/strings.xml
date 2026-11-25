@@ -1232,6 +1232,12 @@
 <string name="widgets_picker_title">Widget ekle</string>
 <string name="widgets_picker_widget_count">%1$d widget</string>
 <string name="widgets_picker_widget_grid_size">%1$d x %2$d</string>
+<string name="widget_add_to_stack">Yığına ekle</string>
+<string name="widget_stack_picker_empty">Bu boyuta uyan widget yok.</string>
+<string name="widget_stack_picker_subtitle">Bu yığına sığabilecek widget\'lar</string>
+<string name="widget_reorder_stack">Yığını yeniden sırala</string>
+<string name="widget_reorder_stack_info">Yeniden sıralamak için sürükleyin. En üstteki widget önce gösterilir.</string>
+<string name="widget_stack_page_indicator">Sayfa %1$d / %2$d</string>
 
 <!-- ============================================================================
      Permissions &amp; Onboarding

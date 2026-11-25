@@ -1232,6 +1232,12 @@
     <string name="widgets_picker_title">Aggiungi widget</string>
     <string name="widgets_picker_widget_count">%1$d widget</string>
     <string name="widgets_picker_widget_grid_size">%1$d x %2$d</string>
+    <string name="widget_add_to_stack">Aggiungi alla pila</string>
+    <string name="widget_stack_picker_empty">Nessun widget si adatta a queste dimensioni.</string>
+    <string name="widget_stack_picker_subtitle">Widget che possono stare in questa pila</string>
+    <string name="widget_reorder_stack">Riordina pila</string>
+    <string name="widget_reorder_stack_info">Trascina per riordinare. Il widget in alto viene mostrato per primo.</string>
+    <string name="widget_stack_page_indicator">Pagina %1$d di %2$d</string>
 
     <!-- ============================================================================
          Permissions &amp; Onboarding

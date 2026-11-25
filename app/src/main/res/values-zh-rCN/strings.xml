@@ -1218,6 +1218,12 @@
     <string name="widgets_picker_title">添加小部件</string>
     <string name="widgets_picker_widget_count">%1$d 个小部件</string>
     <string name="widgets_picker_widget_grid_size">%1$d x %2$d</string>
+    <string name="widget_add_to_stack">添加到堆叠</string>
+    <string name="widget_stack_picker_empty">没有适合此尺寸的小组件。</string>
+    <string name="widget_stack_picker_subtitle">可放入此堆叠的小组件</string>
+    <string name="widget_reorder_stack">重新排列堆叠</string>
+    <string name="widget_reorder_stack_info">拖动以重新排序。最上面的小组件会最先显示。</string>
+    <string name="widget_stack_page_indicator">第 %1$d 页，共 %2$d 页</string>
 
     <!-- ============================================================================
          Permissions &amp; Onboarding

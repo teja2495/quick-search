@@ -1279,6 +1279,12 @@ www.google.com/search?q={{query}}</string>
     <string name="widgets_picker_title">Widget toevoegen</string>
     <string name="widgets_picker_widget_count">%1$d widgets</string>
     <string name="widgets_picker_widget_grid_size">%1$d × %2$d</string>
+    <string name="widget_add_to_stack">Aan stapel toevoegen</string>
+    <string name="widget_stack_picker_empty">Er passen geen widgets in dit formaat.</string>
+    <string name="widget_stack_picker_subtitle">Widgets die in deze stapel passen</string>
+    <string name="widget_reorder_stack">Stapel herschikken</string>
+    <string name="widget_reorder_stack_info">Sleep om te herschikken. De bovenste widget wordt als eerste getoond.</string>
+    <string name="widget_stack_page_indicator">Pagina %1$d van %2$d</string>
 
     
     <!-- ============================================================================

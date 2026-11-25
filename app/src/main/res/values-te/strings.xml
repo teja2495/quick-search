@@ -1233,6 +1233,12 @@
     <string name="widgets_picker_title">విడ్జెట్‌ను జోడించండి</string>
     <string name="widgets_picker_widget_count">%1$d విడ్జెట్‌లు</string>
     <string name="widgets_picker_widget_grid_size">%1$d x %2$d</string>
+    <string name="widget_add_to_stack">స్టాక్‌కు జోడించండి</string>
+    <string name="widget_stack_picker_empty">ఈ పరిమాణానికి సరిపోయే విడ్జెట్‌లు లేవు.</string>
+    <string name="widget_stack_picker_subtitle">ఈ స్టాక్‌లో సరిపోయే విడ్జెట్‌లు</string>
+    <string name="widget_reorder_stack">స్టాక్ క్రమాన్ని మార్చండి</string>
+    <string name="widget_reorder_stack_info">క్రమం మార్చడానికి లాగండి. పైన ఉన్న విడ్జెట్ ముందుగా చూపబడుతుంది.</string>
+    <string name="widget_stack_page_indicator">%2$dలో పేజీ %1$d</string>
 
     <!-- ============================================================================
          Permissions &amp; Onboarding
