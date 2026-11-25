@@ -402,11 +402,13 @@ internal fun SearchScreenBottomChrome(
             androidx.compose.animation.AnimatedVisibility(
                     visible = shouldShowOpenKeyboardAction && delayedOpenKeyboardActionVisible,
                     modifier = Modifier.fillMaxWidth(),
+                    // Growing the pill pushes all of Home up, so spread that move evenly: emphasized
+                    // decelerate does most of it in the first few frames and reads as a jump.
                     enter =
-                            fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationShort, easing = AppMotion.EmphasizedDecelerateEasing)) +
+                            fadeIn(animationSpec = tween(durationMillis = AppMotion.DurationMedium, easing = AppMotion.EmphasizedEasing)) +
                                     expandVertically(
                                             expandFrom = Alignment.Bottom,
-                                            animationSpec = tween(durationMillis = AppMotion.DurationStandard, easing = AppMotion.EmphasizedDecelerateEasing),
+                                            animationSpec = tween(durationMillis = AppMotion.DurationLarge, easing = AppMotion.EmphasizedEasing),
                                     ),
                     exit =
                             if (hideOpenKeyboardActionInstantly) {

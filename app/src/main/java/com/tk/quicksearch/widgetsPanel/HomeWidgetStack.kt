@@ -206,6 +206,8 @@ internal fun HomeWidgetStack(
     val bounds = remember { mutableMapOf<Any, HomeEntryBounds>() }
     // Each widget's on-screen bounds, for the screen-level edit tap guard.
     val windowBounds = remember { mutableMapOf<Int, Rect>() }
+    // Widgets laid out with an old fixed gap, written during measure; see the migration below.
+    val appliedLegacyGaps = remember { HashSet<Int>() }
 
     val displayWidgets = liveWidgets ?: widgets
     val entries = homeLayoutEntries(layoutOrder, isReversed, if (showWidgets) displayWidgets else emptyList())
@@ -258,6 +260,27 @@ internal fun HomeWidgetStack(
     LaunchedEffect(host) {
         snapshotFlow { currentIsScrollInProgress() }
             .collect { inProgress -> if (inProgress) host.cancelAllPendingLongPresses() }
+    }
+
+    // Converts old fixed gaps to offsets from where the widgets sit now, so they stop moving when
+    // Home content grows into their empty space.
+    LaunchedEffect(widgets, showWidgets, pageSettled) {
+        if (!showWidgets || !pageSettled) return@LaunchedEffect
+        withFrameNanos { }
+        if (isInteracting || appliedLegacyGaps.isEmpty()) return@LaunchedEffect
+        val stepPx = with(density) { HomeWidgetGapStep.toPx() }
+        val stackHeight = stackHeightPx[0]
+        val changes =
+            widgets.mapNotNull { widget ->
+                val home = widget.home ?: return@mapNotNull null
+                if (widget.appWidgetId !in appliedLegacyGaps || home.offsetSteps != null) return@mapNotNull null
+                val entryBounds = bounds[widget.appWidgetId] ?: return@mapNotNull null
+                val distance =
+                    if (isReversed) stackHeight - entryBounds.top - entryBounds.height else entryBounds.top.toFloat()
+                val offsetSteps = (distance / stepPx).roundToInt().coerceIn(0, HOME_WIDGET_OFFSET_STEPS_MAX)
+                widget.appWidgetId to home.copy(offsetSteps = offsetSteps)
+            }.toMap()
+        if (changes.isNotEmpty()) HomePinnedWidgetsStore.updatePlacements(context, changes)
     }
 
     LaunchedEffect(widgets) {
@@ -412,8 +435,18 @@ internal fun HomeWidgetStack(
         liveWidgets =
             reordered.map { widget ->
                 val home = widget.home ?: return@map widget
-                val gapSteps =
-                    ((gapsPx[widget.appWidgetId] ?: 0f) / stepPx).roundToInt().coerceIn(0, HOME_WIDGET_GAP_STEPS_MAX)
+                val gapPx = gapsPx[widget.appWidgetId] ?: 0f
+                val gapSteps = (gapPx / stepPx).roundToInt().coerceIn(0, HOME_WIDGET_GAP_STEPS_MAX)
+                // A widget left in empty space keeps its distance from Home's anchored end, so Home
+                // content growing toward it uses up the empty space before pushing it.
+                val targetDistance =
+                    if (widget.appWidgetId == active.appWidgetId) fingerDistance else active.startDistances[widget.appWidgetId]
+                val offsetSteps =
+                    if (gapSteps > 0 && targetDistance != null) {
+                        (targetDistance / stepPx).roundToInt().coerceIn(0, HOME_WIDGET_OFFSET_STEPS_MAX)
+                    } else {
+                        null
+                    }
                 val column =
                     if (widget.appWidgetId != active.appWidgetId || unitWidth <= 0f) {
                         home.column
@@ -421,10 +454,10 @@ internal fun HomeWidgetStack(
                         (active.startColumn + (totalDx * horizontalSign / unitWidth).roundToInt())
                             .coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - home.columnSpan)
                     }
-                if (column == home.column && gapSteps == home.gapSteps) {
+                if (column == home.column && gapSteps == home.gapSteps && offsetSteps == home.offsetSteps) {
                     widget
                 } else {
-                    widget.copy(home = home.copy(column = column, gapSteps = gapSteps))
+                    widget.copy(home = home.copy(column = column, gapSteps = gapSteps, offsetSteps = offsetSteps))
                 }
             }
     }
@@ -651,10 +684,10 @@ internal fun HomeWidgetStack(
         // Home items there is none. Sections with nothing to show take no room, so they don't
         // count; leading and trailing content does. Keyed rather than positional: a widget whose
         // provider is gone composes nothing, so entries and measured children don't line up.
-        val gapStepsByKey =
+        val placementsByKey =
             entries
                 .filterIsInstance<HomeLayoutEntry.Widget>()
-                .associate { it.key to (it.widget.home?.gapSteps ?: 0) }
+                .associate { it.key to it.widget.home }
         val logicalIndices = if (isReversed) placeables.indices.reversed() else placeables.indices
         val eligible =
             homeGapEligible(
@@ -662,9 +695,32 @@ internal fun HomeWidgetStack(
                     HomeGapSlot(placeables[index].height, measurables[index].layoutId as? Int)
                 },
             )
+        // Walk outward from the anchored end: a widget with an offset holds that distance and the
+        // content before it fills the empty space first, pushing it only once there is none left.
         val gaps = IntArray(measurables.size)
+        var logicalY = 0
+        var hasVisibleLogical = false
         logicalIndices.forEachIndexed { logicalIndex, index ->
-            if (eligible[logicalIndex]) gaps[index] = (gapStepsByKey[measurables[index].layoutId] ?: 0) * gapStepPx
+            val height = placeables[index].height
+            if (height > 0 && hasVisibleLogical) logicalY += min(height, spacingPx)
+            if (eligible[logicalIndex]) {
+                val placement = placementsByKey[measurables[index].layoutId]
+                val offset = placement?.offsetSteps
+                gaps[index] =
+                    if (offset != null) {
+                        (offset * gapStepPx - logicalY).coerceAtLeast(0)
+                    } else {
+                        (placement?.gapSteps ?: 0) * gapStepPx
+                    }
+                logicalY += gaps[index]
+            }
+            logicalY += height
+            if (height > 0) hasVisibleLogical = true
+        }
+        appliedLegacyGaps.clear()
+        measurables.forEachIndexed { index, measurable ->
+            val id = measurable.layoutId as? Int ?: return@forEachIndexed
+            if (gaps[index] > 0 && placementsByKey[id]?.offsetSteps == null) appliedLegacyGaps += id
         }
         val positions = IntArray(placeables.size)
         var y = 0

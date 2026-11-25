@@ -548,7 +548,19 @@ internal fun SearchContentArea(
                         // Show only the shared no-results message layout without the scroll view.
                         NoResultsMessage(state)
                     } else {
-                        AnimatedVisibility(
+                        // Overlaid so Home and the recents grid cross-fade in place.
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = if (alignResultsToBottom) Alignment.BottomCenter else Alignment.TopCenter,
+                        ) {
+                        androidx.compose.animation.AnimatedVisibility(
+                            visible = hideHomeWhileAwaitingQuery && shouldShowAwaitingQueryRecentApps(appsParams),
+                            enter = fadeIn(tween(AppMotion.DurationShort)),
+                            exit = fadeOut(tween(AppMotion.DurationExit)),
+                        ) {
+                            AwaitingQueryRecentApps(appsParams = appsParams)
+                        }
+                        androidx.compose.animation.AnimatedVisibility(
                             visible = !hideHomeWhileAwaitingQuery,
                             enter = fadeIn(tween(AppMotion.DurationShort)),
                             exit =
@@ -633,6 +645,7 @@ internal fun SearchContentArea(
                                 topMatches = topMatches,
                                 isScrollInProgress = { scrollState.isScrollInProgress },
                             )
+                        }
                         }
                         }
                     }

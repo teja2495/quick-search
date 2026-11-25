@@ -184,7 +184,9 @@ internal fun List<PanelWidgetInfo>.stackOwnerOf(appWidgetId: Int): PanelWidgetIn
  * share an anchor. Spans use the Home width split into [WIDGET_PANEL_GRID_COLUMNS] columns and are
  * independent of the panel grid spans. [gapSteps] is empty space the user dragged out before the
  * widget in logical order, in [HOME_WIDGET_GAP_STEPS_MAX]-capped steps, so it sits above the widget
- * normally and below it in one-handed mode.
+ * normally and below it in one-handed mode. [offsetSteps], when set, takes over from [gapSteps]: it
+ * is the widget's distance from Home's anchored end in gap steps, so the widget holds its spot and
+ * Home content growing toward it fills the empty space before pushing it.
  */
 data class HomeWidgetPlacement(
     val anchor: String,
@@ -193,10 +195,14 @@ data class HomeWidgetPlacement(
     val columnSpan: Int,
     val rowSpan: Int,
     val gapSteps: Int = 0,
+    val offsetSteps: Int? = null,
 )
 
 /** Largest empty space a Home widget can hold, in gap steps. */
 internal const val HOME_WIDGET_GAP_STEPS_MAX = 60
+
+/** Farthest a Home widget can sit from Home's anchored end, in gap steps. */
+internal const val HOME_WIDGET_OFFSET_STEPS_MAX = 600
 
 internal const val HOME_WIDGET_ANCHOR_END = "END"
 
@@ -481,6 +487,7 @@ private const val FIELD_HOME_COLUMN = "column"
 private const val FIELD_HOME_COLUMN_SPAN = "columnSpan"
 private const val FIELD_HOME_ROW_SPAN = "rowSpan"
 private const val FIELD_HOME_GAP_STEPS = "gapSteps"
+private const val FIELD_HOME_OFFSET_STEPS = "offsetSteps"
 private const val FIELD_STACK_APP_WIDGET_ID = "appWidgetId"
 private const val FIELD_STACK_PROVIDER_PACKAGE = "providerPackage"
 private const val FIELD_STACK_PROVIDER_CLASS = "providerClassName"
@@ -493,6 +500,7 @@ private fun HomeWidgetPlacement.toJson(): JSONObject =
         .put(FIELD_HOME_COLUMN_SPAN, columnSpan)
         .put(FIELD_HOME_ROW_SPAN, rowSpan)
         .put(FIELD_HOME_GAP_STEPS, gapSteps)
+        .apply { offsetSteps?.let { put(FIELD_HOME_OFFSET_STEPS, it) } }
 
 private fun JSONObject.toHomePlacement(): HomeWidgetPlacement? {
     val anchor = optString(FIELD_HOME_ANCHOR).takeIf { it.isNotBlank() } ?: return null
@@ -506,6 +514,12 @@ private fun JSONObject.toHomePlacement(): HomeWidgetPlacement? {
         rowSpan = optInt(FIELD_HOME_ROW_SPAN, WIDGET_PANEL_DEFAULT_ROW_SPAN)
             .coerceIn(1, WIDGET_PANEL_MAX_ROW_SPAN),
         gapSteps = optInt(FIELD_HOME_GAP_STEPS, 0).coerceIn(0, HOME_WIDGET_GAP_STEPS_MAX),
+        offsetSteps =
+            if (has(FIELD_HOME_OFFSET_STEPS)) {
+                optInt(FIELD_HOME_OFFSET_STEPS, 0).coerceIn(0, HOME_WIDGET_OFFSET_STEPS_MAX)
+            } else {
+                null
+            },
     )
 }
 

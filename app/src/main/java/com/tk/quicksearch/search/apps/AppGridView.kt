@@ -524,8 +524,6 @@ fun AppGridView(
                                 themedIconsEnabled = themedIconsEnabled,
                                 showWallpaperBackground = showWallpaperBackground,
                                 notificationBadges = notificationBadges,
-                                showPinnedIndicators =
-                                        AppSuggestionTabType.PINNED !in enabledSuggestionTabs,
                                 reorderPinnedApps = selectedTab.type == AppSuggestionTabType.PINNED,
                                 onMergeEntries = onMergePinnedEntries,
                                 onFolderClick = { openFolderId = it.id },
@@ -566,9 +564,6 @@ fun AppGridView(
                             themedIconsEnabled = themedIconsEnabled,
                             showWallpaperBackground = showWallpaperBackground,
                             notificationBadges = notificationBadges,
-                            showPinnedIndicators =
-                                    !isSearching &&
-                                            AppSuggestionTabType.PINNED !in enabledSuggestionTabs,
                             reorderPinnedApps =
                                     selectedSuggestionTabType == AppSuggestionTabType.PINNED,
                             onMergeEntries = onMergePinnedEntries,
