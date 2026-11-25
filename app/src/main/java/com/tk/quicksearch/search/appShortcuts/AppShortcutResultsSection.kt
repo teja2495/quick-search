@@ -330,7 +330,9 @@ internal fun AppShortcutRow(
                 )
         val hasEmbeddedOrOverrideIcon = !shortcut.iconBase64.isNullOrBlank()
         val displayIcon = iconBitmap ?: appIconResult.bitmap
-        if (displayIcon == null && icon == null && !hasEmbeddedOrOverrideIcon) return
+        // Icons load off the main thread. Keep the row at full height while they do and leave only
+        // the icon slot empty; skipping the row collapsed its card to a sliver for a frame or two.
+        val iconPending = displayIcon == null && icon == null && !hasEmbeddedOrOverrideIcon
 
         Row(
                 modifier =
@@ -365,6 +367,8 @@ internal fun AppShortcutRow(
                                         tint = iconTint,
                                         modifier = Modifier.size(OVERRIDE_ICON_SIZE.dp),
                                 )
+                        } else if (iconPending) {
+                                Box(modifier = Modifier.size(ICON_SIZE.dp))
                         } else {
                                 ShortcutIcon(
                                         icon = displayIcon,

@@ -445,6 +445,9 @@ internal fun SearchScreenContent(
     // Search engine scroll state for auto-scroll during onboarding
     val searchEngineScrollState = rememberLazyListState()
 
+    // Bottom-anchored Home rides on the keyboard as one block, so slide it on a layer.
+    val slideWithIme = !isOverlayPresentation && showBottomSearchBar && state.oneHandedMode &&
+            state.query.isBlank() && expandedSection == ExpandedSection.NONE && !isSearchHistoryExpanded
     val contentModifier =
             if (isOverlayPresentation) {
                 modifier.fillMaxWidth()
@@ -454,10 +457,6 @@ internal fun SearchScreenContent(
                                 end = DesignTokens.SpacingXLarge,
                         )
             } else {
-                // Bottom-anchored Home rides on the keyboard as one block, so slide it on a layer.
-                val slideWithIme =
-                        showBottomSearchBar && state.oneHandedMode && state.query.isBlank() &&
-                                expandedSection == ExpandedSection.NONE && !isSearchHistoryExpanded
                 modifier.fillMaxSize()
                         .safeDrawingPaddingWithImeSlide(enabled = slideWithIme)
                         .padding(
@@ -736,6 +735,7 @@ internal fun SearchScreenContent(
                 selectedTopMatchIndex = selectedTopMatchIndex,
                 topMatches = topMatchSubmission.topMatches,
                 isBottomChromeAnimating = searchBarGeometry.isInsetEngineStripAnimating,
+                isImeSliding = slideWithIme,
         )
         }
 

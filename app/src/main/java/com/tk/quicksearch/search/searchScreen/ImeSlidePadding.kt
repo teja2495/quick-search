@@ -52,6 +52,34 @@ internal fun Modifier.safeDrawingPaddingWithImeSlide(enabled: Boolean): Modifier
 }
 
 /**
+ * For a clipping viewport (such as a scroll container) inside [safeDrawingPaddingWithImeSlide]:
+ * that layer is already sized for the keyboard's final height and slid back down, which leaves the
+ * strip above it empty until the keyboard finishes. Grow the viewport upward by the same slide so
+ * its top stays at the screen edge and the content there rides up with the rest instead of being
+ * cut off on the first frame. Read in layout; the children keep their constraints.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun Modifier.extendAboveImeSlide(enabled: Boolean): Modifier {
+    if (!enabled) return this
+    val ime = WindowInsets.ime
+    val imeTarget = WindowInsets.imeAnimationTarget
+    val bars = WindowInsets.systemBars.union(WindowInsets.displayCutout)
+    return layout { measurable, constraints ->
+        val barsBottom = bars.getBottom(this)
+        val slide =
+            (maxOf(imeTarget.getBottom(this), barsBottom) - maxOf(ime.getBottom(this), barsBottom)).coerceAtLeast(0)
+        if (slide == 0 || !constraints.hasBoundedHeight) {
+            val placeable = measurable.measure(constraints)
+            return@layout layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+        }
+        val height = constraints.maxHeight + slide
+        val placeable = measurable.measure(constraints.copy(minHeight = height, maxHeight = height))
+        layout(placeable.width, constraints.maxHeight) { placeable.place(0, -slide) }
+    }
+}
+
+/**
  * [height] held at its value from when the current keyboard animation (or [holdWhile]) started
  * until it ends.
  * Composition that sizes itself from a height that shrinks with the keyboard (such as
