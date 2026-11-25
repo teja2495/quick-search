@@ -1,7 +1,10 @@
 - Design Overhaul: Updated to Material 3 Expressive design
 - Notification count on app icons
+- Long press on any widget and tap + to stack multiple widgets
 - Extend App Lock to apps opened outside Quick Search
 - More theme options
+- New Widget for Reminders
 - Pause SpeedBump for 5, 15, or 30 minutes
 - Lock widgets to prevent accidental changes
+- Option to change corner radius of app icons
 - Performance improvements and bug fixes

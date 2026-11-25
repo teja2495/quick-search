@@ -142,6 +142,8 @@ Available when Quick Search is set as your launcher.
 - **At a Glance Widget** - Works on any launcher, just like At a Glance on the Home screen.
 - **Countdown Widget** - Count down to (or up from) any date, with an optional title. Show the time in days, weeks, months, years, a detailed format (e.g. `6 months 5 days`), or as a progress bar. Adjust text size, colors, and transparency. Tap the widget to change its settings.
 - **World Clock Widget** - Show the current time in multiple cities or time zones. Search for any location, pick from popular cities, and rename each clock. Adjust text colors and transparency.
+- **Reminders Widget** - Show your upcoming reminders on your home screen, with an adjustable date range.
+- **Widget Stacks** - Long-press any widget in the Widgets Panel and tap **+** to stack multiple widgets in the same spot. You can reorder the widgets in a stack.
 
 ---
 
@@ -222,7 +224,7 @@ Available when Quick Search is set as your launcher.
 - **App Icon Size** - Adjust the size of app icons in results and suggestions.
 - **App Labels** - Show or hide app names under icons.
 - **Home Text Colors** - Customize text colors on Home, including app labels and section titles.
-- **Circular App Icons** - Force all app icons to be circular.
+- **Circular App Icons** - Change the corner radius of app icons, all the way up to fully circular.
 - **Icon Packs** - Apply an installed icon pack. If you have none, tap the card to find one on the Play Store, then tap refresh once it's installed.
 - **Individual App Icons** - Change a single app's icon from its long-press menu (requires an icon pack).
 - **Launcher Icon** - Choose a different icon for Quick Search itself, and reset it anytime.
