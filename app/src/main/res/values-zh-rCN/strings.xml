@@ -404,6 +404,7 @@
     <string name="error_shortcut_creation_failed">创建快捷方式失败</string>
     <string name="error_shortcut_disabled">该快捷方式已被停用。</string>
     <string name="error_shortcut_launch_failed">启动快捷方式失败：%1$s。</string>
+    <string name="error_shortcut_unavailable">Quick Search 无法访问该快捷方式</string>
     <string name="error_shortcut_no_activity_resolves">没有 Activity 可以解析此 Intent。</string>
     <string name="error_shortcut_requires_permission">快捷方式需要权限：%1$s。</string>
     <string name="error_shortcuts_not_supported">此设备不支持向主屏幕添加快捷方式</string>

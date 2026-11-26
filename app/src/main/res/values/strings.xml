@@ -419,6 +419,7 @@
     <string name="error_shortcut_creation_failed">Failed to create shortcut</string>
     <string name="error_shortcut_disabled">Shortcut is disabled.</string>
     <string name="error_shortcut_launch_failed">Failed to launch shortcut: %1$s.</string>
+    <string name="error_shortcut_unavailable">Quick Search is unable to access the shortcut</string>
     <string name="error_shortcut_no_activity_resolves">No activity resolves intent.</string>
     <string name="error_shortcut_requires_permission">Shortcut requires permission: %1$s.</string>
     <string name="error_shortcuts_not_supported">Adding shortcuts to home screen is not supported on this device</string>

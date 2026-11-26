@@ -405,6 +405,7 @@
     <string name="error_shortcut_creation_failed">शॉर्टकट बनाया नहीं जा सका</string>
     <string name="error_shortcut_disabled">शॉर्टकट अक्षम है।</string>
     <string name="error_shortcut_launch_failed">शॉर्टकट लॉन्च नहीं हो सका: %1$s।</string>
+    <string name="error_shortcut_unavailable">Quick Search शॉर्टकट तक नहीं पहुँच पा रहा है</string>
     <string name="error_shortcut_no_activity_resolves">Intent के लिए कोई activity उपलब्ध नहीं है।</string>
     <string name="error_shortcut_requires_permission">शॉर्टकट के लिए अनुमति आवश्यक है: %1$s।</string>
     <string name="error_shortcuts_not_supported">इस डिवाइस पर होम स्क्रीन में शॉर्टकट जोड़ना समर्थित नहीं है</string>

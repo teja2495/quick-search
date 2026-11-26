@@ -405,6 +405,7 @@
     <string name="error_shortcut_creation_failed">Gagal membuat pintasan</string>
     <string name="error_shortcut_disabled">Pintasan dinonaktifkan.</string>
     <string name="error_shortcut_launch_failed">Gagal membuka pintasan: %1$s.</string>
+    <string name="error_shortcut_unavailable">Quick Search tidak dapat mengakses pintasan</string>
     <string name="error_shortcut_no_activity_resolves">Tidak ada aktivitas yang dapat menangani intent.</string>
     <string name="error_shortcut_requires_permission">Pintasan memerlukan izin: %1$s.</string>
     <string name="error_shortcuts_not_supported">Menambahkan pintasan ke layar utama tidak didukung di perangkat ini</string>

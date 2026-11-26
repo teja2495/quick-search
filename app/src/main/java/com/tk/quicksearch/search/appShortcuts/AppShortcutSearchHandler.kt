@@ -48,6 +48,10 @@ class AppShortcutSearchHandler(
      */
     fun needsInitialLoad(): Boolean = availableShortcuts.isEmpty() && !hasRefreshedFromSystem
 
+    /** Keys of the shortcuts from the last system refresh, or null until one has finished. */
+    fun refreshedShortcutKeysOrNull(): Set<String>? =
+        if (hasRefreshedFromSystem) availableShortcuts.mapTo(HashSet()) { shortcutKey(it) } else null
+
     fun removeUnavailablePackage(packageName: String): Boolean {
         repository.markPackageUnavailable(packageName)
         val updated = removeSystemShortcutsForPackage(availableShortcuts, packageName)

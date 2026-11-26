@@ -405,6 +405,7 @@
     <string name="error_shortcut_creation_failed">షార్ట్‌కట్‌ని సృష్టించడం విఫలమైంది</string>
     <string name="error_shortcut_disabled">షార్ట్‌కట్ నిలిపివేయబడింది.</string>
     <string name="error_shortcut_launch_failed">షార్ట్‌కట్‌ని ప్రారంభించడం విఫలమైంది: %1$s.</string>
+    <string name="error_shortcut_unavailable">Quick Search షార్ట్‌కట్‌ను యాక్సెస్ చేయలేకపోతోంది</string>
     <string name="error_shortcut_no_activity_resolves">ఇంటెంట్‌ను పరిష్కరించే యాక్టివిటీ ఏదీ లేదు.</string>
     <string name="error_shortcut_requires_permission">షార్ట్‌కట్‌కు అనుమతి అవసరం: %1$s.</string>
     <string name="error_shortcuts_not_supported">ఈ పరికరంలో హోమ్ స్క్రీన్‌కు షార్ట్‌కట్‌లను జోడించడానికి మద్దతు లేదు</string>

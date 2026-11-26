@@ -405,6 +405,7 @@
     <string name="error_shortcut_creation_failed">Verknüpfung konnte nicht erstellt werden</string>
     <string name="error_shortcut_disabled">Verknüpfung ist deaktiviert.</string>
     <string name="error_shortcut_launch_failed">Verknüpfung konnte nicht gestartet werden: %1$s.</string>
+    <string name="error_shortcut_unavailable">Quick Search kann nicht auf die Verknüpfung zugreifen</string>
     <string name="error_shortcut_no_activity_resolves">Keine Aktivität löst den Intent auf.</string>
     <string name="error_shortcut_requires_permission">Verknüpfung erfordert Berechtigung: %1$s.</string>
     <string name="error_shortcuts_not_supported">Das Hinzufügen von Verknüpfungen zum Startbildschirm wird auf diesem Gerät nicht unterstützt</string>

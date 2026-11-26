@@ -58,6 +58,7 @@ internal fun buildSectionParams(
     onMovePinnedSetting: (DeviceSetting, Boolean) -> Unit,
     onExcludeSetting: (DeviceSetting) -> Unit,
     onAppShortcutClick: (StaticShortcut) -> Unit,
+    onUnavailableShortcutTrigger: ((com.tk.quicksearch.search.data.preferences.ResultTrigger) -> Boolean) -> Boolean,
     onPinAppShortcut: (StaticShortcut) -> Unit,
     onUnpinAppShortcut: (StaticShortcut) -> Unit,
     onMovePinnedAppShortcut: (StaticShortcut, Boolean) -> Unit,
@@ -220,7 +221,7 @@ internal fun buildSectionParams(
             onDisableAppShortcut, onDisableAllAppShortcutsForApp, onAppShortcutAppInfoClick,
             onEditCustomAppShortcut, onEditAppShortcutIcon, getAppShortcutNickname,
             onUpdateNicknameDialogState, onUpdateTriggerDialogState, getAppShortcutTrigger,
-            onUpdateExpandedSection, expandedSection,
+            onUnavailableShortcutTrigger, onUpdateExpandedSection, expandedSection,
         ) {
             AppShortcutsSectionParams(
                 shortcuts = state.appShortcutResults,
@@ -269,6 +270,7 @@ internal fun buildSectionParams(
                 onEditShortcutIcon = onEditAppShortcutIcon,
                 getShortcutNickname = getAppShortcutNickname,
                 getShortcutTrigger = getAppShortcutTrigger,
+                onUnavailableShortcutTrigger = onUnavailableShortcutTrigger,
                 showAllResults = false,
                 showExpandControls = derivedState.isSearching,
                 onExpandClick = {

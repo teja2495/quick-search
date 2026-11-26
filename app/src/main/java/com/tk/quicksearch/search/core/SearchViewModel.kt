@@ -592,6 +592,8 @@ class SearchViewModel(
     private fun loadApps() = staticDataDelegate.loadApps()
     private fun loadSettingsShortcuts() = staticDataDelegate.loadSettingsShortcuts()
     private fun loadAppShortcuts() = staticDataDelegate.loadAppShortcuts()
+    fun showUnavailableShortcutTrigger(matches: (com.tk.quicksearch.search.data.preferences.ResultTrigger) -> Boolean): Boolean =
+        staticDataDelegate.showUnavailableShortcutTrigger(matches)
     private fun refreshSettingsState(updateResults: Boolean = true) =
         staticDataDelegate.refreshSettingsState(updateResults)
     private fun refreshAppShortcutsState(updateResults: Boolean = true) =

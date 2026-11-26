@@ -405,6 +405,7 @@
     <string name="error_shortcut_creation_failed">Αποτυχία δημιουργίας συντόμευσης</string>
     <string name="error_shortcut_disabled">Η συντόμευση είναι απενεργοποιημένη.</string>
     <string name="error_shortcut_launch_failed">Αποτυχία εκκίνησης συντόμευσης: %1$s.</string>
+    <string name="error_shortcut_unavailable">Το Quick Search δεν μπορεί να αποκτήσει πρόσβαση στη συντόμευση</string>
     <string name="error_shortcut_no_activity_resolves">Καμία δραστηριότητα δεν επιλύει το intent.</string>
     <string name="error_shortcut_requires_permission">Η συντόμευση απαιτεί άδεια: %1$s.</string>
     <string name="error_shortcuts_not_supported">Η προσθήκη συντομεύσεων στην αρχική οθόνη δεν υποστηρίζεται σε αυτή τη συσκευή</string>

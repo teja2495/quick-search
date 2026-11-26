@@ -404,6 +404,7 @@
 <string name="error_shortcut_creation_failed">Kısayol oluşturulamadı</string>
 <string name="error_shortcut_disabled">Kısayol devre dışı.</string>
 <string name="error_shortcut_launch_failed">Kısayol başlatılamadı: %1$s.</string>
+<string name="error_shortcut_unavailable">Quick Search kısayola erişemiyor</string>
 <string name="error_shortcut_no_activity_resolves">İstemi (intent) karşılayan hiçbir aktivite bulunamadı.</string>
 <string name="error_shortcut_requires_permission">Kısayol şu izni gerektiriyor: %1$s.</string>
 <string name="error_shortcuts_not_supported">Ana ekrana kısayol ekleme bu cihazda desteklenmiyor</string>

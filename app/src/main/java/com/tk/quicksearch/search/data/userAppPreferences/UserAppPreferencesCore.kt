@@ -673,6 +673,9 @@ open class UserAppPreferencesCore(protected val context: Context) {
     fun setAppShortcutTrigger(shortcutId: String, trigger: ResultTrigger?) =
             triggerPreferences.setAppShortcutTrigger(shortcutId, trigger)
 
+    fun getAllAppShortcutTriggers(): Map<String, ResultTrigger> =
+            triggerPreferences.getAllAppShortcutTriggers()
+
     fun getContactTrigger(contactId: Long): ResultTrigger? =
             triggerPreferences.getContactTrigger(contactId)
 

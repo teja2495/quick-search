@@ -404,6 +404,7 @@
     <string name="error_shortcut_creation_failed">Impossibile creare la scorciatoia</string>
     <string name="error_shortcut_disabled">La scorciatoia è disattivata.</string>
     <string name="error_shortcut_launch_failed">Impossibile avviare la scorciatoia: %1$s.</string>
+    <string name="error_shortcut_unavailable">Quick Search non riesce ad accedere alla scorciatoia</string>
     <string name="error_shortcut_no_activity_resolves">Nessuna activity risolve l\u2019intent.</string>
     <string name="error_shortcut_requires_permission">La scorciatoia richiede l\u2019autorizzazione: %1$s.</string>
     <string name="error_shortcuts_not_supported">L\u2019aggiunta di scorciatoie alla schermata iniziale non è supportata su questo dispositivo</string>

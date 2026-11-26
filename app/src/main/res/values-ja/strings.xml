@@ -405,6 +405,7 @@
     <string name="error_shortcut_creation_failed">ショートカットの作成に失敗しました</string>
     <string name="error_shortcut_disabled">ショートカットは無効です。</string>
     <string name="error_shortcut_launch_failed">ショートカットの起動に失敗しました: %1$s</string>
+    <string name="error_shortcut_unavailable">Quick Search はショートカットにアクセスできません</string>
     <string name="error_shortcut_no_activity_resolves">インテントを解決するアクティビティがありません。</string>
     <string name="error_shortcut_requires_permission">ショートカットには権限が必要です: %1$s</string>
     <string name="error_shortcuts_not_supported">この端末ではホーム画面へのショートカット追加はサポートされていません</string>

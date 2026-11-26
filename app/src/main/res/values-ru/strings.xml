@@ -407,6 +407,7 @@
 <string name="error_shortcut_creation_failed">Не удалось создать ярлык</string>
 <string name="error_shortcut_disabled">Ярлык отключен.</string>
 <string name="error_shortcut_launch_failed">Не удалось запустить ярлык: %1$s.</string>
+<string name="error_shortcut_unavailable">Quick Search не может получить доступ к ярлыку</string>
 <string name="error_shortcut_no_activity_resolves">Не найдено приложение для обработки этого интента.</string>
 <string name="error_shortcut_requires_permission">Для ярлыка требуется разрешение: %1$s.</string>
 <string name="error_shortcuts_not_supported">Добавление ярлыков на главный экран не поддерживается на этом устройстве</string>

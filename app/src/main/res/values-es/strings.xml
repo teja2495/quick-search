@@ -405,6 +405,7 @@
     <string name="error_shortcut_creation_failed">Error al crear el acceso directo</string>
     <string name="error_shortcut_disabled">El acceso directo está desactivado.</string>
     <string name="error_shortcut_launch_failed">Error al abrir el acceso directo: %1$s.</string>
+    <string name="error_shortcut_unavailable">Quick Search no puede acceder al acceso directo</string>
     <string name="error_shortcut_no_activity_resolves">Ninguna actividad resuelve el intent.</string>
     <string name="error_shortcut_requires_permission">El acceso directo requiere el permiso: %1$s.</string>
     <string name="error_shortcuts_not_supported">Añadir accesos directos a la pantalla de inicio no es compatible con este dispositivo</string>

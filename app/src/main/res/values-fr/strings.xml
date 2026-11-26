@@ -405,6 +405,7 @@
 <string name="error_shortcut_creation_failed">Échec de la création du raccourci</string>
 <string name="error_shortcut_disabled">Le raccourci est désactivé.</string>
 <string name="error_shortcut_launch_failed">Impossible de lancer le raccourci : %1$s.</string>
+<string name="error_shortcut_unavailable">Quick Search ne peut pas accéder au raccourci</string>
 <string name="error_shortcut_no_activity_resolves">Aucune activité ne résout l\'intent.</string>
 <string name="error_shortcut_requires_permission">Le raccourci nécessite l\'autorisation : %1$s.</string>
 <string name="error_shortcuts_not_supported">L\'ajout de raccourcis sur l\'écran d\'accueil n\'est pas pris en charge sur cet appareil</string>

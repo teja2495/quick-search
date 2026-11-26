@@ -410,6 +410,7 @@
     <string name="error_shortcut_creation_failed">فشل إنشاء الاختصار</string>
     <string name="error_shortcut_disabled">تم تعطيل الاختصار.</string>
     <string name="error_shortcut_launch_failed">فشل تشغيل الاختصار: %1$s.</string>
+    <string name="error_shortcut_unavailable">يتعذّر على Quick Search الوصول إلى الاختصار</string>
     <string name="error_shortcut_no_activity_resolves">لا يوجد نشاط تطبيق يمكنه معالجة هذا الإجراء.</string>
     <string name="error_shortcut_requires_permission">يتطلب الاختصار إذنًا: %1$s.</string>
     <string name="error_shortcuts_not_supported">إضافة اختصارات إلى الشاشة الرئيسية غير مدعومة على هذا الجهاز</string>

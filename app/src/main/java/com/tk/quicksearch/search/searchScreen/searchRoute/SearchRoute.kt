@@ -550,6 +550,7 @@ fun SearchRoute(
                     viewModel.launchAppShortcut(shortcut)
                 }
             },
+            onUnavailableShortcutTrigger = viewModel::showUnavailableShortcutTrigger,
             onPinAppShortcut = viewModel::pinAppShortcut,
             onUnpinAppShortcut = viewModel::unpinAppShortcut,
             onMovePinnedAppShortcut = viewModel::movePinnedAppShortcut,

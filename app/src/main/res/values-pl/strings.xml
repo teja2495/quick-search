@@ -408,6 +408,7 @@
     <string name="error_shortcut_creation_failed">Nie udało się utworzyć skrótu</string>
     <string name="error_shortcut_disabled">Skrót jest wyłączony.</string>
     <string name="error_shortcut_launch_failed">Nie udało się uruchomić skrótu: %1$s.</string>
+    <string name="error_shortcut_unavailable">Quick Search nie może uzyskać dostępu do skrótu</string>
     <string name="error_shortcut_no_activity_resolves">Żadna aktywność nie obsługuje intencji.</string>
     <string name="error_shortcut_requires_permission">Skrót wymaga uprawnienia: %1$s.</string>
     <string name="error_shortcuts_not_supported">Dodawanie skrótów do ekranu głównego nie jest obsługiwane na tym urządzeniu</string>

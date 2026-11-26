@@ -417,6 +417,7 @@
     <string name="error_shortcut_creation_failed">Aanmaken van snelkoppeling mislukt</string>
     <string name="error_shortcut_disabled">Snelkoppeling is uitgeschakeld.</string>
     <string name="error_shortcut_launch_failed">Starten van snelkoppeling mislukt: %1$s.</string>
+    <string name="error_shortcut_unavailable">Quick Search heeft geen toegang tot de snelkoppeling</string>
     <string name="error_shortcut_no_activity_resolves">Geen activiteit verwerkt de intent.</string>
     <string name="error_shortcut_requires_permission">Snelkoppeling vereist machtiging: %1$s.</string>
     <string name="error_shortcuts_not_supported">Het toevoegen van snelkoppelingen aan het startscherm wordt niet ondersteund op dit apparaat</string>

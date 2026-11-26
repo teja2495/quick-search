@@ -95,6 +95,23 @@ internal class SearchStaticDataDelegate(
         appShortcutsLoad()
     }
 
+    /**
+     * A shortcut trigger outlives its shortcut, e.g. a dynamic shortcut that is only listed while
+     * Quick Search is the default launcher. Toasts when [matches] hits such a trigger; waits for the
+     * system refresh so a shortcut that is still loading isn't reported missing.
+     */
+    fun showUnavailableShortcutTrigger(
+        matches: (com.tk.quicksearch.search.data.preferences.ResultTrigger) -> Boolean,
+    ): Boolean {
+        val availableKeys = appShortcutSearchHandler.refreshedShortcutKeysOrNull() ?: return false
+        val hasMatch =
+            userPreferences.getAllAppShortcutTriggers().any { (key, trigger) ->
+                key !in availableKeys && matches(trigger)
+            }
+        if (hasMatch) showToastRes(R.string.error_shortcut_unavailable)
+        return hasMatch
+    }
+
     suspend fun loadAppShortcutsForStartup() {
         appShortcutsLoad().join()
     }

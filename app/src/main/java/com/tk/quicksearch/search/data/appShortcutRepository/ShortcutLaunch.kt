@@ -149,7 +149,7 @@ private fun launchLauncherAppsShortcut(
         context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as? LauncherApps
             ?: return context.getString(R.string.error_unknown)
     if (!launcherApps.hasShortcutHostPermission()) {
-        return context.getString(R.string.error_unknown)
+        return context.getString(R.string.error_shortcut_unavailable)
     }
     val targetPackage =
         sentinel.getStringExtra(EXTRA_LAUNCHER_APPS_SHORTCUT_PACKAGE)?.takeIf { it.isNotBlank() }

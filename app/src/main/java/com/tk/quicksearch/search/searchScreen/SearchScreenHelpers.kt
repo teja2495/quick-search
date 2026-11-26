@@ -277,6 +277,8 @@ data class AppShortcutsSectionParams(
     val onEditShortcutIcon: (StaticShortcut) -> Unit,
     val getShortcutNickname: (String) -> String?,
     val getShortcutTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    /** Called with a trigger matcher when no loaded item matched; true when it handled the query. */
+    val onUnavailableShortcutTrigger: ((com.tk.quicksearch.search.data.preferences.ResultTrigger) -> Boolean) -> Boolean = { false },
     val showAllResults: Boolean,
     val showExpandControls: Boolean,
     val onExpandClick: () -> Unit,

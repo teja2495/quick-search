@@ -142,6 +142,14 @@ internal fun openMatchingSearchTrigger(
                 return true
             }
 
+        if (
+            appShortcutsParams.onUnavailableShortcutTrigger { trigger ->
+                matchesTrigger(query, trigger.word, trigger.triggerAfterSpace)
+            }
+        ) {
+            return true
+        }
+
         return false
     }
 

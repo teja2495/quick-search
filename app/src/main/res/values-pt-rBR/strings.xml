@@ -405,6 +405,7 @@
     <string name="error_shortcut_creation_failed">Falha ao criar o atalho</string>
     <string name="error_shortcut_disabled">O atalho está desativado.</string>
     <string name="error_shortcut_launch_failed">Falha ao iniciar o atalho: %1$s.</string>
+    <string name="error_shortcut_unavailable">O Quick Search não consegue acessar o atalho</string>
     <string name="error_shortcut_no_activity_resolves">Nenhuma atividade resolve a intent.</string>
     <string name="error_shortcut_requires_permission">O atalho requer permissão: %1$s.</string>
     <string name="error_shortcuts_not_supported">A adição de atalhos à tela inicial não é suportada neste dispositivo</string>
