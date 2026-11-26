@@ -233,6 +233,7 @@
     <string name="dialog_done">تم</string>
     <string name="dialog_edit_alias_error_prefix">هذا الاسم المستعار مستخدم بالفعل.</string>
     <string name="dialog_edit_alias_error_trigger_conflict">يتعارض هذا الاسم المستعار مع كلمة تشغيل موجودة.</string>
+    <string name="dialog_alias_multiple_hint">افصل بين الأسماء المستعارة المتعددة بفواصل</string>
     <string name="dialog_edit_alias_for_search_type_title">تعديل الاسم المستعار لـ "%1$s"</string>
     <string name="dialog_edit_alias_title">تعديل الاسم المستعار</string>
     <string name="dialog_edit_amazon_domain_error">النطاق غير صالح</string>
@@ -251,7 +252,7 @@
     <string name="dialog_trigger_error_alias_conflict">تتعارض كلمة التشغيل هذه مع اسم مستعار موجود.</string>
     <string name="dialog_trigger_error_taken">كلمة التشغيل هذه مستخدمة بالفعل.</string>
     <string name="dialog_trigger_hint">كلمة التشغيل</string>
-    <string name="dialog_trigger_message">أدخل كلمة تشغيل من كلمة واحدة لـ "%1$s".</string>
+    <string name="dialog_trigger_message">أدخل كلمة تشغيل من كلمة واحدة لـ \"%1$s\". افصل بين كلمات التشغيل المتعددة بفواصل.</string>
     <string name="exclude_marker">تم إخفاؤه من</string>
     <string name="permission_action_manage_android">إدارة من إعدادات Android</string>
     <string name="permission_settings_dialog_message">يتطلب هذا الإجراء إذن %1$s. سيتم توجيهك إلى إعدادات النظام لمنحه.</string>

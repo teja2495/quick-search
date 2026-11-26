@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.data.preferences
 
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
+import com.tk.quicksearch.searchEngines.AliasValidator
 import org.json.JSONObject
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
@@ -8,10 +9,13 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
 
+/** [word] holds one trigger word, or several separated by commas ("yt,tube"); each one works. */
 data class ResultTrigger(
     val word: String,
     val triggerAfterSpace: Boolean,
-)
+) {
+    val words: List<String> get() = AliasValidator.splitAliasCodes(word)
+}
 
 class TriggerPreferences(
     context: Context,
@@ -67,6 +71,10 @@ class TriggerPreferences(
     private fun normalizeWord(word: String): String =
         SearchTextNormalizer.normalizeForSearch(word).trim().substringBefore(' ')
 
+    /** Every word of a possibly comma-separated trigger, normalized and deduplicated. */
+    private fun normalizeWords(word: String): List<String> =
+        AliasValidator.splitAliasCodes(word).map(::normalizeWord).filter { it.isNotBlank() }.distinct()
+
     private fun readTrigger(key: String): ResultTrigger? {
         val stored = customizationStore.getString(key) ?: return null
         return readTriggerValue(stored)
@@ -102,7 +110,8 @@ class TriggerPreferences(
         key: String,
         trigger: ResultTrigger?,
     ) {
-        val word = trigger?.word?.let(::normalizeWord).orEmpty()
+        val word =
+            trigger?.word?.let(::normalizeWords).orEmpty().joinToString(AliasValidator.ALIAS_SEPARATOR.toString())
         if (word.isBlank()) {
             customizationStore.putString(key, null)
             invalidateTriggerWordIndex()
@@ -270,7 +279,8 @@ class TriggerPreferences(
     }
 
     /**
-     * Every stored trigger as (preference key, normalized word). Searches look triggers up on each
+     * Every stored trigger word as (preference key, normalized word); a key with several
+     * comma-separated words has one entry per word. Searches look triggers up on each
      * query; this avoids copying the whole customization store (nicknames and aliases included)
      * and re-normalizing every word each time. Rebuilt after any trigger write.
      */
@@ -281,10 +291,10 @@ class TriggerPreferences(
             if (cachedVersion == version) return index
         }
         val index =
-            customizationStore.snapshot().mapNotNull { (key, value) ->
-                if (!key.startsWith(KEY_TRIGGER_COMMON_PREFIX)) return@mapNotNull null
-                val trigger = readTriggerValue(value) ?: return@mapNotNull null
-                key to normalizeWord(trigger.word)
+            customizationStore.snapshot().flatMap { (key, value) ->
+                if (!key.startsWith(KEY_TRIGGER_COMMON_PREFIX)) return@flatMap emptyList()
+                val trigger = readTriggerValue(value) ?: return@flatMap emptyList()
+                normalizeWords(trigger.word).map { key to it }
             }
         cachedTriggerWordIndex = version to index
         return index

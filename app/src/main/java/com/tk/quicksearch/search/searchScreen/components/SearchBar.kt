@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import com.tk.quicksearch.searchEngines.AliasValidator.splitAliasCodes
 import com.tk.quicksearch.R
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.shared.ui.components.AppIconButton
@@ -235,8 +236,7 @@ internal fun PersistentSearchBar(
             shortcutCodes.entries
                 .asSequence()
                 .filter { (id, code) -> code.isNotBlank() && (shortcutEnabled[id] != false) }
-                .map { (_, code) -> code.trim().lowercase(Locale.getDefault()) }
-                .filter { it.isNotEmpty() }
+                .flatMap { (_, code) -> splitAliasCodes(code) }
                 .toSet()
         }
 

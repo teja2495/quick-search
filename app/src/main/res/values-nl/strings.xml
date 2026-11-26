@@ -236,6 +236,7 @@
     <string name="dialog_done">Gereed</string>
     <string name="dialog_edit_alias_error_prefix">Deze alias is al in gebruik.</string>
     <string name="dialog_edit_alias_error_trigger_conflict">Deze alias komt overeen met een bestaande trigger.</string>
+    <string name="dialog_alias_multiple_hint">Scheid meerdere aliassen met komma\'s</string>
     <string name="dialog_edit_alias_for_search_type_title">Alias bewerken voor \"%1$s\"</string>
     <string name="dialog_edit_alias_title">Alias bewerken</string>
     <string name="dialog_edit_amazon_domain_error">Ongeldig domein</string>
@@ -254,7 +255,7 @@
     <string name="dialog_trigger_error_alias_conflict">Deze trigger komt overeen met een bestaande alias.</string>
     <string name="dialog_trigger_error_taken">Deze trigger is al in gebruik.</string>
     <string name="dialog_trigger_hint">Triggerwoord</string>
-    <string name="dialog_trigger_message">Voer een trigger van één woord in voor \"%1$s\".</string>
+    <string name="dialog_trigger_message">Voer een trigger van één woord in voor \"%1$s\". Scheid meerdere triggers met komma\'s.</string>
     <string name="exclude_marker"> verborgen in </string>
     <string name="permission_action_manage_android">Beheren in Android-instellingen</string>
     <string name="permission_settings_dialog_message">Deze actie vereist de machtiging %1$s. Je wordt naar de systeeminstellingen geleid om deze te verlenen.</string>

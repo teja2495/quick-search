@@ -232,6 +232,7 @@
     <string name="dialog_done">Listo</string>
     <string name="dialog_edit_alias_error_prefix">Este alias ya está en uso.</string>
     <string name="dialog_edit_alias_error_trigger_conflict">Este alias coincide con un activador existente.</string>
+    <string name="dialog_alias_multiple_hint">Separa varios alias con comas</string>
     <string name="dialog_edit_alias_for_search_type_title">Editar alias para "%1$s"</string>
     <string name="dialog_edit_alias_title">Editar alias</string>
     <string name="dialog_edit_amazon_domain_error">Dominio no válido</string>
@@ -250,7 +251,7 @@
     <string name="dialog_trigger_error_alias_conflict">Este activador coincide con un alias existente.</string>
     <string name="dialog_trigger_error_taken">Este activador ya está en uso.</string>
     <string name="dialog_trigger_hint">Palabra de activación</string>
-    <string name="dialog_trigger_message">Introduce una sola palabra como activador para "%1$s".</string>
+    <string name="dialog_trigger_message">Introduce una sola palabra como activador para \"%1$s\". Separa varios activadores con comas.</string>
     <string name="exclude_marker"> ocultado de </string>
     <string name="permission_action_manage_android">Gestionar en los ajustes de Android</string>
     <string name="permission_settings_dialog_message">Esta acción requiere el permiso de %1$s. Se te redirigirá a los ajustes del sistema para concederlo.</string>

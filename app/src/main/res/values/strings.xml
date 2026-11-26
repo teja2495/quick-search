@@ -238,6 +238,7 @@
     <string name="dialog_done">Done</string>
     <string name="dialog_edit_alias_error_prefix">This alias is already taken.</string>
     <string name="dialog_edit_alias_error_trigger_conflict">This alias matches an existing trigger.</string>
+    <string name="dialog_alias_multiple_hint">Separate multiple aliases with commas</string>
     <string name="dialog_edit_alias_for_search_type_title">Edit Alias for "%1$s"</string>
     <string name="dialog_edit_alias_title">Edit alias</string>
     <string name="dialog_edit_amazon_domain_error">Invalid domain</string>
@@ -256,7 +257,7 @@
     <string name="dialog_trigger_error_alias_conflict">This trigger matches an existing alias.</string>
     <string name="dialog_trigger_error_taken">This trigger is already taken.</string>
     <string name="dialog_trigger_hint">Trigger word</string>
-    <string name="dialog_trigger_message">Enter a one-word trigger for "%1$s".</string>
+    <string name="dialog_trigger_message">Enter a one-word trigger for \"%1$s\". Separate multiple triggers with commas.</string>
     <string name="exclude_marker"> hidden from </string>
     <string name="permission_action_manage_android">Manage in Android settings</string>
     <string name="permission_settings_dialog_message">This action requires %1$s permission. You will be taken to system settings to grant it.</string>

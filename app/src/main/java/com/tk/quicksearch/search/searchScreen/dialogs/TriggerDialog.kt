@@ -28,7 +28,7 @@ import com.tk.quicksearch.shared.ui.components.AppOutlinedTextField
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.preferences.ResultTrigger
-import com.tk.quicksearch.search.utils.SearchTextNormalizer
+import com.tk.quicksearch.searchEngines.AliasValidator
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import kotlinx.coroutines.delay
 import com.tk.quicksearch.shared.ui.components.AppTextButton
@@ -58,25 +58,14 @@ fun TriggerDialog(
     val hasExistingTrigger = triggerText.text.isNotBlank()
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
-    val normalizedTrigger =
-        remember(triggerText.text) {
-            SearchTextNormalizer.normalizeForSearch(triggerText.text).trim().substringBefore(' ')
-        }
+    // Both checks compare every comma-separated word on each side.
     val hasTriggerConflict =
-        remember(normalizedTrigger, existingTriggerWords) {
-            normalizedTrigger.isNotBlank() &&
-                existingTriggerWords.any {
-                    SearchTextNormalizer.normalizeForSearch(it).trim().substringBefore(' ') ==
-                        normalizedTrigger
-                }
+        remember(triggerText.text, existingTriggerWords) {
+            AliasValidator.hasTriggerAliasConflict(triggerText.text, existingTriggerWords)
         }
     val hasAliasConflict =
-        remember(normalizedTrigger, existingAliasWords) {
-            normalizedTrigger.isNotBlank() &&
-                existingAliasWords.any {
-                    SearchTextNormalizer.normalizeForSearch(it).trim().substringBefore(' ') ==
-                        normalizedTrigger
-                }
+        remember(triggerText.text, existingAliasWords) {
+            AliasValidator.hasTriggerAliasConflict(triggerText.text, existingAliasWords)
         }
     val hasConflict = hasTriggerConflict || hasAliasConflict
     val canSave = !hasConflict
@@ -115,11 +104,12 @@ fun TriggerDialog(
                 AppOutlinedTextField(
                     value = triggerText,
                     onValueChange = { value ->
-                        val word = value.text.trimStart().substringBefore(' ')
+                        // Words are separated by commas, so spaces are dropped rather than ending input.
+                        val words = AliasValidator.sanitizeAliasInput(value.text)
                         triggerText =
                             value.copy(
-                                text = word,
-                                selection = TextRange(word.length),
+                                text = words,
+                                selection = TextRange(words.length),
                             )
                     },
                     label = stringResource(R.string.dialog_trigger_hint),
@@ -156,7 +146,7 @@ fun TriggerDialog(
         confirmButton = {
             AppTextButton(
                 onClick = {
-                    val word = triggerText.text.trim().substringBefore(' ')
+                    val word = AliasValidator.normalizeShortcutCodeInput(triggerText.text)
                     onSave(
                         if (word.isBlank()) {
                             null

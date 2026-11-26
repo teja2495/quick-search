@@ -30,13 +30,15 @@ internal fun openMatchingSearchTrigger(
         word: String,
         triggerAfterSpace: Boolean,
     ): Boolean {
-        val normalizedWord = word.trim().lowercase()
-        if (normalizedWord.isBlank()) return false
+        if (word.isBlank()) return false
         val normalizedQuery = query.lowercase()
-        return if (triggerAfterSpace) {
-            normalizedQuery == "$normalizedWord "
-        } else {
-            normalizedQuery == normalizedWord
+        // A trigger can hold several comma-separated words; any one of them opens the item.
+        return com.tk.quicksearch.searchEngines.AliasValidator.splitAliasCodes(word).any { normalizedWord ->
+            if (triggerAfterSpace) {
+                normalizedQuery == "$normalizedWord "
+            } else {
+                normalizedQuery == normalizedWord
+            }
         }
     }
 

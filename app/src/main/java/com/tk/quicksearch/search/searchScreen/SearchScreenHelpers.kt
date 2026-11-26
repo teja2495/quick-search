@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
+import com.tk.quicksearch.searchEngines.AliasValidator.splitAliasCodes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Dp
@@ -178,10 +179,7 @@ internal fun detectSuffixSearchTargetAlias(
         val targetId = target.getId()
         if (shortcutEnabled[targetId] != true) return@forEach
 
-        val aliasCode = shortcutCodes[targetId].orEmpty().trim()
-        if (aliasCode.isEmpty()) return@forEach
-
-        aliases[aliasCode.lowercase(Locale.getDefault())] = target
+        splitAliasCodes(shortcutCodes[targetId].orEmpty()).forEach { aliases[it] = target }
     }
     if (aliases.isEmpty()) return null
 

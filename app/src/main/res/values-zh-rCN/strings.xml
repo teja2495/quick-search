@@ -232,6 +232,7 @@
     <string name="dialog_done">完成</string>
     <string name="dialog_edit_alias_error_prefix">此别名已被占用。</string>
     <string name="dialog_edit_alias_error_trigger_conflict">此别名与现有的触发词冲突。</string>
+    <string name="dialog_alias_multiple_hint">多个别名关键词请用逗号分隔</string>
     <string name="dialog_edit_alias_for_search_type_title">编辑“%1$s”的别名</string>
     <string name="dialog_edit_alias_title">编辑别名</string>
     <string name="dialog_edit_amazon_domain_error">域名无效</string>
@@ -250,7 +251,7 @@
     <string name="dialog_trigger_error_alias_conflict">此触发词与现有的别名冲突。</string>
     <string name="dialog_trigger_error_taken">此触发词已被占用。</string>
     <string name="dialog_trigger_hint">触发词</string>
-    <string name="dialog_trigger_message">为“%1$s”输入一个单字的触发词。</string>
+    <string name="dialog_trigger_message">为“%1$s”输入一个单字的触发词。多个触发词请用逗号分隔。</string>
     <string name="exclude_marker"> 已从</string>
     <string name="permission_action_manage_android">在 Android 设置中管理</string>
     <string name="permission_settings_dialog_message">此操作需要 %1$s 权限。系统将带您前往系统设置以授予该权限。</string>

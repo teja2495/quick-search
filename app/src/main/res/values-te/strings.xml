@@ -232,6 +232,7 @@
     <string name="dialog_done">పూర్తయింది</string>
     <string name="dialog_edit_alias_error_prefix">ఈ అలియాస్ ఇప్పటికే ఉపయోగంలో ఉంది.</string>
     <string name="dialog_edit_alias_error_trigger_conflict">ఈ అలియాస్ ఇప్పటికే ఉన్న ఒక ట్రిగ్గర్‌తో సరిపోలుతోంది.</string>
+    <string name="dialog_alias_multiple_hint">అనేక అలియాస్‌లను కామాలతో వేరు చేయండి</string>
     <string name="dialog_edit_alias_for_search_type_title">\"%1$s\" కోసం అలియాస్ సవరించండి</string>
     <string name="dialog_edit_alias_title">అలియాస్ సవరించండి</string>
     <string name="dialog_edit_amazon_domain_error">చెల్లని డొమైన్</string>
@@ -250,7 +251,7 @@
     <string name="dialog_trigger_error_alias_conflict">ఈ ట్రిగ్గర్ ఇప్పటికే ఉన్న ఒక అలియాస్‌తో సరిపోలుతోంది.</string>
     <string name="dialog_trigger_error_taken">ఈ ట్రిగ్గర్ ఇప్పటికే ఉపయోగంలో ఉంది.</string>
     <string name="dialog_trigger_hint">ట్రిగ్గర్ పదం</string>
-    <string name="dialog_trigger_message">\"%1$s\" కోసం ఒకే ఒక పదంతో కూడిన ట్రిగ్గర్‌ను నమోదు చేయండి.</string>
+    <string name="dialog_trigger_message">\"%1$s\" కోసం ఒకే ఒక పదంతో కూడిన ట్రిగ్గర్‌ను నమోదు చేయండి. అనేక ట్రిగ్గర్‌లను కామాలతో వేరు చేయండి.</string>
     <string name="exclude_marker"> నుండి దాచబడింది </string>
     <string name="permission_action_manage_android">Android సెట్టింగ్స్‌లో నిర్వహించండి</string>
     <string name="permission_settings_dialog_message">ఈ చర్యకు %1$s అనుమతి అవసరం. దీనిని మంజూరు చేయడానికి మీరు సిస్టమ్ సెట్టింగ్స్‌కు తీసుకువెళ్లబడతారు.</string>

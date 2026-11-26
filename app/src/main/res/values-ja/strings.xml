@@ -233,6 +233,7 @@
     <string name="dialog_done">完了</string>
     <string name="dialog_edit_alias_error_prefix">このエイリアスは既に使用されています。</string>
     <string name="dialog_edit_alias_error_trigger_conflict">このエイリアスは既存のトリガーと重複しています。</string>
+    <string name="dialog_alias_multiple_hint">複数のエイリアスはカンマで区切ります</string>
     <string name="dialog_edit_alias_for_search_type_title">「%1$s」のエイリアスを編集</string>
     <string name="dialog_edit_alias_title">エイリアスを編集</string>
     <string name="dialog_edit_amazon_domain_error">無効なドメインです</string>
@@ -251,7 +252,7 @@
     <string name="dialog_trigger_error_alias_conflict">このトリガーは既存のエイリアスと重複しています。</string>
     <string name="dialog_trigger_error_taken">このトリガーは既に使用されています。</string>
     <string name="dialog_trigger_hint">トリガーワード</string>
-    <string name="dialog_trigger_message">「%1$s」のトリガー（1単語）を入力してください。</string>
+    <string name="dialog_trigger_message">「%1$s」のトリガー（1単語）を入力してください。複数のトリガーはカンマで区切ります。</string>
     <string name="exclude_marker"> を</string>
     <string name="permission_action_manage_android">Androidの設定で管理</string>
     <string name="permission_settings_dialog_message">この操作には %1$s の権限が必要です。権限を許可するためシステム設定へ移動します。</string>

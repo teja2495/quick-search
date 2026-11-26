@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.noted
 
+import com.tk.quicksearch.searchEngines.AliasValidator.splitAliasCodes
 import com.tk.quicksearch.shared.ui.components.AppMessages
 import android.content.Context
 import android.os.SystemClock
@@ -90,11 +91,11 @@ internal abstract class NotedEndAlias(
 
     /** The text before the alias when [query] ends with it after other text, or null. Keeps line breaks. */
     private fun textBeforeAlias(context: Context, query: String): String? {
-        val alias = get(context).lowercase(Locale.getDefault())
-        if (alias.isEmpty()) return null
+        val aliases = splitAliasCodes(get(context))
+        if (aliases.isEmpty()) return null
         val trimmed = query.trimEnd()
         val lastWordStart = trimmed.indexOfLast { it.isWhitespace() } + 1
-        if (lastWordStart == 0 || trimmed.substring(lastWordStart).lowercase(Locale.getDefault()) != alias) return null
+        if (lastWordStart == 0 || trimmed.substring(lastWordStart).lowercase(Locale.getDefault()) !in aliases) return null
         return trimmed.substring(0, lastWordStart).trim().takeIf { it.isNotEmpty() }
     }
 

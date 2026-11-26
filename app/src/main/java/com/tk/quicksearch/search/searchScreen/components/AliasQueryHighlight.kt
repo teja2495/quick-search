@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import com.tk.quicksearch.searchEngines.AliasValidator.splitAliasCodes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -31,14 +32,11 @@ internal fun rememberAliasHighlightOutputTransformation(
                 shortcutCodes.entries
                     .asSequence()
                     .filter { (id, code) -> code.isNotBlank() && (shortcutEnabled[id] != false) }
-                    .mapNotNull { (_, rawAlias) ->
-                        val normalized = rawAlias.trim().lowercase(Locale.getDefault())
-                        normalized.takeIf { it.isNotEmpty() }
-                    }.forEach(::add)
+                    .flatMap { (_, rawAlias) -> splitAliasCodes(rawAlias) }
+                    .forEach(::add)
                 triggerWords
                     .asSequence()
-                    .map { it.trim().lowercase(Locale.getDefault()) }
-                    .filter { it.isNotEmpty() }
+                    .flatMap { splitAliasCodes(it) }
                     .forEach(::add)
             }.toList().sortedByDescending { it.length }
         }
@@ -48,8 +46,7 @@ internal fun rememberAliasHighlightOutputTransformation(
                 .asSequence()
                 .filter { (id, _) -> id in searchTargetIds }
                 .filter { (id, code) -> code.isNotBlank() && (shortcutEnabled[id] != false) }
-                .map { (_, code) -> code.trim().lowercase(Locale.getDefault()) }
-                .filter { it.isNotEmpty() }
+                .flatMap { (_, code) -> splitAliasCodes(code) }
                 .toSet()
                 .toList()
                 .sortedByDescending { it.length }

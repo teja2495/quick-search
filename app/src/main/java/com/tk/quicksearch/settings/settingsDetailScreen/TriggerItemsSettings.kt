@@ -195,7 +195,7 @@ private fun TriggerItemRow(
     onRemove: () -> Unit,
 ) {
     SegmentedTileRow(
-        title = item.word,
+        title = com.tk.quicksearch.searchEngines.AliasValidator.splitAliasCodes(item.word).joinToString(", "),
         description = item.itemName.takeIf { it.isNotBlank() },
         leading = {
             TonalIconBadgeContainer { TriggerItemIcon(item) }

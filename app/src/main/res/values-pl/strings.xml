@@ -233,6 +233,7 @@
     <string name="dialog_done">Gotowe</string>
     <string name="dialog_edit_alias_error_prefix">Ten alias jest już zajęty.</string>
     <string name="dialog_edit_alias_error_trigger_conflict">Ten alias pokrywa się z istniejącym wyzwalaczem.</string>
+    <string name="dialog_alias_multiple_hint">Oddziel kilka aliasów przecinkami</string>
     <string name="dialog_edit_alias_for_search_type_title">Edytuj alias dla "%1$s"</string>
     <string name="dialog_edit_alias_title">Edytuj alias</string>
     <string name="dialog_edit_amazon_domain_error">Nieprawidłowa domena</string>
@@ -251,7 +252,7 @@
     <string name="dialog_trigger_error_alias_conflict">Ten wyzwalacz pokrywa się z istniejącym aliasem.</string>
     <string name="dialog_trigger_error_taken">Ten wyzwalacz jest już zajęty.</string>
     <string name="dialog_trigger_hint">Słowo wyzwalające</string>
-    <string name="dialog_trigger_message">Wpisz jednowyrazowy wyzwalacz dla "%1$s".</string>
+    <string name="dialog_trigger_message">Wpisz jednowyrazowy wyzwalacz dla \"%1$s\". Oddziel kilka wyzwalaczy przecinkami.</string>
     <string name="exclude_marker"> ukryto w </string>
     <string name="permission_action_manage_android">Zarządzaj w ustawieniach Androida</string>
     <string name="permission_settings_dialog_message">To działanie wymaga uprawnienia %1$s. Nastąpi przekierowanie do ustawień systemowych, aby je przyznać.</string>

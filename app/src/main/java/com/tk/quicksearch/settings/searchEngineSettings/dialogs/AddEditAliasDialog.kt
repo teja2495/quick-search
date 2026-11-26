@@ -30,7 +30,8 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
-import com.tk.quicksearch.search.utils.SearchTextNormalizer
+import com.tk.quicksearch.searchEngines.AliasValidator.hasTriggerAliasConflict
+import com.tk.quicksearch.searchEngines.AliasValidator.sanitizeAliasInput
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.components.AppTextButton
@@ -92,17 +93,9 @@ fun AddEditAliasDialog(
             (existingShortcuts + notedAlias).filterKeys { it != currentShortcutId }
         }
     val isValidConflict = validateConflict(editingCode.text, existingShortcutsForValidation)
-    val normalizedAliasToken =
-        remember(editingCode.text) {
-            SearchTextNormalizer.normalizeForSearch(editingCode.text).trim().substringBefore(' ')
-        }
     val hasTriggerConflict =
-        remember(normalizedAliasToken, existingTriggerWords) {
-            normalizedAliasToken.isNotBlank() &&
-                existingTriggerWords.any {
-                    SearchTextNormalizer.normalizeForSearch(it).trim().substringBefore(' ') ==
-                        normalizedAliasToken
-                }
+        remember(editingCode.text, existingTriggerWords) {
+            hasTriggerAliasConflict(editingCode.text, existingTriggerWords)
         }
     val hasAnyConflict = !isValidConflict || hasTriggerConflict
     val showShortcutError = editingCode.text.isNotEmpty() && hasAnyConflict
@@ -159,8 +152,7 @@ fun AddEditAliasDialog(
                 AppOutlinedTextField(
                     value = editingCode,
                     onValueChange = {
-                        val normalized = normalizeShortcutCodeInput(it.text)
-                        editingCode = it.copy(text = normalized)
+                        editingCode = it.copy(text = sanitizeAliasInput(it.text))
                     },
                     modifier =
                         Modifier
@@ -174,7 +166,7 @@ fun AddEditAliasDialog(
                         KeyboardActions(
                             onDone = {
                                 if (confirmEnabled) {
-                                    onSave(if (isEmptyInput) "" else editingCode.text)
+                                    onSave(if (isEmptyInput) "" else normalizeShortcutCodeInput(editingCode.text))
                                     onDismiss()
                                 }
                             },
@@ -193,7 +185,7 @@ fun AddEditAliasDialog(
                                 )
                             }
                         } else {
-                            null
+                            { Text(text = stringResource(R.string.dialog_alias_multiple_hint)) }
                         },
                     shape = AppShapes.extraSmall,
                 )
@@ -203,7 +195,7 @@ fun AddEditAliasDialog(
             AppTextButton(
                 onClick = {
                     if (confirmEnabled) {
-                        onSave(if (isEmptyInput) "" else editingCode.text)
+                        onSave(if (isEmptyInput) "" else normalizeShortcutCodeInput(editingCode.text))
                         onDismiss()
                     }
                 },

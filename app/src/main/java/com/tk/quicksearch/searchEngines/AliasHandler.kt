@@ -12,10 +12,10 @@ import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.hasTriggerAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
+import com.tk.quicksearch.searchEngines.AliasValidator.splitAliasCodes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 class AliasHandler(
     private val userPreferences: UserAppPreferences,
@@ -441,9 +441,7 @@ class AliasHandler(
             if (target !is SearchTarget.Engine && target !is SearchTarget.Browser && target !is SearchTarget.Custom) continue
             if (!isAliasEnabled(target)) continue
 
-            val aliasCode = getAlias(target).lowercase(Locale.getDefault())
-            if (aliasCode.isEmpty()) continue
-            aliases[aliasCode] = target
+            splitAliasCodes(getAlias(target)).forEach { aliases[it] = target }
         }
         cachedSuffixAliases = CachedAliasMap(targetsSnapshot, codes, enabled, hasLlmApiKey, tasker, aliases)
         return aliases
@@ -467,17 +465,14 @@ class AliasHandler(
             }
             if (!isAliasEnabled(target)) continue
 
-            val aliasCode = getAlias(target).lowercase(Locale.getDefault())
-            if (aliasCode.isEmpty()) continue
-            aliases[aliasCode] = AliasTarget.Search(target)
+            splitAliasCodes(getAlias(target)).forEach { aliases[it] = AliasTarget.Search(target) }
         }
     }
 
     private fun collectLeadingFeatureAliases(aliases: MutableMap<String, AliasTarget>) {
         TOOL_ALIAS_IDS.forEach { featureAliasId ->
-            val aliasCode = getAlias(featureAliasId).lowercase(Locale.getDefault())
-            if (aliasCode.isNotEmpty()) {
-                aliases[aliasCode] = AliasTarget.Feature(featureAliasId)
+            splitAliasCodes(getAlias(featureAliasId)).forEach {
+                aliases[it] = AliasTarget.Feature(featureAliasId)
             }
         }
     }
@@ -489,7 +484,7 @@ class AliasHandler(
     ) {
         codes.forEach { (id, alias) ->
             if (id.startsWith("custom_tool:") && alias.isNotEmpty() && enabled[id] == true) {
-                aliases[alias.lowercase(Locale.getDefault())] = AliasTarget.Feature(id)
+                splitAliasCodes(alias).forEach { aliases[it] = AliasTarget.Feature(id) }
             }
         }
     }
@@ -503,7 +498,7 @@ class AliasHandler(
         if (!tasker) return
         codes.forEach { (id, alias) ->
             if (id.startsWith("tasker_intent:") && alias.isNotEmpty() && enabled[id] == true) {
-                aliases[alias.lowercase(Locale.getDefault())] = AliasTarget.Feature(id)
+                splitAliasCodes(alias).forEach { aliases[it] = AliasTarget.Feature(id) }
             }
         }
     }
@@ -532,9 +527,7 @@ class AliasHandler(
         enabled: Map<String, Boolean>,
     ) {
         if (enabled[aliasId] != true) return
-        val aliasCode = codes[aliasId].orEmpty().lowercase(Locale.getDefault())
-        if (aliasCode.isEmpty()) return
-        aliases[aliasCode] = AliasTarget.Section(section)
+        splitAliasCodes(codes[aliasId].orEmpty()).forEach { aliases[it] = AliasTarget.Section(section) }
     }
 
     data class AliasesState(

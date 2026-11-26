@@ -231,6 +231,7 @@
 <string name="dialog_done">Bitti</string>
 <string name="dialog_edit_alias_error_prefix">Bu kısaltma zaten kullanımda.</string>
 <string name="dialog_edit_alias_error_trigger_conflict">Bu kısaltma mevcut bir tetikleyici ile çakışıyor.</string>
+<string name="dialog_alias_multiple_hint">Birden fazla kısaltmayı virgülle ayırın</string>
 <string name="dialog_edit_alias_for_search_type_title">"%1$s" için kısaltmayı düzenle</string>
 <string name="dialog_edit_alias_title">Kısaltmayı düzenle</string>
 <string name="dialog_edit_amazon_domain_error">Geçersiz alan adı</string>
@@ -249,7 +250,7 @@
 <string name="dialog_trigger_error_alias_conflict">Bu tetikleyici mevcut bir kısaltma ile çakışıyor.</string>
 <string name="dialog_trigger_error_taken">Bu tetikleyici zaten kullanımda.</string>
 <string name="dialog_trigger_hint">Tetikleyici kelime</string>
-<string name="dialog_trigger_message">"%1$s" için tek kelimelik bir tetikleyici girin.</string>
+<string name="dialog_trigger_message">\"%1$s\" için tek kelimelik bir tetikleyici girin. Birden fazla tetikleyiciyi virgülle ayırın.</string>
 <string name="exclude_marker"> - </string>
 <string name="permission_action_manage_android">Android ayarlarından yönet</string>
 <string name="permission_settings_dialog_message">Bu işlem %1$s izni gerektiriyor. İzin vermek için sistem ayarlarına yönlendirileceksiniz.</string>

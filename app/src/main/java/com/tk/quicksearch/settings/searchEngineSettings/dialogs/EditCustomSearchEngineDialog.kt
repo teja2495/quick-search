@@ -44,6 +44,7 @@ import com.tk.quicksearch.searchEngines.*
 import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
+import com.tk.quicksearch.searchEngines.AliasValidator.sanitizeAliasInput
 import com.tk.quicksearch.shared.util.withoutWhitespaces
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -229,8 +230,7 @@ fun EditCustomSearchEngineDialog(
                 AppOutlinedTextField(
                     value = shortcutInput,
                     onValueChange = {
-                        val normalized = normalizeShortcutCodeInput(it.text)
-                        shortcutInput = it.copy(text = normalized)
+                        shortcutInput = it.copy(text = sanitizeAliasInput(it.text))
                     },
                     modifier = Modifier.fillMaxWidth(),
                     label = stringResource(R.string.settings_alias_label),

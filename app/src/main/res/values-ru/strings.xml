@@ -232,6 +232,7 @@
 <string name="dialog_done">Готово</string>
 <string name="dialog_edit_alias_error_prefix">Этот алиас уже занят.</string>
 <string name="dialog_edit_alias_error_trigger_conflict">Этот алиас совпадает с существующим триггером.</string>
+<string name="dialog_alias_multiple_hint">Несколько алиасов разделяйте запятыми</string>
 <string name="dialog_edit_alias_for_search_type_title">Изменить алиас для «%1$s»</string>
 <string name="dialog_edit_alias_title">Изменить алиас</string>
 <string name="dialog_edit_amazon_domain_error">Неверный домен</string>
@@ -250,7 +251,7 @@
 <string name="dialog_trigger_error_alias_conflict">Этот триггер совпадает с существующим алиасом.</string>
 <string name="dialog_trigger_error_taken">Этот триггер уже занят.</string>
 <string name="dialog_trigger_hint">Слово-триггер</string>
-<string name="dialog_trigger_message">Введите одно слово в качестве триггера для «%1$s».</string>
+<string name="dialog_trigger_message">Введите одно слово в качестве триггера для «%1$s». Несколько триггеров разделяйте запятыми.</string>
 <string name="exclude_marker"> скрыт из </string>
 <string name="permission_action_manage_android">Управление в настройках Android</string>
 <string name="permission_settings_dialog_message">Для этого действия требуется разрешение «%1$s». Вы будете перенаправлены в системные настройки для его предоставления.</string>

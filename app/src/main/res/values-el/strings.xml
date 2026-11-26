@@ -232,6 +232,7 @@
     <string name="dialog_done">Τέλος</string>
     <string name="dialog_edit_alias_error_prefix">Αυτή η συντομογραφία χρησιμοποιείται ήδη.</string>
     <string name="dialog_edit_alias_error_trigger_conflict">Αυτή η συντομογραφία συμπίπτει με μια υπάρχουσα ενεργοποίηση.</string>
+    <string name="dialog_alias_multiple_hint">Διαχωρίστε πολλές συντομογραφίες με κόμματα</string>
     <string name="dialog_edit_alias_for_search_type_title">Επεξεργασία συντομογραφίας για "%1$s"</string>
     <string name="dialog_edit_alias_title">Επεξεργασία συντομογραφίας</string>
     <string name="dialog_edit_amazon_domain_error">Μη έγκυρο domain</string>
@@ -250,7 +251,7 @@
     <string name="dialog_trigger_error_alias_conflict">Αυτή η ενεργοποίηση συμπίπτει με μια υπάρχουσα συντομογραφία.</string>
     <string name="dialog_trigger_error_taken">Αυτή η ενεργοποίηση χρησιμοποιείται ήδη.</string>
     <string name="dialog_trigger_hint">Λέξη ενεργοποίησης</string>
-    <string name="dialog_trigger_message">Εισαγάγετε μια μονολεκτική λέξη ενεργοποίησης για το "%1$s".</string>
+    <string name="dialog_trigger_message">Εισαγάγετε μια μονολεκτική λέξη ενεργοποίησης για το \"%1$s\". Διαχωρίστε πολλές λέξεις ενεργοποίησης με κόμματα.</string>
     <string name="exclude_marker"> αποκρύφτηκε από </string>
     <string name="permission_action_manage_android">Διαχείριση στις ρυθμίσεις Android</string>
     <string name="permission_settings_dialog_message">Αυτή η ενέργεια απαιτεί την άδεια %1$s. Θα μεταφερθείτε στις ρυθμίσεις συστήματος για να τη χορηγήσετε.</string>

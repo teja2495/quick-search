@@ -232,6 +232,7 @@
     <string name="dialog_done">Fertig</string>
     <string name="dialog_edit_alias_error_prefix">Dieser Alias ist bereits vergeben.</string>
     <string name="dialog_edit_alias_error_trigger_conflict">Dieser Alias entspricht einem vorhandenen Auslöser.</string>
+    <string name="dialog_alias_multiple_hint">Trenne mehrere Aliasse mit Kommas</string>
     <string name="dialog_edit_alias_for_search_type_title">Alias für „%1$s“ bearbeiten</string>
     <string name="dialog_edit_alias_title">Alias bearbeiten</string>
     <string name="dialog_edit_amazon_domain_error">Ungültige Domain</string>
@@ -250,7 +251,7 @@
     <string name="dialog_trigger_error_alias_conflict">Dieser Auslöser entspricht einem vorhandenen Alias.</string>
     <string name="dialog_trigger_error_taken">Dieser Auslöser ist bereits vergeben.</string>
     <string name="dialog_trigger_hint">Auslöserwort</string>
-    <string name="dialog_trigger_message">Gib ein einzelnes Auslöserwort für „%1$s“ ein.</string>
+    <string name="dialog_trigger_message">Gib ein einzelnes Auslöserwort für „%1$s“ ein. Trenne mehrere Auslöser mit Kommas.</string>
     <string name="exclude_marker"> aus den </string>
     <string name="permission_action_manage_android">In Android-Einstellungen verwalten</string>
     <string name="permission_settings_dialog_message">Diese Aktion erfordert die Berechtigung %1$s. Du wirst zu den Systemeinstellungen weitergeleitet, um sie zu erteilen.</string>
