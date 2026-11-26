@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.layout.PaddingValues
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.theme.animatedSegmentShape
 
 /**
  * Material 3 Expressive segmented lists: with the card layout on, a section's rows are separate
@@ -48,7 +49,9 @@ internal fun resultRowsContainerVerticalPadding(value: Dp): Dp =
 /**
  * One row of a result list. Segmented, it becomes a tile at [index] of [count] (including More).
  * Flat rows add space next to internal dividers. Set [padCompactOuterEdges] to match
- * that inset at the card's outer dividers as well.
+ * that inset at the card's outer dividers as well. Rows that come and go in place pass
+ * [cornerIndex] and [cornerCount] to place their corners separately from their spacing; their
+ * outer corners then morph when the tile becomes (or stops being) the first or last.
  */
 @Composable
 internal fun ResultSegment(
@@ -57,6 +60,8 @@ internal fun ResultSegment(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     padCompactOuterEdges: Boolean = false,
+    cornerIndex: Int? = null,
+    cornerCount: Int? = null,
     content: @Composable () -> Unit,
 ) {
     val style = LocalSegmentedRowsStyle.current
@@ -89,6 +94,12 @@ internal fun ResultSegment(
                 vertical = DesignTokens.SegmentedListTileVerticalPadding,
             ),
         pressMorph = false,
+        shape =
+            if (cornerIndex != null && cornerCount != null) {
+                animatedSegmentShape(cornerIndex, cornerCount)
+            } else {
+                null
+            },
         content = content,
     )
 }

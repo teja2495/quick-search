@@ -275,6 +275,10 @@ Appearance (`LocalSearchChromeBlurEnabled`) restores frosted chrome. Result card
   `pressMorphShape`, `pressMorphButtonShape`, `floatingActionShape` (FABs have no `shapes` API), and
   `pressMorphSegmentShape`. Connected button groups use Material's `ButtonGroupDefaults` connected
   shapes.
+- **Animated segments:** `animatedSegmentShape(index, count)` morphs a tile's outer corners when it
+  becomes or stops being the first or last tile, without a press morph. Home result rows reach it
+  through `ResultSegment(cornerIndex, cornerCount)` (At a Glance), so a dismissed row's neighbors
+  round while it collapses instead of snapping afterward.
 - **Expressive polygons:** `AppPolygons` points at Material's `MaterialShapes` (`cookie9`,
   `cookie4`), plus `PolygonShape`. `AppShapes.cookie9`/`cookie4` use them.
 

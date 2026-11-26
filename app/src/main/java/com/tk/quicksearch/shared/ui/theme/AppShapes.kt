@@ -177,6 +177,30 @@ fun floatingActionShape(interactionSource: InteractionSource): RoundedCornerShap
     pressMorphButtonShape(interactionSource, DesignTokens.FloatingActionHeight)
 
 /**
+ * Segmented-list tile at [index] of [count] whose outer corners morph on the default spatial spring
+ * when it becomes (or stops being) the first or last tile, instead of snapping.
+ */
+@Composable
+fun animatedSegmentShape(index: Int, count: Int): RoundedCornerShape {
+    val inner = DesignTokens.SegmentedListInnerCorner
+    val outer = DesignTokens.SegmentedListOuterCorner
+    val firstFraction by animateFloatAsState(
+        targetValue = if (index <= 0) 1f else 0f,
+        animationSpec = AppMotion.defaultSpatial(),
+        label = "segmentTopCorner",
+    )
+    val lastFraction by animateFloatAsState(
+        targetValue = if (index >= count - 1) 1f else 0f,
+        animationSpec = AppMotion.defaultSpatial(),
+        label = "segmentBottomCorner",
+    )
+    return AppShapes.stacked(
+        top = lerp(inner, outer, firstFraction.coerceIn(0f, 1f)),
+        bottom = lerp(inner, outer, lastFraction.coerceIn(0f, 1f)),
+    )
+}
+
+/**
  * Segmented-list tile at [index] of [count] whose inner corners round further while pressed. When a
  * neighbor appears or disappears and the tile becomes (or stops being) the first or last one, its
  * outer corners morph on the default spatial spring instead of snapping.

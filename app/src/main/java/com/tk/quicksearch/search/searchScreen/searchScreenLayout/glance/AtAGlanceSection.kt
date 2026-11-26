@@ -275,6 +275,13 @@ internal fun AtAGlanceRows(
     val segmented = segmentedRowsActive()
     val rows = rememberAnimatedGlanceRows(items)
     if (rows.isEmpty()) return
+    // Segment shapes count only the rows that are staying, so the neighbors of a dismissed row
+    // round their outer corners while it collapses instead of snapping once it is gone. A leaving
+    // row keeps its place as if it were still one of them.
+    val staying = rows.map { it.visibility.targetState }
+    val stayingCount = staying.count { it }
+    val leadingSegments = if (dividerBefore) 1 else 0
+    val trailingSegments = if (dividerAfter) 1 else 0
     Column(modifier = Modifier.fillMaxWidth()) {
         if (dividerBefore && !segmented) HorizontalDivider(modifier = Modifier.compactEdgeToEdge(), color = dividerColor)
         rows.forEachIndexed { index, row ->
@@ -289,9 +296,12 @@ internal fun AtAGlanceRows(
                             HorizontalDivider(modifier = Modifier.compactEdgeToEdge(), color = dividerColor)
                         }
                         ResultSegment(
-                            index = index + if (dividerBefore) 1 else 0,
-                            count = rows.size + (if (dividerBefore) 1 else 0) + (if (dividerAfter) 1 else 0),
+                            index = index + leadingSegments,
+                            count = rows.size + leadingSegments + trailingSegments,
                             padCompactOuterEdges = true,
+                            cornerIndex = staying.subList(0, index).count { it } + leadingSegments,
+                            cornerCount =
+                                stayingCount + (if (staying[index]) 0 else 1) + leadingSegments + trailingSegments,
                         ) {
                             row.item.content()
                         }
