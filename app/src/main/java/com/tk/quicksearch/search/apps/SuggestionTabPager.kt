@@ -30,6 +30,8 @@ import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.apps.AppSuggestionTabType
 import kotlinx.coroutines.CoroutineScope
@@ -58,6 +60,12 @@ internal class SuggestionTabPagerState(
         private set
     private val offsetState = mutableFloatStateOf(0f)
     val offset: Float get() = offsetState.floatValue
+
+    /** True in right-to-left layouts, where the tab after the current one lies to its left. */
+    internal var isRtl = false
+
+    /** Physical direction (+1 right, -1 left) of the next tab in [tabs] order. */
+    internal val nextSide: Int get() = if (isRtl) -1 else 1
 
     /** Last measured page width; read only by gestures and animations. */
     internal var widthPx = 0
@@ -93,7 +101,7 @@ internal class SuggestionTabPagerState(
         }
         val existingPeer = peer
         val neighbour =
-            if (existingPeer != null && peerSide == side) existingPeer else tabs.getOrNull(index + side)
+            if (existingPeer != null && peerSide == side) existingPeer else tabs.getOrNull(index + side * nextSide)
         if (neighbour == null) {
             offsetState.floatValue = 0f
             peer = null
@@ -143,7 +151,7 @@ internal class SuggestionTabPagerState(
             offsetState.floatValue = 0f
             return
         }
-        val side = if (to > from) 1 else -1
+        val side = if (to > from) nextSide else -nextSide
         // Keep the visible position: if the old peer is the target, continue from where it is.
         if (peer == tab && peerSide == side) {
             swapTo(tab, side)
@@ -230,6 +238,7 @@ internal fun rememberSuggestionTabPagerState(
     val scope = rememberCoroutineScope()
     val state = remember(scope) { SuggestionTabPagerState(selected, scope) }
     state.onSelect = onSelect
+    state.isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val latestTabs by rememberUpdatedState(tabs)
     LaunchedEffect(selected) {
         state.markReported(selected)
@@ -278,8 +287,8 @@ internal fun Modifier.suggestionTabSwipe(
                 }
             }
             val index = tabs.indexOf(state.displayed)
-            // Dragging right (+1) reveals the previous tab.
-            val hasNeighbour = index >= 0 && tabs.getOrNull(index - direction) != null
+            // Dragging right (+1) reveals the tab on the left: the previous one in LTR, the next in RTL.
+            val hasNeighbour = index >= 0 && tabs.getOrNull(index - direction * state.nextSide) != null
             if (!hasNeighbour) {
                 // Toward a side with no tab: finish any slide still running and leave the drag
                 // to the root page swipe, even right after arriving on this tab.
@@ -365,9 +374,10 @@ internal fun <T> SuggestionTabPager(
             } else {
                 base.height
             }
+        // Offsets and sides are physical, so place without RTL mirroring.
         layout(width, height) {
-            base.placeRelativeWithLayer(0, 0) { translationX = state.offset }
-            peer?.placeRelativeWithLayer(0, 0) {
+            base.placeWithLayer(0, 0) { translationX = state.offset }
+            peer?.placeWithLayer(0, 0) {
                 translationX = state.offset + state.peerSide * width
             }
         }

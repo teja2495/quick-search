@@ -5,13 +5,20 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.speech.RecognizerIntent
+import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.util.defaultAssistantPackage
 
 private const val CHATGPT_PACKAGE = "com.openai.chatgpt"
-private const val CHATGPT_VOICE_MODE_URL = "https://chatgpt.com/?mode=voice"/**
+private const val CHATGPT_VOICE_MODE_URL = "https://chatgpt.com/?mode=voice"
+private const val GOOGLE_APP_PACKAGE = "com.google.android.googlequicksearchbox"
+
+// Hidden Intent.ACTION_VOICE_ASSIST; the system sends it for voice assistant entry.
+private const val ACTION_VOICE_ASSIST = "android.intent.action.VOICE_ASSIST"
+
+/**
  * Handler for voice search and digital assistant functionality.
  * Encapsulates all voice-related operations to keep MainActivity focused on lifecycle management.
  */
@@ -54,6 +61,39 @@ class VoiceSearchHandler(
     }
 
     private fun startDigitalAssistant() {
+        if (context.defaultAssistantPackage() == GOOGLE_APP_PACKAGE) {
+            // Gemini's voice overlay is a voice interaction session; no intent opens it listening,
+            // but showAssist() does, like a long press of the side key. Intents are the fallback.
+            showAssistWhenFocused()
+        } else {
+            launchAssistantIntents()
+        }
+    }
+
+    /** showAssist() only works once this activity is the visible, focused top activity. */
+    private fun showAssistWhenFocused() {
+        val decorView = context.window.decorView
+        val attempt = {
+            if (!context.isFinishing) {
+                if (context.showAssist(null)) context.finish() else launchAssistantIntents()
+            }
+        }
+        if (decorView.hasWindowFocus()) {
+            attempt()
+            return
+        }
+        decorView.viewTreeObserver.addOnWindowFocusChangeListener(
+            object : ViewTreeObserver.OnWindowFocusChangeListener {
+                override fun onWindowFocusChanged(hasFocus: Boolean) {
+                    if (!hasFocus) return
+                    decorView.viewTreeObserver.removeOnWindowFocusChangeListener(this)
+                    decorView.post { attempt() }
+                }
+            },
+        )
+    }
+
+    private fun launchAssistantIntents() {
         // A candidate can resolve yet still be refused at launch (e.g. not exported), so try each
         // in turn; the assistant app's own launcher entry comes after its voice and assist entries.
         val launched =
@@ -80,11 +120,12 @@ class VoiceSearchHandler(
     }
 
     /**
-     * Opens the user's default assistant listening for speech. Unscoped VOICE_COMMAND can land on any
-     * app that handles it, and on recent Google app versions it opens nothing. For Google, hands-free
-     * voice search is what opens the Gemini voice overlay; ChatGPT has no voice intent but opens voice
-     * mode from its voice link; other assistants take VOICE_COMMAND or ASSIST, and an assistant that
-     * handles none of them is opened from its launcher entry.
+     * Opens the user's default assistant from an intent, used when showAssist() isn't available or
+     * fails. VOICE_ASSIST, which the system sends for voice assistant entry, comes first and opens
+     * Google's voice screen. Unscoped VOICE_COMMAND can land on any app that handles it, and on
+     * recent Google app versions it opens nothing. ChatGPT has no voice intent but opens voice mode
+     * from its voice link; other assistants take hands-free voice search, VOICE_COMMAND or ASSIST,
+     * and an assistant that handles none of them is opened from its launcher entry.
      */
     private fun assistantIntentCandidates(): List<Intent> {
         val packageManager = context.packageManager
@@ -95,6 +136,7 @@ class VoiceSearchHandler(
                     add(Intent(Intent.ACTION_VIEW, Uri.parse(CHATGPT_VOICE_MODE_URL)).setPackage(assistantPackage))
                 }
                 if (assistantPackage != null) {
+                    add(Intent(ACTION_VOICE_ASSIST).setPackage(assistantPackage))
                     add(Intent(RecognizerIntent.ACTION_VOICE_SEARCH_HANDS_FREE).setPackage(assistantPackage))
                     add(Intent(Intent.ACTION_VOICE_COMMAND).setPackage(assistantPackage))
                     add(Intent(Intent.ACTION_ASSIST).setPackage(assistantPackage))

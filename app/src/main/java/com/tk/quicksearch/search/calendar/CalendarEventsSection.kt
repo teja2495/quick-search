@@ -5,6 +5,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -214,37 +215,71 @@ fun CalendarEventsSection(
                 if (showGlanceContent && glanceContentFirst) {
                     glanceContent.invoke(false, true)
                 }
-                displayEvents.forEachIndexed { index, event ->
+                // On Home a row marked done (or ended) collapses away instead of vanishing.
+                val rows =
+                    if (isHomeScreenMode) {
+                        rememberAnimatedCalendarEventRows(displayEvents, resetKey = cardState.displayAsExpanded)
+                    } else {
+                        null
+                    }
+                val rowEvents = rows?.map { it.event } ?: displayEvents
+                // Segment shapes count only the rows that are staying, so neighbors of a leaving
+                // row round their corners while it collapses; it keeps its place meanwhile.
+                val staying = rows?.map { it.visibility.targetState } ?: rowEvents.map { true }
+                val stayingCount = staying.count { it }
+                val trailingSegments = segmentCount - displayEvents.size - leadingGlanceSegment
+                rowEvents.forEachIndexed { index, event ->
                     key(event.eventId) {
                         val isPredicted = predictedEventId != null && event.eventId == predictedEventId
                         val showPredictedOnRow = isPredicted && !useCardLevelPrediction
                         val isPinned = pinnedEventIds.contains(event.eventId)
-                        ResultSegment(
-                            index = index + leadingGlanceSegment,
-                            count = segmentCount,
-                            padCompactOuterEdges = isHomeScreenMode,
-                        ) {
-                            CalendarEventRow(
-                                event = event,
-                                isPinned = isPinned,
-                                isExcluded = excludedEventIds.contains(event.eventId),
-                                hasNickname = !getEventNickname(event.eventId).isNullOrBlank(),
-                                onClick = onEventClick,
-                                onTogglePin = onTogglePin,
-                                onMovePinned = onMovePinned,
-                                onExclude = onExclude,
-                                onInclude = onInclude,
-                                onNicknameClick = onNicknameClick,
-                                isPredicted = showPredictedOnRow,
-                                isHomescreenTodayEvent =
-                                    isHomeScreenMode && !isPinned && !cardState.displayAsExpanded,
-                                onArchive = onArchiveTodayEvent,
-                                showDoneOnlyMenu = isHomeScreenMode && !isPinned,
-                                showPinnedItemMenu = showPinnedItemMenu,
-                            )
+                        val rowContent: @Composable () -> Unit = {
+                            Column {
+                                ResultSegment(
+                                    index = index + leadingGlanceSegment,
+                                    count = rowEvents.size + leadingGlanceSegment + trailingSegments,
+                                    padCompactOuterEdges = isHomeScreenMode,
+                                    cornerIndex = rows?.let { staying.subList(0, index).count { it } + leadingGlanceSegment },
+                                    cornerCount =
+                                        rows?.let {
+                                            stayingCount + (if (staying[index]) 0 else 1) + leadingGlanceSegment + trailingSegments
+                                        },
+                                ) {
+                                    CalendarEventRow(
+                                        event = event,
+                                        isPinned = isPinned,
+                                        isExcluded = excludedEventIds.contains(event.eventId),
+                                        hasNickname = !getEventNickname(event.eventId).isNullOrBlank(),
+                                        onClick = onEventClick,
+                                        onTogglePin = onTogglePin,
+                                        onMovePinned = onMovePinned,
+                                        onExclude = onExclude,
+                                        onInclude = onInclude,
+                                        onNicknameClick = onNicknameClick,
+                                        isPredicted = showPredictedOnRow,
+                                        isHomescreenTodayEvent =
+                                            isHomeScreenMode && !isPinned && !cardState.displayAsExpanded,
+                                        onArchive = onArchiveTodayEvent,
+                                        showDoneOnlyMenu = isHomeScreenMode && !isPinned,
+                                        showPinnedItemMenu = showPinnedItemMenu,
+                                    )
+                                }
+                                if (index < rowEvents.lastIndex && !showPredictedOnRow) {
+                                    ResultRowDivider(showWallpaperBackground = showWallpaperBackground, color = overlayDividerColor)
+                                }
+                            }
                         }
-                        if (index < displayEvents.lastIndex && !showPredictedOnRow) {
-                            ResultRowDivider(showWallpaperBackground = showWallpaperBackground, color = overlayDividerColor)
+                        val row = rows?.get(index)
+                        if (row != null) {
+                            AnimatedVisibility(
+                                visibleState = row.visibility,
+                                enter = CalendarEventRowEnterTransition,
+                                exit = CalendarEventRowExitTransition,
+                            ) {
+                                rowContent()
+                            }
+                        } else {
+                            rowContent()
                         }
                     }
                 }

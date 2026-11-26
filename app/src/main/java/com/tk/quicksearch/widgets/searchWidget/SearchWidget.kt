@@ -157,12 +157,17 @@ class SearchWidget(
             }
 
         val launchIntent = createLaunchIntent(context)
+        // The assistant opens from an invisible activity so the search screen doesn't flash first.
         val voiceLaunchIntent =
-            createLaunchIntent(
-                context = context,
-                startVoiceSearch = true,
-                micAction = config.micAction,
-            )
+            if (config.micAction == MicAction.DIGITAL_ASSISTANT) {
+                AssistantLaunchActivity.createIntent(context)
+            } else {
+                createLaunchIntent(
+                    context = context,
+                    startVoiceSearch = true,
+                    micAction = config.micAction,
+                )
+            }
         val customButtons = config.customButtons.filterNotNull()
 
         when (variant) {

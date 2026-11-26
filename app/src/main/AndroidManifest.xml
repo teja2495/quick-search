@@ -675,6 +675,14 @@
             android:theme="@style/Theme.QuickSearch" />
 
         <activity
+            android:name=".widgets.searchWidget.AssistantLaunchActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.QuickSearch" />
+
+        <activity
             android:name=".widgets.customButtonsWidget.WidgetActionActivity"
             android:exported="false"
             android:excludeFromRecents="true"
