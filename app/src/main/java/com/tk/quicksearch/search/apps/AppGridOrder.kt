@@ -40,9 +40,9 @@ internal fun pinnedGridGapKey(index: Int): String = "$PinnedGridGapKeyPrefix$ind
 internal fun isPinnedGridGapKey(key: String): Boolean = key.startsWith(PinnedGridGapKeyPrefix)
 
 /**
- * [items] without trailing gaps, then padded with new gaps to fill its last row, so every empty
- * cell of the grid is an item that can be dropped on. [gap] creates the gap numbered by its index
- * among the gaps.
+ * Fits [items] into as few rows as needed by moving tiles from excess rows into earlier gaps.
+ * Pads the last row so every empty cell can be dropped on. [gap] creates the gap numbered by its
+ * index among the gaps.
  */
 internal fun <T> itemsFilledToGridRows(
         items: List<T>,
@@ -52,9 +52,21 @@ internal fun <T> itemsFilledToGridRows(
 ): List<T> {
     val trimmed = items.dropLastWhile(isGap)
     val rowSize = columns.coerceAtLeast(1)
-    val paddingCount = (rowSize - trimmed.size % rowSize) % rowSize
-    val gapCount = trimmed.count(isGap)
-    return trimmed + List(paddingCount) { gap(gapCount + it) }
+    val itemCount = trimmed.count { !isGap(it) }
+    val rowCapacity = itemCount + (rowSize - itemCount % rowSize) % rowSize
+    val fitted =
+            if (trimmed.size <= rowCapacity) {
+                trimmed
+            } else {
+                itemsFillingGaps(
+                        ordered = trimmed.take(rowCapacity),
+                        added = trimmed.drop(rowCapacity).filterNot(isGap),
+                        isGap = isGap,
+                )
+            }
+    var gapIndex = 0
+    return fitted.map { if (isGap(it)) gap(gapIndex++) else it } +
+            List(rowCapacity - fitted.size) { gap(gapIndex + it) }
 }
 
 /**

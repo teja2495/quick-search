@@ -318,14 +318,11 @@ fun AppGridView(
                                 is AppGridEntry.Gap -> entry
                             }
                         }
-        var gapIndex = 0
         return itemsFillingGaps(
-                        ordered = placedInGridOrder,
-                        added = newEntries,
-                        isGap = { it is AppGridEntry.Gap },
-                )
-                // Renumbered so the gaps added to fill the last row get unused keys.
-                .map { if (it is AppGridEntry.Gap) AppGridEntry.Gap(pinnedGridGapKey(gapIndex++)) else it }
+                ordered = placedInGridOrder,
+                added = newEntries,
+                isGap = { it is AppGridEntry.Gap },
+        )
     }
     fun orderedPinnedEntries(pinned: List<AppInfo>, includeFolders: Boolean): List<AppGridEntry> {
         if (!includeFolders) return orderedPinnedItems(pinned, includeFolders = false)

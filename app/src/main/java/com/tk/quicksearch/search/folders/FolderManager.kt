@@ -149,14 +149,11 @@ class FolderManager(
         commitOrder(orderKeys.filterNot { it == folder.gridKey })
     }
 
-    /** Moves a Widgets panel folder back to the end of the Pinned tab. */
+    /** Lets the Pinned grid place a returning folder in the first available cell. */
     fun moveFolderToHome(folderId: String) {
         val folders = userPreferences.getAppFolders()
-        val folder = folders.firstOrNull { it.id == folderId && it.inWidgetsPanel } ?: return
+        if (folders.none { it.id == folderId && it.inWidgetsPanel }) return
         saveFolders(folders.map { if (it.id == folderId) it.copy(inWidgetsPanel = false) else it })
-        // Without a saved order, the Pinned tab already puts unordered folders last.
-        val order = userPreferences.getPinnedAppGridOrder()
-        if (order.isNotEmpty()) commitOrder(order.filterNot { it == folder.gridKey } + folder.gridKey)
     }
 
     /**

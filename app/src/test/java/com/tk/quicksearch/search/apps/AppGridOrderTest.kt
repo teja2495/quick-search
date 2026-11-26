@@ -62,7 +62,24 @@ class AppGridOrderTest {
                         gap = { "gap$it" },
                 )
 
-        assertEquals(listOf("a", "gap", "b", "gap1"), filled)
+        assertEquals(listOf("a", "gap0", "b", "gap1"), filled)
+    }
+
+    @Test
+    fun `pinned tiles in an excess row fill vacancies in existing rows`() {
+        val items = (1..8).map(Int::toString) + listOf("gap0", "gap1", "gap2", "Teams", "Telegram")
+        val filled =
+                itemsFilledToGridRows(
+                        items,
+                        columns = 4,
+                        isGap = { it.startsWith("gap") },
+                        gap = { "gap$it" },
+                )
+
+        assertEquals(
+                listOf("Telegram", "gap0", "gap1", "Teams", "5", "6", "7", "8", "1", "2", "3", "4"),
+                appsInVisualGridOrder(filled, columns = 4, oneHandedMode = true),
+        )
     }
 
     @Test
