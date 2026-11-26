@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
+import com.tk.quicksearch.BuildConfig
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.shared.permissions.shouldShowAccessibilityDisclosure
@@ -41,6 +42,12 @@ class ReleaseNotesHandler(
     }
 
     fun checkForReleaseNotes() {
+        // TEMP(debug): always show the accessibility disclaimer in debug builds. Remove before release.
+        if (BuildConfig.DEBUG) {
+            uiStateUpdater { it.copy(showAccessibilityPermissionDisclaimer = true) }
+            return
+        }
+
         val currentVersion = getCurrentVersionName() ?: return
         val currentVersionCode = getCurrentVersionCode()
 
