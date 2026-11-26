@@ -12,7 +12,6 @@ import android.graphics.Outline
 import android.os.Build
 import android.os.Process
 import android.os.SystemClock
-import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
@@ -113,7 +112,6 @@ internal class WidgetPanelHost(
         graphicsContext: GraphicsContext,
     ): AppWidgetHostView {
         val cached = viewsById[appWidgetId]
-        Log.d("QSWidgetDbg", "obtainView id=$appWidgetId cached=${cached?.let(System::identityHashCode)} attached=${cached?.isAttachedToWindow} panel=$isPanelHost")
         if (
             cached != null &&
             !cached.isAttachedToWindow &&
@@ -180,10 +178,8 @@ internal class WidgetPanelHost(
                 }
             }
             view.onContentChanged = { hasContent ->
-                Log.d("QSWidgetDbg", "contentChanged id=$appWidgetId has=$hasContent current=${viewsById[appWidgetId] === view} view=${System.identityHashCode(view)}")
                 if (viewsById[appWidgetId] === view) widgetContentAvailable[appWidgetId] = hasContent
             }
-            Log.d("QSWidgetDbg", "createView id=$appWidgetId view=${System.identityHashCode(view)} panel=$isPanelHost")
             view.isScrollInProgressProvider = { isScrollInProgressProvider() }
             view.onDetached = {
                 if (liveViews.remove(view)) MemoryDiagnostics.widgetViewsReleased(1)
@@ -372,7 +368,6 @@ private class WidgetPanelHostView(
     private var reportedContent = false
     private val reportDrawnContent = Runnable {
         val hasContent = renderedContent() != null
-        Log.d("QSWidgetDbg", "report view=${System.identityHashCode(this)} has=$hasContent reported=$reportedContent cb=${onContentChanged != null}")
         if (reportedContent != hasContent) {
             reportedContent = hasContent
             onContentChanged?.invoke(hasContent)
@@ -392,23 +387,14 @@ private class WidgetPanelHostView(
     private fun renderedContent(): View? =
         getChildAt(0)?.takeIf { it !== fallbackView }
 
-    override fun getDefaultView(): View = super.getDefaultView().also(::rememberFallbackView).also {
-        Log.d("QSWidgetDbg", "defaultView view=${System.identityHashCode(this)}")
-    }
+    // The panel covers its placeholder with a loading card, so a blank view is enough. The
+    // provider's initial layout must not be used: when its first update uses that same layout,
+    // Android applies the update onto the placeholder instead of adding a new view, and the
+    // widget's content would never be told apart from the placeholder.
+    override fun getDefaultView(): View =
+        if (isPanelHost) View(context).also(::rememberFallbackView) else super.getDefaultView()
 
-    override fun getErrorView(): View = super.getErrorView().also(::rememberFallbackView).also {
-        Log.d("QSWidgetDbg", "errorView view=${System.identityHashCode(this)}", Throwable())
-    }
-
-    override fun onViewAdded(child: View) {
-        super.onViewAdded(child)
-        Log.d("QSWidgetDbg", "viewAdded view=${System.identityHashCode(this)} child=${child.javaClass.simpleName} fallback=${child === fallbackView} children=$childCount")
-    }
-
-    override fun onViewRemoved(child: View) {
-        super.onViewRemoved(child)
-        Log.d("QSWidgetDbg", "viewRemoved view=${System.identityHashCode(this)} child=${child.javaClass.simpleName} children=$childCount")
-    }
+    override fun getErrorView(): View = super.getErrorView().also(::rememberFallbackView)
 
     private fun rememberFallbackView(view: View) {
         if (!isPanelHost) return
@@ -424,9 +410,6 @@ private class WidgetPanelHostView(
         // Android may still be inflating the widget or showing its default/error view.
         // Keep the preview until the provider's content is actually drawn.
         val hasContent = renderedContent() != null
-        if (hasContent != reportedContent) {
-            Log.d("QSWidgetDbg", "draw view=${System.identityHashCode(this)} has=$hasContent children=$childCount child0=${getChildAt(0)?.javaClass?.simpleName} fallback0=${getChildAt(0) === fallbackView} attached=$isAttachedToWindow")
-        }
         if (hasContent) {
             super.dispatchDraw(canvas)
             snapshotCapture?.onDraw()
@@ -469,7 +452,6 @@ private class WidgetPanelHostView(
     }
 
     override fun updateAppWidget(remoteViews: RemoteViews?) {
-        Log.d("QSWidgetDbg", "update view=${System.identityHashCode(this)} rv=${remoteViews != null} children=$childCount attached=$isAttachedToWindow")
         super.updateAppWidget(remoteViews)
         if (!isPanelHost) onContentChanged?.invoke(remoteViews != null)
     }
@@ -589,7 +571,6 @@ private class WidgetPanelHostView(
     }
 
     override fun onDetachedFromWindow() {
-        Log.d("QSWidgetDbg", "detached view=${System.identityHashCode(this)}")
         removeCallbacks(longPressRunnable)
         removeCallbacks(reportDrawnContent)
         snapshotCapture?.cancel()

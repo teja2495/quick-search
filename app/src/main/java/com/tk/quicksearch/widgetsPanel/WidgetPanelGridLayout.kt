@@ -52,91 +52,88 @@ internal fun computeInitialSpan(
 }
 
 /**
- * Lays out widgets on the panel grid.
+ * Lays out widgets on the panel's pages, each [pageRows] rows tall.
  *
- * Honors stored coordinates when valid and non-overlapping; otherwise flows the widget into the
- * first free slot. Always returns widgets in their original input order.
+ * Honors stored coordinates when valid, non-overlapping, and inside their page; otherwise flows
+ * the widget into the first free slot on its page. A widget its page has no room for moves on to
+ * the next page, after the widgets already there. With [compactPages], pages left empty are
+ * dropped so later pages move up. Always returns widgets in their original input order.
  */
 internal fun resolveWidgetGridLayout(
     widgets: List<PanelWidgetInfo>,
     specs: Map<Int, WidgetGridSpec>,
+    pageRows: Int = Int.MAX_VALUE,
+    compactPages: Boolean = true,
 ): List<PanelWidgetInfo> {
     if (widgets.isEmpty()) return widgets
 
-    val occupied = mutableSetOf<Pair<Int, Int>>()
     val placedById = LinkedHashMap<Int, PanelWidgetInfo>()
-
-    widgets.forEach { widget ->
-        val spec = specs[widget.appWidgetId]
-        val minColumnSpan = spec?.minColumnSpan ?: 1
-        val minRowSpan = spec?.minRowSpan ?: 1
-        val columnSpan =
-            (widget.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN)
-                .coerceIn(minColumnSpan, WIDGET_PANEL_GRID_COLUMNS)
-        val rowSpan =
-            (widget.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN)
-                .coerceIn(minRowSpan, WIDGET_PANEL_MAX_ROW_SPAN)
-        val requestedColumn = widget.column?.coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - columnSpan)
-        val requestedRow = widget.row?.coerceAtLeast(0)
-        val position =
-            if (
-                requestedColumn != null &&
-                requestedRow != null &&
-                canPlace(
-                    occupied = occupied,
-                    column = requestedColumn,
-                    row = requestedRow,
-                    columnSpan = columnSpan,
-                    rowSpan = rowSpan,
-                )
-            ) {
-                requestedColumn to requestedRow
-            } else {
-                findFirstAvailablePosition(
-                    occupied = occupied,
-                    columnSpan = columnSpan,
-                    rowSpan = rowSpan,
-                )
+    val byPage = widgets.groupBy { it.pageOrZero() }
+    val lastStoredPage = byPage.keys.max()
+    var carried = emptyList<PanelWidgetInfo>()
+    var page = 0
+    while (page <= lastStoredPage || carried.isNotEmpty()) {
+        val occupied = mutableSetOf<Pair<Int, Int>>()
+        val native = byPage[page].orEmpty()
+        val nextCarried = mutableListOf<PanelWidgetInfo>()
+        (native + carried).forEachIndexed { index, widget ->
+            val spec = specs[widget.appWidgetId]
+            val minColumnSpan = spec?.minColumnSpan ?: 1
+            val minRowSpan = spec?.minRowSpan ?: 1
+            val columnSpan =
+                (widget.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN)
+                    .coerceIn(minColumnSpan, WIDGET_PANEL_GRID_COLUMNS)
+            val rowSpan =
+                (widget.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN)
+                    .coerceIn(minRowSpan, WIDGET_PANEL_MAX_ROW_SPAN)
+                    .coerceAtMost(maxOf(pageRows, minRowSpan))
+            val maxRow = pageRows - rowSpan
+            val requestedColumn = widget.column?.coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - columnSpan)
+            val requestedRow = widget.row?.coerceAtLeast(0)
+            val position =
+                if (
+                    index < native.size &&
+                    requestedColumn != null &&
+                    requestedRow != null &&
+                    requestedRow <= maxRow &&
+                    canPlace(occupied, requestedColumn, requestedRow, columnSpan, rowSpan)
+                ) {
+                    requestedColumn to requestedRow
+                } else {
+                    findFirstAvailablePosition(occupied, columnSpan, rowSpan, maxRow)
+                        // Taller than a page: it gets an empty page to itself.
+                        ?: (0 to 0).takeIf { occupied.isEmpty() }
+                }
+            if (position == null) {
+                nextCarried += widget
+                return@forEachIndexed
             }
-
-        markOccupied(
-            occupied = occupied,
-            column = position.first,
-            row = position.second,
-            columnSpan = columnSpan,
-            rowSpan = rowSpan,
-        )
-        placedById[widget.appWidgetId] =
-            widget.copy(
-                column = position.first,
-                row = position.second,
-                columnSpan = columnSpan,
-                rowSpan = rowSpan,
-            )
+            markOccupied(occupied, position.first, position.second, columnSpan, rowSpan)
+            placedById[widget.appWidgetId] =
+                widget.copy(
+                    column = position.first,
+                    row = position.second,
+                    columnSpan = columnSpan,
+                    rowSpan = rowSpan,
+                    panelPage = page.takeIf { it > 0 },
+                )
+        }
+        carried = nextCarried
+        page++
     }
 
-    return widgets.map { placedById[it.appWidgetId] ?: it }
-}
-
-/**
- * Lowest row [dragged] may move to, fixed when the drag begins: just below the other widgets,
- * anywhere in the rows already on screen ([visibleBottomPx] from the grid top), or where it
- * started, whichever is lowest. Without this cap a widget dragged near the bottom edge grows the
- * grid, edge auto-scroll follows it, and it runs away downward.
- */
-internal fun panelDragMaxRow(
-    widgets: List<PanelWidgetInfo>,
-    dragged: PanelWidgetInfo,
-    visibleBottomPx: Float,
-    gridUnitHeightPx: Float,
-): Int {
-    val visibleRows = if (visibleBottomPx.isFinite() && gridUnitHeightPx > 0f) (visibleBottomPx / gridUnitHeightPx).toInt() + 1 else 0
-    val othersBottom =
-        widgets
-            .filter { it.appWidgetId != dragged.appWidgetId }
-            .maxOfOrNull { it.rowOrZero() + (it.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN) } ?: 0
-    val rowSpan = dragged.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN
-    return maxOf(othersBottom, visibleRows - rowSpan, dragged.rowOrZero())
+    val placed = widgets.map { placedById[it.appWidgetId] ?: it }
+    if (!compactPages) return placed
+    // Pages left empty close, except the first, which always stays.
+    val usedPages =
+        (placed.mapTo(sortedSetOf()) { it.pageOrZero() } + 0)
+            .sorted()
+            .withIndex()
+            .associate { (index, used) -> used to index }
+    return placed.map { widget ->
+        val compacted = usedPages.getValue(widget.pageOrZero())
+        if (compacted == widget.pageOrZero()) widget else widget.copy(panelPage = compacted.takeIf { it > 0 })
+    }
 }
 
 /**
@@ -153,14 +150,18 @@ internal fun moveWidgetToCell(
     appWidgetId: Int,
     targetColumn: Int,
     targetRow: Int,
+    targetPage: Int? = null,
 ): List<PanelWidgetInfo> {
     val current = widgets.firstOrNull { it.appWidgetId == appWidgetId } ?: return widgets
     val columnSpan = current.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN
     val rowSpan = current.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN
-    val others = widgets.filterNot { it.appWidgetId == appWidgetId }
+    val page = targetPage ?: current.pageOrZero()
+    // Widgets on other pages are never touched.
+    val others = widgets.filter { it.appWidgetId != appWidgetId && it.pageOrZero() == page }
     val clampedTargetColumn = targetColumn.coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - columnSpan)
     val clampedTargetRow = targetRow.coerceAtLeast(0)
-    val moved = current.copy(column = clampedTargetColumn, row = clampedTargetRow)
+    val moved =
+        current.copy(column = clampedTargetColumn, row = clampedTargetRow, panelPage = page.takeIf { it > 0 })
     if (moved == current) return widgets
 
     val overlapping = others.filter { widgetsOverlap(it, moved) }
@@ -173,6 +174,7 @@ internal fun moveWidgetToCell(
     val swapTarget = overlapping.singleOrNull()
     if (
         swapTarget != null &&
+        current.pageOrZero() == page &&
         (swapTarget.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN) == columnSpan &&
         (swapTarget.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN) == rowSpan
     ) {
@@ -279,6 +281,7 @@ internal fun resizeWidgetInGrid(
         val blocksAbove =
             widgets.any { other ->
                 other.appWidgetId != appWidgetId &&
+                    other.pageOrZero() == updated.pageOrZero() &&
                     horizontallyOverlaps(other, updated) &&
                     other.rowOrZero() < updated.rowOrZero() &&
                     other.bottomRow() > updated.rowOrZero()
@@ -307,7 +310,7 @@ private fun cascadePushDown(
 
     val others =
         byId.values
-            .filter { it.appWidgetId != anchorAppWidgetId }
+            .filter { it.appWidgetId != anchorAppWidgetId && it.pageOrZero() == anchor.pageOrZero() }
             .sortedBy { it.row ?: 0 }
 
     for (widget in others) {
@@ -328,11 +331,13 @@ private fun cascadePushDown(
 }
 
 private fun PanelWidgetInfo.rowOrZero(): Int = row ?: 0
+internal fun PanelWidgetInfo.pageOrZero(): Int = panelPage ?: 0
 private fun PanelWidgetInfo.bottomRow(): Int =
     (row ?: 0) + (rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN)
 
 private fun widgetsOverlap(a: PanelWidgetInfo, b: PanelWidgetInfo): Boolean =
-    horizontallyOverlaps(a, b) && a.rowOrZero() < b.bottomRow() && b.rowOrZero() < a.bottomRow()
+    a.pageOrZero() == b.pageOrZero() &&
+        horizontallyOverlaps(a, b) && a.rowOrZero() < b.bottomRow() && b.rowOrZero() < a.bottomRow()
 
 private fun horizontallyOverlaps(a: PanelWidgetInfo, b: PanelWidgetInfo): Boolean {
     val aLeft = a.column ?: 0
@@ -455,13 +460,15 @@ private fun dpToGridSpan(
     return max(1, rawSpan)
 }
 
-private fun findFirstAvailablePosition(
+/** First free slot whose top row is at most [maxRow], or null when there is none. */
+internal fun findFirstAvailablePosition(
     occupied: Set<Pair<Int, Int>>,
     columnSpan: Int,
     rowSpan: Int,
-): Pair<Int, Int> {
+    maxRow: Int = Int.MAX_VALUE,
+): Pair<Int, Int>? {
     var row = 0
-    while (true) {
+    while (row <= maxRow) {
         for (column in 0..(WIDGET_PANEL_GRID_COLUMNS - columnSpan)) {
             if (canPlace(occupied, column, row, columnSpan, rowSpan)) {
                 return column to row
@@ -469,9 +476,10 @@ private fun findFirstAvailablePosition(
         }
         row++
     }
+    return null
 }
 
-private fun canPlace(
+internal fun canPlace(
     occupied: Set<Pair<Int, Int>>,
     column: Int,
     row: Int,
@@ -486,7 +494,7 @@ private fun canPlace(
     return true
 }
 
-private fun markOccupied(
+internal fun markOccupied(
     occupied: MutableSet<Pair<Int, Int>>,
     column: Int,
     row: Int,

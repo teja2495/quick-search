@@ -1293,6 +1293,9 @@
     <string name="widget_decrease_height">تقليل الارتفاع</string>
     <string name="widgets_panel_lock_layout">قفل التخطيط</string>
     <string name="widgets_panel_unlock_layout">إلغاء قفل التخطيط</string>
+    <string name="widgets_panel_page_zone_previous">الصفحة السابقة</string>
+    <string name="widgets_panel_page_zone_next">الصفحة التالية</string>
+    <string name="widgets_panel_page_zone_new">صفحة جديدة</string>
     <string name="widgets_picker_empty">لم يتم العثور على أي عناصر واجهة مستخدم.</string>
     <string name="widgets_picker_preview_unavailable">المعاينة غير متوفرة</string>
     <string name="widgets_picker_title">إضافة عنصر واجهة مستخدم</string>

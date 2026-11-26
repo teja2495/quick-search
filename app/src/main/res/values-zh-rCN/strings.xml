@@ -1217,6 +1217,9 @@
     <string name="widget_decrease_height">减小高度</string>
     <string name="widgets_panel_lock_layout">锁定布局</string>
     <string name="widgets_panel_unlock_layout">解锁布局</string>
+    <string name="widgets_panel_page_zone_previous">上一页</string>
+    <string name="widgets_panel_page_zone_next">下一页</string>
+    <string name="widgets_panel_page_zone_new">新页面</string>
     <string name="widgets_picker_empty">未找到任何小部件。</string>
     <string name="widgets_picker_preview_unavailable">暂无预览效果</string>
     <string name="widgets_picker_title">添加小部件</string>

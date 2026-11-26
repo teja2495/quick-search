@@ -22,13 +22,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -41,7 +44,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,9 +57,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -106,15 +106,15 @@ internal val WidgetEditBorderWidth = 1.dp
 // How far edit badges and resize handles can extend past a widget's top or bottom edge: the
 // badge's 9dp corner offset, the edit lift scale on a tall widget, and the badge shadow. The
 // edge-fade layer clips to the viewport, so anything past this is cut off. The bottom overhang
-// must stay within the screen's bottom padding (SpacingLarge). Content is padded back only at the
-// top, so the bottom extension is spare room rather than extra scroll (which would turn on the
-// bottom edge fade over a panel that fits).
+// must stay within the screen's bottom padding (SpacingLarge). Each page keeps this much clear at
+// its top and bottom.
 private val WidgetEditOverhang = 16.dp
 
 // How far the edit scale, side resize handles, and corner badges can extend past a widget's
 // left/right edges. Must stay within ContentHorizontalPadding.
 private val WidgetEditHorizontalOverhang = 16.dp
-private val WidgetPanelBottomScrollSpace = 150.dp
+private val WidgetPanelPageFlingVelocity = 400.dp
+private val WidgetPanelPageIndicatorHalfWidth = 3.dp
 internal val WidgetLayoutMotion = AppMotion.settle<Dp>()
 
 internal enum class ResizeEdge(
@@ -205,17 +205,32 @@ internal fun WidgetsPanelScreen(
     // Keep the panel slide independent of third-party RemoteViews inflation.
     var showHostedWidgets by remember { mutableStateOf(false) }
     val panelScrollState = rememberScrollState()
-    // Window bounds of the scroll viewport, used to auto-scroll a widget back into view while it is
-    // being dragged near the top/bottom edge.
-    var scrollViewportTopPx by remember { mutableFloatStateOf(0f) }
+    val pager = remember(panelScrollState) { WidgetPanelPagerState(panelScrollState) }
+    val pageFling =
+        remember(pager, density) { WidgetPanelPageFling(pager, with(density) { WidgetPanelPageFlingVelocity.toPx() }) }
+    val scope = rememberCoroutineScope()
     var scrollViewportHeightPx by remember { mutableIntStateOf(0) }
-    var panelGridHeightPx by remember { mutableIntStateOf(0) }
+    // Pages keep their height while the keyboard shrinks the viewport, so the layout doesn't reflow.
+    val imeBottomPx = WindowInsets.ime.getBottom(density)
+    val currentImeBottomPx by rememberUpdatedState(imeBottomPx)
 
     fun persistWidgets(next: List<PanelWidgetInfo>) {
         if (next == widgets) return
         widgets = next
         preferences.setWidgets(next)
         HomePinnedWidgetsStore.publish(next)
+    }
+
+    /** Puts a widget just added to the panel on the page in view, or a new page, and shows it. */
+    fun placeNewPanelWidget(
+        added: List<PanelWidgetInfo>,
+        appWidgetId: Int,
+    ): List<PanelWidgetInfo> {
+        val placed = added.withNewPanelWidgetPlaced(appWidgetId, pager.targetPage, pager.pageRows)
+        if (placed != added) preferences.setWidgets(placed)
+        val page = placed.firstOrNull { it.isInPanel && it.appWidgetId == appWidgetId }?.pageOrZero()
+        if (page != null && page != pager.targetPage) scope.launch { pager.animateToPage(page) }
+        return placed
     }
 
     // Moves the widget (or stack) out of the panel onto Home; the panel and Home never share one.
@@ -225,7 +240,7 @@ internal fun WidgetsPanelScreen(
         persistWidgets(
             widgets.map { item ->
                 if (item.isOwner(widget.appWidgetId, onHome = false)) {
-                    item.copy(isInPanel = false, column = null, row = null, home = defaultHomePlacement(item, widgets))
+                    item.copy(isInPanel = false, column = null, row = null, panelPage = null, home = defaultHomePlacement(item, widgets))
                 } else {
                     item
                 }
@@ -260,11 +275,14 @@ internal fun WidgetsPanelScreen(
                 if (ownerId != null && widgets.any { it.isOwner(ownerId, onHome = false) }) {
                     preferences.addToStack(ownerId, appWidgetId, provider.provider)
                 } else {
-                    preferences.addWidget(
-                        appWidgetId = appWidgetId,
-                        provider = provider.provider,
-                        columnSpan = columnSpan,
-                        rowSpan = rowSpan,
+                    placeNewPanelWidget(
+                        preferences.addWidget(
+                            appWidgetId = appWidgetId,
+                            provider = provider.provider,
+                            columnSpan = columnSpan,
+                            rowSpan = rowSpan,
+                        ),
+                        appWidgetId,
                     )
                 }
             HomePinnedWidgetsStore.publish(widgets)
@@ -333,6 +351,16 @@ internal fun WidgetsPanelScreen(
         if (restoredWidgetIdsValidated) persistWidgets(widgets.withPanelFolders(panelFolderIds))
     }
 
+    // Rest on the page in view again after a resize, or after the keyboard scrolled a note into view.
+    LaunchedEffect(pager.pageHeightPx, imeBottomPx == 0) {
+        if (imeBottomPx == 0 && pager.pageHeightPx > 0 && pager.dragZones.isEmpty()) {
+            pager.animateToPage(pager.targetPage.coerceAtMost(pager.pageCount - 1))
+        }
+    }
+    LaunchedEffect(pager.pageCount) {
+        if (pager.targetPage >= pager.pageCount && pager.dragZones.isEmpty()) pager.animateToPage(pager.pageCount - 1)
+    }
+
     LaunchedEffect(appWidgetHost, panelScrollState) {
         snapshotFlow { panelScrollState.isScrollInProgress }
             .collect { inProgress ->
@@ -395,6 +423,13 @@ internal fun WidgetsPanelScreen(
             )
         }
 
+    // While a widget can be dropped on the previous page, the header gives way to that page's zone
+    // and the panel's viewport reaches up over it, so the widget can be dragged into the zone.
+    var headerHeightPx by remember { mutableIntStateOf(0) }
+    val headerHiddenForDrag = WidgetPanelPageZone.Previous in pager.dragZones
+    val dragTopReachPx =
+        if (headerHiddenForDrag) headerHeightPx + with(density) { DesignTokens.SpacingSmall.roundToPx() } else 0
+
     CompositionLocalProvider(
         LocalImageBackgroundIsDark provides imageBackgroundIsDark,
         LocalHomeTextColorOverride provides uiState.homeTextColorOverride,
@@ -432,6 +467,8 @@ internal fun WidgetsPanelScreen(
             ) {
 
                 WidgetsPanelHeader(
+                    hidden = headerHiddenForDrag,
+                    modifier = Modifier.onSizeChanged { headerHeightPx = it.height },
                     inEditMode = editingWidgetId != null,
                     layoutLocked = layoutLocked,
                     onLayoutLockChange = { locked ->
@@ -507,16 +544,19 @@ internal fun WidgetsPanelScreen(
                         }
                     }
                 } else {
+                  Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                     Column(
                         modifier =
                             Modifier
-                                .weight(1f)
+                                .fillMaxSize()
                                 // Grow the scroll viewport vertically and sideways (and pad its content
                                 // back) so edit badges, handles, and the edit scale that overhang
-                                // the grid aren't clipped by the scroll container or the edge-fade
-                                // layer, without moving the layout.
+                                // the grid aren't clipped by the scroll container, without moving
+                                // the layout. Each page is one viewport tall, with the overhang
+                                // kept clear at its top and bottom.
                                 .layout { measurable, constraints ->
                                     val overhangPx = WidgetEditOverhang.roundToPx()
+                                    val topReachPx = overhangPx + dragTopReachPx
                                     val sideOverhangPx = WidgetEditHorizontalOverhang.roundToPx()
                                     val placeable =
                                         measurable.measure(
@@ -528,10 +568,10 @@ internal fun WidgetsPanelScreen(
                                                     } else {
                                                         constraints.maxWidth
                                                     },
-                                                minHeight = constraints.minHeight + overhangPx * 2,
+                                                minHeight = constraints.minHeight + overhangPx + topReachPx,
                                                 maxHeight =
                                                     if (constraints.hasBoundedHeight) {
-                                                        constraints.maxHeight + overhangPx * 2
+                                                        constraints.maxHeight + overhangPx + topReachPx
                                                     } else {
                                                         constraints.maxHeight
                                                     },
@@ -539,26 +579,36 @@ internal fun WidgetsPanelScreen(
                                         )
                                     layout(
                                         placeable.width - sideOverhangPx * 2,
-                                        placeable.height - overhangPx * 2,
+                                        placeable.height - overhangPx - topReachPx,
                                     ) {
-                                        placeable.place(-sideOverhangPx, -overhangPx)
+                                        placeable.place(-sideOverhangPx, -topReachPx)
                                     }
                                 }
-                                .onGloballyPositioned { coordinates ->
-                                    scrollViewportTopPx = coordinates.positionInWindow().y
-                                    scrollViewportHeightPx = coordinates.size.height
+                                .onSizeChanged { size ->
+                                    // Pages don't count the header area the viewport borrows mid-drag.
+                                    val viewportHeight = size.height - dragTopReachPx
+                                    scrollViewportHeightPx = viewportHeight
+                                    if (currentImeBottomPx == 0 || pager.pageHeightPx == 0) {
+                                        pager.pageHeightPx = viewportHeight
+                                        pager.pageRows =
+                                            widgetPanelPageRows(
+                                                pageHeightPx = viewportHeight,
+                                                reservedPx = with(density) { (WidgetEditOverhang * 2).roundToPx() },
+                                                gridUnitHeightPx =
+                                                    with(density) { (WidgetPanelGridRowHeight + WidgetPanelGridGap).toPx() },
+                                                gapPx = with(density) { WidgetPanelGridGap.toPx() },
+                                            )
+                                    }
                                 }
-                                .widgetPanelEdgeFade(panelScrollState)
-                                .verticalScroll(panelScrollState)
+                                .verticalScroll(panelScrollState, flingBehavior = pageFling)
                                 .padding(
                                     start = WidgetEditHorizontalOverhang,
-                                    top = WidgetEditOverhang,
+                                    top = WidgetEditOverhang + with(density) { dragTopReachPx.toDp() },
                                     end = WidgetEditHorizontalOverhang,
                                 ),
-                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
                     ) {
                         val panelItems = panelWidgets
-                        if (panelItems.isNotEmpty() && restoredWidgetIdsValidated) {
+                        if (panelItems.isNotEmpty() && restoredWidgetIdsValidated && pager.isReady) {
                             WidgetPanelGrid(
                                 widgets = panelItems,
                                 showHostedWidgets = showHostedWidgets,
@@ -568,9 +618,9 @@ internal fun WidgetsPanelScreen(
                                 editingWidgetId = editingWidgetId,
                                 layoutEditingEnabled = layoutLocked == false,
                                 density = density,
-                                panelScrollState = panelScrollState,
-                                viewportTopPx = scrollViewportTopPx,
+                                pager = pager,
                                 viewportHeightPx = scrollViewportHeightPx,
+                                topInset = WidgetEditOverhang,
                                 onPersist = ::persistPanelItems,
                                 onSetEditingWidgetId = { id ->
                                     if (layoutLocked == false) editingWidgetId = id
@@ -614,28 +664,25 @@ internal fun WidgetsPanelScreen(
                                     folderActions?.let {
                                         PanelFolderTiles(panelFolders, uiState.panelFolderAppearance(), it)
                                     },
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .onSizeChanged { panelGridHeightPx = it.height },
+                                modifier = Modifier.fillMaxWidth(),
                                 stackIndicatorRevealKey = stackIndicatorRevealKey,
                             )
-                        } else {
-                            Spacer(modifier = Modifier.height(DesignTokens.SpacingSmall))
-                        }
-
-                        // Extra room to scroll the last row clear of the bottom fade, only when
-                        // the grid already overflows; otherwise a panel that fits wouldn't scroll.
-                        val panelOverflows =
-                            panelItems.isNotEmpty() &&
-                                panelGridHeightPx + with(density) { WidgetEditOverhang.roundToPx() } >
-                                scrollViewportHeightPx
-                        if (panelOverflows) {
-                            Spacer(modifier = Modifier.height(WidgetPanelBottomScrollSpace))
                         }
                     }
+                    WidgetPanelPageIndicator(
+                        pageCount = pager.pageCount,
+                        currentPage = pager.targetPage,
+                        modifier =
+                            Modifier
+                                .align(Alignment.CenterEnd)
+                                // Centered in the screen's side padding, clear of the widgets.
+                                .offset(x = DesignTokens.ContentHorizontalPadding / 2 + WidgetPanelPageIndicatorHalfWidth),
+                    )
+                  }
                 }
             }
+
+            WidgetPanelPageZones(pager)
 
             if (showPicker && restoredWidgetIdsValidated && layoutLocked == false) {
                 WidgetPickerSheet(
@@ -654,7 +701,7 @@ internal fun WidgetsPanelScreen(
                             if (ownerId != null && widgets.any { it.isOwner(ownerId, onHome = false) }) {
                                 preferences.addQuickNoteToStack(ownerId)
                             } else {
-                                preferences.addQuickNote()
+                                placeNewPanelWidget(preferences.addQuickNote(), QUICK_NOTE_PANEL_WIDGET_ID)
                             },
                         )
                         editingWidgetId = null

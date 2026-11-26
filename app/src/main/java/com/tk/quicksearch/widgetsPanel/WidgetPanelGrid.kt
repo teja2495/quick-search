@@ -1,95 +1,57 @@
 package com.tk.quicksearch.widgetsPanel
 
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.heading
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.AppShapes
-import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.togetherWith
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalIconToggleButton
-import androidx.compose.material3.IconButtonColors
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PlainTooltip
-import androidx.compose.material3.Text
-import androidx.compose.material3.TooltipAnchorPosition
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.minimumInteractiveComponentSize
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.platform.LocalView
+import com.tk.quicksearch.shared.util.hapticGestureThreshold
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
-import androidx.compose.runtime.withFrameNanos
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.tk.quicksearch.R
 import com.tk.quicksearch.search.searchScreen.LocalFrostedCardSource
-import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.homeTextColor
-import kotlin.math.floor
 import kotlin.math.roundToInt
 import com.tk.quicksearch.shared.ui.theme.AppMotion
-import com.tk.quicksearch.shared.ui.components.AppTonalButton
-import com.tk.quicksearch.shared.ui.components.AppIconButton
-import com.tk.quicksearch.shared.ui.components.AppIconButtonStyle
 
 internal tailrec fun Context.findActivity(): Activity? =
     when (this) {
@@ -98,135 +60,38 @@ internal tailrec fun Context.findActivity(): Activity? =
         else -> null
     }
 
-@Composable
-internal fun WidgetsPanelHeader(
-    inEditMode: Boolean,
-    layoutLocked: Boolean?,
-    onLayoutLockChange: (Boolean) -> Unit,
-    onAddWidget: () -> Unit,
-    onExitEditMode: () -> Unit,
-) {
-    val foreground = homeTextColor()
-    val actionColors = IconButtonDefaults.filledTonalIconButtonColors(
-        containerColor = foreground.copy(alpha = AppColors.TintLightAlpha),
-        contentColor = foreground,
-        disabledContainerColor = foreground.copy(alpha = AppColors.TintFaintAlpha),
-        disabledContentColor = foreground.copy(alpha = AppColors.DisabledContentAlpha),
-    )
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = DesignTokens.SpacingSmall),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = stringResource(R.string.widgets_panel_title),
-            style = MaterialTheme.typography.headlineSmall,
-            color = foreground,
-            modifier = Modifier.weight(1f).semantics { heading() },
-        )
-        if (!inEditMode && layoutLocked != null) {
-            WidgetLayoutLockButton(
-                locked = layoutLocked,
-                actionColors = actionColors,
-                onCheckedChange = onLayoutLockChange,
-            )
-            Spacer(modifier = Modifier.width(DesignTokens.SpacingXSmall))
-        }
-        // Swap the add button for Done with a fade and springy scale instead of a hard cut.
-        AnimatedContent(
-            targetState = inEditMode,
-            transitionSpec = {
-                (fadeIn(tween(HEADER_ACTION_FADE_MS, easing = AppMotion.EmphasizedDecelerateEasing)) +
-                    scaleIn(initialScale = HEADER_ACTION_INITIAL_SCALE, animationSpec = AppMotion.fastSpatial()))
-                    .togetherWith(fadeOut(tween(HEADER_ACTION_FADE_MS, easing = AppMotion.EmphasizedAccelerateEasing)))
-                    .using(SizeTransform(clip = false))
-            },
-            contentAlignment = Alignment.CenterEnd,
-            label = "widgetPanelHeaderAction",
-        ) { editing ->
-            if (editing) {
-                AppTonalButton(
-                    onClick = onExitEditMode,
-                    tone = AppButtonTone.Custom(foreground),
-                    icon = MaterialSymbols.Check,
-                ) {
-                    Text(text = stringResource(R.string.dialog_done))
-                }
-            } else {
-                AppIconButton(
-                    onClick = onAddWidget,
-                    tooltip = stringResource(R.string.common_action_add),
-                    style = AppIconButtonStyle.Tonal,
-                    enabled = layoutLocked == false,
-                    modifier = Modifier.size(DesignTokens.Spacing40),
-                    colors = actionColors,
-                ) {
-                    Icon(
-                        imageVector = MaterialSymbols.Add,
-                        contentDescription = stringResource(R.string.common_action_add),
-                        modifier = Modifier.size(DesignTokens.IconSize),
-                    )
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun WidgetLayoutLockButton(
-    locked: Boolean,
-    actionColors: IconButtonColors,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    val lockLabel = stringResource(R.string.widgets_panel_lock_layout)
-    val tooltip = if (locked) stringResource(R.string.widgets_panel_unlock_layout) else lockLabel
-    TooltipBox(
-        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
-        tooltip = { PlainTooltip { Text(tooltip) } },
-        state = rememberTooltipState(),
-    ) {
-        FilledTonalIconToggleButton(
-            checked = locked,
-            onCheckedChange = onCheckedChange,
-            modifier = Modifier.minimumInteractiveComponentSize().size(DesignTokens.Spacing40),
-            colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
-                containerColor = actionColors.containerColor,
-                contentColor = actionColors.contentColor,
-                checkedContainerColor = actionColors.containerColor,
-                checkedContentColor = actionColors.contentColor,
-            ),
-        ) {
-            Icon(
-                imageVector = if (locked) MaterialSymbols.Lock else MaterialSymbols.LockOpen,
-                contentDescription = tooltip,
-                modifier = Modifier.size(DesignTokens.IconSize),
-            )
-        }
-    }
-}
-
-private const val HostedWidgetOverscanRows = 2
+/** Pages hosted beyond those in view, so a slide doesn't wait on widget views to inflate. */
+private const val HostedWidgetOverscanPages = 1
 
 private class WidgetMovePreview {
     private var widgetId: Int? = null
+    private var page = 0
     private var column = 0
     private var row = 0
 
+    /** The last requested cell, with its row unclamped, so a page turn can place the widget again. */
+    var lastRequest: Triple<Int, Int, Int>? = null
+        private set
+
     fun reset() {
         widgetId = null
+        lastRequest = null
     }
 
-    fun update(appWidgetId: Int, targetColumn: Int, targetRow: Int): Boolean {
-        if (widgetId == appWidgetId && column == targetColumn && row == targetRow) return false
+    fun request(appWidgetId: Int, targetColumn: Int, requestedRow: Int) {
+        lastRequest = Triple(appWidgetId, targetColumn, requestedRow)
+    }
+
+    fun update(appWidgetId: Int, targetPage: Int, targetColumn: Int, targetRow: Int): Boolean {
+        if (widgetId == appWidgetId && page == targetPage && column == targetColumn && row == targetRow) return false
         widgetId = appWidgetId
+        page = targetPage
         column = targetColumn
         row = targetRow
         return true
     }
 }
 
-private const val HEADER_ACTION_FADE_MS = AppMotion.DurationExit
-private const val HEADER_ACTION_INITIAL_SCALE = 0.85f
 
 @Composable
 internal fun WidgetPanelGrid(
@@ -238,9 +103,10 @@ internal fun WidgetPanelGrid(
     editingWidgetId: Int?,
     layoutEditingEnabled: Boolean,
     density: Density,
-    panelScrollState: ScrollState,
-    viewportTopPx: Float,
+    pager: WidgetPanelPagerState,
     viewportHeightPx: Int,
+    /** Space above the grid on the first page; every page is [WidgetPanelPagerState.pageHeightPx] tall. */
+    topInset: Dp,
     onPersist: (List<PanelWidgetInfo>) -> Unit,
     onSetEditingWidgetId: (Int?) -> Unit,
     onWidgetTouch: (Int) -> Boolean,
@@ -288,13 +154,25 @@ internal fun WidgetPanelGrid(
                 }
             }
 
+        val pageRows = pager.pageRows
         val laidOut =
-            remember(widgets, specs) { resolveWidgetGridLayout(widgets, specs) }
+            remember(widgets, specs, pageRows) { resolveWidgetGridLayout(widgets, specs, pageRows) }
         // Snapshot at entry: once shown, a kept view is attached and no longer reported as kept.
         val keptViewIds = remember(appWidgetHost) { appWidgetHost.keptViewIds() }
 
+        // When the widgets on the page in view are all removed, that page closes (unless it's the
+        // first) and the panel goes to the page before it.
+        val previousLaidOut = remember { arrayOf(laidOut) }
         LaunchedEffect(laidOut) {
+            val before = previousLaidOut[0]
+            previousLaidOut[0] = laidOut
             if (laidOut != widgets) onPersist(laidOut)
+            val viewPage = pager.targetPage
+            if (viewPage == 0 || pager.dragZones.isNotEmpty()) return@LaunchedEffect
+            val idsOnPage = before.filter { it.pageOrZero() == viewPage }.map { it.appWidgetId }
+            if (idsOnPage.isNotEmpty() && idsOnPage.none { id -> laidOut.any { it.appWidgetId == id } }) {
+                pager.animateToPage(viewPage - 1)
+            }
         }
 
         var liveLayout by remember { mutableStateOf<List<PanelWidgetInfo>?>(null) }
@@ -302,25 +180,131 @@ internal fun WidgetPanelGrid(
         val movePreview = remember(laidOut) { WidgetMovePreview() }
         var hostDragStart by remember { mutableStateOf<PanelWidgetInfo?>(null) }
         var quickNoteDragStart by remember { mutableStateOf<PanelWidgetInfo?>(null) }
-        // Scroll offset captured when a host drag begins, so the drag target can compensate for any
-        // auto-scroll and keep the widget under the finger (the host path works in screen coords).
-        var scrollAtDragStart by remember { mutableIntStateOf(0) }
-        // Window Y of the grid content box, used to locate the dragged widget for edge auto-scroll.
-        var gridTopPx by remember { mutableFloatStateOf(Float.NaN) }
-        var dragMaxRow by remember { mutableIntStateOf(Int.MAX_VALUE) }
+        val scope = rememberCoroutineScope()
+        val view = LocalView.current
 
         val currentLaidOut by rememberUpdatedState(laidOut)
+        val restingPageCount = (laidOut.maxOfOrNull { it.pageOrZero() } ?: 0) + 1
 
-        fun previewMove(appWidgetId: Int, column: Int, row: Int) {
-            if (movePreview.update(appWidgetId, column, row)) {
-                liveLayout = moveWidgetToCell(laidOut, appWidgetId, column, row)
+        /**
+         * Shows [appWidgetId] at [column] and [requestedRow] on the page in view. A row above or
+         * below the page lights the page zone on that edge instead.
+         */
+        fun previewMove(appWidgetId: Int, column: Int, requestedRow: Int) {
+            val widget = laidOut.firstOrNull { it.appWidgetId == appWidgetId } ?: return
+            movePreview.request(appWidgetId, column, requestedRow)
+            val page = pager.targetPage
+            val maxRow = (pageRows - (widget.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN)).coerceAtLeast(0)
+            val othersOnPage = laidOut.any { it.appWidgetId != appWidgetId && it.pageOrZero() == page }
+            val zones =
+                buildSet {
+                    if (page > 0) add(WidgetPanelPageZone.Previous)
+                    if (page + 1 < restingPageCount) {
+                        add(WidgetPanelPageZone.Next)
+                    } else if (othersOnPage) {
+                        // A widget alone on the last page has nowhere new to go.
+                        add(WidgetPanelPageZone.NewPage)
+                    }
+                }
+            pager.dragZones = zones
+            pager.hoveredZone =
+                when {
+                    requestedRow < 0 -> WidgetPanelPageZone.Previous.takeIf { it in zones }
+                    requestedRow > maxRow -> zones.firstOrNull { it != WidgetPanelPageZone.Previous }
+                    else -> null
+                }
+            if (pager.hoveredZone != null) {
+                // Over a page zone the widget leaves the grid and reaches into the zone, one row past
+                // the page's edge; the rest of the page goes back to how it was. Dropping it there
+                // moves it to that page.
+                movePreview.update(appWidgetId, page, column, requestedRow.coerceIn(-1, maxRow + 1))
+                liveLayout =
+                    laidOut.map {
+                        if (it.appWidgetId == appWidgetId) {
+                            it.copy(column = column, row = requestedRow.coerceIn(-1, maxRow + 1))
+                        } else {
+                            it
+                        }
+                    }
+                return
             }
+            val row = requestedRow.coerceIn(0, maxRow)
+            if (movePreview.update(appWidgetId, page, column, row)) {
+                liveLayout =
+                    resolveWidgetGridLayout(
+                        moveWidgetToCell(laidOut, appWidgetId, column, row, targetPage = page),
+                        specs,
+                        pageRows,
+                        compactPages = false,
+                    )
+            }
+        }
+
+        /**
+         * Saves the previewed layout, dropping pages it left empty. A widget dropped on a page zone
+         * moves to that page while the panel stays on the page in view.
+         */
+        fun finishInteraction() {
+            val final = liveLayout
+            val droppedZone = pager.hoveredZone
+            val droppedId = movePreview.lastRequest?.first
+            liveLayout = null
+            movePreview.reset()
+            pager.clearDragZones()
+            if (final == null) return
+            val moved =
+                if (droppedZone != null && droppedId != null) {
+                    // Leave the rest of the page as it was before the drag.
+                    laidOut.withPanelWidgetMovedToPage(droppedId, droppedZone, pager.targetPage, pageRows)
+                } else {
+                    final
+                }
+            val settled = resolveWidgetGridLayout(moved, specs, pageRows)
+            if (settled != laidOut) onPersist(settled)
+            // Keep the page in view on screen when pages before it were added or removed.
+            val viewPage = pager.targetPage
+            val anchorId = laidOut.firstOrNull { it.appWidgetId != droppedId && it.pageOrZero() == viewPage }?.appWidgetId
+            // A page the dropped widget left empty closes, so the panel follows the widget instead.
+            val keptPage =
+                anchorId?.let { id -> settled.firstOrNull { it.appWidgetId == id }?.pageOrZero() }
+                    ?: settled.firstOrNull { it.appWidgetId == droppedId }?.pageOrZero()?.takeIf { droppedZone != null }
+                    ?: viewPage.coerceAtMost(settled.maxOfOrNull { it.pageOrZero() } ?: 0)
+            if (keptPage != viewPage) {
+                scope.launch {
+                    // Wait a frame so the panel has grown to fit an added page.
+                    withFrameNanos { }
+                    pager.jumpToPage(keptPage)
+                }
+            }
+        }
+
+        fun moveByStep(appWidgetId: Int, columnDelta: Int, rowDelta: Int): Boolean {
+            val next = moveWidgetByStep(laidOut, appWidgetId, columnDelta, rowDelta) ?: return false
+            val moved = next.firstOrNull { it.appWidgetId == appWidgetId } ?: return false
+            if ((moved.row ?: 0) + (moved.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN) > pageRows) return false
+            onPersist(resolveWidgetGridLayout(next, specs, pageRows))
+            return true
+        }
+
+        fun previewResize(appWidgetId: Int, resize: WidgetGridResize) {
+            liveLayout =
+                resolveWidgetGridLayout(
+                    resizeWidgetInGrid(liveLayout ?: laidOut, appWidgetId, resize.withinPage(pageRows), specs),
+                    specs,
+                    pageRows,
+                    compactPages = false,
+                )
+        }
+
+        // A tick when the dragged widget enters a page zone, where dropping it moves it there.
+        val hoveredZone = pager.hoveredZone
+        LaunchedEffect(hoveredZone) {
+            if (hoveredZone != null) hapticGestureThreshold(view, true)
         }
 
         val currentGridUnitWidthPx by rememberUpdatedState(gridUnitWidthPx)
         val currentHorizontalSign by rememberUpdatedState(horizontalSign)
         val currentGridUnitHeightPx by rememberUpdatedState(gridUnitHeightPx)
-        val currentOnPersist by rememberUpdatedState(onPersist)
         val currentOnSetEditing by rememberUpdatedState(onSetEditingWidgetId)
         val currentOnWidgetTouch by rememberUpdatedState(onWidgetTouch)
 
@@ -330,9 +314,7 @@ internal fun WidgetPanelGrid(
             val nextColumn =
                 ((start.column ?: 0) + (totalDragX * horizontalSign / gridUnitWidthPx).roundToInt())
                     .coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - columnSpan)
-            val nextRow =
-                ((start.row ?: 0) + (totalDragY / gridUnitHeightPx).roundToInt())
-                    .coerceIn(0, dragMaxRow)
+            val nextRow = (start.row ?: 0) + (totalDragY / gridUnitHeightPx).roundToInt()
             previewMove(start.appWidgetId, nextColumn, nextRow)
         }
 
@@ -344,8 +326,6 @@ internal fun WidgetPanelGrid(
                     if (widget != null) {
                         movePreview.reset()
                         hostDragStart = widget
-                        dragMaxRow = panelDragMaxRow(laidOut, widget, viewportTopPx + viewportHeightPx - gridTopPx, gridUnitHeightPx)
-                        scrollAtDragStart = panelScrollState.value
                         currentOnSetEditing(widget.appWidgetId)
                     }
                 }
@@ -355,119 +335,57 @@ internal fun WidgetPanelGrid(
             appWidgetHost.onWidgetDragMove = { pageId, dx, dy ->
                 val start = hostDragStart
                 if (start != null && pageId in start.pageIds) {
-                    val id = start.appWidgetId
                     val columnSpan = start.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN
-                    // Fold the auto-scroll distance into the vertical delta so the widget keeps
-                    // tracking the finger as the page scrolls under it.
-                    val scrollDelta = (panelScrollState.value - scrollAtDragStart).toFloat()
+                    // Every page sits at the same place on screen, so a page turn needs no
+                    // correction: the row is always counted from the top of the page in view.
                     val nextColumn =
                         ((start.column ?: 0) + (dx * currentHorizontalSign / currentGridUnitWidthPx).roundToInt())
                             .coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - columnSpan)
-                    val nextRow =
-                        ((start.row ?: 0) + ((dy + scrollDelta) / currentGridUnitHeightPx).roundToInt())
-                            .coerceIn(0, dragMaxRow)
-                    previewMove(id, nextColumn, nextRow)
+                    val nextRow = (start.row ?: 0) + (dy / currentGridUnitHeightPx).roundToInt()
+                    previewMove(start.appWidgetId, nextColumn, nextRow)
                 }
             }
             appWidgetHost.onWidgetDragEnd = { _ ->
-                val final = liveLayout
-                liveLayout = null
                 hostDragStart = null
-                movePreview.reset()
-                if (final != null && final != currentLaidOut) currentOnPersist(final)
+                finishInteraction()
             }
             appWidgetHost.onWidgetTouch = { pageId ->
                 currentOnWidgetTouch(currentLaidOut.stackOwnerOf(pageId)?.appWidgetId ?: pageId)
             }
         }
 
-        // Auto-scroll the panel while a widget is being dragged near the viewport's top/bottom edge
-        // so the dragged widget stays visible. Speed ramps with how far past the edge margin it is.
-        val currentDisplayLayout by rememberUpdatedState(displayLayout)
-        val currentEditingWidgetId by rememberUpdatedState(editingWidgetId)
-        val currentViewportTopPx by rememberUpdatedState(viewportTopPx)
-        val currentViewportHeightPx by rememberUpdatedState(viewportHeightPx)
         val isDragging = liveLayout != null
-        LaunchedEffect(isDragging) {
-            if (!isDragging) return@LaunchedEffect
-            val edgeMarginPx = with(density) { rowHeight.toPx() }
-            while (true) {
-                withFrameNanos {}
-                val viewportHeight = currentViewportHeightPx
-                if (viewportHeight <= 0 || gridTopPx.isNaN()) continue
-                val draggedId = currentEditingWidgetId ?: continue
-                val dragged =
-                    currentDisplayLayout.firstOrNull { it.appWidgetId == draggedId } ?: continue
-                val row = dragged.row ?: 0
-                val rowSpan = dragged.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN
-                val widgetTopPx = gridTopPx + with(density) { ((rowHeight + gap) * row).toPx() }
-                val widgetHeightPx =
-                    with(density) { (rowHeight * rowSpan + gap * (rowSpan - 1)).toPx() }
-                val widgetBottomPx = widgetTopPx + widgetHeightPx
-                val viewportTop = currentViewportTopPx
-                val viewportBottom = viewportTop + viewportHeight
-                val maxStep = viewportHeight / 45f
-                val overshootBottom = widgetBottomPx - (viewportBottom - edgeMarginPx)
-                val overshootTop = (viewportTop + edgeMarginPx) - widgetTopPx
-                val step =
-                    when {
-                        overshootBottom > 0f ->
-                            (overshootBottom / edgeMarginPx).coerceIn(0f, 1f) * maxStep
-                        overshootTop > 0f ->
-                            -((overshootTop / edgeMarginPx).coerceIn(0f, 1f) * maxStep)
-                        else -> 0f
-                    }
-                if (step != 0f) panelScrollState.scrollBy(step)
-            }
-        }
-
-        val hostedRows by remember(gridUnitHeightPx) {
-            // All slots keep their geometry. Scroll changes only invalidate this reader when
-            // the buffered row range changes.
+        val currentViewportHeightPx by rememberUpdatedState(viewportHeightPx)
+        val hostedPages by remember(pager) {
+            // Scroll changes only invalidate this reader when the range of pages in view changes.
             derivedStateOf(structuralEqualityPolicy()) {
-                if (currentViewportHeightPx <= 0 || gridTopPx.isNaN()) {
-                    IntRange.EMPTY
-                } else {
-                    val topRow = floor((currentViewportTopPx - gridTopPx) / gridUnitHeightPx).toInt()
-                    val bottomRow =
-                        floor(
-                            (currentViewportTopPx + currentViewportHeightPx - gridTopPx) / gridUnitHeightPx,
-                        ).toInt()
-                    (topRow - HostedWidgetOverscanRows)..(bottomRow + HostedWidgetOverscanRows)
-                }
+                val visible = pager.visiblePages(currentViewportHeightPx)
+                (visible.first - HostedWidgetOverscanPages)..(visible.last + HostedWidgetOverscanPages)
             }
         }
 
-        // Keep the pre-drag height while dragging; shrinking clamps the scroll, which reads as auto-scroll.
-        val rows =
-            (if (isDragging) displayLayout + laidOut else displayLayout).maxOfOrNull { widget ->
-                (widget.row ?: 0) + (widget.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN)
-            } ?: 0
-        val panelHeight =
-            if (rows <= 0) 0.dp else rowHeight * rows + gap * (rows - 1)
-        val animatedPanelHeight by
-            animateDpAsState(
-                targetValue = panelHeight,
-                animationSpec = WidgetLayoutMotion,
-                label = "widgetPanelHeight",
+        // Keep the pre-drag page count while dragging, so the page the widget left stays in place.
+        val pageCount =
+            maxOf(
+                restingPageCount,
+                if (isDragging) (displayLayout.maxOfOrNull { it.pageOrZero() } ?: 0) + 1 else 0,
             )
+        SideEffect { pager.pageCount = pageCount }
+        val pageHeight = with(density) { pager.pageHeightPx.toDp() }
+        // The grid starts below the page's top overhang, which the scroll content pads in.
+        val panelHeight = (pageHeight * pageCount - topInset).coerceAtLeast(0.dp)
 
         Box(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(animatedPanelHeight)
-                    .onGloballyPositioned { coordinates ->
-                        gridTopPx = coordinates.localToWindow(Offset.Zero).y
-                    },
+                    .height(panelHeight),
         ) {
+          CompositionLocalProvider(LocalWidgetPanelPageHeight provides pageHeight) {
             displayLayout.forEach { widget ->
                 key(widget.appWidgetId) {
                     val isEditing = editingWidgetId == widget.appWidgetId
-                    val firstRow = widget.row ?: 0
-                    val lastRow = firstRow + (widget.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN) - 1
-                    val isNearViewport =
-                        !hostedRows.isEmpty() && firstRow <= hostedRows.last && lastRow >= hostedRows.first
+                    val isNearViewport = widget.pageOrZero() in hostedPages
                     // Views kept from an earlier entry are already inflated, so they show during the
                     // slide; only new views wait for the page to settle.
                     val canHost = showHostedWidgets || widget.appWidgetId in keptViewIds
@@ -486,22 +404,10 @@ internal fun WidgetPanelGrid(
                             gridUnitWidthPx = gridUnitWidthPx,
                             gridUnitHeightPx = gridUnitHeightPx,
                             onEdit = { onSetEditingWidgetId(widget.appWidgetId) },
-                            onMoveBy = move@{ columnDelta, rowDelta ->
-                                val next = moveWidgetByStep(laidOut, widget.appWidgetId, columnDelta, rowDelta)
-                                    ?: return@move false
-                                onPersist(next)
-                                true
-                            },
+                            onMoveBy = { columnDelta, rowDelta -> moveByStep(widget.appWidgetId, columnDelta, rowDelta) },
                             onMovePreview = { c, r -> previewMove(widget.appWidgetId, c, r) },
-                            onResizePreview = { resize ->
-                                liveLayout = resizeWidgetInGrid(liveLayout ?: laidOut, widget.appWidgetId, resize, specs)
-                            },
-                            onInteractionEnd = {
-                                val final = liveLayout
-                                liveLayout = null
-                                movePreview.reset()
-                                if (final != null && final != laidOut) onPersist(final)
-                            },
+                            onResizePreview = { resize -> previewResize(widget.appWidgetId, resize) },
+                            onInteractionEnd = ::finishInteraction,
                             onEditEnd = { onSetEditingWidgetId(null) },
                         )
                     } else if (widget.panelFolderId == null) {
@@ -521,30 +427,12 @@ internal fun WidgetPanelGrid(
                             gridUnitHeightPx = gridUnitHeightPx,
                             spec = specs[widget.appWidgetId],
                             onEdit = { onSetEditingWidgetId(widget.appWidgetId) },
-                            onMoveBy = move@{ columnDelta, rowDelta ->
-                                val next = moveWidgetByStep(laidOut, widget.appWidgetId, columnDelta, rowDelta)
-                                    ?: return@move false
-                                onPersist(next)
-                                true
-                            },
+                            onMoveBy = { columnDelta, rowDelta -> moveByStep(widget.appWidgetId, columnDelta, rowDelta) },
                             onMovePreview = { targetColumn, targetRow ->
                                 previewMove(widget.appWidgetId, targetColumn, targetRow)
                             },
-                            onResizePreview = { resize ->
-                                liveLayout =
-                                    resizeWidgetInGrid(
-                                        widgets = liveLayout ?: laidOut,
-                                        appWidgetId = widget.appWidgetId,
-                                        resize = resize,
-                                        specs = specs,
-                                    )
-                            },
-                            onInteractionEnd = {
-                                val final = liveLayout
-                                liveLayout = null
-                                movePreview.reset()
-                                if (final != null && final != laidOut) onPersist(final)
-                            },
+                            onResizePreview = { resize -> previewResize(widget.appWidgetId, resize) },
+                            onInteractionEnd = ::finishInteraction,
                             onRemove = { pageId -> onRemoveWidget(widget, pageId) },
                             onConfigure = { intent -> onConfigureWidget(widget, intent) },
                             onPinToHome = { onPinWidgetToHome(widget) },
@@ -553,18 +441,14 @@ internal fun WidgetPanelGrid(
                             onQuickNoteDragStart = {
                                 movePreview.reset()
                                 quickNoteDragStart = widget
-                                dragMaxRow = panelDragMaxRow(laidOut, widget, viewportTopPx + viewportHeightPx - gridTopPx, gridUnitHeightPx)
                                 onSetEditingWidgetId(widget.appWidgetId)
                             },
                             onQuickNoteDrag = { totalDragX, totalDragY ->
                                 moveQuickNoteBy(totalDragX, totalDragY)
                             },
                             onQuickNoteDragEnd = {
-                                val final = liveLayout
-                                liveLayout = null
                                 quickNoteDragStart = null
-                                movePreview.reset()
-                                if (final != null && final != laidOut) onPersist(final)
+                                finishInteraction()
                             },
                             onQuickNoteFocusChanged = onQuickNoteFocusChanged,
                             stackIndicatorRevealKey = stackIndicatorRevealKey,
@@ -572,6 +456,7 @@ internal fun WidgetPanelGrid(
                     }
                 }
             }
+          }
         }
     }
 }
@@ -617,7 +502,7 @@ private fun BoxScope.WidgetPanelGridItem(
     val width = cellWidth * columnSpan + gap * (columnSpan - 1)
     val height = rowHeight * rowSpan + gap * (rowSpan - 1)
     val x = (cellWidth + gap) * column
-    val y = (rowHeight + gap) * row
+    val y = widgetPanelPageOffset(widget) + (rowHeight + gap) * row
 
     // Animate each grid-step update, including the widget being edited, so resizing and the
     // resulting reflow feel continuous instead of snapping between row/column boundaries.

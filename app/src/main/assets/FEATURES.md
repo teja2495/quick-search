@@ -135,6 +135,7 @@ Available when Quick Search is set as your launcher.
 ### Widgets
 
 - **Widgets Panel** - A side panel inside Quick Search for your home-screen widgets and Quick Note. You don't need to set Quick Search as your launcher; open it with a swipe gesture. Use the lock button to lock the layout so widgets can't be moved or resized by accident.
+- **Widgets Panel Pages** - Spread your widgets across multiple pages and swipe up or down to move between them. Drag a widget to the top or bottom edge to move it to the previous or next page, or drop it on **New Page** at the bottom of the last page to start a new one.
 - **Add Widgets to Home** - Long-press a widget in the Widgets Panel to pin it to Home, or long-press an empty area on Home and choose **Widgets** from the popup menu. Long-press a widget on Home to move it above or below other Home items, resize it, or remove it.
 - **Move Folders Between Home and the Widgets Panel** - Long-press a pinned folder on Home and select **Move to Widget Panel**. To move it back, long-press the folder in the Widgets Panel and select **Move to Home Screen**.
 - **Search Widget** - Tap to open Quick Search. Supports a mic button and up to 2 custom buttons.

@@ -1232,6 +1232,9 @@
     <string name="widget_decrease_height">Reducir la altura</string>
     <string name="widgets_panel_lock_layout">Bloquear diseño</string>
     <string name="widgets_panel_unlock_layout">Desbloquear diseño</string>
+    <string name="widgets_panel_page_zone_previous">Página anterior</string>
+    <string name="widgets_panel_page_zone_next">Página siguiente</string>
+    <string name="widgets_panel_page_zone_new">Página nueva</string>
     <string name="widgets_picker_empty">No se encontraron widgets.</string>
     <string name="widgets_picker_preview_unavailable">Vista previa no disponible</string>
     <string name="widgets_picker_title">Añadir widget</string>

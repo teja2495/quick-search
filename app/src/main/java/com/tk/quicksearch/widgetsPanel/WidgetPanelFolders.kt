@@ -223,7 +223,11 @@ internal fun BoxScope.FolderPanelGridItem(
     val width = cellWidth * columnSpan + gap * (columnSpan - 1)
     val height = rowHeight * rowSpan + gap * (rowSpan - 1)
     val animatedX by animateDpAsState((cellWidth + gap) * column, WidgetLayoutMotion, label = "folderTileX")
-    val animatedY by animateDpAsState((rowHeight + gap) * row, WidgetLayoutMotion, label = "folderTileY")
+    val animatedY by animateDpAsState(
+        widgetPanelPageOffset(widget) + (rowHeight + gap) * row,
+        WidgetLayoutMotion,
+        label = "folderTileY",
+    )
     val animatedWidth by animateDpAsState(width, WidgetLayoutMotion, label = "folderTileWidth")
     val animatedHeight by animateDpAsState(height, WidgetLayoutMotion, label = "folderTileHeight")
     val editScale by animateFloatAsState(
@@ -260,7 +264,8 @@ internal fun BoxScope.FolderPanelGridItem(
                 onMovePreview(
                     (startColumn + (dragX * horizontalSign / gridUnitWidthPx).roundToInt())
                         .coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - columnSpan),
-                    (startRow + (dragY / gridUnitHeightPx).roundToInt()).coerceAtLeast(0),
+                    // Left unclamped: a row past the page edge asks to change page.
+                    startRow + (dragY / gridUnitHeightPx).roundToInt(),
                 )
             },
             onPinnedDragEnd = {

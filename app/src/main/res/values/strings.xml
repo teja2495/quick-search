@@ -1279,6 +1279,9 @@
     <string name="widget_decrease_height">Decrease height</string>
     <string name="widgets_panel_lock_layout">Lock layout</string>
     <string name="widgets_panel_unlock_layout">Unlock layout</string>
+    <string name="widgets_panel_page_zone_previous">Previous page</string>
+    <string name="widgets_panel_page_zone_next">Next page</string>
+    <string name="widgets_panel_page_zone_new">New page</string>
     <string name="widgets_picker_empty">No widgets found.</string>
     <string name="widgets_picker_preview_unavailable">Preview unavailable</string>
     <string name="widgets_picker_title">Add Widget</string>

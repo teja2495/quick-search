@@ -118,7 +118,7 @@ internal fun BoxScope.QuickNotePanelGridItem(
     val width = cellWidth * columnSpan + gap * (columnSpan - 1)
     val height = rowHeight * rowSpan + gap * (rowSpan - 1)
     val x = (cellWidth + gap) * column
-    val y = (rowHeight + gap) * row
+    val y = widgetPanelPageOffset(widget) + (rowHeight + gap) * row
     val animatedY by
         animateDpAsState(targetValue = y, animationSpec = WidgetLayoutMotion, label = "quickNoteWidgetY")
     val animatedHeight by
@@ -465,9 +465,8 @@ internal fun BoxScope.WidgetEditOverlay(
                                 val nextColumn =
                                     (startColumn + (totalDragX / gridUnitWidthPx).roundToInt())
                                         .coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - widgetColumnSpan)
-                                val nextRow =
-                                    (startRow + (totalDragY / gridUnitHeightPx).roundToInt())
-                                        .coerceAtLeast(0)
+                                // Left unclamped: a row past the page edge asks to change page.
+                                val nextRow = startRow + (totalDragY / gridUnitHeightPx).roundToInt()
                                 onMovePreview(nextColumn, nextRow)
                             },
                             onDragEnd = { onInteractionEnd() },

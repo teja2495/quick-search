@@ -16,6 +16,8 @@ data class PanelWidgetInfo(
     val row: Int? = null,
     val columnSpan: Int? = null,
     val rowSpan: Int? = null,
+    /** Page of the widgets panel this widget is on; [row] counts from that page's top. Null is the first page. */
+    val panelPage: Int? = null,
     /** True for a widgets panel record; false for a Home record. */
     val isInPanel: Boolean = true,
     /**
@@ -81,6 +83,7 @@ internal fun List<PanelWidgetInfo>.withHomeWidgetMovedToPanel(ownerId: Int): Lis
             home = null,
             column = null,
             row = null,
+            panelPage = null,
             columnSpan = home.columnSpan,
             rowSpan = home.rowSpan,
         )
@@ -290,6 +293,7 @@ class WidgetsPanelPreferences(
                                 row = item.optGridInt(FIELD_ROW),
                                 columnSpan = item.optGridInt(FIELD_COLUMN_SPAN),
                                 rowSpan = item.optGridInt(FIELD_ROW_SPAN),
+                                panelPage = item.optGridInt(FIELD_PANEL_PAGE),
                                 isInPanel = item.optBoolean(FIELD_IS_IN_PANEL, true),
                                 home = item.optJSONObject(FIELD_HOME)?.toHomePlacement(),
                                 stack = item.optJSONArray(FIELD_STACK)?.toStackedWidgets().orEmpty(),
@@ -323,6 +327,7 @@ class WidgetsPanelPreferences(
                         widget.row?.let { put(FIELD_ROW, it) }
                         widget.columnSpan?.let { put(FIELD_COLUMN_SPAN, it) }
                         widget.rowSpan?.let { put(FIELD_ROW_SPAN, it) }
+                        widget.panelPage?.takeIf { it > 0 }?.let { put(FIELD_PANEL_PAGE, it) }
                         if (!widget.isInPanel) put(FIELD_IS_IN_PANEL, false)
                         widget.home?.let { put(FIELD_HOME, it.toJson()) }
                         if (widget.stack.isNotEmpty()) put(FIELD_STACK, widget.stack.toJson())
@@ -472,6 +477,7 @@ class WidgetsPanelPreferences(
         const val FIELD_ROW = "row"
         const val FIELD_COLUMN_SPAN = "columnSpan"
         const val FIELD_ROW_SPAN = "rowSpan"
+        const val FIELD_PANEL_PAGE = "panelPage"
         const val FIELD_HOME = "home"
         const val FIELD_STACK = "stack"
         const val KEY_QUICK_NOTE_COLUMN = "quick_note_widget_column"

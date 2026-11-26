@@ -1232,6 +1232,9 @@
     <string name="widget_decrease_height">Μείωση ύψους</string>
     <string name="widgets_panel_lock_layout">Κλείδωμα διάταξης</string>
     <string name="widgets_panel_unlock_layout">Ξεκλείδωμα διάταξης</string>
+    <string name="widgets_panel_page_zone_previous">Προηγούμενη σελίδα</string>
+    <string name="widgets_panel_page_zone_next">Επόμενη σελίδα</string>
+    <string name="widgets_panel_page_zone_new">Νέα σελίδα</string>
     <string name="widgets_picker_empty">Δεν βρέθηκαν widgets.</string>
     <string name="widgets_picker_preview_unavailable">Η προεπισκόπηση δεν είναι διαθέσιμη</string>
     <string name="widgets_picker_title">Προσθήκη widget</string>

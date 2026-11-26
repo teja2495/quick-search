@@ -1231,6 +1231,9 @@
 <string name="widget_decrease_height">Yüksekliği azalt</string>
 <string name="widgets_panel_lock_layout">Düzeni kilitle</string>
 <string name="widgets_panel_unlock_layout">Düzenin kilidini aç</string>
+<string name="widgets_panel_page_zone_previous">Önceki sayfa</string>
+<string name="widgets_panel_page_zone_next">Sonraki sayfa</string>
+<string name="widgets_panel_page_zone_new">Yeni sayfa</string>
 <string name="widgets_picker_empty">Widget bulunamadı.</string>
 <string name="widgets_picker_preview_unavailable">Önizleme mevcut değil</string>
 <string name="widgets_picker_title">Widget ekle</string>

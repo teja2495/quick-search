@@ -1232,6 +1232,9 @@
     <string name="widget_decrease_height">ऊँचाई घटाएँ</string>
     <string name="widgets_panel_lock_layout">लेआउट लॉक करें</string>
     <string name="widgets_panel_unlock_layout">लेआउट अनलॉक करें</string>
+    <string name="widgets_panel_page_zone_previous">पिछला पेज</string>
+    <string name="widgets_panel_page_zone_next">अगला पेज</string>
+    <string name="widgets_panel_page_zone_new">नया पेज</string>
     <string name="widgets_picker_empty">कोई विजेट नहीं मिला।</string>
     <string name="widgets_picker_preview_unavailable">प्रीव्यू उपलब्ध नहीं</string>
     <string name="widgets_picker_title">विजेट जोड़ें</string>

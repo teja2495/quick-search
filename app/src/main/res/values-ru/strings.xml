@@ -1262,6 +1262,9 @@
 <string name="widget_decrease_height">Уменьшить высоту</string>
 <string name="widgets_panel_lock_layout">Заблокировать расположение</string>
 <string name="widgets_panel_unlock_layout">Разблокировать расположение</string>
+<string name="widgets_panel_page_zone_previous">Предыдущая страница</string>
+<string name="widgets_panel_page_zone_next">Следующая страница</string>
+<string name="widgets_panel_page_zone_new">Новая страница</string>
 <string name="widgets_picker_empty">Виджеты не найдены.</string>
 <string name="widgets_picker_preview_unavailable">Превью недоступно</string>
 <string name="widgets_picker_title">Добавить виджет</string>

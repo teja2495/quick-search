@@ -1232,6 +1232,9 @@
     <string name="widget_decrease_height">ఎత్తు తగ్గించండి</string>
     <string name="widgets_panel_lock_layout">లేఅవుట్‌ను లాక్ చేయండి</string>
     <string name="widgets_panel_unlock_layout">లేఅవుట్‌ను అన్‌లాక్ చేయండి</string>
+    <string name="widgets_panel_page_zone_previous">మునుపటి పేజీ</string>
+    <string name="widgets_panel_page_zone_next">తదుపరి పేజీ</string>
+    <string name="widgets_panel_page_zone_new">కొత్త పేజీ</string>
     <string name="widgets_picker_empty">విడ్జెట్‌లు ఏవీ కనుగొనబడలేదు.</string>
     <string name="widgets_picker_preview_unavailable">ప్రివ్యూ అందుబాటులో లేదు</string>
     <string name="widgets_picker_title">విడ్జెట్‌ను జోడించండి</string>
