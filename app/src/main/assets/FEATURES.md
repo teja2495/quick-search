@@ -78,6 +78,7 @@ Type an alias before your query to tell Quick Search what you want to do.
 
 - **Search Section Aliases** - Search only one section, such as apps, app shortcuts, contacts, files, or device settings. For contacts and files, this also runs a deeper search.
 - **Search Engine Aliases** - Search a specific engine by typing its alias (e.g. `ggl` for Google). Aliases also work at the end of a query; press space to trigger them.
+- **Multiple Aliases** - Give the same section, search engine, or tool more than one alias.
 - **Tool Aliases** - Set aliases to switch the search bar into a tool's mode, such as calculator, date & time calculator, currency converter, dictionary, or weather (`wtr` by default).
 - **Empty Alias** - Type just an alias to see items from that section without a query: recently opened items, your files, contacts, and settings (upcoming events for calendar).
 
@@ -101,7 +102,7 @@ Type an alias before your query to tell Quick Search what you want to do.
 
 Long-press on most results to open a context menu with quick actions.
 
-- **Triggers** - Add a trigger phrase to a result. Type the trigger and press space to open that result instantly.
+- **Triggers** - Add one or more trigger phrases to a result. Type a trigger and press space to open that result instantly.
 - **Pin / Unpin** - Pin apps, app shortcuts, contacts, files, and device settings to Home. Drag pinned items to reorder them, or long-press and tap **Move Up** / **Move Down**. Tap a pinned section header to expand or collapse it.
 - **Pin to Notification Panel** - Pin a result to the notification panel, either grouped with other items or in its own notification.
 - **Nicknames** - Give apps, app shortcuts, contacts, files, and device settings one or more custom names to search by.

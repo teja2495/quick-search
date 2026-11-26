@@ -5,6 +5,7 @@
 - More theme options
 - New Widget for Reminders
 - Pause SpeedBump for 5, 15, or 30 minutes
+- Support for multiple aliases and triggers for the same item
 - Lock widgets to prevent accidental changes
 - Option to change corner radius of app icons
 - Performance improvements and bug fixes
