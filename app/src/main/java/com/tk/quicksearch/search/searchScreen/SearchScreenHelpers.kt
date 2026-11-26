@@ -148,7 +148,7 @@ private fun AppsSectionParams.activeHomeSuggestionTab(): AppSuggestionTabType? {
                 add(AppSuggestionTabType.NEW_UPDATED)
             }
             val hasPinnedGridItems =
-                pinnedApps.isNotEmpty() || pinnedGridAppShortcuts.isNotEmpty() || appFolders.isNotEmpty()
+                pinnedApps.isNotEmpty() || pinnedGridAppShortcuts.isNotEmpty() || appFolders.any { !it.inWidgetsPanel }
             if (hasPinnedGridItems && AppSuggestionTabType.PINNED in enabledSuggestionTabs) {
                 add(AppSuggestionTabType.PINNED)
             }

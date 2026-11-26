@@ -29,7 +29,7 @@ internal class SearchVisibilityStateResolver {
             state.query.isBlank() &&
                 state.recentApps.isEmpty() &&
                 state.pinnedApps.isEmpty() &&
-                state.appFolders.isEmpty() ->
+                state.appFolders.all { it.inWidgetsPanel } ->
                 ScreenVisibilityState.Empty
             else -> ScreenVisibilityState.Content
         }
@@ -44,7 +44,7 @@ internal class SearchVisibilityStateResolver {
                 val hasContent =
                     state.recentApps.isNotEmpty() ||
                         state.pinnedApps.isNotEmpty() ||
-                        state.appFolders.isNotEmpty() ||
+                        state.appFolders.any { !it.inWidgetsPanel } ||
                         (state.showAllAppsButton && state.allApps.any { it.hasLaunchIntent })
                 if (hasContent) {
                     AppsSectionVisibility.ShowingResults(hasPinned = state.pinnedApps.isNotEmpty())

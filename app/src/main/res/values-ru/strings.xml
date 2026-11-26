@@ -121,6 +121,7 @@
 <string name="settings_gesture_widget_panel">Панель виджетов</string>
 <string name="widget_pinned_to_home">Добавлено на главный экран</string>
 <string name="widget_move_to_panel">Переместить на панель виджетов</string>
+<string name="folder_move_to_home_screen">Переместить на главный экран</string>
 <string name="widget_moved_to_panel">Перемещено на панель виджетов</string>
 <string name="settings_gesture_swipe_left">Смахивание влево</string>
 <string name="settings_gesture_swipe_up">Смахивание вверх</string>

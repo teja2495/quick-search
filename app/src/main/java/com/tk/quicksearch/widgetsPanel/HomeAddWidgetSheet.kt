@@ -113,7 +113,7 @@ internal fun HomeStackReorderSheet(
                 val next = preferences.removeStackPage(owner.appWidgetId, pageId, onHome = true)
                 // A Home widget saved before Home kept its own instances can share its id with a
                 // panel widget; that id stays bound while the panel shows it.
-                if (!isQuickNotePage(pageId) && !next.referencesWidgetId(pageId)) host.deleteAppWidgetId(pageId)
+                if (!isBuiltInPanelPage(pageId) && !next.referencesWidgetId(pageId)) host.deleteAppWidgetId(pageId)
                 HomePinnedWidgetsStore.publish(next)
                 // Removing the first page hands the stack to the next one; a stack left with one
                 // page is a plain widget, which closes the drawer.

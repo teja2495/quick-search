@@ -42,7 +42,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -65,9 +64,12 @@ import com.tk.quicksearch.search.apps.swipeGestures.AppSwipeDirection
 import com.tk.quicksearch.search.apps.swipeGestures.AppSwipeGestures
 import com.tk.quicksearch.search.apps.swipeGestures.rememberSwipeActions
 import com.tk.quicksearch.search.apps.swipeGestures.swipeGestures
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
-import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDefaults
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
+import com.tk.quicksearch.shared.ui.components.ItemMenuRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -83,6 +85,7 @@ private const val FolderPreviewIconScale = 0.34f
 private const val FolderPreviewGapScale = 0.03f
 private const val FolderMergeTargetScale = 1.12f
 private val FolderBorderWidth = 1.dp
+// Matches the app icon in an app's long-press menu header.
 
 /** Folders are always round, whatever the app icon shape. */
 internal val FolderBackdropShape: Shape = AppShapes.full
@@ -120,6 +123,7 @@ internal fun FolderGridItem(
         onPinnedDragStart: (() -> Unit)? = null,
         onPinnedDrag: ((Float, Float) -> Unit)? = null,
         onPinnedDragEnd: ((Boolean) -> Unit)? = null,
+        onMoveToWidgetsPanel: (() -> Unit)? = null,
 ) {
     val view = LocalView.current
     val sizeScale = UiPreferences.appIconSizeScale(appIconSizeStep)
@@ -261,62 +265,113 @@ internal fun FolderGridItem(
             }
             if (showLabel) {
                 AppLabelText(
-                        appName = folder.name,
+                        appName = folderLabel,
                         isOverlayPresentation = isOverlayPresentation,
                 )
             }
         }
 
-        FolderOptionsDropdown(
-                folderKey = folder.folder.gridKey,
-                folderLabel = folderLabel,
+        val dismissOptions = { showOptions = false }
+        FolderItemMenu(
+                folder = folder,
                 expanded = showOptions,
-                onDismiss = { showOptions = false },
+                onDismiss = dismissOptions,
                 onDelete = onDelete,
+                rows =
+                        listOfNotNull(
+                                onMoveToWidgetsPanel?.let { move ->
+                                    moveFolderToWidgetsPanelRow(onDismiss = dismissOptions, onMove = move)
+                                },
+                        ),
         )
     }
 }
 
-/** Long-press options for a folder tile: its Swipe Up / Swipe Down actions, and Delete. */
+/**
+ * Long-press menu for a folder tile: the same compact dropdown as calendar events, anchored to the
+ * tile, with the folder's Swipe Up / Swipe Down actions ([showSwipeGestures]), [rows] such as
+ * moving the folder, and Delete.
+ */
 @Composable
-private fun FolderOptionsDropdown(
-        folderKey: String,
-        folderLabel: String,
+internal fun FolderItemMenu(
+        folder: ResolvedAppFolder,
         expanded: Boolean,
         onDismiss: () -> Unit,
         onDelete: () -> Unit,
+        rows: List<ItemMenuRow>,
+        showSwipeGestures: Boolean = true,
 ) {
+    val folderKey = folder.folder.gridKey
+    val folderLabel = folder.name.ifBlank { stringResource(R.string.excluded_item_type_folder) }
     val (swipeUpAction, swipeDownAction) = rememberSwipeActions(folderKey)
-    AppDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = onDismiss,
-            offset = DpOffset(x = 0.dp, y = 8.dp),
-            containerColor = AppDropdownMenuDefaults.itemMenuContainerColor,
-    ) {
-        listOf(
-                Triple(AppSwipeDirection.UP, R.string.settings_gesture_swipe_up, swipeUpAction),
-                Triple(AppSwipeDirection.DOWN, R.string.settings_gesture_swipe_down, swipeDownAction),
-        ).forEach { (direction, labelRes, assignedAction) ->
-            AppDropdownMenuItem(
-                    text = stringResource(labelRes),
-                    icon = if (direction == AppSwipeDirection.UP) MaterialSymbols.SwipeUp else MaterialSymbols.SwipeDown,
-                    iconTint = if (assignedAction != null) AppColors.ItemMenuActiveIconTint else null,
+    val swipeItems =
+            if (showSwipeGestures) {
+                listOf(
+                        Triple(AppSwipeDirection.UP, R.string.settings_gesture_swipe_up, swipeUpAction),
+                        Triple(AppSwipeDirection.DOWN, R.string.settings_gesture_swipe_down, swipeDownAction),
+                ).map { (direction, labelRes, assignedAction) ->
+                    ItemMenuRow(
+                            label = stringResource(labelRes),
+                            icon = {
+                                Icon(
+                                        imageVector =
+                                                if (direction == AppSwipeDirection.UP) {
+                                                    MaterialSymbols.SwipeUp
+                                                } else {
+                                                    MaterialSymbols.SwipeDown
+                                                },
+                                        contentDescription = null,
+                                        tint =
+                                                if (assignedAction != null) {
+                                                    AppColors.ItemMenuActiveIconTint
+                                                } else {
+                                                    LocalContentColor.current
+                                                },
+                                )
+                            },
+                            onClick = {
+                                onDismiss()
+                                AppSwipeGestures.requestPicker(folderKey, folderLabel, direction)
+                            },
+                    )
+                }
+            } else {
+                emptyList()
+            }
+    val deleteItem =
+            ItemMenuRow(
+                    label = stringResource(R.string.dialog_delete),
+                    icon = { Icon(imageVector = MaterialSymbols.DeleteOutline, contentDescription = null) },
                     onClick = {
                         onDismiss()
-                        AppSwipeGestures.requestPicker(folderKey, folderLabel, direction)
+                        onDelete()
                     },
+                    destructive = true,
+            )
+    AppDropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
+        (swipeItems + rows + deleteItem).forEachIndexed { index, item ->
+            if (index > 0) AppDropdownMenuDivider()
+            AppDropdownMenuItem(
+                    text = item.label,
+                    leadingIcon = item.icon,
+                    onClick = item.onClick,
+                    destructive = item.destructive,
             )
         }
-        AppDropdownMenuItem(
-                text = stringResource(R.string.dialog_delete),
-                icon = MaterialSymbols.DeleteOutline,
-                onClick = {
-                    onDismiss()
-                    onDelete()
-                },
-        )
     }
 }
+
+/** The folder menu's "Move to Widget Panel" row. */
+@Composable
+internal fun moveFolderToWidgetsPanelRow(onDismiss: () -> Unit, onMove: () -> Unit): ItemMenuRow =
+        ItemMenuRow(
+                label = stringResource(R.string.widget_move_to_panel),
+                icon = { Icon(imageVector = MaterialSymbols.Widgets, contentDescription = null) },
+                onClick = {
+                    onDismiss()
+                    onMove()
+                },
+        )
 
 /** Round folder backdrop with a 2×2 preview of the first four member icons. */
 @Composable
@@ -362,7 +417,7 @@ internal fun FolderPreviewIcon(
 }
 
 @Composable
-private fun FolderPreviewMemberIcon(
+internal fun FolderPreviewMemberIcon(
         member: AppFolderMember,
         size: Dp,
         iconPackPackage: String?,

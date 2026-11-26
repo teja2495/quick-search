@@ -125,6 +125,7 @@
     <string name="settings_gesture_widget_panel">Widgetpaneel</string>
     <string name="widget_pinned_to_home">Toegevoegd aan Start</string>
     <string name="widget_move_to_panel">Naar widgetpaneel verplaatsen</string>
+    <string name="folder_move_to_home_screen">Verplaatsen naar startscherm</string>
     <string name="widget_moved_to_panel">Naar widgetpaneel verplaatst</string>
     <string name="settings_gesture_swipe_left">Naar links vegen</string>
     <string name="settings_gesture_swipe_up">Omhoog vegen</string>

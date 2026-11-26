@@ -257,6 +257,15 @@ internal interface SearchViewModelManagementApi {
     fun deleteAppFolder(folderId: String, orderKeys: List<String>) =
         managementApiDelegate.folderManager.deleteFolder(folderId, orderKeys)
 
+    fun moveAppFolderToWidgetsPanel(folderId: String, orderKeys: List<String>) =
+        managementApiDelegate.folderManager.moveFolderToWidgetsPanel(folderId, orderKeys)
+
+    fun moveAppFolderToHome(folderId: String) =
+        managementApiDelegate.folderManager.moveFolderToHome(folderId)
+
+    fun deleteWidgetsPanelAppFolder(folderId: String) =
+        managementApiDelegate.folderManager.deleteWidgetsPanelFolder(folderId)
+
     fun excludeAppShortcut(shortcut: StaticShortcut) = managementApiDelegate.excludeAppShortcut(shortcut)
 
     fun setAppShortcutNickname(shortcut: StaticShortcut, nickname: String?) =

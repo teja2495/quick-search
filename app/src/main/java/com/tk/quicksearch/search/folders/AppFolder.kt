@@ -18,6 +18,8 @@ data class AppFolder(
     val memberKeys: List<String> = emptyList(),
     /** User-picked ARGB color, or null for the default backdrop. Shown as a theme-adjusted tone. */
     val color: Int? = null,
+    /** Shown as a tile in the Widgets panel instead of in the Home Pinned tab. */
+    val inWidgetsPanel: Boolean = false,
 ) {
     val gridKey: String get() = folderGridKey(id)
 }
@@ -44,6 +46,10 @@ data class ResolvedAppFolder(
     val name: String get() = folder.name
     val color: Int? get() = folder.color
 }
+
+/** Folders shown in the Home Pinned tab, leaving out those moved to the Widgets panel. */
+fun List<AppFolder>.homeFolders(): List<AppFolder> =
+    if (none { it.inWidgetsPanel }) this else filterNot { it.inWidgetsPanel }
 
 fun appFolderMemberKey(app: AppInfo): String = "$APP_MEMBER_PREFIX${app.launchCountKey()}"
 

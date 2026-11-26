@@ -138,6 +138,42 @@ class FolderManager(
         commitOrder(orderAfterDeletingFolder(orderKeys, folder.gridKey, restoredGridKeys))
     }
 
+    /** Moves the folder out of the Pinned tab into the Widgets panel, which shows it as a tile. */
+    fun moveFolderToWidgetsPanel(
+        folderId: String,
+        orderKeys: List<String>,
+    ) {
+        val folders = userPreferences.getAppFolders()
+        val folder = folders.firstOrNull { it.id == folderId && !it.inWidgetsPanel } ?: return
+        saveFolders(folders.map { if (it.id == folderId) it.copy(inWidgetsPanel = true) else it })
+        commitOrder(orderKeys.filterNot { it == folder.gridKey })
+    }
+
+    /** Moves a Widgets panel folder back to the end of the Pinned tab. */
+    fun moveFolderToHome(folderId: String) {
+        val folders = userPreferences.getAppFolders()
+        val folder = folders.firstOrNull { it.id == folderId && it.inWidgetsPanel } ?: return
+        saveFolders(folders.map { if (it.id == folderId) it.copy(inWidgetsPanel = false) else it })
+        // Without a saved order, the Pinned tab already puts unordered folders last.
+        val order = userPreferences.getPinnedAppGridOrder()
+        if (order.isNotEmpty()) commitOrder(order.filterNot { it == folder.gridKey } + folder.gridKey)
+    }
+
+    /**
+     * Deletes a Widgets panel folder. Its members return to the end of the Pinned tab, since the
+     * folder had no place there.
+     */
+    fun deleteWidgetsPanelFolder(folderId: String) {
+        val folders = userPreferences.getAppFolders()
+        val folder = folders.firstOrNull { it.id == folderId && it.inWidgetsPanel } ?: return
+        saveFolders(folders.filterNot { it.id == folderId })
+        val restoredGridKeys =
+            folder.memberKeys.filter(::pinMember).mapNotNull(::memberKeyToGridKey)
+        // Without a saved order, newly pinned items already go last.
+        val order = userPreferences.getPinnedAppGridOrder()
+        if (order.isNotEmpty()) commitOrder(orderAfterDeletingFolder(order, folder.gridKey, restoredGridKeys))
+    }
+
     /**
      * Reorders the folder's members to [memberKeys]. Keys no longer in the folder are ignored, and
      * members missing from [memberKeys] (e.g. unavailable ones) keep their place at the end.

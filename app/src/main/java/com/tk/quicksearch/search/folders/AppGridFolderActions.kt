@@ -14,4 +14,5 @@ data class AppGridFolderActions(
     val onRenameFolder: (folderId: String, name: String) -> Unit,
     val onSetFolderColor: (folderId: String, color: Int?) -> Unit,
     val onDeleteFolder: (folderId: String, orderKeys: List<String>) -> Unit,
+    val onMoveFolderToWidgetsPanel: (folderId: String, orderKeys: List<String>) -> Unit = { _, _ -> },
 )

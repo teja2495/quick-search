@@ -451,7 +451,7 @@ class WidgetsPanelPreferences(
             }
         val (removed, next) = updated.partition { !it.isInPanel && it.home == null }
         setWidgets(next)
-        return removed.flatMap { it.pageIds }.filterNot { isQuickNotePage(it) || next.referencesWidgetId(it) }
+        return removed.flatMap { it.pageIds }.filterNot { isBuiltInPanelPage(it) || next.referencesWidgetId(it) }
     }
 
     /** Moves a Home widget (with its stack) to the panel. Returns the updated widget list. */

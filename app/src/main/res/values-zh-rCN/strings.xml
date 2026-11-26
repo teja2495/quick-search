@@ -121,6 +121,7 @@
     <string name="settings_gesture_widget_panel">小部件面板</string>
     <string name="widget_pinned_to_home">已添加到主页</string>
     <string name="widget_move_to_panel">移至小部件面板</string>
+    <string name="folder_move_to_home_screen">移至主屏幕</string>
     <string name="widget_moved_to_panel">已移至小部件面板</string>
     <string name="settings_gesture_swipe_left">向左滑动</string>
     <string name="settings_gesture_swipe_up">向上滑动</string>

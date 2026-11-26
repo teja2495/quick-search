@@ -407,7 +407,7 @@ internal fun BoxScope.WidgetEditOverlay(
     onRemove: () -> Unit,
     onConfigure: () -> Unit,
     onPinToHome: () -> Unit,
-    onAddToStack: () -> Unit,
+    onAddToStack: (() -> Unit)?,
     onReorderStack: (() -> Unit)? = null,
 ) {
     val horizontalSign = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1 else 1

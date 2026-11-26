@@ -522,6 +522,7 @@ private fun NavigationContent(
                             onNavigateToSearch = navigateToSearch,
                             uiState = uiState,
                             appWidgetHost = widgetsPanelHost,
+                            folderActions = com.tk.quicksearch.widgetsPanel.rememberWidgetPanelFolderActions(viewModel),
                         )
                     }
 

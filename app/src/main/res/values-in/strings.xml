@@ -122,6 +122,7 @@
     <string name="settings_gesture_widget_panel">Panel Widget</string>
     <string name="widget_pinned_to_home">Ditambahkan ke Beranda</string>
     <string name="widget_move_to_panel">Pindahkan ke Panel Widget</string>
+    <string name="folder_move_to_home_screen">Pindahkan ke Layar Utama</string>
     <string name="widget_moved_to_panel">Dipindahkan ke Panel Widget</string>
     <string name="settings_gesture_swipe_left">Geser ke Kiri</string>
     <string name="settings_gesture_swipe_up">Geser ke Atas</string>

@@ -122,6 +122,7 @@
     <string name="settings_gesture_widget_panel">ウィジェットパネル</string>
     <string name="widget_pinned_to_home">ホームに追加しました</string>
     <string name="widget_move_to_panel">ウィジェットパネルに移動</string>
+    <string name="folder_move_to_home_screen">ホーム画面に移動</string>
     <string name="widget_moved_to_panel">ウィジェットパネルに移動しました</string>
     <string name="settings_gesture_swipe_left">左にスワイプ</string>
     <string name="settings_gesture_swipe_up">上にスワイプ</string>

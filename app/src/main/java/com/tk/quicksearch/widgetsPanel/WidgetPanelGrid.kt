@@ -251,6 +251,7 @@ internal fun WidgetPanelGrid(
     onAddToStack: (PanelWidgetInfo, WidgetStackFit) -> Unit,
     onReorderStack: (PanelWidgetInfo) -> Unit,
     modifier: Modifier = Modifier,
+    folderTiles: PanelFolderTiles? = null,
     /** Bumped to flash every stack's page indicator, such as when the panel comes into view. */
     stackIndicatorRevealKey: Int = 0,
 ) {
@@ -272,6 +273,8 @@ internal fun WidgetPanelGrid(
                             .map { id ->
                                 if (isQuickNotePage(id)) {
                                     QuickNoteGridSpec
+                                } else if (isFolderPanelPage(id)) {
+                                    FolderTileGridSpec
                                 } else {
                                     widgetMinGridSpec(appWidgetHost.providerInfo(id), density, cellWidth.value)
                                 }
@@ -465,69 +468,104 @@ internal fun WidgetPanelGrid(
                     // Views kept from an earlier entry are already inflated, so they show during the
                     // slide; only new views wait for the page to settle.
                     val canHost = showHostedWidgets || widget.appWidgetId in keptViewIds
-                    WidgetPanelGridItem(
-                        widget = widget,
-                        isNearViewport = isNearViewport,
-                        showHostedWidget = canHost && (isNearViewport || isEditing),
-                        appWidgetManager = appWidgetManager,
-                        appWidgetHost = appWidgetHost,
-                        widgetContentAvailable = widgetContentAvailable,
-                        isEditing = isEditing,
-                        layoutEditingEnabled = layoutEditingEnabled,
-                        cellWidth = cellWidth,
-                        rowHeight = rowHeight,
-                        gap = gap,
-                        gridUnitWidthPx = gridUnitWidthPx,
-                        gridUnitHeightPx = gridUnitHeightPx,
-                        spec = specs[widget.appWidgetId],
-                        onEdit = { onSetEditingWidgetId(widget.appWidgetId) },
-                        onMoveBy = move@{ columnDelta, rowDelta ->
-                            val next = moveWidgetByStep(laidOut, widget.appWidgetId, columnDelta, rowDelta)
-                                ?: return@move false
-                            onPersist(next)
-                            true
-                        },
-                        onMovePreview = { targetColumn, targetRow ->
-                            previewMove(widget.appWidgetId, targetColumn, targetRow)
-                        },
-                        onResizePreview = { resize ->
-                            liveLayout =
-                                resizeWidgetInGrid(
-                                    widgets = liveLayout ?: laidOut,
-                                    appWidgetId = widget.appWidgetId,
-                                    resize = resize,
-                                    specs = specs,
-                                )
-                        },
-                        onInteractionEnd = {
-                            val final = liveLayout
-                            liveLayout = null
-                            movePreview.reset()
-                            if (final != null && final != laidOut) onPersist(final)
-                        },
-                        onRemove = { pageId -> onRemoveWidget(widget, pageId) },
-                        onConfigure = { intent -> onConfigureWidget(widget, intent) },
-                        onPinToHome = { onPinWidgetToHome(widget) },
-                        onAddToStack = { onAddToStack(widget, it) },
-                        onReorderStack = { onReorderStack(widget) },
-                        onQuickNoteDragStart = {
-                            movePreview.reset()
-                            quickNoteDragStart = widget
-                            onSetEditingWidgetId(widget.appWidgetId)
-                        },
-                        onQuickNoteDrag = { totalDragX, totalDragY ->
-                            moveQuickNoteBy(totalDragX, totalDragY)
-                        },
-                        onQuickNoteDragEnd = {
-                            val final = liveLayout
-                            liveLayout = null
-                            quickNoteDragStart = null
-                            movePreview.reset()
-                            if (final != null && final != laidOut) onPersist(final)
-                        },
-                        onQuickNoteFocusChanged = onQuickNoteFocusChanged,
-                        stackIndicatorRevealKey = stackIndicatorRevealKey,
-                    )
+                    val folder = widget.panelFolderId?.let { folderTiles?.folders?.get(it) }
+                    if (folderTiles != null && folder != null) {
+                        FolderPanelGridItem(
+                            widget = widget,
+                            folder = folder,
+                            appearance = folderTiles.appearance,
+                            actions = folderTiles.actions,
+                            isEditing = isEditing,
+                            layoutEditingEnabled = layoutEditingEnabled,
+                            cellWidth = cellWidth,
+                            rowHeight = rowHeight,
+                            gap = gap,
+                            gridUnitWidthPx = gridUnitWidthPx,
+                            gridUnitHeightPx = gridUnitHeightPx,
+                            onEdit = { onSetEditingWidgetId(widget.appWidgetId) },
+                            onMoveBy = move@{ columnDelta, rowDelta ->
+                                val next = moveWidgetByStep(laidOut, widget.appWidgetId, columnDelta, rowDelta)
+                                    ?: return@move false
+                                onPersist(next)
+                                true
+                            },
+                            onMovePreview = { c, r -> previewMove(widget.appWidgetId, c, r) },
+                            onResizePreview = { resize ->
+                                liveLayout = resizeWidgetInGrid(liveLayout ?: laidOut, widget.appWidgetId, resize, specs)
+                            },
+                            onInteractionEnd = {
+                                val final = liveLayout
+                                liveLayout = null
+                                movePreview.reset()
+                                if (final != null && final != laidOut) onPersist(final)
+                            },
+                            onEditEnd = { onSetEditingWidgetId(null) },
+                        )
+                    } else if (widget.panelFolderId == null) {
+                        WidgetPanelGridItem(
+                            widget = widget,
+                            isNearViewport = isNearViewport,
+                            showHostedWidget = canHost && (isNearViewport || isEditing),
+                            appWidgetManager = appWidgetManager,
+                            appWidgetHost = appWidgetHost,
+                            widgetContentAvailable = widgetContentAvailable,
+                            isEditing = isEditing,
+                            layoutEditingEnabled = layoutEditingEnabled,
+                            cellWidth = cellWidth,
+                            rowHeight = rowHeight,
+                            gap = gap,
+                            gridUnitWidthPx = gridUnitWidthPx,
+                            gridUnitHeightPx = gridUnitHeightPx,
+                            spec = specs[widget.appWidgetId],
+                            onEdit = { onSetEditingWidgetId(widget.appWidgetId) },
+                            onMoveBy = move@{ columnDelta, rowDelta ->
+                                val next = moveWidgetByStep(laidOut, widget.appWidgetId, columnDelta, rowDelta)
+                                    ?: return@move false
+                                onPersist(next)
+                                true
+                            },
+                            onMovePreview = { targetColumn, targetRow ->
+                                previewMove(widget.appWidgetId, targetColumn, targetRow)
+                            },
+                            onResizePreview = { resize ->
+                                liveLayout =
+                                    resizeWidgetInGrid(
+                                        widgets = liveLayout ?: laidOut,
+                                        appWidgetId = widget.appWidgetId,
+                                        resize = resize,
+                                        specs = specs,
+                                    )
+                            },
+                            onInteractionEnd = {
+                                val final = liveLayout
+                                liveLayout = null
+                                movePreview.reset()
+                                if (final != null && final != laidOut) onPersist(final)
+                            },
+                            onRemove = { pageId -> onRemoveWidget(widget, pageId) },
+                            onConfigure = { intent -> onConfigureWidget(widget, intent) },
+                            onPinToHome = { onPinWidgetToHome(widget) },
+                            onAddToStack = { onAddToStack(widget, it) },
+                            onReorderStack = { onReorderStack(widget) },
+                            onQuickNoteDragStart = {
+                                movePreview.reset()
+                                quickNoteDragStart = widget
+                                onSetEditingWidgetId(widget.appWidgetId)
+                            },
+                            onQuickNoteDrag = { totalDragX, totalDragY ->
+                                moveQuickNoteBy(totalDragX, totalDragY)
+                            },
+                            onQuickNoteDragEnd = {
+                                val final = liveLayout
+                                liveLayout = null
+                                quickNoteDragStart = null
+                                movePreview.reset()
+                                if (final != null && final != laidOut) onPersist(final)
+                            },
+                            onQuickNoteFocusChanged = onQuickNoteFocusChanged,
+                            stackIndicatorRevealKey = stackIndicatorRevealKey,
+                        )
+                    }
                 }
             }
         }

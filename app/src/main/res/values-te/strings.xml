@@ -121,6 +121,7 @@
     <string name="settings_gesture_widget_panel">విడ్జెట్ ప్యానెల్</string>
     <string name="widget_pinned_to_home">హోమ్‌కు జోడించబడింది</string>
     <string name="widget_move_to_panel">విడ్జెట్ ప్యానెల్‌కు తరలించు</string>
+    <string name="folder_move_to_home_screen">హోమ్ స్క్రీన్‌కు తరలించు</string>
     <string name="widget_moved_to_panel">విడ్జెట్ ప్యానెల్‌కు తరలించబడింది</string>
     <string name="settings_gesture_swipe_left">ఎడమకు స్వైప్ చేయండి</string>
     <string name="settings_gesture_swipe_up">పైకి స్వైప్ చేయండి</string>

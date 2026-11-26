@@ -38,6 +38,7 @@ import com.tk.quicksearch.search.folders.AppFolderMember
 import com.tk.quicksearch.search.folders.AppGridFolderActions
 import com.tk.quicksearch.search.folders.FolderContentsPopup
 import com.tk.quicksearch.search.folders.appFolderMemberKey
+import com.tk.quicksearch.search.folders.homeFolders
 import com.tk.quicksearch.search.folders.ResolvedAppFolder
 import com.tk.quicksearch.search.folders.resolveAppFolders
 import kotlin.math.min
@@ -117,7 +118,7 @@ fun AppGridView(
                 if (isSearching) {
                     emptyList()
                 } else {
-                    resolveAppFolders(appFolders, allApps, appShortcuts, disabledShortcutIds)
+                    resolveAppFolders(appFolders.homeFolders(), allApps, appShortcuts, disabledShortcutIds)
                 }
             }
     // Members are unpinned when moved into a folder; hiding them here too avoids a flash of their
@@ -400,6 +401,10 @@ fun AppGridView(
     val onDeletePinnedFolder: (ResolvedAppFolder) -> Unit = { folder ->
         folderActions?.onDeleteFolder?.invoke(folder.id, pinnedTabOrderKeys())
     }
+    val onMovePinnedFolderToWidgetsPanel: ((ResolvedAppFolder) -> Unit)? =
+            folderActions?.let { actions ->
+                { folder -> actions.onMoveFolderToWidgetsPanel(folder.id, pinnedTabOrderKeys()) }
+            }
     val shortcutsByPackage =
             remember(appShortcuts, disabledShortcutIds) { appShortcuts.enabledByPackage(disabledShortcutIds) }
     // Fade the suggestions grid (empty query) in when it first appears. It stays in its final
@@ -528,6 +533,7 @@ fun AppGridView(
                                 onMergeEntries = onMergePinnedEntries,
                                 onFolderClick = { openFolderId = it.id },
                                 onDeleteFolder = onDeletePinnedFolder,
+                                onMoveFolderToWidgetsPanel = onMovePinnedFolderToWidgetsPanel,
                         )
                     }
                 } else {
@@ -569,6 +575,7 @@ fun AppGridView(
                             onMergeEntries = onMergePinnedEntries,
                             onFolderClick = { openFolderId = it.id },
                             onDeleteFolder = onDeletePinnedFolder,
+                            onMoveFolderToWidgetsPanel = onMovePinnedFolderToWidgetsPanel,
                     )
                 }
                 if (shouldShowAllAppsButton) {

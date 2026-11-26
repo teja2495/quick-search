@@ -92,6 +92,7 @@ internal fun AppGrid(
         onMergeEntries: ((AppGridEntry, AppGridEntry, List<AppGridEntry>) -> Unit)? = null,
         onFolderClick: (ResolvedAppFolder) -> Unit = {},
         onDeleteFolder: (ResolvedAppFolder) -> Unit = {},
+        onMoveFolderToWidgetsPanel: ((ResolvedAppFolder) -> Unit)? = null,
         dropTarget: AppGridDropTarget? = null,
 ) {
     var displayedEntries by remember(reorderPinnedApps) { mutableStateOf(entries) }
@@ -548,6 +549,7 @@ internal fun AppGrid(
                                 folder = entry.folder,
                                 onClick = { onFolderClick(entry.folder) },
                                 onDelete = { onDeleteFolder(entry.folder) },
+                                onMoveToWidgetsPanel = onMoveFolderToWidgetsPanel?.let { move -> { move(entry.folder) } },
                                 iconPackPackage = iconPackPackage,
                                 showLabel = showAppLabels,
                                 isOverlayPresentation = isOverlayPresentation,
@@ -657,6 +659,7 @@ internal fun AppGrid(
                                     folder = entry.folder,
                                     onClick = { onFolderClick(entry.folder) },
                                     onDelete = { onDeleteFolder(entry.folder) },
+                                    onMoveToWidgetsPanel = onMoveFolderToWidgetsPanel?.let { move -> { move(entry.folder) } },
                                     iconPackPackage = iconPackPackage,
                                     showLabel = showAppLabels,
                                     isOverlayPresentation = isOverlayPresentation,

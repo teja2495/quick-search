@@ -121,6 +121,7 @@
     <string name="settings_gesture_widget_panel">Widget-Panel</string>
     <string name="widget_pinned_to_home">Zur Startseite hinzugefügt</string>
     <string name="widget_move_to_panel">Ins Widget-Panel verschieben</string>
+    <string name="folder_move_to_home_screen">Auf den Startbildschirm verschieben</string>
     <string name="widget_moved_to_panel">Ins Widget-Panel verschoben</string>
     <string name="settings_gesture_swipe_left">Nach links wischen</string>
     <string name="settings_gesture_swipe_up">Nach oben wischen</string>

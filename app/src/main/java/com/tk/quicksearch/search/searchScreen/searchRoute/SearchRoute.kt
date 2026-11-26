@@ -452,6 +452,7 @@ fun SearchRoute(
                         onRenameFolder = viewModel::renameAppFolder,
                         onSetFolderColor = viewModel::setAppFolderColor,
                         onDeleteFolder = viewModel::deleteAppFolder,
+                        onMoveFolderToWidgetsPanel = viewModel::moveAppFolderToWidgetsPanel,
                     )
                 },
             onSuggestionTabSelected = viewModel::setSelectedAppSuggestionTab,

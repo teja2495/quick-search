@@ -121,6 +121,7 @@
 <string name="settings_gesture_widget_panel">Panneau de widgets</string>
 <string name="widget_pinned_to_home">Ajouté à l\'accueil</string>
 <string name="widget_move_to_panel">Déplacer vers le panneau de widgets</string>
+<string name="folder_move_to_home_screen">Déplacer vers l’écran d’accueil</string>
 <string name="widget_moved_to_panel">Déplacé vers le panneau de widgets</string>
 <string name="settings_gesture_swipe_left">Balayer vers la gauche</string>
 <string name="settings_gesture_swipe_up">Balayer vers le haut</string>

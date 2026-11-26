@@ -155,6 +155,7 @@ internal fun WidgetsPanelScreen(
     uiState: SearchUiState,
     appWidgetHost: WidgetPanelHost,
     modifier: Modifier = Modifier,
+    folderActions: WidgetPanelFolderActions? = null,
 ) {
     val context = LocalContext.current
     val activity = remember(context) { context.findActivity() }
@@ -215,7 +216,7 @@ internal fun WidgetsPanelScreen(
     // Moves the widget (or stack) out of the panel onto Home; the panel and Home never share one.
     fun moveWidgetToHome(widget: PanelWidgetInfo) {
         // Home has no Quick Note.
-        if (widget.pageIds.any(::isQuickNotePage)) return
+        if (widget.pageIds.any(::isBuiltInPanelPage)) return
         persistWidgets(
             widgets.map { item ->
                 if (item.isOwner(widget.appWidgetId, onHome = false)) {
@@ -243,7 +244,7 @@ internal fun WidgetsPanelScreen(
         val next = preferences.removeStackPage(widget.appWidgetId, pageId)
         // Home widgets saved before the panel and Home kept separate instances can still share
         // an id with a panel widget; that id stays bound while Home shows it.
-        if (!isQuickNotePage(pageId) && !next.referencesWidgetId(pageId)) appWidgetHost.deleteAppWidgetId(pageId)
+        if (!isBuiltInPanelPage(pageId) && !next.referencesWidgetId(pageId)) appWidgetHost.deleteAppWidgetId(pageId)
         persistWidgets(next)
     }
 
@@ -303,13 +304,28 @@ internal fun WidgetsPanelScreen(
         // A restored ActivityResult can add a widget while this snapshot is loading.
         if (widgets.isEmpty()) widgets = storedWidgets
         // The Quick Note is not a hosted widget, so it has no provider to validate.
-        val storedIds = storedWidgets.flatMapTo(HashSet()) { it.pageIds }.filterNotTo(HashSet(), ::isQuickNotePage)
+        val storedIds = storedWidgets.flatMapTo(HashSet()) { it.pageIds }.filterNotTo(HashSet(), ::isBuiltInPanelPage)
         val invalidIds = storedIds - appWidgetHost.preloadProviderInfo(storedIds)
         if (invalidIds.isNotEmpty()) {
             invalidIds.forEach(appWidgetHost::removeSnapshot)
             persistWidgets(widgets.dropUnboundPages(invalidIds))
         }
         restoredWidgetIdsValidated = true
+    }
+
+    // The Search page, which hosts the swipe action picker, is disposed while the panel is shown.
+    if (folderActions != null && pageSettled) {
+        com.tk.quicksearch.search.apps.swipeGestures.AppSwipeGesturePickerHost(
+            searchState = uiState,
+            onQueryChange = folderActions.onQueryChange,
+        )
+    }
+
+    // Folders moved to the panel get a tile; folders moved Home or deleted lose theirs.
+    val panelFolders = rememberPanelFolders(uiState)
+    val panelFolderIds = remember(uiState.appFolders) { uiState.appFolders.filter { it.inWidgetsPanel }.map { it.id } }
+    LaunchedEffect(restoredWidgetIdsValidated, panelFolderIds) {
+        if (restoredWidgetIdsValidated) persistWidgets(widgets.withPanelFolders(panelFolderIds))
     }
 
     LaunchedEffect(appWidgetHost, panelScrollState) {
@@ -589,6 +605,10 @@ internal fun WidgetsPanelScreen(
                                     editingWidgetId = null
                                 },
                                 onPinWidgetToHome = ::moveWidgetToHome,
+                                folderTiles =
+                                    folderActions?.let {
+                                        PanelFolderTiles(panelFolders, uiState.panelFolderAppearance(), it)
+                                    },
                                 modifier = Modifier.fillMaxWidth(),
                                 stackIndicatorRevealKey = stackIndicatorRevealKey,
                             )
