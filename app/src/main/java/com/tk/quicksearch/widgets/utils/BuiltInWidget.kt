@@ -99,7 +99,7 @@ internal enum class BuiltInWidget(
         private val byReceiver = entries.associateBy { it.receiver.name }
         private val byVariant = entries.mapNotNull { widget -> widget.variant?.let { it to widget } }.toMap()
 
-        fun forReceiver(className: String?): BuiltInWidget? = byReceiver[className]
+        fun forReceiver(className: String?): BuiltInWidget? = className?.let { byReceiver[it] }
 
         fun forVariant(variant: WidgetVariant): BuiltInWidget = byVariant.getValue(variant)
     }
