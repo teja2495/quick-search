@@ -151,6 +151,9 @@ private data class HomeWidgetDrag(
     // Where every other widget sat when the drag began, measured from Home's anchored end, so
     // widgets in empty space hold still while the dragged one moves around them.
     val startDistances: Map<Int, Float>,
+    // Placements when the drag began; each move re-slots the dragged widget among these, so rows
+    // it passes through on the way are not left split.
+    val startWidgets: List<PanelWidgetInfo>,
 )
 
 /**
@@ -369,6 +372,7 @@ internal fun HomeWidgetStack(
                 startOriginY = stackOriginY,
                 startStackHeight = stackHeight,
                 startDistances = startDistances,
+                startWidgets = currentDisplayWidgets,
             )
         dragTargetIndex = -1
         draggedCurrentTop = startTop
@@ -384,8 +388,7 @@ internal fun HomeWidgetStack(
     ) {
         val active = drag ?: return
         dragOffsetY = totalDy
-        val current = liveWidgets ?: currentWidgets
-        val visual = homeLayoutEntries(currentLayoutOrder, currentIsReversed, current)
+        val visual = homeLayoutEntries(currentLayoutOrder, currentIsReversed, active.startWidgets)
         val draggedHeight = bounds[active.appWidgetId]?.height ?: 0
         // Rounded like the layout rounds it, so widgets holding still don't drift by a pixel per step.
         val stepPx = with(density) { HomeWidgetGapStep.roundToPx().toFloat() }
@@ -408,7 +411,35 @@ internal fun HomeWidgetStack(
                 break
             }
         }
-        targetIndex = clampHomeWidgetTargetIndex(others, targetIndex, currentIsReversed)
+        val heightOf = { key: Any -> bounds[key]?.height ?: 0 }
+        val unitWidth = gridUnitWidthPx[0]
+        val draggedHome = active.startWidgets.firstOrNull { it.appWidgetId == active.appWidgetId }?.home
+        val draggedColumnSpan = draggedHome?.columnSpan ?: WIDGET_PANEL_GRID_COLUMNS
+        val draggedColumn =
+            if (draggedHome == null || unitWidth <= 0f) {
+                draggedHome?.column ?: 0
+            } else {
+                (active.startColumn + (totalDx * horizontalSign / unitWidth).roundToInt())
+                    .coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - draggedColumnSpan)
+            }
+        // Level with a widget whose row has room at the dragged columns: join that row.
+        val joinIndex =
+            homeRowJoinIndex(
+                others = others,
+                isReversed = currentIsReversed,
+                heightOf = heightOf,
+                topOf = { key -> bounds[key]?.let { it.top + frameShift } },
+                centerY = draggedCenter,
+                column = draggedColumn,
+                columnSpan = draggedColumnSpan,
+            )?.takeIf { clampHomeWidgetTargetIndex(others, it, currentIsReversed) == it }
+        targetIndex =
+            joinIndex
+                ?: clampHomeWidgetTargetIndex(
+                    others,
+                    snapHomeInsertOutOfRows(others, currentIsReversed, heightOf, targetIndex),
+                    currentIsReversed,
+                )
         if (targetIndex != dragTargetIndex) {
             if (dragTargetIndex != -1) reorderEpoch++
             dragTargetIndex = targetIndex
@@ -417,7 +448,15 @@ internal fun HomeWidgetStack(
         // Widgets with only widgets beyond them can sit in empty space: the dragged one stays where
         // the finger leaves it, and the others hold their places unless it pushes them outward.
         // Between Home items there is no room to spare, and Home reflows as usual.
-        val reordered = moveHomeWidget(visual, active.appWidgetId, targetIndex, currentIsReversed)
+        val reordered =
+            moveHomeWidget(visual, active.appWidgetId, targetIndex, currentIsReversed).map { widget ->
+                val home = widget.home
+                if (widget.appWidgetId != active.appWidgetId || home == null) {
+                    widget
+                } else {
+                    widget.copy(home = home.copy(column = draggedColumn, sharesRow = joinIndex != null))
+                }
+            }
         val fingerDistance =
             if (currentIsReversed) active.startStackHeight - fingerTop - draggedHeight else fingerTop
         val gapsPx =
@@ -426,12 +465,12 @@ internal fun HomeWidgetStack(
                     homeGapSlots(
                         homeLayoutEntries(currentLayoutOrder, currentIsReversed, reordered),
                         currentIsReversed,
-                    ) { key -> bounds[key]?.height ?: 0 },
+                        heightOf,
+                    ),
                 spacingPx = with(density) { spacing.roundToPx() },
             ) { widgetId ->
                 if (widgetId == active.appWidgetId) fingerDistance else active.startDistances[widgetId]
             }
-        val unitWidth = gridUnitWidthPx[0]
         liveWidgets =
             reordered.map { widget ->
                 val home = widget.home ?: return@map widget
@@ -447,18 +486,8 @@ internal fun HomeWidgetStack(
                     } else {
                         null
                     }
-                val column =
-                    if (widget.appWidgetId != active.appWidgetId || unitWidth <= 0f) {
-                        home.column
-                    } else {
-                        (active.startColumn + (totalDx * horizontalSign / unitWidth).roundToInt())
-                            .coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - home.columnSpan)
-                    }
-                if (column == home.column && gapSteps == home.gapSteps && offsetSteps == home.offsetSteps) {
-                    widget
-                } else {
-                    widget.copy(home = home.copy(column = column, gapSteps = gapSteps, offsetSteps = offsetSteps))
-                }
+                val next = home.copy(gapSteps = gapSteps, offsetSteps = offsetSteps)
+                if (next == home) widget else widget.copy(home = next)
             }
     }
 
@@ -680,64 +709,28 @@ internal fun HomeWidgetStack(
         val spacingPx = spacing.roundToPx()
         val gapStepPx = HomeWidgetGapStep.roundToPx()
         val placeables = measurables.map { it.measure(childConstraints) }
-        // Widgets with only widgets beyond them in logical order hold their empty space; between
-        // Home items there is none. Sections with nothing to show take no room, so they don't
-        // count; leading and trailing content does. Keyed rather than positional: a widget whose
-        // provider is gone composes nothing, so entries and measured children don't line up.
+        // Keyed rather than positional: a widget whose provider is gone composes nothing, so
+        // entries and measured children don't line up.
         val placementsByKey =
             entries
                 .filterIsInstance<HomeLayoutEntry.Widget>()
                 .associate { it.key to it.widget.home }
-        val logicalIndices = if (isReversed) placeables.indices.reversed() else placeables.indices
-        val eligible =
-            homeGapEligible(
-                logicalIndices.map { index ->
-                    HomeGapSlot(placeables[index].height, measurables[index].layoutId as? Int)
-                },
+        val widgetIds = measurables.map { it.layoutId as? Int }
+        val stack =
+            placeHomeStack(
+                heights = IntArray(placeables.size) { placeables[it].height },
+                placements = widgetIds.map { id -> id?.let { placementsByKey[it] } },
+                widgetIds = widgetIds,
+                isReversed = isReversed,
+                spacingPx = spacingPx,
+                gapStepPx = gapStepPx,
             )
-        // Walk outward from the anchored end: a widget with an offset holds that distance and the
-        // content before it fills the empty space first, pushing it only once there is none left.
-        val gaps = IntArray(measurables.size)
-        var logicalY = 0
-        var hasVisibleLogical = false
-        logicalIndices.forEachIndexed { logicalIndex, index ->
-            val height = placeables[index].height
-            if (height > 0 && hasVisibleLogical) logicalY += min(height, spacingPx)
-            if (eligible[logicalIndex]) {
-                val placement = placementsByKey[measurables[index].layoutId]
-                val offset = placement?.offsetSteps
-                gaps[index] =
-                    if (offset != null) {
-                        (offset * gapStepPx - logicalY).coerceAtLeast(0)
-                    } else {
-                        (placement?.gapSteps ?: 0) * gapStepPx
-                    }
-                logicalY += gaps[index]
-            }
-            logicalY += height
-            if (height > 0) hasVisibleLogical = true
-        }
         appliedLegacyGaps.clear()
-        measurables.forEachIndexed { index, measurable ->
-            val id = measurable.layoutId as? Int ?: return@forEachIndexed
-            if (gaps[index] > 0 && placementsByKey[id]?.offsetSteps == null) appliedLegacyGaps += id
+        widgetIds.forEachIndexed { index, id ->
+            if (id != null && stack.gaps[index] > 0 && placementsByKey[id]?.offsetSteps == null) appliedLegacyGaps += id
         }
-        val positions = IntArray(placeables.size)
-        var y = 0
-        var hasVisibleChild = false
-        placeables.forEachIndexed { index, placeable ->
-            // Empty slots (sections with nothing to show) take no spacing. Growing children ease
-            // into the gap so height animations don't jump by the full spacing on their first frame.
-            if (placeable.height > 0 && hasVisibleChild) y += min(placeable.height, spacingPx)
-            // A widget's empty space sits before it in logical Home order: above it normally,
-            // below it once the layout is reversed for one-handed mode.
-            val gap = if (placeable.height > 0) gaps[index] else 0
-            if (!isReversed) y += gap
-            positions[index] = y
-            y += placeable.height
-            if (isReversed) y += gap
-            if (placeable.height > 0) hasVisibleChild = true
-        }
+        val positions = stack.positions
+        val y = stack.height
         stackHeightPx[0] = y.toFloat()
         val width =
             (placeables.maxOfOrNull { it.width } ?: 0).coerceIn(constraints.minWidth, constraints.maxWidth)

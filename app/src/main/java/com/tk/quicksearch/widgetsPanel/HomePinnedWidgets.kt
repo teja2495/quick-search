@@ -289,6 +289,12 @@ internal fun moveHomeWidget(
             add(clampHomeWidgetTargetIndex(this, targetIndex, isReversed), dragged)
         }
     val logical = if (isReversed) nextVisual.reversed() else nextVisual
+    // A widget stays in a row only while it still follows a member of the row it was in. The moved
+    // widget leaves its row; a drag that drops it beside another widget joins it afterward.
+    val startLogical = if (isReversed) visualEntries.reversed() else visualEntries
+    val startLeaders = homeRowLeaders(startLogical.map { (it as? HomeLayoutEntry.Widget)?.widget?.home })
+    val startRow =
+        startLogical.withIndex().associate { (index, entry) -> entry.key to startLeaders[index] }
     val result = mutableListOf<PanelWidgetInfo>()
     val pending = mutableListOf<PanelWidgetInfo>()
 
@@ -300,11 +306,24 @@ internal fun moveHomeWidget(
         pending.clear()
     }
 
+    var previous: HomeLayoutEntry? = null
     logical.forEach { entry ->
         when (entry) {
-            is HomeLayoutEntry.Widget -> pending += entry.widget
+            is HomeLayoutEntry.Widget -> {
+                val home = entry.widget.home
+                val keepsRow =
+                    entry !== dragged && previous is HomeLayoutEntry.Widget &&
+                        startRow[previous.key] == startRow[entry.key]
+                pending +=
+                    if (home == null || !home.sharesRow || keepsRow) {
+                        entry.widget
+                    } else {
+                        entry.widget.copy(home = home.copy(sharesRow = false))
+                    }
+            }
             is HomeLayoutEntry.Item -> flush(entry.itemType.name)
         }
+        previous = entry
     }
     flush(HOME_WIDGET_ANCHOR_END)
     return result

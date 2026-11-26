@@ -55,20 +55,20 @@ internal fun homeWidgetGapsPx(
 
 /**
  * The Home stack's children (leading content, [entries], trailing content) as [HomeGapSlot]s in
- * logical order. [entries] are in visual order, which is reversed in one-handed mode.
+ * logical order. [entries] are in visual order, which is reversed in one-handed mode. A row of
+ * widgets is one slot as tall as its tallest member, at its leader; the other members are empty.
  */
 internal fun homeGapSlots(
     entries: List<HomeLayoutEntry>,
     isReversed: Boolean,
     heightOf: (key: Any) -> Int,
 ): List<HomeGapSlot> {
-    val visual =
-        buildList {
-            add(HomeGapSlot(heightOf(HOME_STACK_LEADING_KEY), null))
-            entries.forEach { entry ->
-                add(HomeGapSlot(heightOf(entry.key), (entry as? HomeLayoutEntry.Widget)?.widget?.appWidgetId))
-            }
-            add(HomeGapSlot(heightOf(HOME_STACK_TRAILING_KEY), null))
-        }
-    return if (isReversed) visual.asReversed() else visual
+    val visualKeys = listOf<Any>(HOME_STACK_LEADING_KEY) + entries.map { it.key } + HOME_STACK_TRAILING_KEY
+    val visualPlacements = listOf(null) + entries.map { (it as? HomeLayoutEntry.Widget)?.widget?.home } + null
+    val keys = if (isReversed) visualKeys.asReversed() else visualKeys
+    val placements = if (isReversed) visualPlacements.asReversed() else visualPlacements
+    val heights = IntArray(keys.size) { heightOf(keys[it]) }
+    val leaders = homeRowLeaders(placements.mapIndexed { index, home -> home?.takeIf { heights[index] > 0 } })
+    val slotHeights = homeRowSlotHeights(heights, leaders)
+    return keys.mapIndexed { index, key -> HomeGapSlot(slotHeights[index], key as? Int) }
 }
