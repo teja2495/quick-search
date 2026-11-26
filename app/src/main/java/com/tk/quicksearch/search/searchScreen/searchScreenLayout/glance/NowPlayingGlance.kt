@@ -52,6 +52,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,6 +67,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
@@ -484,7 +488,7 @@ private fun NowPlayingTransport(glance: NowPlayingGlance) {
         outerBack = null
         outerForward = null
         innerBack =
-            seekControl(appSeek.back, MaterialSymbols.FastRewind, R.string.media_seek_back, glance.seekBack, glance.canSeek)
+            seekControl(appSeek.back, MaterialSymbols.FastRewind, R.string.media_seek_back, glance.seekBack, glance.canSeek, direction = -1)
         innerForward =
             seekControl(
                 appSeek.forward,
@@ -492,15 +496,16 @@ private fun NowPlayingTransport(glance: NowPlayingGlance) {
                 R.string.media_seek_forward,
                 glance.seekForward,
                 glance.canSeek,
+                direction = 1,
             )
     } else {
-        val skipBack = NowPlayingControl(MaterialSymbols.SkipPrevious, R.string.media_command_previous, glance.previous)
-        val skipForward = NowPlayingControl(MaterialSymbols.SkipNext, R.string.media_command_next, glance.next)
+        val skipBack = NowPlayingControl(MaterialSymbols.SkipPrevious, R.string.media_command_previous, glance.previous, direction = -1)
+        val skipForward = NowPlayingControl(MaterialSymbols.SkipNext, R.string.media_command_next, glance.next, direction = 1)
         val seekBack =
-            NowPlayingControl(MaterialSymbols.FastRewind, R.string.media_seek_back, glance.seekBack)
+            NowPlayingControl(MaterialSymbols.FastRewind, R.string.media_seek_back, glance.seekBack, direction = -1)
                 .takeIf { glance.canSeek }
         val seekForward =
-            NowPlayingControl(MaterialSymbols.FastForward, R.string.media_seek_forward, glance.seekForward)
+            NowPlayingControl(MaterialSymbols.FastForward, R.string.media_seek_forward, glance.seekForward, direction = 1)
                 .takeIf { glance.canSeek }
         if (glance.isSeekMode) {
             outerBack = skipBack
@@ -598,6 +603,8 @@ private class NowPlayingControl(
     val icon: ImageVector,
     @StringRes val labelRes: Int,
     val onClick: () -> Unit,
+    /** -1 for a backward control, 1 for a forward one: the way its glyph nudges when pressed. */
+    val direction: Int,
     /** An app seek button's own icon and label, shown in place of [icon] and [labelRes]. */
     val appIcon: ImageBitmap? = null,
     val appLabel: String? = null,
@@ -610,11 +617,12 @@ private fun seekControl(
     @StringRes labelRes: Int,
     fallback: () -> Unit,
     canSeek: Boolean,
+    direction: Int,
 ): NowPlayingControl? =
     if (appButton != null) {
-        NowPlayingControl(icon, labelRes, appButton.onClick, appButton.icon, appButton.label)
+        NowPlayingControl(icon, labelRes, appButton.onClick, direction, appButton.icon, appButton.label)
     } else {
-        NowPlayingControl(icon, labelRes, fallback).takeIf { canSeek }
+        NowPlayingControl(icon, labelRes, fallback, direction).takeIf { canSeek }
     }
 
 /**
@@ -626,11 +634,34 @@ private fun NowPlayingSkipButton(
     control: NowPlayingControl,
     isProminent: Boolean,
 ) {
-    AppIconButton(onClick = control.onClick, tooltip = control.appLabel ?: stringResource(control.labelRes)) {
+    // Expressive press feedback: the glyph darts the way it moves playback, shrinking a little,
+    // then springs back. A tap mid-motion restarts it from where it is.
+    val press = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
+    val nudgePx = with(LocalDensity.current) { NowPlayingControlPressNudge.toPx() }
+    // The row mirrors in RTL, so forward sits on the start side there and darts that way.
+    val layoutSign = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1 else 1
+    val onClick = {
+        control.onClick()
+        scope.launch {
+            press.animateTo(1f, tween(AppMotion.DurationQuick, easing = AppMotion.EmphasizedAccelerateEasing))
+            press.animateTo(0f, AppMotion.fastSpatial())
+        }
+        Unit
+    }
+    AppIconButton(onClick = onClick, tooltip = control.appLabel ?: stringResource(control.labelRes)) {
         val icon =
             @Composable {
                 val contentDescription = control.appLabel ?: stringResource(control.labelRes)
-                val modifier = Modifier.size(if (isProminent) NowPlayingControlIconSize else NowPlayingSecondaryControlIconSize)
+                val modifier =
+                    Modifier
+                        .size(if (isProminent) NowPlayingControlIconSize else NowPlayingSecondaryControlIconSize)
+                        .graphicsLayer {
+                            translationX = press.value * nudgePx * control.direction * layoutSign
+                            val scale = 1f - press.value * (1f - NowPlayingControlPressScale)
+                            scaleX = scale
+                            scaleY = scale
+                        }
                 val appIcon = control.appIcon
                 if (appIcon != null) {
                     Icon(
@@ -668,6 +699,10 @@ private fun NowPlayingSkipButton(
         }
     }
 }
+
+/** How far a skip or seek glyph darts when pressed, and how small it gets at the far end. */
+private val NowPlayingControlPressNudge = 6.dp
+private const val NowPlayingControlPressScale = 0.82f
 
 /** The art shown for one track; [trackKey] decides when a change animates. */
 private class NowPlayingArtFrame(

@@ -492,7 +492,10 @@ internal fun NowPlayingCard(
             if (showTitle) AtAGlanceTitle(showWallpaperBackground)
             AtAGlanceCardShell(
                 showWallpaperBackground = showWallpaperBackground,
-                contentTint = rememberAlbumArtTint(glance.albumArt.takeIf { albumTint }),
+                contentTint = rememberAlbumArtTint(
+                        albumArt = glance.albumArt.takeIf { albumTint },
+                        trackKey = glance.title to glance.subtitle,
+                    ),
             ) {
                 ResultSegment(index = 0, count = 1, padCompactOuterEdges = true) {
                     NowPlayingRow(glance, onDismiss = { visibility.targetState = false })

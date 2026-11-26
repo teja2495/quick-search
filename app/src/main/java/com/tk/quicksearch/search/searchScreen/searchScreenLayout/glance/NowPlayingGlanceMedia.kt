@@ -104,10 +104,19 @@ private const val AlbumArtTintAlpha = 0.28f
  * missing or colorless. Computed off the main thread, once per bitmap.
  */
 @Composable
-internal fun rememberAlbumArtTint(albumArt: Bitmap?): Brush {
-    // Keeps the previous color while the next one is computed, so the tint blends rather than blinking out.
-    val color by produceState<Color?>(null, albumArt) {
-        value = albumArt?.let { withContext(Dispatchers.Default) { albumArtAccent(it) } }
+internal fun rememberAlbumArtTint(
+    albumArt: Bitmap?,
+    /** Identifies the track; the player hands over a new bitmap object every time Home is rebuilt. */
+    trackKey: Any?,
+): Brush {
+    // Starts from the color last seen for this track so remounting the card (swiping between pages)
+    // doesn't fade the tint back in, and keeps the previous color while the next one is computed.
+    val color by produceState(albumArt?.let { cachedAlbumArtAccent(trackKey) }, albumArt, trackKey) {
+        value =
+            albumArt?.let { art ->
+                withContext(Dispatchers.Default) { albumArtAccent(art) }
+                    .also { albumArtAccentCache.put(trackKey ?: return@also, it ?: Color.Unspecified) }
+            }
     }
     // The tint follows the art: it eases in once computed and blends into the next track's color.
     val animated by animateColorAsState(
@@ -117,6 +126,12 @@ internal fun rememberAlbumArtTint(albumArt: Bitmap?): Brush {
     )
     return Brush.horizontalGradient(listOf(animated, Color.Transparent))
 }
+
+/** Album art accents by track; [Color.Unspecified] marks art that is colorless. */
+private val albumArtAccentCache = LruCache<Any, Color>(8)
+
+private fun cachedAlbumArtAccent(trackKey: Any?): Color? =
+    trackKey?.let { albumArtAccentCache.get(it) }?.takeIf { it != Color.Unspecified }
 
 /** Below this saturation the art reads as grey, and a tint would only muddy the card. */
 private const val AlbumArtMinSaturation = 0.15f
