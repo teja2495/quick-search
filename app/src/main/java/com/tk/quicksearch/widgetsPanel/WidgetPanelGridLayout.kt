@@ -119,6 +119,27 @@ internal fun resolveWidgetGridLayout(
 }
 
 /**
+ * Lowest row [dragged] may move to, fixed when the drag begins: just below the other widgets,
+ * anywhere in the rows already on screen ([visibleBottomPx] from the grid top), or where it
+ * started, whichever is lowest. Without this cap a widget dragged near the bottom edge grows the
+ * grid, edge auto-scroll follows it, and it runs away downward.
+ */
+internal fun panelDragMaxRow(
+    widgets: List<PanelWidgetInfo>,
+    dragged: PanelWidgetInfo,
+    visibleBottomPx: Float,
+    gridUnitHeightPx: Float,
+): Int {
+    val visibleRows = if (visibleBottomPx.isFinite() && gridUnitHeightPx > 0f) (visibleBottomPx / gridUnitHeightPx).toInt() + 1 else 0
+    val othersBottom =
+        widgets
+            .filter { it.appWidgetId != dragged.appWidgetId }
+            .maxOfOrNull { it.rowOrZero() + (it.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN) } ?: 0
+    val rowSpan = dragged.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN
+    return maxOf(othersBottom, visibleRows - rowSpan, dragged.rowOrZero())
+}
+
+/**
  * Places the dragged widget at the requested cell, keeping any empty space the user left between
  * widgets. Widgets the dragged one doesn't touch stay exactly where they are.
  *

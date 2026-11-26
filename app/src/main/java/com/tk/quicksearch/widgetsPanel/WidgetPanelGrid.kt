@@ -307,6 +307,7 @@ internal fun WidgetPanelGrid(
         var scrollAtDragStart by remember { mutableIntStateOf(0) }
         // Window Y of the grid content box, used to locate the dragged widget for edge auto-scroll.
         var gridTopPx by remember { mutableFloatStateOf(Float.NaN) }
+        var dragMaxRow by remember { mutableIntStateOf(Int.MAX_VALUE) }
 
         val currentLaidOut by rememberUpdatedState(laidOut)
 
@@ -331,7 +332,7 @@ internal fun WidgetPanelGrid(
                     .coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - columnSpan)
             val nextRow =
                 ((start.row ?: 0) + (totalDragY / gridUnitHeightPx).roundToInt())
-                    .coerceAtLeast(0)
+                    .coerceIn(0, dragMaxRow)
             previewMove(start.appWidgetId, nextColumn, nextRow)
         }
 
@@ -343,6 +344,7 @@ internal fun WidgetPanelGrid(
                     if (widget != null) {
                         movePreview.reset()
                         hostDragStart = widget
+                        dragMaxRow = panelDragMaxRow(laidOut, widget, viewportTopPx + viewportHeightPx - gridTopPx, gridUnitHeightPx)
                         scrollAtDragStart = panelScrollState.value
                         currentOnSetEditing(widget.appWidgetId)
                     }
@@ -363,7 +365,7 @@ internal fun WidgetPanelGrid(
                             .coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - columnSpan)
                     val nextRow =
                         ((start.row ?: 0) + ((dy + scrollDelta) / currentGridUnitHeightPx).roundToInt())
-                            .coerceAtLeast(0)
+                            .coerceIn(0, dragMaxRow)
                     previewMove(id, nextColumn, nextRow)
                 }
             }
@@ -436,8 +438,9 @@ internal fun WidgetPanelGrid(
             }
         }
 
+        // Keep the pre-drag height while dragging; shrinking clamps the scroll, which reads as auto-scroll.
         val rows =
-            displayLayout.maxOfOrNull { widget ->
+            (if (isDragging) displayLayout + laidOut else displayLayout).maxOfOrNull { widget ->
                 (widget.row ?: 0) + (widget.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN)
             } ?: 0
         val panelHeight =
@@ -550,6 +553,7 @@ internal fun WidgetPanelGrid(
                             onQuickNoteDragStart = {
                                 movePreview.reset()
                                 quickNoteDragStart = widget
+                                dragMaxRow = panelDragMaxRow(laidOut, widget, viewportTopPx + viewportHeightPx - gridTopPx, gridUnitHeightPx)
                                 onSetEditingWidgetId(widget.appWidgetId)
                             },
                             onQuickNoteDrag = { totalDragX, totalDragY ->
