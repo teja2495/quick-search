@@ -171,4 +171,5 @@ internal data class AppState(
         val showUninstall: Boolean,
         val showAppLabel: Boolean,
         val isOverlayPresentation: Boolean,
+        val showFullAppName: Boolean = false,
 )

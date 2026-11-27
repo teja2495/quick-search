@@ -294,6 +294,8 @@
     <string name="app_suggestions_toggle_desc">Aanbevolen apps op het startscherm tonen of verbergen</string>
     <string name="app_suggestions_toggle_title">Appsuggesties</string>
     <string name="show_all_apps_button_toggle_desc">Toon een knop om alle apps te openen</string>
+    <string name="full_app_names_toggle_title">Volledige app-namen tonen</string>
+    <string name="full_app_names_toggle_desc">Lange app-namen in app-resultaten laten doorlopen in plaats van afkappen</string>
     <string name="app_suggestions_usage_access_link">Toegang tot gebruiksstatistieken verlenen</string>
     <string name="app_suggestions_usage_access_tip">Verleen toegang tot gebruiksstatistieken om je recent gebruikte apps te zien.</string>
     <string name="clear_query_toggle_desc">Oude zoekopdracht automatisch wissen wanneer de app wordt geopend</string>

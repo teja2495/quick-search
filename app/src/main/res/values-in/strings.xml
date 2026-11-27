@@ -287,6 +287,8 @@
     <string name="app_suggestions_toggle_desc">Tampilkan atau sembunyikan aplikasi yang disarankan di layar utama</string>
     <string name="app_suggestions_toggle_title">Saran Aplikasi</string>
     <string name="show_all_apps_button_toggle_desc">Tampilkan tombol Semua Aplikasi di bawah saran aplikasi</string>
+    <string name="full_app_names_toggle_title">Tampilkan nama aplikasi lengkap</string>
+    <string name="full_app_names_toggle_desc">Tampilkan nama aplikasi panjang dalam beberapa baris di hasil aplikasi alih-alih memotongnya</string>
     <string name="app_suggestions_usage_access_link">izin akses penggunaan</string>
     <string name="app_suggestions_usage_access_tip">Berikan izin akses penggunaan untuk melihat saran yang lebih sesuai</string>
     <string name="clear_query_toggle_desc">Hapus kueri lama secara otomatis saat aplikasi dibuka</string>

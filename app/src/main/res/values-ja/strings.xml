@@ -287,6 +287,8 @@
     <string name="app_suggestions_toggle_desc">ホーム画面に候補アプリを表示または非表示にします</string>
     <string name="app_suggestions_toggle_title">アプリ候補</string>
     <string name="show_all_apps_button_toggle_desc">アプリ候補の下に「すべてのアプリ」ボタンを表示</string>
+    <string name="full_app_names_toggle_title">アプリ名を省略せずに表示</string>
+    <string name="full_app_names_toggle_desc">アプリの検索結果で長いアプリ名を省略せずに折り返して表示します</string>
     <string name="app_suggestions_usage_access_link">使用状況へのアクセス権限</string>
     <string name="app_suggestions_usage_access_tip">使用状況へのアクセス権限を許可すると、より適切な候補が表示されます</string>
     <string name="clear_query_toggle_desc">アプリ起動時に前回の検索クエリを自動的に消去</string>

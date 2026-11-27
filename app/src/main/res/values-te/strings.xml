@@ -286,6 +286,8 @@
     <string name="app_suggestions_toggle_desc">హోమ్ స్క్రీన్‌పై సూచించిన యాప్‌లను చూపించు లేదా దాచు</string>
     <string name="app_suggestions_toggle_title">యాప్ సూచనలు</string>
     <string name="show_all_apps_button_toggle_desc">యాప్ సూచనల క్రింద \"అన్ని యాప్‌లు\" బటన్‌ను చూపించు</string>
+    <string name="full_app_names_toggle_title">యాప్ పూర్తి పేర్లను చూపించు</string>
+    <string name="full_app_names_toggle_desc">యాప్ ఫలితాల్లో పొడవైన యాప్ పేర్లను కత్తిరించకుండా తదుపరి పంక్తికి చూపించు</string>
     <string name="app_suggestions_usage_access_link">వినియోగ ప్రాప్యత అనుమతి</string>
     <string name="app_suggestions_usage_access_tip">మరింత తగిన సూచనలను చూడటానికి వినియోగ ప్రాప్యత అనుమతిని మంజూరు చేయండి</string>
     <string name="clear_query_toggle_desc">యాప్ ప్రారంభమైనప్పుడు మునుపటి శోధనను స్వయంచాలకంగా క్లియర్ చేయి</string>

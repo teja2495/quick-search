@@ -286,6 +286,8 @@
     <string name="app_suggestions_toggle_desc">Εμφάνιση ή απόκρυψη προτεινόμενων εφαρμογών στην αρχική οθόνη</string>
     <string name="app_suggestions_toggle_title">Προτάσεις εφαρμογών</string>
     <string name="show_all_apps_button_toggle_desc">Εμφάνιση του κουμπιού \"Όλες οι εφαρμογές\" κάτω από τις προτάσεις εφαρμογών</string>
+    <string name="full_app_names_toggle_title">Εμφάνιση πλήρων ονομάτων εφαρμογών</string>
+    <string name="full_app_names_toggle_desc">Αναδίπλωση μεγάλων ονομάτων εφαρμογών στα αποτελέσματα αντί για περικοπή</string>
     <string name="app_suggestions_usage_access_link">άδεια πρόσβασης στη χρήση</string>
     <string name="app_suggestions_usage_access_tip">Χορηγήστε την άδεια πρόσβασης στη χρήση για να βλέπετε πιο κατάλληλες προτάσεις</string>
     <string name="clear_query_toggle_desc">Αυτόματος καθαρισμός του παλιού ερωτήματος κατά την εκκίνηση της εφαρμογής</string>

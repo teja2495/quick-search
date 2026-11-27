@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.animation.core.animateFloatAsState
@@ -344,10 +345,14 @@ internal fun AppIconSurface(
     }
 }
 
+/** Whether app search results wrap long app names instead of cutting them off. */
+internal val LocalShowFullAppNames = compositionLocalOf { false }
+
 @Composable
 internal fun AppLabelText(
         appName: String,
         isOverlayPresentation: Boolean,
+        showFullName: Boolean = false,
 ) {
     val labelColor = homeTextColor()
     Spacer(modifier = Modifier.height(DesignTokens.SpacingXSmall))
@@ -356,7 +361,7 @@ internal fun AppLabelText(
             style = if (isOverlayPresentation) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium,
             color = labelColor,
             minLines = 1,
-            maxLines = 1,
+            maxLines = if (showFullName) Int.MAX_VALUE else 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),

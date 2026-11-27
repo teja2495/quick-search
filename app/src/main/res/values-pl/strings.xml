@@ -287,6 +287,8 @@
     <string name="app_suggestions_toggle_desc">Pokaż lub ukryj sugerowane aplikacje na ekranie głównym</string>
     <string name="app_suggestions_toggle_title">Sugestie aplikacji</string>
     <string name="show_all_apps_button_toggle_desc">Pokaż przycisk Wszystkie aplikacje pod sugestiami aplikacji</string>
+    <string name="full_app_names_toggle_title">Pokazuj pełne nazwy aplikacji</string>
+    <string name="full_app_names_toggle_desc">Zawijaj długie nazwy aplikacji w wynikach zamiast je obcinać</string>
     <string name="app_suggestions_usage_access_link">dostęp do danych o użyciu</string>
     <string name="app_suggestions_usage_access_tip">Przyznaj dostęp do danych o użyciu, aby widzieć bardziej trafne sugestie</string>
     <string name="clear_query_toggle_desc">Automatycznie czyść poprzednie zapytanie po uruchomieniu aplikacji</string>

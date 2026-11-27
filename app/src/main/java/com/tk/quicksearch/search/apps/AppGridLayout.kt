@@ -358,8 +358,9 @@ internal fun AppGrid(
                     }
                 }
 
+        val showFullAppNames = isSearching && LocalShowFullAppNames.current
         val createAppState =
-                remember(getAppNickname, getAppTrigger, pinnedPackageNames) {
+                remember(getAppNickname, getAppTrigger, pinnedPackageNames, showFullAppNames) {
                     { app: AppInfo ->
                         AppState(
                                 hasNickname = !getAppNickname(app.launchCountKey()).isNullOrBlank(),
@@ -370,6 +371,7 @@ internal fun AppGrid(
                                                 app.packageName != context.packageName,
                                 showAppLabel = showAppLabels,
                                 isOverlayPresentation = isOverlayPresentation,
+                                showFullAppName = showFullAppNames,
                         )
                     }
                 }

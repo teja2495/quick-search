@@ -584,6 +584,7 @@ internal fun SettingsDetailLevel1Screen(
                                 uiState.isAppSettingToggleEnabled(toggleKey)
                             },
                             notificationCountsEnabled = uiState.notificationCountsEnabled,
+                            booleanSettings = state.booleanSettings,
                             onApplySettingsCommand = callbacks.onApplySettingsCommand,
                             modifier = Modifier,
                         )

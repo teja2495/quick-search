@@ -286,6 +286,8 @@
     <string name="app_suggestions_toggle_desc">होम स्क्रीन पर सुझाए गए ऐप दिखाएं या छिपाएं</string>
     <string name="app_suggestions_toggle_title">ऐप सुझाव</string>
     <string name="show_all_apps_button_toggle_desc">ऐप सुझावों के नीचे \"सभी ऐप्स\" बटन दिखाएं</string>
+    <string name="full_app_names_toggle_title">ऐप के पूरे नाम दिखाएं</string>
+    <string name="full_app_names_toggle_desc">ऐप परिणामों में लंबे ऐप नामों को काटने के बजाय अगली पंक्ति में दिखाएं</string>
     <string name="app_suggestions_usage_access_link">उपयोग पहुंच अनुमति</string>
     <string name="app_suggestions_usage_access_tip">अधिक उपयुक्त सुझाव देखने के लिए उपयोग पहुंच अनुमति दें</string>
     <string name="clear_query_toggle_desc">ऐप खुलने पर पुरानी क्वेरी अपने आप साफ करें</string>

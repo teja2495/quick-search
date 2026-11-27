@@ -13,6 +13,7 @@ import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.BuildConfig
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.appSettings.AppSettingsToggleKey
+import com.tk.quicksearch.search.appSettings.BooleanSettings
 import com.tk.quicksearch.search.apps.appLock.AppLockAccessibilityDisclosureHost
 import com.tk.quicksearch.search.apps.appLock.AppLockOutsideQuickSearchToggleState
 import com.tk.quicksearch.search.apps.appLock.rememberAppLockOutsideQuickSearchToggleState
@@ -24,6 +25,7 @@ import com.tk.quicksearch.search.noted.NotedIntegrationSettingCard
 import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.settings.shared.BooleanSettingTile
 import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -35,6 +37,7 @@ import com.tk.quicksearch.shared.util.rememberPhysicalKeyboardConnected
 fun MoreOptionsSettings(
     isToggleEnabled: (AppSettingsToggleKey) -> Boolean,
     notificationCountsEnabled: Boolean,
+    booleanSettings: Map<String, Boolean>,
     onApplySettingsCommand: (SettingsCommand) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -166,6 +169,8 @@ fun MoreOptionsSettings(
             notificationCountsEnabled = notificationCountsEnabled,
             speedBumpToggle = speedBumpToggle,
             appLockToggle = appLockToggle,
+            booleanSettings = booleanSettings,
+            showFullAppNamesTile = true,
         )
         Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
         MoreOptionsToggleGroup(
@@ -194,7 +199,10 @@ private fun MoreOptionsToggleGroup(
     notificationCountsEnabled: Boolean,
     speedBumpToggle: SpeedBumpOutsideQuickSearchToggleState,
     appLockToggle: AppLockOutsideQuickSearchToggleState,
+    booleanSettings: Map<String, Boolean> = emptyMap(),
+    showFullAppNamesTile: Boolean = false,
 ) {
+    val count = items.size + if (showFullAppNamesTile) 1 else 0
     SegmentedGroup(
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -234,7 +242,7 @@ private fun MoreOptionsToggleGroup(
                 },
                 icon = item.leadingIcon,
                 index = index,
-                count = items.size,
+                count = count,
                 expandedContent =
                     if (item.key == AppSettingsToggleKey.NOTIFICATION_DOTS) {
                         {
@@ -246,6 +254,16 @@ private fun MoreOptionsToggleGroup(
                     } else {
                         null
                     },
+            )
+        }
+        if (showFullAppNamesTile) {
+            BooleanSettingTile(
+                setting = BooleanSettings.FULL_APP_NAMES.setting,
+                values = booleanSettings,
+                onCommand = onApplySettingsCommand,
+                icon = MaterialSymbols.Apps,
+                index = items.size,
+                count = count,
             )
         }
     }

@@ -286,6 +286,8 @@
     <string name="app_suggestions_toggle_desc">Muestra u oculta las apps sugeridas en la pantalla de inicio</string>
     <string name="app_suggestions_toggle_title">Sugerencias de apps</string>
     <string name="show_all_apps_button_toggle_desc">Muestra el botón \"Todas las aplicaciones\" debajo de las sugerencias de apps</string>
+    <string name="full_app_names_toggle_title">Mostrar nombres completos de apps</string>
+    <string name="full_app_names_toggle_desc">Ajustar los nombres largos de apps en los resultados en lugar de cortarlos</string>
     <string name="app_suggestions_usage_access_link">permiso de acceso al uso</string>
     <string name="app_suggestions_usage_access_tip">Concede el permiso de acceso al uso para ver sugerencias más adecuadas</string>
     <string name="clear_query_toggle_desc">Borra automáticamente la búsqueda anterior al abrir la app</string>

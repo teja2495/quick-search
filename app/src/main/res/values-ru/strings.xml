@@ -286,6 +286,8 @@
 <string name="app_suggestions_toggle_desc">Показывать или скрывать рекомендуемые приложения на главном экране</string>
 <string name="app_suggestions_toggle_title">Подсказки приложений</string>
 <string name="show_all_apps_button_toggle_desc">Показывать кнопку \"Все приложения\" под подсказками приложений</string>
+<string name="full_app_names_toggle_title">Показывать полные названия приложений</string>
+<string name="full_app_names_toggle_desc">Переносить длинные названия приложений в результатах вместо обрезки</string>
 <string name="app_suggestions_usage_access_link">доступ к истории использования</string>
 <string name="app_suggestions_usage_access_tip">Предоставьте доступ к истории использования, чтобы видеть более точные рекомендации</string>
     <string name="clear_query_toggle_desc">Автоматически очищать старый запрос при запуске приложения</string>

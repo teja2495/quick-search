@@ -285,6 +285,8 @@
 <string name="app_suggestions_toggle_desc">Ana ekranda önerilen uygulamaları göster veya gizle</string>
 <string name="app_suggestions_toggle_title">Uygulama önerileri</string>
 <string name="show_all_apps_button_toggle_desc">Uygulama önerilerinin altında \"Tüm uygulamalar\" düğmesini göster</string>
+<string name="full_app_names_toggle_title">Tam uygulama adlarını göster</string>
+<string name="full_app_names_toggle_desc">Uygulama sonuçlarındaki uzun uygulama adlarını kesmek yerine alt satıra kaydır</string>
 <string name="app_suggestions_usage_access_link">kullanım erişimi izni</string>
 <string name="app_suggestions_usage_access_tip">Daha uygun öneriler görmek için kullanım erişimi izni verin</string>
 <string name="clear_query_toggle_desc">Uygulama başlatıldığında eski sorguyu otomatik olarak temizle</string>

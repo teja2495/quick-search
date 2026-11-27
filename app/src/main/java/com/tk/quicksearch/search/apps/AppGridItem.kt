@@ -238,6 +238,7 @@ internal fun AppGridItem(
                 AppLabelText(
                         appName = appInfo.appName,
                         isOverlayPresentation = appState.isOverlayPresentation,
+                        showFullName = appState.showFullAppName,
                 )
             }
         }

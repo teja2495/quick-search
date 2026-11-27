@@ -32,6 +32,16 @@ enum class BooleanSettings(val setting: BooleanSetting) {
             keywords = listOf("files", "images", "pdf", "open"),
         ),
     ),
+    FULL_APP_NAMES(
+        BooleanSetting(
+            preferenceKey = "show_full_app_names",
+            defaultValue = false,
+            searchId = "app_toggle_full_app_names",
+            titleRes = R.string.full_app_names_toggle_title,
+            descriptionRes = R.string.full_app_names_toggle_desc,
+            keywords = listOf("apps", "label", "name", "truncate", "wrap", "long"),
+        ),
+    ),
     NOW_PLAYING_ALBUM_TINT(
         BooleanSetting(
             preferenceKey = "now_playing_album_tint_enabled",
