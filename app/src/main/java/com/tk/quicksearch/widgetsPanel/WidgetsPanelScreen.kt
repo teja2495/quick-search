@@ -30,6 +30,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.offset
@@ -213,6 +215,9 @@ internal fun WidgetsPanelScreen(
     // Pages keep their height while the keyboard shrinks the viewport, so the layout doesn't reflow.
     val imeBottomPx = WindowInsets.ime.getBottom(density)
     val currentImeBottomPx by rememberUpdatedState(imeBottomPx)
+    // What imePadding takes from the viewport (the navigation bar inset is already consumed above it).
+    val imeShrinkPx = WindowInsets.ime.exclude(WindowInsets.navigationBars).getBottom(density)
+    val currentImeShrinkPx by rememberUpdatedState(imeShrinkPx)
 
     fun persistWidgets(next: List<PanelWidgetInfo>) {
         if (next == widgets) return
@@ -589,10 +594,14 @@ internal fun WidgetsPanelScreen(
                                     val viewportHeight = size.height - dragTopReachPx
                                     scrollViewportHeightPx = viewportHeight
                                     if (currentImeBottomPx == 0 || pager.pageHeightPx == 0) {
-                                        pager.pageHeightPx = viewportHeight
+                                        // The panel can open while the search keyboard is still up (or
+                                        // closing). Measure pages at their keyboard-free height, or fewer
+                                        // rows fit and the saved layout gets reflowed onto other pages.
+                                        val pageHeight = viewportHeight + currentImeShrinkPx
+                                        pager.pageHeightPx = pageHeight
                                         pager.pageRows =
                                             widgetPanelPageRows(
-                                                pageHeightPx = viewportHeight,
+                                                pageHeightPx = pageHeight,
                                                 reservedPx = with(density) { (WidgetEditOverhang * 2).roundToPx() },
                                                 gridUnitHeightPx =
                                                     with(density) { (WidgetPanelGridRowHeight + WidgetPanelGridGap).toPx() },
