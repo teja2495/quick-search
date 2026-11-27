@@ -1,0 +1,34 @@
+name: Remove agent-ready on pending-release
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  issues: write
+
+jobs:
+  remove-agent-ready:
+    name: Remove agent-ready
+    if: github.event.label.name == 'pending-release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove agent-ready from issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labelName = 'agent-ready';
+            const issueLabels = context.payload.issue.labels ?? [];
+
+            if (!issueLabels.some((label) => label.name === labelName)) {
+              core.info(`Issue #${context.issue.number} does not have ${labelName}; skipping.`);
+              return;
+            }
+
+            await github.rest.issues.removeLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              name: labelName,
+            });
+            core.info(`Removed ${labelName} from issue #${context.issue.number}.`);
