@@ -144,6 +144,10 @@ internal fun resolveWidgetGridLayout(
  * dragged one now covers moves, within its own column, to the nearest rows where it fits (upward
  * on a tie, so it can take the space the dragged widget left). Any widget, including the last,
  * can move down to leave empty space above it.
+ *
+ * When that would push a covered widget past the bottom of a page [pageRows] tall, the widgets
+ * between the dragged one's old and new rows shift past it instead (see [reorderWithinColumns]),
+ * so a widget dragged up stays up rather than being pushed back down when the page is resolved.
  */
 internal fun moveWidgetToCell(
     widgets: List<PanelWidgetInfo>,
@@ -151,6 +155,7 @@ internal fun moveWidgetToCell(
     targetColumn: Int,
     targetRow: Int,
     targetPage: Int? = null,
+    pageRows: Int = Int.MAX_VALUE,
 ): List<PanelWidgetInfo> {
     val current = widgets.firstOrNull { it.appWidgetId == appWidgetId } ?: return widgets
     val columnSpan = current.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN
@@ -211,7 +216,66 @@ internal fun moveWidgetToCell(
         markOccupied(occupied, itemColumn, row, itemColumnSpan, itemRowSpan)
         placedById[item.appWidgetId] = item.copy(column = itemColumn, row = row)
     }
+    val overflowsPage = placedById.values.any { it.appWidgetId != appWidgetId && it.bottomRow() > pageRows }
+    if (overflowsPage && current.pageOrZero() == page && clampedTargetColumn == current.column) {
+        reorderWithinColumns(widgets, current, clampedTargetRow)?.let { return it }
+    }
     return widgets.map { placedById[it.appWidgetId] ?: it }
+}
+
+/**
+ * Moves [current] vertically to [targetRow] by sliding the widgets between its old and new rows
+ * past it, like reordering a list. Only widgets that sit entirely within [current]'s columns can
+ * slide; returns null when another widget straddles those columns in the way.
+ */
+private fun reorderWithinColumns(
+    widgets: List<PanelWidgetInfo>,
+    current: PanelWidgetInfo,
+    targetRow: Int,
+): List<PanelWidgetInfo>? {
+    val column = current.column ?: 0
+    val columnSpan = current.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN
+    val rowSpan = current.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN
+    val movingUp = targetRow < current.rowOrZero()
+    if (targetRow == current.rowOrZero()) return null
+    val band =
+        widgets.filter { other ->
+            other.appWidgetId != current.appWidgetId &&
+                other.pageOrZero() == current.pageOrZero() &&
+                horizontallyOverlaps(other, current) &&
+                if (movingUp) {
+                    other.bottomRow() > targetRow && other.rowOrZero() < current.rowOrZero()
+                } else {
+                    other.rowOrZero() < targetRow + rowSpan && other.rowOrZero() >= current.bottomRow()
+                }
+        }
+    if (band.isEmpty()) return null
+    val fitsColumns =
+        band.all { other ->
+            val otherColumn = other.column ?: 0
+            otherColumn >= column &&
+                otherColumn + (other.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN) <= column + columnSpan
+        }
+    if (!fitsColumns) return null
+    val bandIds = band.mapTo(mutableSetOf()) { it.appWidgetId }
+    val newRow =
+        if (movingUp) {
+            minOf(targetRow, band.minOf { it.rowOrZero() })
+        } else {
+            maxOf(targetRow + rowSpan, band.maxOf { it.bottomRow() }) - rowSpan
+        }
+    val shift = if (movingUp) rowSpan else -rowSpan
+    val result =
+        widgets.map { item ->
+            when {
+                item.appWidgetId == current.appWidgetId -> current.copy(row = newRow)
+                item.appWidgetId in bandIds -> item.copy(row = item.rowOrZero() + shift)
+                else -> item
+            }
+        }
+    val onPage = result.filter { it.pageOrZero() == current.pageOrZero() }
+    val overlaps = onPage.indices.any { i -> (i + 1 until onPage.size).any { j -> widgetsOverlap(onPage[i], onPage[j]) } }
+    return result.takeUnless { overlaps }
 }
 
 /** The free row closest to [preferredRow] for a rect in [column]; upward wins a tie. */
@@ -238,6 +302,7 @@ internal fun moveWidgetByStep(
     appWidgetId: Int,
     columnDelta: Int,
     rowDelta: Int,
+    pageRows: Int = Int.MAX_VALUE,
 ): List<PanelWidgetInfo>? {
     val widget = widgets.firstOrNull { it.appWidgetId == appWidgetId } ?: return null
     if (columnDelta == 0 && rowDelta == 0) return null
@@ -247,6 +312,7 @@ internal fun moveWidgetByStep(
             appWidgetId,
             (widget.column ?: 0) + columnDelta.coerceIn(-1, 1),
             widget.rowOrZero() + rowDelta.coerceIn(-1, 1),
+            pageRows = pageRows,
         )
     return moved.takeUnless { it == widgets }
 }

@@ -82,6 +82,48 @@ class WidgetPanelGridLayoutTest {
     }
 
     @Test
+    fun `a full-width widget dragged up on a full page stays up`() {
+        val above = widget(id = 1, column = 0, row = 0, columnSpan = 4, rowSpan = 4)
+        val note = widget(id = 2, column = 0, row = 4, columnSpan = 4, rowSpan = 2)
+        val widgets = listOf(above, note)
+
+        val moved = moveWidgetToCell(widgets, appWidgetId = 2, targetColumn = 0, targetRow = 3, pageRows = 6)
+        val resolved = resolveWidgetGridLayout(moved, emptyMap(), pageRows = 6)
+
+        assertEquals(0, resolved.byId(2).row)
+        assertEquals(2, resolved.byId(1).row)
+        assertNoOverlaps(resolved)
+    }
+
+    @Test
+    fun `a full-width widget dragged up past a side-by-side pair on a full page stays up`() {
+        val left = widget(id = 1, column = 0, row = 0, columnSpan = 2, rowSpan = 2)
+        val right = widget(id = 2, column = 2, row = 0, columnSpan = 2, rowSpan = 2)
+        val note = widget(id = 3, column = 0, row = 2, columnSpan = 4, rowSpan = 2)
+
+        val moved = moveWidgetToCell(listOf(left, right, note), appWidgetId = 3, targetColumn = 0, targetRow = 1, pageRows = 4)
+        val resolved = resolveWidgetGridLayout(moved, emptyMap(), pageRows = 4)
+
+        assertEquals(0, resolved.byId(3).row)
+        assertEquals(2, resolved.byId(1).row)
+        assertEquals(2, resolved.byId(2).row)
+        assertNoOverlaps(resolved)
+    }
+
+    @Test
+    fun `a full-width widget dragged down on a full page stays down`() {
+        val note = widget(id = 1, column = 0, row = 0, columnSpan = 4, rowSpan = 2)
+        val below = widget(id = 2, column = 0, row = 2, columnSpan = 4, rowSpan = 4)
+
+        val moved = moveWidgetToCell(listOf(note, below), appWidgetId = 1, targetColumn = 0, targetRow = 1, pageRows = 6)
+        val resolved = resolveWidgetGridLayout(moved, emptyMap(), pageRows = 6)
+
+        assertEquals(4, resolved.byId(1).row)
+        assertEquals(0, resolved.byId(2).row)
+        assertNoOverlaps(resolved)
+    }
+
+    @Test
     fun `an accessible move steps one row and can come back`() {
         val first = widget(id = 1, column = 0, row = 0, columnSpan = 4, rowSpan = 2)
         val second = widget(id = 2, column = 0, row = 4, columnSpan = 4, rowSpan = 2)

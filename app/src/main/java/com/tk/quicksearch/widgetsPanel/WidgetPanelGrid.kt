@@ -232,7 +232,7 @@ internal fun WidgetPanelGrid(
             if (movePreview.update(appWidgetId, page, column, row)) {
                 liveLayout =
                     resolveWidgetGridLayout(
-                        moveWidgetToCell(laidOut, appWidgetId, column, row, targetPage = page),
+                        moveWidgetToCell(laidOut, appWidgetId, column, row, targetPage = page, pageRows = pageRows),
                         specs,
                         pageRows,
                         compactPages = false,
@@ -279,7 +279,7 @@ internal fun WidgetPanelGrid(
         }
 
         fun moveByStep(appWidgetId: Int, columnDelta: Int, rowDelta: Int): Boolean {
-            val next = moveWidgetByStep(laidOut, appWidgetId, columnDelta, rowDelta) ?: return false
+            val next = moveWidgetByStep(laidOut, appWidgetId, columnDelta, rowDelta, pageRows) ?: return false
             val moved = next.firstOrNull { it.appWidgetId == appWidgetId } ?: return false
             if ((moved.row ?: 0) + (moved.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN) > pageRows) return false
             onPersist(resolveWidgetGridLayout(next, specs, pageRows))
@@ -532,6 +532,7 @@ private fun BoxScope.WidgetPanelGridItem(
             onDragEnd = onQuickNoteDragEnd,
             onFocusChanged = onQuickNoteFocusChanged,
             onMoveBy = onMoveBy,
+            onMovePreview = onMovePreview,
             onResizePreview = onResizePreview,
             onInteractionEnd = onInteractionEnd,
             onRemove = { onRemove(QUICK_NOTE_PANEL_WIDGET_ID) },
