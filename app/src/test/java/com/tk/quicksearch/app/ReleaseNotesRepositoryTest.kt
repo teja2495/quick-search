@@ -13,4 +13,12 @@ class ReleaseNotesRepositoryTest {
         assertFalse(isVersionBefore("4.1", "4.0"))
         assertFalse(isVersionBefore("4.10", "4.9"))
     }
+
+    @Test
+    fun isMinorReleaseVersion_excludesPatchReleases() {
+        assertTrue(isMinorReleaseVersion("5.1"))
+        assertTrue(isMinorReleaseVersion("5"))
+        assertFalse(isMinorReleaseVersion("5.1.1"))
+        assertFalse(isMinorReleaseVersion("5.1-beta"))
+    }
 }

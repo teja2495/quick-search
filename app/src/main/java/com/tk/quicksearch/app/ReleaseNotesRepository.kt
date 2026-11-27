@@ -28,6 +28,7 @@ class ReleaseNotesRepository {
                 if (release.optBoolean("draft") || release.optBoolean("prerelease")) continue
 
                 val versionName = release.getString("tag_name").normalizeVersionName()
+                if (!isMinorReleaseVersion(versionName)) continue
                 if (normalizedCurrentVersion == null || !isVersionBefore(versionName, normalizedCurrentVersion)) continue
 
                 add(
@@ -69,13 +70,19 @@ class ReleaseNotesRepository {
                 .build()
         private val releasesRequest =
             Request.Builder()
-                .url("https://api.github.com/repos/teja2495/quick-search/releases?per_page=10")
+                .url("https://api.github.com/repos/teja2495/quick-search/releases?per_page=50")
                 .header("Accept", "application/vnd.github+json")
                 .build()
     }
 }
 
 private fun String.normalizeVersionName(): String = removePrefix("v").trim()
+
+/** Only x.y releases have notes shown in the app; x.y.z patch releases are GitHub/F-Droid-only. */
+internal fun isMinorReleaseVersion(versionName: String): Boolean {
+    val parts = versionName.split('.')
+    return parts.size <= 2 && parts.all { it.isNotEmpty() && it.all(Char::isDigit) }
+}
 
 internal fun isVersionBefore(versionName: String, currentVersionName: String): Boolean {
     val versionParts = versionName.split('.').map { it.toIntOrNull() ?: 0 }
