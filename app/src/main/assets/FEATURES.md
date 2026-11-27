@@ -2,7 +2,7 @@
 
 This document highlights all the available features. It also includes details about hidden or non-obvious features that you might miss. Sections from **Overlay Mode** onward follow the order of the Settings screen (Tools settings are covered in the **Tools** section above).
 
-**Version**: 5.1 (Updated November 23, 2026)
+**Version**: 5.1.1 (Updated November 27, 2026)
 
 ### Search
 
@@ -18,7 +18,7 @@ This document highlights all the available features. It also includes details ab
 - **Device Settings Search** - Jump straight to specific device settings.
 - **App Settings Search** - Find any Quick Search setting by searching for it.
 - **App Suggestions** - When the search bar is empty, suggested apps appear. Swipe the row to switch between **New & Updated**, **Pinned**, and **Most Used**. Drag one pinned app onto another to create a folder. Works best with usage access; without it, suggestions are based on apps you opened from Quick Search.
-- **View All Apps** - Browse all installed apps from a button below app suggestions. Turn on **All Apps** in More Options.
+- **View All Apps** - Browse all installed apps from a button below app suggestions. Turn on **All Apps** in More Options. Use the **Sort by** button at the top to sort by **Name**, **APK Size**, **Install Date**, **Last Update**, or **API Level** (plus **Most Used** and **Least Used** with usage access), and the arrow button next to it to reverse the order. Tap the delete button to select several apps and uninstall them together.
 - **Screen Time** - Search `screen time` to see today's phone usage. Long-press an app to see its screen time.
 
 ---
@@ -360,6 +360,7 @@ An optional Home section that shows useful information when it matters.
 - **Clear Query** - Your last query is cleared when you reopen the app. Turn this off to keep it.
 - **Auto-Close App** - Close Quick Search automatically after you open something.
 - **Show in Recents** - Show Quick Search in your device's recent apps.
+- **Show Full App Names** - Wrap long app names in app results instead of cutting them off.
 - **Notification Dots** - Show or hide notification dots on app icons, and choose whether they show a dot or the notification count.
 - **All Apps** - Show a button below app suggestions for browsing all installed apps.
 - **Non-Launchable Apps** - Show system services and other apps that can't be opened directly.
@@ -403,6 +404,7 @@ See the status of each permission and grant it from here.
 ### Other Options
 
 - **Backup & Restore Settings** - Export or import your settings, e.g. when switching phones. Settings are also backed up automatically through Android's backup system.
+- **Auto-Backup** - In **Export Data**, tap **Schedule Auto-Backup** to back up the items checked there to a folder you pick, daily, every 3 days, or weekly. Choose how many backups to keep (1, 3, or 5); older ones are deleted after each backup.
 - **Send Feedback** - Send feedback, bug reports, and feature requests to [tejakarlapudi.apps@gmail.com](mailto:tejakarlapudi.apps@gmail.com).
 - **Rate Quick Search** - Leave a rating for the app.
 - **Development** - View the source code on GitHub.

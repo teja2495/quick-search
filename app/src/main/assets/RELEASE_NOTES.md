@@ -1,11 +1,4 @@
-- Design Overhaul: Updated to Material 3 Expressive design
-- Notification count on app icons
-- Long press on any widget and tap + to stack multiple widgets
-- Extend App Lock to apps opened outside Quick Search
-- More theme options
-- New Widget for Reminders
-- Pause SpeedBump for 5, 15, or 30 minutes
-- Support for multiple aliases and triggers for the same item
-- Support for more pages in widget panel and ability to lock layout
-- Option to change corner radius of app icons
+- Auto-Backup: Automatically back up your settings to a folder of your choice
+- All Apps Drawer: Sort by name, size, usage, install date, update date, or API level, and uninstall multiple apps at once
+- Option to show full app names in results
 - Performance improvements and bug fixes
