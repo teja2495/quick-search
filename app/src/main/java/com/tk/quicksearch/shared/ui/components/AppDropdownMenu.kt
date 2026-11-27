@@ -1,12 +1,12 @@
 package com.tk.quicksearch.shared.ui.components
 
-import com.tk.quicksearch.shared.ui.theme.AppShapes
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DropdownMenuGroup
@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /** A three-dot button anchored to a dropdown. Menu items can dismiss it when selected. */
@@ -56,21 +55,19 @@ fun AppOverflowMenu(content: @Composable ColumnScope.(dismiss: () -> Unit) -> Un
     }
 }
 
-/** Container colors for [AppDropdownMenu]. */
+/** Colors for [AppDropdownMenu]. */
 object AppDropdownMenuDefaults {
-    /** Standard popup menu surface. */
+    /**
+     * The menu surface. Material's default (`surfaceContainerLow`) nearly matches the drawers and
+     * sheets menus open over, so menus sit on the highest container with a level-3 shadow instead.
+     */
     val containerColor: Color
-        @Composable get() = MaterialTheme.colorScheme.surfaceContainer
-
-    /** Tonal surface for long-press menus over result items. */
-    val itemMenuContainerColor: Color
-        @Composable get() = MaterialTheme.colorScheme.surfaceContainer
+        @Composable get() = MaterialTheme.colorScheme.surfaceContainerHighest
 }
 
 /**
- * The app's popup menu: Material 3 Expressive's [DropdownMenuPopup] holding one
- * [DropdownMenuGroup], a rounded tonal surface that doesn't steal focus from the search field.
- * Put [AppDropdownMenuDivider] between items. Long menus scroll inside the group.
+ * The app's Material 3 Expressive vertical menu on [AppDropdownMenuDefaults.containerColor].
+ * The focus policy lets menus opened over search preserve the keyboard.
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -79,7 +76,6 @@ fun AppDropdownMenu(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     offset: DpOffset = DpOffset(0.dp, 0.dp),
-    containerColor: Color = AppDropdownMenuDefaults.containerColor,
     focusable: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -95,21 +91,25 @@ fun AppDropdownMenu(
         properties = PopupProperties(focusable = focusable),
     ) {
         DropdownMenuGroup(
-            shapes = MenuDefaults.groupShapes(shape = AppShapes.extraLarge, inactiveShape = AppShapes.extraLarge),
-            modifier = modifier.verticalScroll(rememberScrollState()),
-            containerColor = containerColor,
-            tonalElevation = DesignTokens.ElevationLevel0,
-            shadowElevation = DesignTokens.ElevationLevel2,
+            shapes = MenuDefaults.groupShapes(),
+            modifier = modifier
+                // Keep the inset visible while scrolling so end rows clear the rounded corners.
+                .padding(vertical = DesignTokens.SpacingXSmall)
+                .verticalScroll(rememberScrollState()),
+            contentPadding = PaddingValues(0.dp),
+            containerColor = AppDropdownMenuDefaults.containerColor,
+            shadowElevation = DesignTokens.ElevationLevel3,
             content = content,
         )
     }
 }
 
 /** Divider placed between [AppDropdownMenu] items. */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppDropdownMenuDivider() {
     HorizontalDivider(
-        modifier = Modifier.padding(horizontal = DesignTokens.SpacingMedium),
+        modifier = Modifier.padding(MenuDefaults.HorizontalDividerPadding),
         color = MaterialTheme.colorScheme.outlineVariant,
     )
 }
@@ -155,6 +155,7 @@ fun AppDropdownMenuItem(
  * [ImageVector] (drawable painters, icons chosen by the caller's menu model).
  */
 @Composable
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun AppDropdownMenuItem(
     text: String,
     onClick: () -> Unit,
@@ -174,40 +175,19 @@ fun AppDropdownMenuItem(
             MenuDefaults.itemColors()
         }
     DropdownMenuItem(
-        text = {
-            if (supportingText == null) {
-                Text(text = text)
-            } else {
-                // Extra vertical room so the two lines don't crowd the 48dp minimum row height.
-                Column(
-                    modifier = Modifier.padding(vertical = DesignTokens.SpacingMedium),
-                    verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing),
-                ) {
-                    Text(text = text)
-                    Text(
-                        text = supportingText,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-        },
+        text = { Text(text = text) },
         onClick = onClick,
-        shape = AppShapes.large,
-        modifier = modifier
-            .padding(horizontal = DesignTokens.SpacingXSmall)
-            .heightIn(min = DesignTokens.ItemMenuRowHeight),
+        shape = MenuDefaults.standaloneItemShape,
+        modifier = modifier.heightIn(min = DesignTokens.MinTouchTarget),
         leadingIcon = leadingIcon,
+        supportingText = supportingText?.let { label -> { Text(text = label) } },
         enabled = enabled,
         colors = colors,
     )
 }
 
-/**
- * A single-choice row for [AppDropdownMenu], such as a sort order: Material's
- * [SelectableDropdownMenuItem], with a check and an accent tint on the [selected] option and
- * radio button semantics.
- */
+/** An expressive single-choice row: a secondary-container pill and trailing check when selected, with radio semantics. */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppSelectableDropdownMenuItem(
     text: String,
@@ -216,21 +196,34 @@ fun AppSelectableDropdownMenuItem(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
+    val checkSize = MenuDefaults.TrailingIconSize
     SelectableDropdownMenuItem(
         selected = selected,
-        onClick = onClick,
         text = { Text(text = text) },
-        shapes = MenuDefaults.itemShapes(shape = AppShapes.large, selectedShape = AppShapes.large),
-        modifier = modifier
-            .padding(horizontal = DesignTokens.SpacingXSmall)
-            .heightIn(min = DesignTokens.ItemMenuRowHeight),
-        selectedLeadingIcon = { Icon(imageVector = MaterialSymbols.Check, contentDescription = null) },
+        onClick = onClick,
+        shapes = MenuDefaults.itemShapes(),
+        modifier = modifier.heightIn(min = DesignTokens.MinTouchTarget),
+        trailingContent = {
+            if (selected) {
+                Icon(
+                    imageVector = MaterialSymbols.Check,
+                    contentDescription = null,
+                    modifier = Modifier.size(checkSize),
+                )
+            } else {
+                Spacer(Modifier.size(checkSize))
+            }
+        },
+        // Unselected rows stay transparent on the menu surface (Material paints surfaceContainerLow,
+        // which shows as darker bands on our higher surface). The selected pill uses the same
+        // secondary container as the tonal sort button, so it matches the app's palette.
+        colors = MenuDefaults.selectableItemColors(
+            containerColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent,
+            selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            selectedTextColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            selectedTrailingContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        ),
         enabled = enabled,
-        colors =
-            MenuDefaults.selectableItemColors(
-                selectedContainerColor = AppColors.AccentTintTonal,
-                selectedLeadingIconColor = AppColors.Accent,
-                selectedTextColor = MaterialTheme.colorScheme.onSurface,
-            ),
     )
 }

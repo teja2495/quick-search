@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import com.tk.quicksearch.settings.gestureSettings.labelResId
 import com.tk.quicksearch.shared.ui.components.AppFabTone
 import com.tk.quicksearch.shared.ui.components.AppExtendedFloatingActionButton
@@ -23,6 +24,12 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Checkbox
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.TonalButton
+import com.tk.quicksearch.shared.ui.components.AppSortControls
+import com.tk.quicksearch.search.apps.AppSortMetadata
+import com.tk.quicksearch.search.apps.AppSortOption
+import com.tk.quicksearch.search.apps.appSortComparator
+import com.tk.quicksearch.search.apps.needsMetadata
+import com.tk.quicksearch.search.apps.availableAppSortOptions
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -68,19 +75,6 @@ import java.util.Locale
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.components.AppIconButtonStyle
 
-private enum class AppSortOption(
-    @StringRes val labelResId: Int,
-    val requiresUsagePermission: Boolean = false,
-) {
-    NAME(R.string.settings_app_sort_name),
-    APK_SIZE(R.string.settings_app_sort_apk_size),
-    MOST_USED(R.string.common_most_used, requiresUsagePermission = true),
-    LEAST_USED(R.string.settings_app_sort_least_used, requiresUsagePermission = true),
-    INSTALLATION_DATE(R.string.settings_app_info_install_date),
-    LAST_UPDATE(R.string.settings_app_info_last_update),
-    API_LEVEL(R.string.settings_app_sort_api_level),
-}
-
 @Composable
 fun AppManagementSettingsSection(
     apps: List<AppInfo>,
@@ -110,9 +104,6 @@ fun AppManagementSettingsSection(
 
     var selectedSortOption by rememberSaveable { mutableStateOf(AppSortOption.NAME) }
     var isSortAscending by rememberSaveable { mutableStateOf(true) }
-    var isSortMenuExpanded by remember { mutableStateOf(false) }
-    var sortButtonWidthPx by remember { mutableStateOf(0) }
-    val density = LocalDensity.current
     var selectedAppKeys by rememberSaveable { mutableStateOf(setOf<String>()) }
     var uninstallQueueKeys by remember { mutableStateOf<List<String>>(emptyList()) }
     var currentUninstallKey by remember { mutableStateOf<String?>(null) }
@@ -124,7 +115,7 @@ fun AppManagementSettingsSection(
     val appByKey = remember(apps) { apps.associateBy { it.launchCountKey() } }
     val availableSortOptions =
         remember(hasUsagePermission) {
-            AppSortOption.entries.filter { !it.requiresUsagePermission || hasUsagePermission }
+            availableAppSortOptions(hasUsagePermission)
         }
 
     LaunchedEffect(availableSortOptions, selectedSortOption) {
@@ -140,12 +131,7 @@ fun AppManagementSettingsSection(
 
     val selectedCount = selectedAppKeys.size
     var sortedApps by remember(apps) { mutableStateOf<List<AppInfo>?>(null) }
-    val metadataForSort =
-        when (selectedSortOption) {
-            AppSortOption.APK_SIZE, AppSortOption.INSTALLATION_DATE, AppSortOption.LAST_UPDATE, AppSortOption.API_LEVEL ->
-                appSortMetadataByKey
-            else -> emptyMap()
-        }
+    val metadataForSort = if (selectedSortOption.needsMetadata) appSortMetadataByKey else emptyMap()
     LaunchedEffect(apps, normalizedSearchQuery, locale, selectedSortOption, isSortAscending, metadataForSort) {
         val metadata = metadataForSort ?: return@LaunchedEffect
         sortedApps = withContext(Dispatchers.Default) {
@@ -222,65 +208,15 @@ fun AppManagementSettingsSection(
     }
 
     Column(modifier = modifier) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = DesignTokens.SpacingMedium),
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(modifier = Modifier.onSizeChanged { sortButtonWidthPx = it.width }) {
-                TonalButton(
-                    text = stringResource(
-                        R.string.settings_app_sort_by_format,
-                        stringResource(selectedSortOption.labelResId),
-                    ),
-                    onClick = { isSortMenuExpanded = true },
-                    icon = MaterialSymbols.ExpandMore,
-                )
-                AppDropdownMenu(
-                    expanded = isSortMenuExpanded,
-                    onDismissRequest = { isSortMenuExpanded = false },
-                    modifier = Modifier.width(with(density) { sortButtonWidthPx.toDp() }),
-                    offset = DpOffset(0.dp, DesignTokens.SpacingSmall),
-                ) {
-                    availableSortOptions.forEachIndexed { index, option ->
-                        if (index > 0) AppDropdownMenuDivider()
-                        AppSelectableDropdownMenuItem(
-                            text = stringResource(option.labelResId),
-                            selected = option == selectedSortOption,
-                            onClick = {
-                                selectedSortOption = option
-                                isSortMenuExpanded = false
-                            },
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            AppIconButton(
-                onClick = { isSortAscending = !isSortAscending },
-                tooltip =
-                    stringResource(
-                        if (isSortAscending) R.string.settings_app_sort_ascending else R.string.settings_app_sort_descending,
-                    ),
-                style = AppIconButtonStyle.Tonal,
-            ) {
-                Icon(
-                    imageVector =
-                        if (isSortAscending) {
-                            MaterialSymbols.ArrowUpward
-                        } else {
-                            MaterialSymbols.ArrowDownward
-                        },
-                    contentDescription =
-                        if (isSortAscending) {
-                            stringResource(R.string.settings_app_sort_ascending)
-                        } else {
-                            stringResource(R.string.settings_app_sort_descending)
-                        },
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-            }
-        }
+        AppSortControls(
+            options = availableSortOptions,
+            selectedOption = selectedSortOption,
+            optionLabel = { stringResource(it.labelResId) },
+            onOptionSelected = { selectedSortOption = it },
+            isAscending = isSortAscending,
+            onAscendingChange = { isSortAscending = it },
+            modifier = Modifier.padding(bottom = DesignTokens.SpacingMedium),
+        )
 
         val displayedApps = sortedApps
         val screenHeight = LocalConfiguration.current.screenHeightDp.dp
@@ -300,7 +236,7 @@ fun AppManagementSettingsSection(
                 } else {
                     LazyColumn(
                         state = listState,
-                        modifier = Modifier.fillMaxWidth().heightIn(max = screenHeight),
+                        modifier = Modifier.fillMaxWidth().heightIn(max = screenHeight).settingsScrollClip(listState),
                         verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
                         contentPadding = PaddingValues(
                             bottom = if (selectedCount > 0) {
@@ -508,47 +444,7 @@ private fun sortManagementApps(
                 .map { it.first }
         }
 
-    val baseComparator =
-        when (selectedSortOption) {
-            AppSortOption.NAME -> {
-                compareBy<AppInfo> { nameKey(it) }
-            }
-
-            AppSortOption.APK_SIZE -> {
-                compareBy<AppInfo> { app -> appSortMetadataByKey[app.launchCountKey()]?.sizeBytes ?: 0L }
-                    .thenBy { nameKey(it) }
-            }
-
-            AppSortOption.MOST_USED -> {
-                compareByDescending<AppInfo> { it.launchCount }
-                    .thenByDescending { it.totalTimeInForeground }
-                    .thenBy { nameKey(it) }
-            }
-
-            AppSortOption.LEAST_USED -> {
-                compareBy<AppInfo> { it.launchCount }
-                    .thenBy { it.totalTimeInForeground }
-                    .thenBy { nameKey(it) }
-            }
-
-            AppSortOption.INSTALLATION_DATE -> {
-                compareBy<AppInfo> { app ->
-                    appSortMetadataByKey[app.launchCountKey()]?.installTimeMillis ?: app.firstInstallTime
-                }
-                    .thenBy { nameKey(it) }
-            }
-
-            AppSortOption.LAST_UPDATE -> {
-                compareBy<AppInfo> { app -> appSortMetadataByKey[app.launchCountKey()]?.lastUpdateTimeMillis ?: 0L }
-                    .thenBy { nameKey(it) }
-            }
-
-            AppSortOption.API_LEVEL -> {
-                compareBy<AppInfo> { app -> appSortMetadataByKey[app.launchCountKey()]?.targetSdk ?: 0 }
-                    .thenBy { nameKey(it) }
-            }
-        }
-
+    val baseComparator = appSortComparator(selectedSortOption, appSortMetadataByKey, ::nameKey)
     val comparator = if (isSortAscending) baseComparator else baseComparator.reversed()
     return filteredApps.sortedWith(comparator)
 }

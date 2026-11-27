@@ -402,6 +402,7 @@
     <string name="settings_app_sort_least_used">Minst gebruikt</string>
     <string name="settings_app_sort_name">Naam</string>
     <string name="settings_app_uninstall_selected_format">Verwijderen (%1$d)</string>
+    <string name="all_apps_select_to_uninstall">Apps selecteren om te verwijderen</string>
     <string name="settings_apps_empty">Geen apps gevonden.</string>
     <string name="settings_manage_apps_desc">Beheer je apps</string>
     <string name="settings_manage_apps_title">Apps beheren</string>
@@ -460,8 +461,6 @@
     <string name="settings_app_shortcuts_expand_all">Alles uitvouwen</string>
     <string name="settings_app_shortcuts_filter_all_apps">Alle apps</string>
     <string name="all_apps_private_space">Privéruimte</string>
-    <string name="all_apps_sort_by_install_date">Sorteren op installatiedatum</string>
-    <string name="all_apps_sort_alphabetically">Alfabetisch sorteren</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Apps met snelkoppelingen</string>
     <string name="settings_app_shortcuts_filter_search_engines">Zoekmachines</string>
     <string name="settings_app_shortcuts_query_label">Zoekopdracht</string>

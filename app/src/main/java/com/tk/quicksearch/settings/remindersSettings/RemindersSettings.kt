@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.remindersSettings
 
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.settings.gestureSettings.labelResId
 import com.tk.quicksearch.shared.ui.components.AppIconButton
@@ -313,7 +314,7 @@ fun RemindersSettingsSection(
             } else {
                 LazyColumn(
                     state = listState,
-                    modifier = Modifier.fillMaxWidth().heightIn(max = screenHeight).clip(AppShapes.extraLarge),
+                    modifier = Modifier.fillMaxWidth().heightIn(max = screenHeight).settingsScrollClip(listState),
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
                 ) {
                     itemsIndexed(items = displayedReminders, key = { _, entry -> entry.key }) { index, entry ->

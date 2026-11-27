@@ -395,6 +395,7 @@
     <string name="settings_app_sort_least_used">Najmniej używane</string>
     <string name="settings_app_sort_name">Nazwa</string>
     <string name="settings_app_uninstall_selected_format">Odinstaluj (%1$d)</string>
+    <string name="all_apps_select_to_uninstall">Wybierz aplikacje do odinstalowania</string>
     <string name="settings_apps_empty">Nie znaleziono aplikacji.</string>
     <string name="settings_manage_apps_desc">Zarządzaj swoimi aplikacjami</string>
     <string name="settings_manage_apps_title">Zarządzaj aplikacjami</string>
@@ -453,8 +454,6 @@
     <string name="settings_app_shortcuts_expand_all">Rozwiń wszystko</string>
     <string name="settings_app_shortcuts_filter_all_apps">Wszystkie aplikacje</string>
     <string name="all_apps_private_space">Przestrzeń prywatna</string>
-    <string name="all_apps_sort_by_install_date">Sortuj według daty instalacji</string>
-    <string name="all_apps_sort_alphabetically">Sortuj alfabetycznie</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Aplikacje ze skrótami</string>
     <string name="settings_app_shortcuts_filter_search_engines">Wyszukiwarki</string>
     <string name="settings_app_shortcuts_query_label">Zapytanie</string>

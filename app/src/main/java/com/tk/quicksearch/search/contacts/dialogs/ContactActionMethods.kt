@@ -39,7 +39,6 @@ import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.ContactMethodMimeTypes
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
-import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDefaults
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.util.PackageConstants.WHATSAPP_BUSINESS_PACKAGE
 import com.tk.quicksearch.shared.util.hapticConfirm
@@ -288,7 +287,6 @@ private fun ContactActionLongPressMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest,
         offset = DpOffset(x = 0.dp, y = 8.dp),
-        containerColor = AppDropdownMenuDefaults.itemMenuContainerColor,
     ) {
         if (!isDefaultLauncher) {
             AppDropdownMenuItem(

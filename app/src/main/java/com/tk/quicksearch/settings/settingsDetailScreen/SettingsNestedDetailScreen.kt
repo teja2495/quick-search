@@ -293,7 +293,6 @@ internal fun SettingsNestedDetailScreen(
                                 end = DesignTokens.ContentHorizontalPadding,
                                 bottom = 96.dp,
                             )
-                            .settingsScrollClip(),
                 )
             } else if (detailType == SettingsDetailType.APP_SHORTCUTS) {
                 AppShortcutsDetailContent(
@@ -326,7 +325,6 @@ internal fun SettingsNestedDetailScreen(
                             end = DesignTokens.ContentHorizontalPadding,
                             bottom = DesignTokens.SectionTopPadding,
                         )
-                        .settingsScrollClip(),
                 )
             } else if (detailType == SettingsDetailType.CUSTOM_TOOL_EDITOR) {
                 CustomToolEditorDetailContent(state, callbacks, context)
@@ -343,7 +341,6 @@ internal fun SettingsNestedDetailScreen(
                                 end = DesignTokens.ContentHorizontalPadding,
                                 bottom = 96.dp,
                             )
-                            .settingsScrollClip(),
                 )
             } else if (detailType == SettingsDetailType.BOOKMARKS) {
                 BookmarksSettingsSection(
@@ -351,12 +348,12 @@ internal fun SettingsNestedDetailScreen(
                     availableBrowsers = state.searchEngineOrder.filterIsInstance<SearchTarget.Browser>().map { it.app },
                     addRequest = bookmarksAddRequest,
                     modifier = Modifier.settingsContentWidth().fillMaxHeight().align(Alignment.CenterHorizontally)
-                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = 96.dp).settingsScrollClip(),
+                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = 96.dp),
                 )
             } else if (detailType == SettingsDetailType.DEVICE_SETTINGS) {
                 DeviceSettingsSettingsSection(
                     modifier = Modifier.settingsContentWidth().fillMaxHeight().align(Alignment.CenterHorizontally)
-                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = DesignTokens.SectionTopPadding).settingsScrollClip(),
+                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = DesignTokens.SectionTopPadding),
                     settings = state.allDeviceSettings,
                     onSettingClick = { setting ->
                         if (setting.id == NOTIFICATION_HISTORY_SETTING_ID) {
@@ -375,7 +372,7 @@ internal fun SettingsNestedDetailScreen(
                     onHideEvent = callbacks.onHideCalendarEvent,
                     onUnhideEvent = callbacks.onUnhideCalendarEvent,
                     modifier = Modifier.settingsContentWidth().fillMaxHeight().align(Alignment.CenterHorizontally)
-                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = 96.dp).settingsScrollClip(),
+                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = 96.dp),
                 )
             } else if (detailType == SettingsDetailType.NOTIFICATION_HISTORY) {
                 NotificationHistorySettingsSection(
@@ -392,7 +389,6 @@ internal fun SettingsNestedDetailScreen(
                                 end = DesignTokens.ContentHorizontalPadding,
                                 bottom = 96.dp,
                             )
-                            .settingsScrollClip(),
                 )
             } else if (detailType == SettingsDetailType.NOTES) {
                 NotesSettingsSection(
@@ -426,7 +422,6 @@ internal fun SettingsNestedDetailScreen(
                                 end = DesignTokens.ContentHorizontalPadding,
                                 bottom = 96.dp,
                             )
-                            .settingsScrollClip(),
                 )
             } else if (detailType == SettingsDetailType.NOTE_EDITOR) {
                 NoteEditor(
@@ -443,7 +438,6 @@ internal fun SettingsNestedDetailScreen(
                                 start = DesignTokens.ContentHorizontalPadding,
                                 end = DesignTokens.ContentHorizontalPadding,
                             )
-                            .settingsScrollClip(),
                 )
             } else {
                 Column(

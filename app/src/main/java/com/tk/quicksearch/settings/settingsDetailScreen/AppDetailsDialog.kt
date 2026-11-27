@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.TonalButton
+import com.tk.quicksearch.search.apps.AppSortMetadata
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.material3.HorizontalDivider
@@ -201,41 +202,6 @@ private data class AppMetadata(
     val installDate: String,
     val lastUpdate: String,
 )
-
-internal data class AppSortMetadata(
-    val sizeBytes: Long,
-    val installTimeMillis: Long,
-    val lastUpdateTimeMillis: Long,
-    val targetSdk: Int,
-)
-
-internal fun loadAppSortMetadata(
-    context: Context,
-    app: AppInfo,
-): AppSortMetadata {
-    val packageInfo =
-        runCatching {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                context.packageManager.getPackageInfo(
-                    app.packageName,
-                    PackageManager.PackageInfoFlags.of(0),
-                )
-            } else {
-                @Suppress("DEPRECATION")
-                context.packageManager.getPackageInfo(app.packageName, 0)
-            }
-        }.getOrNull()
-
-    val sourceDir = packageInfo?.applicationInfo?.sourceDir
-    val appSizeBytes = sourceDir?.let { path -> runCatching { File(path).length() }.getOrDefault(0L) } ?: 0L
-
-    return AppSortMetadata(
-        sizeBytes = appSizeBytes,
-        installTimeMillis = packageInfo?.firstInstallTime ?: app.firstInstallTime,
-        lastUpdateTimeMillis = packageInfo?.lastUpdateTime ?: 0L,
-        targetSdk = packageInfo?.applicationInfo?.targetSdkVersion ?: 0,
-    )
-}
 
 private fun loadAppMetadata(
     context: Context,

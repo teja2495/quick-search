@@ -392,6 +392,7 @@
     <string name="settings_app_sort_least_used">使用頻度の低い順</string>
     <string name="settings_app_sort_name">名前</string>
     <string name="settings_app_uninstall_selected_format">アンインストール (%1$d)</string>
+    <string name="all_apps_select_to_uninstall">アンインストールするアプリを選択</string>
     <string name="settings_apps_empty">アプリが見つかりません。</string>
     <string name="settings_manage_apps_desc">アプリを管理</string>
     <string name="settings_manage_apps_title">アプリの管理</string>
@@ -448,8 +449,6 @@
     <string name="settings_app_shortcuts_expand_all">すべて展開</string>
     <string name="settings_app_shortcuts_filter_all_apps">すべてのアプリ</string>
     <string name="all_apps_private_space">プライベート スペース</string>
-    <string name="all_apps_sort_by_install_date">インストール日順に並べ替え</string>
-    <string name="all_apps_sort_alphabetically">名前順に並べ替え</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">ショートカット付きアプリ</string>
     <string name="settings_app_shortcuts_filter_search_engines">検索エンジン</string>
     <string name="settings_app_shortcuts_query_label">クエリ</string>

@@ -392,6 +392,7 @@
     <string name="settings_app_sort_least_used">Λιγότερο χρησιμοποιούμενα</string>
     <string name="settings_app_sort_name">Όνομα</string>
     <string name="settings_app_uninstall_selected_format">Απεγκατάσταση (%1$d)</string>
+    <string name="all_apps_select_to_uninstall">Επιλέξτε εφαρμογές για απεγκατάσταση</string>
     <string name="settings_apps_empty">Δεν βρέθηκαν εφαρμογές.</string>
     <string name="settings_manage_apps_desc">Διαχειριστείτε τις εφαρμογές σας</string>
     <string name="settings_manage_apps_title">Διαχείριση εφαρμογών</string>
@@ -444,8 +445,6 @@
     <string name="settings_app_shortcuts_expand_all">Ανάπτυξη όλων</string>
     <string name="settings_app_shortcuts_filter_all_apps">Όλες οι εφαρμογές</string>
     <string name="all_apps_private_space">Ιδιωτικός χώρος</string>
-    <string name="all_apps_sort_by_install_date">Ταξινόμηση κατά ημερομηνία εγκατάστασης</string>
-    <string name="all_apps_sort_alphabetically">Αλφαβητική ταξινόμηση</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Εφαρμογές με συντομεύσεις</string>
     <string name="settings_app_shortcuts_filter_search_engines">Μηχανές αναζήτησης</string>
     <string name="settings_app_shortcuts_query_label">Ερώτημα</string>

@@ -392,6 +392,7 @@
     <string name="settings_app_sort_least_used">Paling Jarang Digunakan</string>
     <string name="settings_app_sort_name">Nama</string>
     <string name="settings_app_uninstall_selected_format">Copot pemasangan (%1$d)</string>
+    <string name="all_apps_select_to_uninstall">Pilih aplikasi yang akan di-uninstal</string>
     <string name="settings_apps_empty">Aplikasi tidak ditemukan.</string>
     <string name="settings_manage_apps_desc">Kelola aplikasi Anda</string>
     <string name="settings_manage_apps_title">Kelola Aplikasi</string>
@@ -444,8 +445,6 @@
     <string name="settings_app_shortcuts_expand_all">Perluas semua</string>
     <string name="settings_app_shortcuts_filter_all_apps">Semua Aplikasi</string>
     <string name="all_apps_private_space">Ruang pribadi</string>
-    <string name="all_apps_sort_by_install_date">Urutkan menurut tanggal pemasangan</string>
-    <string name="all_apps_sort_alphabetically">Urutkan menurut abjad</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Aplikasi dengan Pintasan</string>
     <string name="settings_app_shortcuts_filter_search_engines">Mesin Pencari</string>
     <string name="settings_app_shortcuts_query_label">Kueri</string>

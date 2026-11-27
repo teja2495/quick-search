@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.tasker
 
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -64,8 +65,9 @@ fun TaskerIntegrationScreen(
     val canAdd = isValidGeneralAliasCode(alias) && !aliasConflict && name.isNotBlank() && actionValid
     val taskerIcon = rememberAppIcon(TaskerIntegration.PACKAGE_NAME).bitmap
 
+    val scrollState = rememberScrollState()
     Column(
-        modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+        modifier = modifier.fillMaxSize().settingsScrollClip(scrollState).verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         SegmentedTile(index = 0, count = 1) {

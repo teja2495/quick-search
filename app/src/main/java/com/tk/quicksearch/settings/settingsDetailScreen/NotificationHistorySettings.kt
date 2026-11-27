@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import androidx.compose.material3.IconButtonDefaults
 import com.tk.quicksearch.shared.ui.components.AppIconButton
 import com.tk.quicksearch.shared.ui.components.AppMessages
@@ -233,7 +234,7 @@ fun NotificationHistorySettingsSection(
             LazyColumn(
                 state = listState,
                 modifier =
-                    Modifier.fillMaxWidth().heightIn(max = screenHeight).clip(AppShapes.extraLarge),
+                    Modifier.fillMaxWidth().heightIn(max = screenHeight).settingsScrollClip(listState),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
             ) {
                 itemsIndexed(

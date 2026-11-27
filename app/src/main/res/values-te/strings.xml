@@ -392,6 +392,7 @@
     <string name="settings_app_sort_least_used">అత్యంత తక్కువగా ఉపయోగించినవి</string>
     <string name="settings_app_sort_name">పేరు</string>
     <string name="settings_app_uninstall_selected_format">అన్‌ఇన్‌స్టాల్ చేయి (%1$d)</string>
+    <string name="all_apps_select_to_uninstall">అన్‌ఇన్‌స్టాల్ చేయడానికి యాప్‌లను ఎంచుకోండి</string>
     <string name="settings_apps_empty">యాప్‌లు ఏవీ కనుగొనబడలేదు.</string>
     <string name="settings_manage_apps_desc">మీ యాప్‌లను నిర్వహించండి</string>
     <string name="settings_manage_apps_title">యాప్‌లను నిర్వహించండి</string>
@@ -444,8 +445,6 @@
     <string name="settings_app_shortcuts_expand_all">అన్నింటినీ విస్తరించు</string>
     <string name="settings_app_shortcuts_filter_all_apps">అన్ని యాప్‌లు</string>
     <string name="all_apps_private_space">ప్రైవేట్ స్పేస్</string>
-    <string name="all_apps_sort_by_install_date">ఇన్‌స్టాల్ చేసిన తేదీ ప్రకారం క్రమపరచండి</string>
-    <string name="all_apps_sort_alphabetically">అక్షర క్రమంలో క్రమపరచండి</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">షార్ట్‌కట్‌లు ఉన్న యాప్‌లు</string>
     <string name="settings_app_shortcuts_filter_search_engines">శోధన ఇంజిన్‌లు</string>
     <string name="settings_app_shortcuts_query_label">ప్రశ్న</string>

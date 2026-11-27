@@ -47,7 +47,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.pluralStringResource
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
-import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDefaults
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
@@ -606,7 +605,6 @@ private fun AppSwipeActionDropdown(
             onDismissRequest = onDismiss,
             modifier = Modifier.width(maxWidth),
             offset = DpOffset(x = 0.dp, y = 8.dp),
-            containerColor = AppDropdownMenuDefaults.itemMenuContainerColor,
         ) {
             if (action == null) return@AppDropdownMenu
             Column(

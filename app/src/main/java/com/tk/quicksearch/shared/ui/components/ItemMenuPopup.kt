@@ -242,7 +242,6 @@ fun ItemMenuLongPressDropdown(
         expanded = expanded,
         onDismissRequest = onDismiss,
         offset = DpOffset(x = 0.dp, y = 8.dp),
-        containerColor = AppDropdownMenuDefaults.itemMenuContainerColor,
     ) {
         AppDropdownMenuItem(
             text = option.label,

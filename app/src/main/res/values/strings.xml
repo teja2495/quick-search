@@ -406,6 +406,7 @@
     <string name="settings_app_sort_least_used">Least Used</string>
     <string name="settings_app_sort_name">Name</string>
     <string name="settings_app_uninstall_selected_format">Uninstall (%1$d)</string>
+    <string name="all_apps_select_to_uninstall">Select apps to uninstall</string>
     <string name="settings_apps_empty">No apps found.</string>
     <string name="settings_manage_apps_desc">Manage your apps</string>
     <string name="settings_manage_apps_title">Manage Apps</string>
@@ -458,8 +459,6 @@
     <string name="settings_app_shortcuts_expand_all">Expand all</string>
     <string name="settings_app_shortcuts_filter_all_apps">All Apps</string>
     <string name="all_apps_private_space">Private space</string>
-    <string name="all_apps_sort_by_install_date">Sort by install date</string>
-    <string name="all_apps_sort_alphabetically">Sort alphabetically</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Apps with Shortcuts</string>
     <string name="settings_app_shortcuts_filter_search_engines">Search Engines</string>
     <string name="settings_app_shortcuts_query_label">Query</string>

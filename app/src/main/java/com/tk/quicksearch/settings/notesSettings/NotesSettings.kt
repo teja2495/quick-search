@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.notesSettings
 
+import androidx.compose.foundation.lazy.rememberLazyListState
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.semantics.semantics
@@ -198,8 +200,10 @@ private fun NotesList(
     onEnterMultiSelect: (Long) -> Unit,
     onToggleNoteSelected: (Long) -> Unit,
 ) {
+    val listState = rememberLazyListState()
     LazyColumn(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight().clip(AppShapes.extraLarge),
+        state = listState,
+        modifier = Modifier.fillMaxWidth().wrapContentHeight().settingsScrollClip(listState),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
     ) {
         itemsIndexed(

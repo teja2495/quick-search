@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.bookmarksSettings
 
+import androidx.compose.foundation.lazy.rememberLazyListState
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppMessages
 import com.tk.quicksearch.shared.ui.components.AppIconButton
@@ -178,8 +180,10 @@ fun BookmarksSettingsSection(
                     )
                 }
             } else {
+                val listState = rememberLazyListState()
                 LazyColumn(
-                    modifier = Modifier.fillMaxWidth().heightIn(max = screenHeight).clip(AppShapes.extraLarge),
+                    state = listState,
+                    modifier = Modifier.fillMaxWidth().heightIn(max = screenHeight).settingsScrollClip(listState),
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
                 ) {
                     itemsIndexed(items = displayed, key = { _, bookmark -> bookmark.bookmarkId }) { index, bookmark ->

@@ -392,6 +392,7 @@
     <string name="settings_app_sort_least_used">सबसे कम उपयोग</string>
     <string name="settings_app_sort_name">नाम</string>
     <string name="settings_app_uninstall_selected_format">अनइंस्टॉल (%1$d)</string>
+    <string name="all_apps_select_to_uninstall">अनइंस्टॉल करने के लिए ऐप्लिकेशन चुनें</string>
     <string name="settings_apps_empty">कोई ऐप नहीं मिला।</string>
     <string name="settings_manage_apps_desc">अपने ऐप्स प्रबंधित करें</string>
     <string name="settings_manage_apps_title">ऐप्स प्रबंधित करें</string>
@@ -444,8 +445,6 @@
     <string name="settings_app_shortcuts_expand_all">सभी फैलाएं</string>
     <string name="settings_app_shortcuts_filter_all_apps">सभी ऐप्स</string>
     <string name="all_apps_private_space">प्राइवेट स्पेस</string>
-    <string name="all_apps_sort_by_install_date">इंस्टॉल की तारीख के अनुसार क्रमबद्ध करें</string>
-    <string name="all_apps_sort_alphabetically">वर्णानुक्रम में क्रमबद्ध करें</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">शॉर्टकट वाले ऐप्स</string>
     <string name="settings_app_shortcuts_filter_search_engines">सर्च इंजन</string>
     <string name="settings_app_shortcuts_query_label">क्वेरी</string>

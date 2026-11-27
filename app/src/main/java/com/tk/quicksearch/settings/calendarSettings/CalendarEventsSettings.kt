@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.calendarSettings
 
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.shared.ui.components.AppFabTone
 import com.tk.quicksearch.shared.ui.components.AppExtendedFloatingActionButton
@@ -268,7 +269,7 @@ fun CalendarEventsSettingsSection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = screenHeight)
-                    .clip(AppShapes.extraLarge),
+                    .settingsScrollClip(listState),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
             ) {
                 itemsIndexed(

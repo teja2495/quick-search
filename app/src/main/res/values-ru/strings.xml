@@ -394,6 +394,7 @@
 <string name="settings_app_sort_least_used">Редко используемые</string>
     <string name="settings_app_sort_name">Название</string>
 <string name="settings_app_uninstall_selected_format">Удалить (%1$d)</string>
+<string name="all_apps_select_to_uninstall">Выберите приложения для удаления</string>
 <string name="settings_apps_empty">Приложения не найдены.</string>
 <string name="settings_manage_apps_desc">Управление вашими приложениями</string>
 <string name="settings_manage_apps_title">Управление приложениями</string>
@@ -448,8 +449,6 @@
 <string name="settings_app_shortcuts_expand_all">Развернуть все</string>
 <string name="settings_app_shortcuts_filter_all_apps">Все приложения</string>
 <string name="all_apps_private_space">Частное пространство</string>
-<string name="all_apps_sort_by_install_date">Сортировать по дате установки</string>
-<string name="all_apps_sort_alphabetically">Сортировать по алфавиту</string>
 <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Приложения с ярлыками</string>
 <string name="settings_app_shortcuts_filter_search_engines">Поисковые системы</string>
 <string name="settings_app_shortcuts_query_label">Запрос</string>

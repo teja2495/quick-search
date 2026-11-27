@@ -397,6 +397,7 @@
     <string name="settings_app_sort_least_used">الأقل استخداماً</string>
     <string name="settings_app_sort_name">الاسم</string>
     <string name="settings_app_uninstall_selected_format">إلغاء التثبيت (%1$d)</string>
+    <string name="all_apps_select_to_uninstall">اختر التطبيقات لإلغاء تثبيتها</string>
     <string name="settings_apps_empty">لم يتم العثور على أي تطبيقات.</string>
     <string name="settings_manage_apps_desc">إدارة تطبيقاتك</string>
     <string name="settings_manage_apps_title">إدارة التطبيقات</string>
@@ -453,8 +454,6 @@
     <string name="settings_app_shortcuts_expand_all">توسيع الكل</string>
     <string name="settings_app_shortcuts_filter_all_apps">جميع التطبيقات</string>
     <string name="all_apps_private_space">المساحة الخاصة</string>
-    <string name="all_apps_sort_by_install_date">الترتيب حسب تاريخ التثبيت</string>
-    <string name="all_apps_sort_alphabetically">الترتيب أبجديًا</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">التطبيقات ذات الاختصارات</string>
     <string name="settings_app_shortcuts_filter_search_engines">محركات البحث</string>
     <string name="settings_app_shortcuts_query_label">عبارة البحث</string>

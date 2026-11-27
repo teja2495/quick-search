@@ -1,13 +1,11 @@
 package com.tk.quicksearch.settings.shared
 
-import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -30,19 +28,11 @@ fun Modifier.settingsContentWidth(): Modifier =
         fillMaxWidth()
     }
 
-private val SettingsScrollViewportShape = AppShapes.segmentGroup
-
 /**
- * Clips a settings scroll viewport to the settings card corner radius so cards scrolling past
- * the top or bottom edge follow the same rounded outline. Apply after the horizontal content
- * padding and before any scroll modifier.
- */
-fun Modifier.settingsScrollClip(): Modifier = clip(SettingsScrollViewportShape)
-
-/**
- * Scroll-aware [settingsScrollClip]: each edge rounds only as content scrolls under it, growing to
- * the full card radius, so a header or text resting at the top or bottom of the viewport is never
- * cut by the corner. Apply to the viewport that owns [scrollState], before its scroll modifier.
+ * Clips a settings scroll viewport so cards scrolling past its top or bottom edge stay rounded.
+ * Each edge rounds only as content scrolls under it, growing to the full card radius, so the
+ * viewport has square corners at rest. Apply to the viewport that owns [scrollState], after the
+ * horizontal content padding and before its scroll modifier.
  */
 fun Modifier.settingsScrollClip(scrollState: ScrollState): Modifier {
     val shapes = ScrollEdgeShapeCache()

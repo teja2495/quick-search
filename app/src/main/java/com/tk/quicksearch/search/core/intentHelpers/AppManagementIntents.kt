@@ -21,13 +21,19 @@ internal object AppManagementIntents {
         }
 
         try {
-            val intent = IntentUtils.createPackageIntent(Intent.ACTION_DELETE, packageName)
-            appInfo.userHandleId?.let(UserHandleUtils::of)?.let {
-                intent.putExtra(Intent.EXTRA_USER, it)
-            }
-            context.startActivity(intent)
+            context.startActivity(uninstallIntent(appInfo))
         } catch (e: Exception) {
             onShowToast?.invoke(R.string.error_uninstall_app, appInfo.appName)
         }
     }
+
+    /** Activity-result callers wait for the installer before advancing a batch. */
+    fun uninstallIntent(appInfo: AppInfo, returnResult: Boolean = false): Intent =
+        IntentUtils.createPackageIntent(Intent.ACTION_DELETE, appInfo.packageName).apply {
+            appInfo.userHandleId?.let(UserHandleUtils::of)?.let { putExtra(Intent.EXTRA_USER, it) }
+            if (returnResult) {
+                flags = flags and Intent.FLAG_ACTIVITY_NEW_TASK.inv()
+                putExtra(Intent.EXTRA_RETURN_RESULT, true)
+            }
+        }
 }

@@ -3,6 +3,8 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 import android.content.Context
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.apps.AppSortMetadata
+import com.tk.quicksearch.search.apps.loadAppSortMetadata
 import com.tk.quicksearch.settings.appShortcutsSettings.AppShortcutSource
 import com.tk.quicksearch.settings.appShortcutsSettings.queryAppShortcutSources
 import kotlinx.coroutines.Dispatchers

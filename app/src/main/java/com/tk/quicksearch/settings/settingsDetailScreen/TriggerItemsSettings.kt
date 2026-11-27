@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import androidx.compose.foundation.lazy.rememberLazyListState
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import com.tk.quicksearch.shared.ui.components.TonalIconBadgeContainer
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.provider.ContactsContract
@@ -161,8 +163,10 @@ fun TriggerItemsScreen(
             modifier = Modifier.padding(bottom = DesignTokens.SectionDescriptionBottomPadding),
         )
 
+        val listState = rememberLazyListState()
         LazyColumn(
-            modifier = Modifier.fillMaxWidth().weight(1f).clip(AppShapes.extraLarge),
+            state = listState,
+            modifier = Modifier.fillMaxWidth().weight(1f).settingsScrollClip(listState),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
         ) {
             itemsIndexed(allItems) { index, item ->

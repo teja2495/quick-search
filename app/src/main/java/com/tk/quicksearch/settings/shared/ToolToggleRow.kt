@@ -47,8 +47,13 @@ fun ToolToggleRows(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clip(AppShapes.segmentGroup)
-                .then(if (scrollState != null) Modifier.verticalScroll(scrollState) else Modifier),
+                .then(
+                    if (scrollState != null) {
+                        Modifier.settingsScrollClip(scrollState).verticalScroll(scrollState)
+                    } else {
+                        Modifier.clip(AppShapes.segmentGroup)
+                    },
+                ),
     ) {
         tools.forEachIndexed { index, tool ->
             SegmentedTile(index = index, count = tools.size) {

@@ -114,5 +114,6 @@ internal fun GestureAllAppsDrawer(params: AppsSectionParams?) {
         iconPackPackage = params.iconPackPackage,
         appIconShape = params.appIconShape,
         notificationBadges = notificationBadges,
+        hasUsagePermission = params.hasUsagePermission,
     )
 }

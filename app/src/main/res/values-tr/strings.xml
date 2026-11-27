@@ -391,6 +391,7 @@
 <string name="settings_app_sort_least_used">En az kullanılan</string>
 <string name="settings_app_sort_name">Ad</string>
 <string name="settings_app_uninstall_selected_format">Kaldır (%1$d)</string>
+<string name="all_apps_select_to_uninstall">Kaldırılacak uygulamaları seçin</string>
 <string name="settings_apps_empty">Uygulama bulunamadı.</string>
 <string name="settings_manage_apps_desc">Uygulamalarını yönet</string>
 <string name="settings_manage_apps_title">Uygulamaları yönet</string>
@@ -443,8 +444,6 @@
 <string name="settings_app_shortcuts_expand_all">Tümünü genişlet</string>
 <string name="settings_app_shortcuts_filter_all_apps">Tüm uygulamalar</string>
 <string name="all_apps_private_space">Özel alan</string>
-<string name="all_apps_sort_by_install_date">Yükleme tarihine göre sırala</string>
-<string name="all_apps_sort_alphabetically">Alfabetik sırala</string>
 <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Kısayolu olan uygulamalar</string>
 <string name="settings_app_shortcuts_filter_search_engines">Arama motorları</string>
 <string name="settings_app_shortcuts_query_label">Sorgu</string>

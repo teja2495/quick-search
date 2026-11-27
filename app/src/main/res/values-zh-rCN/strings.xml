@@ -391,6 +391,7 @@
     <string name="settings_app_sort_least_used">最少使用</string>
     <string name="settings_app_sort_name">名称</string>
     <string name="settings_app_uninstall_selected_format">卸载 (%1$d)</string>
+    <string name="all_apps_select_to_uninstall">选择要卸载的应用</string>
     <string name="settings_apps_empty">未找到任何应用。</string>
     <string name="settings_manage_apps_desc">管理您的应用</string>
     <string name="settings_manage_apps_title">管理应用</string>
@@ -442,8 +443,6 @@
     <string name="settings_app_shortcuts_expand_all">全部展开</string>
     <string name="settings_app_shortcuts_filter_all_apps">所有应用</string>
     <string name="all_apps_private_space">私密空间</string>
-    <string name="all_apps_sort_by_install_date">按安装日期排序</string>
-    <string name="all_apps_sort_alphabetically">按字母顺序排序</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">包含快捷方式的应用</string>
     <string name="settings_app_shortcuts_filter_search_engines">搜索引擎</string>
     <string name="settings_app_shortcuts_query_label">查询内容</string>

@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import androidx.compose.foundation.lazy.rememberLazyListState
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -175,8 +177,10 @@ private fun ExcludedItemsList(
     iconPackPackage: String?,
     onRemoveItem: (ExcludedItem) -> Unit,
 ) {
+    val listState = rememberLazyListState()
     LazyColumn(
-        modifier = Modifier.fillMaxSize().clip(AppShapes.extraLarge),
+        state = listState,
+        modifier = Modifier.fillMaxSize().settingsScrollClip(listState),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
     ) {
         itemsIndexed(allItems) { index, item ->

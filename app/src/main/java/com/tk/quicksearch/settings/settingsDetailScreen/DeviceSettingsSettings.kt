@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import androidx.compose.foundation.lazy.rememberLazyListState
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -57,8 +59,10 @@ fun DeviceSettingsSettingsSection(
         settings.ifEmpty { fallbackSettings }
     }
 
+    val listState = rememberLazyListState()
     LazyColumn(
-        modifier = modifier.fillMaxWidth().clip(AppShapes.extraLarge),
+        state = listState,
+        modifier = modifier.fillMaxWidth().settingsScrollClip(listState),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
     ) {
         if (displayedSettings.isEmpty()) {
