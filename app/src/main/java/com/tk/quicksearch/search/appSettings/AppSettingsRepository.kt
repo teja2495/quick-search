@@ -105,6 +105,14 @@ class AppSettingsRepository(
                 destination = AppSettingsRouteAction.EXPORT_SETTINGS,
                 keywords = listOf("backup", "save"),
             )
+            // The schedule lives in the Export Data drawer.
+            addNavigation(
+                id = "app_settings_schedule_auto_backup",
+                titleRes = R.string.auto_backup_schedule_title,
+                descriptionRes = R.string.auto_backup_schedule_desc,
+                destination = AppSettingsRouteAction.EXPORT_SETTINGS,
+                keywords = listOf("auto backup", "automatic", "schedule", "folder", "backup"),
+            )
             addNavigation(
                 id = "app_settings_import_settings",
                 titleRes = R.string.setup_import_button,

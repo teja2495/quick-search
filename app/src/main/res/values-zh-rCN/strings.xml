@@ -1025,6 +1025,17 @@
     <string name="settings_backup_export_option_pinned_items_title">固定的项目</string>
     <string name="settings_backup_export_option_api_keys">API 密钥</string>
     <string name="settings_backup_export_selection_title">导出数据</string>
+    <string name="auto_backup_schedule_title">定时自动备份</string>
+    <string name="auto_backup_configured_title">已设置自动备份</string>
+    <string name="auto_backup_schedule_desc">将导出数据中勾选的项目备份到你选择的文件夹。</string>
+    <string name="auto_backup_frequency_every_3_days">每 3 天</string>
+    <string name="auto_backup_choose_folder">选择文件夹</string>
+    <string name="auto_backup_folder_title">备份文件夹</string>
+    <string name="auto_backup_kept_backups_title">保留的备份数</string>
+    <string name="auto_backup_status_last_backup">上次备份 %1$s</string>
+    <string name="auto_backup_status_pending">首次备份待进行</string>
+    <string name="auto_backup_status_failed">上次备份失败</string>
+    <string name="auto_backup_folder_failed">无法使用该文件夹，请选择其他文件夹。</string>
     <string name="settings_backup_import_button">导入</string>
     <string name="settings_backup_import_failed">无法导入设置。</string>
     <string name="settings_backup_import_success">配置设置导入成功。</string>

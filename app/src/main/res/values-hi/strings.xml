@@ -1039,6 +1039,17 @@
     <string name="settings_backup_export_option_pinned_items_title">पिन किए गए आइटम</string>
     <string name="settings_backup_export_option_api_keys">API keys</string>
     <string name="settings_backup_export_selection_title">डेटा एक्सपोर्ट करें</string>
+    <string name="auto_backup_schedule_title">ऑटो-बैकअप शेड्यूल करें</string>
+    <string name="auto_backup_configured_title">ऑटो-बैकअप सेट है</string>
+    <string name="auto_backup_schedule_desc">डेटा एक्सपोर्ट करें में चुने गए आइटम का बैकअप आपके चुने फ़ोल्डर में लेता है।</string>
+    <string name="auto_backup_frequency_every_3_days">हर 3 दिन</string>
+    <string name="auto_backup_choose_folder">फ़ोल्डर चुनें</string>
+    <string name="auto_backup_folder_title">बैकअप फ़ोल्डर</string>
+    <string name="auto_backup_kept_backups_title">रखे जाने वाले बैकअप</string>
+    <string name="auto_backup_status_last_backup">पिछला बैकअप %1$s</string>
+    <string name="auto_backup_status_pending">पहला बैकअप बाकी है</string>
+    <string name="auto_backup_status_failed">पिछला बैकअप विफल रहा</string>
+    <string name="auto_backup_folder_failed">उस फ़ोल्डर का उपयोग नहीं हो सका। कोई दूसरा चुनें।</string>
     <string name="settings_backup_import_button">इम्पोर्ट</string>
     <string name="settings_backup_import_failed">सेटिंग्स इम्पोर्ट नहीं हो सकीं।</string>
     <string name="settings_backup_import_success">सेटिंग्स सफलतापूर्वक इम्पोर्ट हो गईं।</string>

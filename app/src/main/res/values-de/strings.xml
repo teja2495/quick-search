@@ -1039,6 +1039,17 @@
     <string name="settings_backup_export_option_pinned_items_title">Angeheftete Elemente</string>
     <string name="settings_backup_export_option_api_keys">API-Schlüssel</string>
     <string name="settings_backup_export_selection_title">Daten exportieren</string>
+    <string name="auto_backup_schedule_title">Automatische Sicherung planen</string>
+    <string name="auto_backup_configured_title">Automatische Sicherung eingerichtet</string>
+    <string name="auto_backup_schedule_desc">Sichert die unter „Daten exportieren“ ausgewählten Elemente in einem Ordner deiner Wahl.</string>
+    <string name="auto_backup_frequency_every_3_days">Alle 3 Tage</string>
+    <string name="auto_backup_choose_folder">Ordner wählen</string>
+    <string name="auto_backup_folder_title">Sicherungsordner</string>
+    <string name="auto_backup_kept_backups_title">Aufzubewahrende Sicherungen</string>
+    <string name="auto_backup_status_last_backup">Letzte Sicherung %1$s</string>
+    <string name="auto_backup_status_pending">Erste Sicherung ausstehend</string>
+    <string name="auto_backup_status_failed">Letzte Sicherung fehlgeschlagen</string>
+    <string name="auto_backup_folder_failed">Dieser Ordner kann nicht verwendet werden. Wähle einen anderen.</string>
     <string name="settings_backup_import_button">Importieren</string>
     <string name="settings_backup_import_failed">Einstellungen konnten nicht importiert werden.</string>
     <string name="settings_backup_import_success">Einstellungen erfolgreich importiert.</string>

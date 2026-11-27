@@ -1038,6 +1038,17 @@
     <string name="settings_backup_export_option_pinned_items_title">Elementi fissati</string>
     <string name="settings_backup_export_option_api_keys">Chiavi API</string>
     <string name="settings_backup_export_selection_title">Esporta dati</string>
+    <string name="auto_backup_schedule_title">Pianifica backup automatico</string>
+    <string name="auto_backup_configured_title">Backup automatico configurato</string>
+    <string name="auto_backup_schedule_desc">Esegue il backup degli elementi selezionati in Esporta dati in una cartella a tua scelta.</string>
+    <string name="auto_backup_frequency_every_3_days">Ogni 3 giorni</string>
+    <string name="auto_backup_choose_folder">Scegli cartella</string>
+    <string name="auto_backup_folder_title">Cartella di backup</string>
+    <string name="auto_backup_kept_backups_title">Backup da conservare</string>
+    <string name="auto_backup_status_last_backup">Ultimo backup %1$s</string>
+    <string name="auto_backup_status_pending">Primo backup in attesa</string>
+    <string name="auto_backup_status_failed">Ultimo backup non riuscito</string>
+    <string name="auto_backup_folder_failed">Impossibile usare quella cartella. Scegline un\'altra.</string>
     <string name="settings_backup_import_button">Importa</string>
     <string name="settings_backup_import_failed">Impossibile importare le impostazioni.</string>
     <string name="settings_backup_import_success">Impostazioni importate con successo.</string>

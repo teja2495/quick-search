@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.settingsScreen
 
+import com.tk.quicksearch.settings.autoBackup.AutoBackupState
+import com.tk.quicksearch.settings.autoBackup.AutoBackupStatusLine
 import androidx.compose.ui.semantics.Role
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -246,13 +248,17 @@ fun SettingsMoreOptions(
     }
 }
 
-/** Backup tile: title and description over a connected Import / Export button pair. */
+/**
+ * Backup tile: title and description over a connected Import / Export button pair. With an
+ * auto-backup scheduled, the description shows its last backup instead.
+ */
 @Composable
 internal fun BackupRestoreRow(
     index: Int,
     count: Int,
     onImportClick: () -> Unit,
     onExportClick: () -> Unit,
+    autoBackup: AutoBackupState? = null,
 ) {
     SegmentedTile(index = index, count = count) {
         Column(
@@ -276,11 +282,15 @@ internal fun BackupRestoreRow(
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
-                    Text(
-                        text = stringResource(R.string.settings_backup_restore_desc),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    if (autoBackup != null) {
+                        AutoBackupStatusLine(autoBackup)
+                    } else {
+                        Text(
+                            text = stringResource(R.string.settings_backup_restore_desc),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
             ConnectedButtonRow(

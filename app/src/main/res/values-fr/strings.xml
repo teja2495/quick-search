@@ -1039,6 +1039,17 @@
 <string name="settings_backup_export_option_pinned_items_title">Éléments épinglés</string>
 <string name="settings_backup_export_option_api_keys">Clés API</string>
 <string name="settings_backup_export_selection_title">Exporter les données</string>
+<string name="auto_backup_schedule_title">Planifier la sauvegarde automatique</string>
+<string name="auto_backup_configured_title">Sauvegarde automatique configurée</string>
+<string name="auto_backup_schedule_desc">Sauvegarde les éléments cochés dans Exporter les données dans le dossier de votre choix.</string>
+<string name="auto_backup_frequency_every_3_days">Tous les 3 jours</string>
+<string name="auto_backup_choose_folder">Choisir un dossier</string>
+<string name="auto_backup_folder_title">Dossier de sauvegarde</string>
+<string name="auto_backup_kept_backups_title">Sauvegardes à conserver</string>
+<string name="auto_backup_status_last_backup">Dernière sauvegarde %1$s</string>
+<string name="auto_backup_status_pending">Première sauvegarde en attente</string>
+<string name="auto_backup_status_failed">Échec de la dernière sauvegarde</string>
+<string name="auto_backup_folder_failed">Impossible d\'utiliser ce dossier. Choisissez-en un autre.</string>
 <string name="settings_backup_import_button">Importer</string>
 <string name="settings_backup_import_failed">Impossible d\'importer les paramètres.</string>
 <string name="settings_backup_import_success">Paramètres importés avec succès.</string>

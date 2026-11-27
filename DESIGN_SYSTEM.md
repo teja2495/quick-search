@@ -138,7 +138,7 @@ Main `AppColors` groups:
   (folder tile scrim over an image background), `FolderTileBorder`.
 - **Indicators and trust:** `indicatorBase(lightFill)` (the neutral that grid indicators blend
   the primary color into), `TrustAccent` (open-source and permission reassurance green, tuned per
-  surface luminance).
+  surface luminance; also the success check on the auto-backup status line).
 - **Settings and dialogs:** `getSettingsCardContainerColor()`, `SettingsDivider`,
   `getDialogContainerColor()`, `DialogBackground`, `DialogText`, `Overlay*`.
 - **Drawers and sheets:** `DrawerTileBackground` (`AccentTintSubtle`) fills tiles and fields on a

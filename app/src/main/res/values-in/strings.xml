@@ -1040,6 +1040,17 @@
     <string name="settings_backup_export_option_pinned_items_title">Item yang disematkan</string>
     <string name="settings_backup_export_option_api_keys">Kunci API</string>
     <string name="settings_backup_export_selection_title">Ekspor Data</string>
+    <string name="auto_backup_schedule_title">Jadwalkan Pencadangan Otomatis</string>
+    <string name="auto_backup_configured_title">Pencadangan Otomatis Dikonfigurasi</string>
+    <string name="auto_backup_schedule_desc">Mencadangkan item yang dicentang di Ekspor Data ke folder pilihan Anda.</string>
+    <string name="auto_backup_frequency_every_3_days">Setiap 3 hari</string>
+    <string name="auto_backup_choose_folder">Pilih folder</string>
+    <string name="auto_backup_folder_title">Folder cadangan</string>
+    <string name="auto_backup_kept_backups_title">Cadangan yang disimpan</string>
+    <string name="auto_backup_status_last_backup">Cadangan terakhir %1$s</string>
+    <string name="auto_backup_status_pending">Cadangan pertama tertunda</string>
+    <string name="auto_backup_status_failed">Cadangan terakhir gagal</string>
+    <string name="auto_backup_folder_failed">Tidak dapat menggunakan folder itu. Pilih folder lain.</string>
     <string name="settings_backup_import_button">Impor</string>
     <string name="settings_backup_import_failed">Tidak dapat mengimpor pengaturan.</string>
     <string name="settings_backup_import_success">Pengaturan berhasil diimpor.</string>

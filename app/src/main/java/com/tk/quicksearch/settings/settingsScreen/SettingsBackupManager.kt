@@ -7,6 +7,7 @@ import com.tk.quicksearch.customInfo.CustomInfoRepository
 import com.tk.quicksearch.customInfo.CustomInfoScheduler
 import com.tk.quicksearch.reminders.ReminderScheduler
 import com.tk.quicksearch.search.apps.IconPackManager
+import com.tk.quicksearch.settings.autoBackup.AutoBackupStore
 import com.tk.quicksearch.search.data.preferences.BasePreferences
 import com.tk.quicksearch.search.data.preferences.BootstrapPreferences
 import com.tk.quicksearch.search.data.preferences.CustomLlmProviderPreferences
@@ -176,6 +177,8 @@ object SettingsBackupManager {
             // API keys are exported in plain text only when the user opts in, via their own section.
             BasePreferences.SECURE_PREFS_NAME,
             "app_launch_counts",
+            // The folder grant belongs to this device, so the schedule never travels in a backup.
+            AutoBackupStore.PREFS_NAME,
         )
 
     private val excludedUserPreferenceKeys =

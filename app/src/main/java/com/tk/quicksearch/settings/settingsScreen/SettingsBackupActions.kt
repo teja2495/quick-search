@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
+import com.tk.quicksearch.settings.autoBackup.AutoBackupStore
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.core.content.FileProvider
 import java.io.File
@@ -40,7 +41,13 @@ internal fun loadExportSelectionState(context: Context): ExportSelectionState {
     val available = SettingsBackupManager.ExportItem.selectableItems.filterTo(mutableSetOf()) { section ->
         section.option?.isAvailable?.invoke(source) == true
     }
-    return ExportSelectionState.forAvailable(available)
+    // With an auto-backup scheduled, the drawer starts from what it saves, since changes here update it.
+    val scheduled = AutoBackupStore.refresh(context)
+    return if (scheduled != null) {
+        ExportSelectionState.forAvailable(available, scheduled.selectedItems)
+    } else {
+        ExportSelectionState.forAvailable(available)
+    }
 }
 
 internal fun defaultBackupFileName(): String {

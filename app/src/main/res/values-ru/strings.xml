@@ -1067,6 +1067,17 @@
 <string name="settings_backup_export_option_pinned_items_title">Закрепленные элементы</string>
 <string name="settings_backup_export_option_api_keys">API-ключи</string>
 <string name="settings_backup_export_selection_title">Экспорт данных</string>
+<string name="auto_backup_schedule_title">Расписание автобэкапа</string>
+<string name="auto_backup_configured_title">Автоматическое резервное копирование настроено</string>
+<string name="auto_backup_schedule_desc">Сохраняет отмеченные в «Экспорт данных» элементы в выбранную папку.</string>
+<string name="auto_backup_frequency_every_3_days">Каждые 3 дня</string>
+<string name="auto_backup_choose_folder">Выбрать папку</string>
+<string name="auto_backup_folder_title">Папка для резервных копий</string>
+<string name="auto_backup_kept_backups_title">Хранить резервных копий</string>
+<string name="auto_backup_status_last_backup">Последний бэкап %1$s</string>
+<string name="auto_backup_status_pending">Первый бэкап ожидается</string>
+<string name="auto_backup_status_failed">Последний бэкап не удался</string>
+<string name="auto_backup_folder_failed">Не удалось использовать эту папку. Выберите другую.</string>
 <string name="settings_backup_import_button">Импорт</string>
 <string name="settings_backup_import_failed">Не удалось импортировать настройки.</string>
 <string name="settings_backup_import_success">Настройки успешно импортированы.</string>

@@ -1039,6 +1039,17 @@
     <string name="settings_backup_export_option_pinned_items_title">Καρφιτσωμένα στοιχεία</string>
     <string name="settings_backup_export_option_api_keys">Κλειδιά API</string>
     <string name="settings_backup_export_selection_title">Εξαγωγή δεδομένων</string>
+    <string name="auto_backup_schedule_title">Προγραμματισμός αυτόματου αντιγράφου ασφαλείας</string>
+    <string name="auto_backup_configured_title">Η αυτόματη δημιουργία αντιγράφων ασφαλείας ρυθμίστηκε</string>
+    <string name="auto_backup_schedule_desc">Δημιουργεί αντίγραφο ασφαλείας των στοιχείων που έχουν επιλεγεί στην Εξαγωγή δεδομένων σε φάκελο της επιλογής σας.</string>
+    <string name="auto_backup_frequency_every_3_days">Κάθε 3 ημέρες</string>
+    <string name="auto_backup_choose_folder">Επιλογή φακέλου</string>
+    <string name="auto_backup_folder_title">Φάκελος αντιγράφων ασφαλείας</string>
+    <string name="auto_backup_kept_backups_title">Αντίγραφα ασφαλείας προς διατήρηση</string>
+    <string name="auto_backup_status_last_backup">Τελευταίο αντίγραφο %1$s</string>
+    <string name="auto_backup_status_pending">Εκκρεμεί το πρώτο αντίγραφο</string>
+    <string name="auto_backup_status_failed">Το τελευταίο αντίγραφο απέτυχε</string>
+    <string name="auto_backup_folder_failed">Δεν ήταν δυνατή η χρήση αυτού του φακέλου. Επιλέξτε άλλον.</string>
     <string name="settings_backup_import_button">Εισαγωγή</string>
     <string name="settings_backup_import_failed">Αδυναμία εισαγωγής ρυθμίσεων.</string>
     <string name="settings_backup_import_success">Οι ρυθμίσεις εισήχθησαν επιτυχώς.</string>

@@ -1039,6 +1039,17 @@
     <string name="settings_backup_export_option_pinned_items_title">పిన్ చేసిన అంశాలు</string>
     <string name="settings_backup_export_option_api_keys">API కీలు</string>
     <string name="settings_backup_export_selection_title">డేటాను ఎగుమతి చేయి</string>
+    <string name="auto_backup_schedule_title">ఆటో-బ్యాకప్ షెడ్యూల్ చేయండి</string>
+    <string name="auto_backup_configured_title">ఆటో-బ్యాకప్ సెట్ చేయబడింది</string>
+    <string name="auto_backup_schedule_desc">డేటాను ఎగుమతి చేయి‌లో ఎంచుకున్న అంశాలను మీరు ఎంచుకున్న ఫోల్డర్‌కు బ్యాకప్ చేస్తుంది.</string>
+    <string name="auto_backup_frequency_every_3_days">ప్రతి 3 రోజులకు</string>
+    <string name="auto_backup_choose_folder">ఫోల్డర్ ఎంచుకోండి</string>
+    <string name="auto_backup_folder_title">బ్యాకప్ ఫోల్డర్</string>
+    <string name="auto_backup_kept_backups_title">ఉంచాల్సిన బ్యాకప్‌లు</string>
+    <string name="auto_backup_status_last_backup">చివరి బ్యాకప్ %1$s</string>
+    <string name="auto_backup_status_pending">మొదటి బ్యాకప్ పెండింగ్‌లో ఉంది</string>
+    <string name="auto_backup_status_failed">చివరి బ్యాకప్ విఫలమైంది</string>
+    <string name="auto_backup_folder_failed">ఆ ఫోల్డర్‌ను ఉపయోగించలేకపోయాము. వేరొకటి ఎంచుకోండి.</string>
     <string name="settings_backup_import_button">దిగుమతి చేయి</string>
     <string name="settings_backup_import_failed">సెట్టింగ్‌లను దిగుమతి చేయడం సాధ్యపడలేదు.</string>
     <string name="settings_backup_import_success">సెట్టింగ్‌లు విజయవంతంగా దిగుమతి చేయబడ్డాయి.</string>

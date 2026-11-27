@@ -1,5 +1,8 @@
 package com.tk.quicksearch.settings.settingsScreen
 
+import androidx.compose.runtime.collectAsState
+import com.tk.quicksearch.settings.autoBackup.AutoBackupStore
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.rememberResumeRefreshKey
 import com.tk.quicksearch.settings.shared.settingsScrollClip
 import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenCallbacks as SharedSettingsScreenCallbacks
@@ -93,6 +96,12 @@ fun SettingsScreen(
     var pendingImportSourceUri by remember { mutableStateOf<Uri?>(null) }
     var showExportSelectionDialog by remember { mutableStateOf(false) }
     var exportSelectionState by remember { mutableStateOf(ExportSelectionState()) }
+    val autoBackup by AutoBackupStore.state.collectAsState()
+    val resumeRefreshKey = rememberResumeRefreshKey()
+    // A backup can finish while Settings is in the background.
+    LaunchedEffect(resumeRefreshKey) {
+        withContext(Dispatchers.IO) { AutoBackupStore.refresh(context) }
+    }
     val importLauncher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.OpenDocument(),
@@ -333,6 +342,7 @@ fun SettingsScreen(
                     onImportClick = {
                         showImportWarningDialog = true
                     },
+                    autoBackup = autoBackup,
                     onExportClick = {
                         coroutineScope.launch {
                             // API keys live in encrypted storage; keep keystore work off the main thread.

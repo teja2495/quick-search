@@ -1038,6 +1038,17 @@
 <string name="settings_backup_export_option_pinned_items_title">Sabitlenen öğeler</string>
 <string name="settings_backup_export_option_api_keys">API anahtarları</string>
 <string name="settings_backup_export_selection_title">Verileri dışa aktar</string>
+<string name="auto_backup_schedule_title">Otomatik yedeklemeyi planla</string>
+<string name="auto_backup_configured_title">Otomatik Yedekleme Yapılandırıldı</string>
+<string name="auto_backup_schedule_desc">Verileri dışa aktar bölümünde işaretli öğeleri seçtiğiniz bir klasöre yedekler.</string>
+<string name="auto_backup_frequency_every_3_days">3 günde bir</string>
+<string name="auto_backup_choose_folder">Klasör seç</string>
+<string name="auto_backup_folder_title">Yedekleme klasörü</string>
+<string name="auto_backup_kept_backups_title">Saklanacak yedek sayısı</string>
+<string name="auto_backup_status_last_backup">Son yedekleme %1$s</string>
+<string name="auto_backup_status_pending">İlk yedekleme bekleniyor</string>
+<string name="auto_backup_status_failed">Son yedekleme başarısız</string>
+<string name="auto_backup_folder_failed">Bu klasör kullanılamadı. Başka bir klasör seçin.</string>
 <string name="settings_backup_import_button">İçe aktar</string>
 <string name="settings_backup_import_failed">Ayarlar içe aktarılamadı.</string>
 <string name="settings_backup_import_success">Ayarlar başarıyla içe aktarıldı.</string>

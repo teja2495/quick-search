@@ -1096,6 +1096,17 @@
     <string name="settings_backup_export_option_pinned_items_title">العناصر المثبتة</string>
     <string name="settings_backup_export_option_api_keys">مفاتيح API</string>
     <string name="settings_backup_export_selection_title">تصدير البيانات</string>
+    <string name="auto_backup_schedule_title">جدولة النسخ الاحتياطي التلقائي</string>
+    <string name="auto_backup_configured_title">تم إعداد النسخ الاحتياطي التلقائي</string>
+    <string name="auto_backup_schedule_desc">ينسخ العناصر المحددة في تصدير البيانات احتياطيًا إلى مجلد تختاره.</string>
+    <string name="auto_backup_frequency_every_3_days">كل 3 أيام</string>
+    <string name="auto_backup_choose_folder">اختيار مجلد</string>
+    <string name="auto_backup_folder_title">مجلد النسخ الاحتياطي</string>
+    <string name="auto_backup_kept_backups_title">عدد النسخ الاحتياطية المحفوظة</string>
+    <string name="auto_backup_status_last_backup">آخر نسخة احتياطية %1$s</string>
+    <string name="auto_backup_status_pending">النسخة الاحتياطية الأولى قيد الانتظار</string>
+    <string name="auto_backup_status_failed">فشلت آخر نسخة احتياطية</string>
+    <string name="auto_backup_folder_failed">تعذّر استخدام هذا المجلد. اختر مجلدًا آخر.</string>
     <string name="settings_backup_import_button">استيراد</string>
     <string name="settings_backup_import_failed">تعذر استيراد الإعدادات.</string>
     <string name="settings_backup_import_success">تم استيراد الإعدادات بنجاح.</string>
