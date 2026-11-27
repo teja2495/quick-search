@@ -582,7 +582,17 @@ object UnitConverterUtils {
     }
 
     private fun parseExplicitQuery(query: String): ParsedQuery? {
-        val separatorMatch = separatorRegex.find(query) ?: return null
+        // "in" is both a separator and the inch unit ("10 in to cm"), so try each
+        // separator and prefer the first split where both sides are known units.
+        val candidates = separatorRegex.findAll(query).mapNotNull { splitAt(query, it) }.toList()
+        if (candidates.isEmpty()) return null
+        return candidates.firstOrNull { parsed ->
+            unitsByAlias.containsKey(normalizeUnit(parsed.fromUnitRaw)) &&
+                unitsByAlias.containsKey(normalizeUnit(parsed.toUnitRaw))
+        } ?: candidates.first()
+    }
+
+    private fun splitAt(query: String, separatorMatch: MatchResult): ParsedQuery? {
         val left = query.substring(0, separatorMatch.range.first).trim()
         val right = query.substring(separatorMatch.range.last + 1).trim()
         if (left.isEmpty() || right.isEmpty()) return null

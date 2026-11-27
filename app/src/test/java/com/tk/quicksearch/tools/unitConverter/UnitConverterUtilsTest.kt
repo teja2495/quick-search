@@ -63,4 +63,15 @@ class UnitConverterUtilsTest {
         assertEquals("340.19 grams (g)", UnitConverterUtils.convertQuery("12oz"))
         assertEquals("7.57 litres (L)", UnitConverterUtils.convertQuery("2gal"))
     }
+
+    @Test
+    fun convertsFromInchesWrittenAsIn() {
+        assertEquals("25.4 centimetres (cm)", UnitConverterUtils.convertQuery("10 in to cm"))
+        assertEquals("0.17 feet (ft)", UnitConverterUtils.convertQuery("2 in to ft"))
+        assertEquals("12.7 centimetres (cm)", UnitConverterUtils.convertQuery("5 in in cm"))
+        assertEquals("19.35 square centimetres (cm2)", UnitConverterUtils.convertQuery("3 sq in to sq cm"))
+        assertEquals("49.16 cubic centimetres (cm3)", UnitConverterUtils.convertQuery("3 cu in to cm3"))
+        assertEquals("254 centimetres (cm)", UnitConverterUtils.convertQuery("100 in to cm"))
+        assertEquals("39.37 inches (in)", UnitConverterUtils.convertQuery("100 cm to in"))
+    }
 }
