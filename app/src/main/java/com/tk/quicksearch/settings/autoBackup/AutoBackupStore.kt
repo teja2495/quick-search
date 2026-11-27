@@ -99,7 +99,7 @@ object AutoBackupStore {
                 selectedItems = selectedItems,
                 keptBackups = keptBackups,
                 lastBackupMillis = previous?.lastBackupMillis?.takeIf { sameFolder },
-                lastBackupFailed = sameFolder && previous?.lastBackupFailed == true,
+                lastBackupFailed = sameFolder && previous.lastBackupFailed,
             )
         prefs(context).edit {
             putString(KEY_FREQUENCY, frequency.name)
