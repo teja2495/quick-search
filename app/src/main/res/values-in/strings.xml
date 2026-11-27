@@ -442,6 +442,8 @@
     <string name="settings_app_shortcuts_expand_all">Perluas semua</string>
     <string name="settings_app_shortcuts_filter_all_apps">Semua Aplikasi</string>
     <string name="all_apps_private_space">Ruang pribadi</string>
+    <string name="all_apps_sort_by_install_date">Urutkan menurut tanggal pemasangan</string>
+    <string name="all_apps_sort_alphabetically">Urutkan menurut abjad</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Aplikasi dengan Pintasan</string>
     <string name="settings_app_shortcuts_filter_search_engines">Mesin Pencari</string>
     <string name="settings_app_shortcuts_query_label">Kueri</string>
@@ -811,6 +813,8 @@
     <string name="settings_launcher_icon_reset_default">Reset ke default</string>
     <string name="settings_launcher_icon_title">Ubah Ikon Aplikasi</string>
     <string name="settings_search_bar_style_title">Bilah Pencarian</string>
+    <string name="settings_result_card_style_title">Kartu Beranda dan Hasil</string>
+    <string name="settings_result_card_blur_desc">Buramkan wallpaper di belakang kartu.</string>
     <string name="settings_search_bar_background_color_label">Warna latar belakang</string>
     <string name="settings_search_bar_color_accent">Aksen</string>
     <string name="settings_layout_option_bottom_desc">Item paling relevan muncul di bagian bawah agar mudah dijangkau</string>

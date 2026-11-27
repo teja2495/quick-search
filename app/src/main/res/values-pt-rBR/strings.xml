@@ -442,6 +442,8 @@
     <string name="settings_app_shortcuts_expand_all">Expandir todos</string>
     <string name="settings_app_shortcuts_filter_all_apps">Todos os apps</string>
     <string name="all_apps_private_space">Espaço privado</string>
+    <string name="all_apps_sort_by_install_date">Ordenar por data de instalação</string>
+    <string name="all_apps_sort_alphabetically">Ordenar em ordem alfabética</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Apps com atalhos</string>
     <string name="settings_app_shortcuts_filter_search_engines">Mecanismos de busca</string>
     <string name="settings_app_shortcuts_query_label">Pesquisa</string>
@@ -808,6 +810,8 @@
     <string name="settings_launcher_icon_reset_default">Restaurar padrão</string>
     <string name="settings_launcher_icon_title">Alterar ícone do app</string>
     <string name="settings_search_bar_style_title">Barra de pesquisa</string>
+    <string name="settings_result_card_style_title">Cartões da tela inicial e de resultados</string>
+    <string name="settings_result_card_blur_desc">Desfoca o papel de parede atrás dos cartões.</string>
     <string name="settings_search_bar_background_color_label">Cor de fundo</string>
     <string name="settings_search_bar_color_accent">Destaque</string>
     <string name="settings_layout_option_bottom_desc">Os itens mais relevantes aparecem na parte inferior para facilitar o acesso</string>

@@ -441,6 +441,8 @@
 <string name="settings_app_shortcuts_expand_all">Tümünü genişlet</string>
 <string name="settings_app_shortcuts_filter_all_apps">Tüm uygulamalar</string>
 <string name="all_apps_private_space">Özel alan</string>
+<string name="all_apps_sort_by_install_date">Yükleme tarihine göre sırala</string>
+<string name="all_apps_sort_alphabetically">Alfabetik sırala</string>
 <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Kısayolu olan uygulamalar</string>
 <string name="settings_app_shortcuts_filter_search_engines">Arama motorları</string>
 <string name="settings_app_shortcuts_query_label">Sorgu</string>
@@ -807,6 +809,8 @@
 <string name="settings_launcher_icon_reset_default">Varsayılana sıfırla</string>
 <string name="settings_launcher_icon_title">Uygulama simgesini değiştir</string>
 <string name="settings_search_bar_style_title">Arama çubuğu</string>
+<string name="settings_result_card_style_title">Ana ekran ve sonuç kartları</string>
+<string name="settings_result_card_blur_desc">Kartların arkasındaki duvar kağıdını bulanıklaştır.</string>
 <string name="settings_search_bar_background_color_label">Arka plan rengi</string>
 <string name="settings_search_bar_color_accent">Vurgu</string>
 <string name="settings_layout_option_bottom_desc">Kolay erişim için en ilgili öğeler altta görünür</string>

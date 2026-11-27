@@ -25,6 +25,7 @@ val TopRoundedShape =
 internal data class ExpandedResultsViewportShape(
     val edgeBleed: Dp,
     val roundTop: Boolean,
+    val cornerRadius: Dp = DesignTokens.SegmentedListOuterCorner,
 ) : Shape {
     override fun createOutline(
         size: Size,
@@ -32,7 +33,7 @@ internal data class ExpandedResultsViewportShape(
         density: Density,
     ): Outline {
         val inset = with(density) { edgeBleed.toPx() }
-        val radius = with(density) { CornerRadius(DesignTokens.SegmentedListOuterCorner.toPx()) }
+        val radius = with(density) { CornerRadius(cornerRadius.toPx()) }
         val top = if (roundTop) radius else CornerRadius.Zero
         return Outline.Rounded(
             RoundRect(

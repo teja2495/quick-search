@@ -4,6 +4,7 @@ import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.CardDefaults
@@ -28,6 +29,8 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.search.core.ResultCardStyle
 import androidx.compose.ui.unit.offset
 import kotlin.math.roundToInt
 import com.tk.quicksearch.search.searchScreen.LocalFrostedCardSource
@@ -50,6 +53,17 @@ internal val LocalSearchCardLayoutEnabled = compositionLocalOf { true }
  * each neighbour by half of it, so their bottom dividers sit exactly between two cards' content.
  */
 internal val LocalCardlessStackSpacing = compositionLocalOf { DesignTokens.SpacingMedium }
+
+/** The user's corner radius and transparency for result and home cards (Appearance → Cards). */
+internal val LocalResultCardStyle = compositionLocalOf { ResultCardStyle() }
+
+/** Outer corner radius of result cards and segmented result groups. */
+@Composable
+internal fun resultCardOuterCorner(): Dp = LocalResultCardStyle.current.cornerRadiusDp.dp
+
+/** Corner between segmented result tiles: the stock inner corner, never rounder than the outer one. */
+@Composable
+internal fun resultCardInnerCorner(): Dp = minOf(DesignTokens.SegmentedListInnerCorner, resultCardOuterCorner())
 
 @Immutable
 data class SearchResultCardStyleOverrides(
@@ -74,7 +88,12 @@ object SearchResultCardDefaults {
         @Composable
         get() =
             if (LocalSearchCardLayoutEnabled.current) {
-                AppShapes.resultCard
+                val style = LocalResultCardStyle.current
+                if (style.cornerRadiusDp == ResultCardStyle.DEFAULT_CORNER_RADIUS_DP) {
+                    AppShapes.resultCard
+                } else {
+                    RoundedCornerShape(style.cornerRadiusDp.dp)
+                }
             } else {
                 AppShapes.medium
             }
@@ -114,8 +133,15 @@ object SearchResultCardDefaults {
                 showWallpaperBackground = showWallpaperBackground,
                 overlayContainerColor = overlayContainerColor,
             )
-        if (!showWallpaperBackground || overlayContainerColor != null) return base
-        return readableFrostedCardScrim(base)
+        val style = LocalResultCardStyle.current
+        val resolved =
+            if (!showWallpaperBackground || overlayContainerColor != null || !style.blurEnabled) {
+                base
+            } else {
+                readableFrostedCardScrim(base)
+            }
+        val transparency = style.transparency
+        return if (transparency <= 0f) resolved else resolved.copy(alpha = resolved.alpha * (1f - transparency))
     }
 
     /**

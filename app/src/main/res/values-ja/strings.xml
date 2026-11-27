@@ -446,6 +446,8 @@
     <string name="settings_app_shortcuts_expand_all">すべて展開</string>
     <string name="settings_app_shortcuts_filter_all_apps">すべてのアプリ</string>
     <string name="all_apps_private_space">プライベート スペース</string>
+    <string name="all_apps_sort_by_install_date">インストール日順に並べ替え</string>
+    <string name="all_apps_sort_alphabetically">名前順に並べ替え</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">ショートカット付きアプリ</string>
     <string name="settings_app_shortcuts_filter_search_engines">検索エンジン</string>
     <string name="settings_app_shortcuts_query_label">クエリ</string>
@@ -814,6 +816,8 @@
     <string name="settings_launcher_icon_reset_default">デフォルトに戻す</string>
     <string name="settings_launcher_icon_title">アプリアイコンを変更</string>
     <string name="settings_search_bar_style_title">検索バー</string>
+    <string name="settings_result_card_style_title">ホームと検索結果のカード</string>
+    <string name="settings_result_card_blur_desc">カードの背後の壁紙をぼかします。</string>
     <string name="settings_search_bar_background_color_label">背景色</string>
     <string name="settings_search_bar_color_accent">アクセント</string>
     <string name="settings_layout_option_bottom_desc">アクセスしやすいよう関連性の高い項目を画面下部に表示</string>

@@ -508,6 +508,12 @@ internal fun SettingsDetailLevel1Screen(
                                     SettingsCommand.SearchBarStyleSetting(style),
                                 )
                             },
+                            resultCardStyle = state.resultCardStyle,
+                            onSetResultCardStyle = { style ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.ResultCardStyleSetting(style),
+                                )
+                            },
                             themedIconsEnabled = state.themedIconsEnabled,
                             onThemedIconsToggle = { enabled ->
                                 callbacks.onApplySettingsCommand(

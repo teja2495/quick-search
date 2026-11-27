@@ -48,7 +48,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.app.HomeActivity
+import com.tk.quicksearch.app.MainActivity
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.AppTheme
@@ -91,7 +91,7 @@ fun AppThemeCard(
     val view = LocalView.current
     val context = LocalContext.current
     val canShowSystemWallpaperBackdrop =
-            (context as? HomeActivity)?.canShowSystemWallpaperBackdrop == true
+            (context as? MainActivity)?.canShowSystemWallpaperBackdrop == true
     val isDarkMode = LocalAppIsDarkTheme.current
 
     val useMonoThemeFallback =

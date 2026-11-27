@@ -451,6 +451,8 @@
     <string name="settings_app_shortcuts_expand_all">توسيع الكل</string>
     <string name="settings_app_shortcuts_filter_all_apps">جميع التطبيقات</string>
     <string name="all_apps_private_space">المساحة الخاصة</string>
+    <string name="all_apps_sort_by_install_date">الترتيب حسب تاريخ التثبيت</string>
+    <string name="all_apps_sort_alphabetically">الترتيب أبجديًا</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">التطبيقات ذات الاختصارات</string>
     <string name="settings_app_shortcuts_filter_search_engines">محركات البحث</string>
     <string name="settings_app_shortcuts_query_label">عبارة البحث</string>
@@ -857,6 +859,8 @@
     <string name="settings_launcher_icon_reset_default">إعادة تعيين للأيقونة الافتراضية</string>
     <string name="settings_launcher_icon_title">تغيير أيقونة التطبيق</string>
     <string name="settings_search_bar_style_title">شريط البحث</string>
+    <string name="settings_result_card_style_title">بطاقات الشاشة الرئيسية والنتائج</string>
+    <string name="settings_result_card_blur_desc">تمويه الخلفية خلف البطاقات.</string>
     <string name="settings_search_bar_background_color_label">لون الخلفية</string>
     <string name="settings_search_bar_color_accent">لون السمة</string>
     <string name="settings_layout_option_bottom_desc">عرض العناصر الهامة بالأسفل لسهولة الوصول إليها</string>

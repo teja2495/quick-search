@@ -305,6 +305,7 @@ data class SearchUiState(
         val useSystemFont: Boolean = false,
         val homeTextColorOverride: HomeTextColor? = null,
         val searchBarStyle: SearchBarStyle = SearchBarStyle(),
+        val resultCardStyle: ResultCardStyle = ResultCardStyle(),
         val backgroundSource: BackgroundSource = BackgroundSource.THEME,
         val accentColorMode: AccentColorMode = AccentColorMode.FROM_WALLPAPER,
         val customAccentColorArgb: Int = UiPreferences.DEFAULT_CUSTOM_ACCENT_COLOR_ARGB,
@@ -425,6 +426,13 @@ data class SearchUiState(
         val nicknameUpdateVersion: Int = 0,
 ) {
         fun isBooleanSettingEnabled(setting: BooleanSetting): Boolean = setting.valueIn(booleanSettings)
+
+        /**
+         * File types a query searches: only the chip picked in the Files alias view while that
+         * alias is active, otherwise every type enabled in settings.
+         */
+        fun fileTypesForSearch(aliasSection: SearchSection?): Set<com.tk.quicksearch.search.models.FileType> =
+                aliasFileTypeFilter?.takeIf { aliasSection == SearchSection.FILES }?.let(::setOf) ?: enabledFileTypes
 }
 
 /** Explicit text colour for Home content. A null preference keeps wallpaper-aware colouring. */
@@ -630,6 +638,7 @@ fun SearchUiState(
                 useSystemFont = config.useSystemFont,
                 homeTextColorOverride = config.homeTextColorOverride,
                 searchBarStyle = config.searchBarStyle,
+                resultCardStyle = config.resultCardStyle,
                 showAppLabels = config.showAppLabels,
                 phoneAppGridColumns = config.phoneAppGridColumns,
                 appIconSizeStep = config.appIconSizeStep,

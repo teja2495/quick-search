@@ -442,6 +442,8 @@
     <string name="settings_app_shortcuts_expand_all">అన్నింటినీ విస్తరించు</string>
     <string name="settings_app_shortcuts_filter_all_apps">అన్ని యాప్‌లు</string>
     <string name="all_apps_private_space">ప్రైవేట్ స్పేస్</string>
+    <string name="all_apps_sort_by_install_date">ఇన్‌స్టాల్ చేసిన తేదీ ప్రకారం క్రమపరచండి</string>
+    <string name="all_apps_sort_alphabetically">అక్షర క్రమంలో క్రమపరచండి</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">షార్ట్‌కట్‌లు ఉన్న యాప్‌లు</string>
     <string name="settings_app_shortcuts_filter_search_engines">శోధన ఇంజిన్‌లు</string>
     <string name="settings_app_shortcuts_query_label">ప్రశ్న</string>
@@ -808,6 +810,8 @@
     <string name="settings_launcher_icon_reset_default">డిఫాల్ట్‌కి రీసెట్ చేయి</string>
     <string name="settings_launcher_icon_title">యాప్ ఐకాన్ మార్చు</string>
     <string name="settings_search_bar_style_title">సెర్చ్ బార్</string>
+    <string name="settings_result_card_style_title">హోమ్ మరియు ఫలితాల కార్డ్‌లు</string>
+    <string name="settings_result_card_blur_desc">కార్డ్‌ల వెనుక వాల్‌పేపర్‌ను బ్లర్ చేయండి.</string>
     <string name="settings_search_bar_background_color_label">నేపథ్య రంగు</string>
     <string name="settings_search_bar_color_accent">యాక్సెంట్</string>
     <string name="settings_layout_option_bottom_desc">సులభంగా యాక్సెస్ చేయడానికి అత్యంత సంబంధిత అంశాలు దిగువన కనిపిస్తాయి</string>

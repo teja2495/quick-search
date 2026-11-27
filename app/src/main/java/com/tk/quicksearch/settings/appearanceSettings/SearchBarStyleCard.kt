@@ -467,7 +467,7 @@ private fun Modifier.searchBarPreviewSurface(
 }
 
 @Composable
-private fun SliderSetting(
+internal fun SliderSetting(
     label: String,
     value: Float,
     valueRange: ClosedFloatingPointRange<Float>,

@@ -458,6 +458,8 @@
     <string name="settings_app_shortcuts_expand_all">Alles uitvouwen</string>
     <string name="settings_app_shortcuts_filter_all_apps">Alle apps</string>
     <string name="all_apps_private_space">Privéruimte</string>
+    <string name="all_apps_sort_by_install_date">Sorteren op installatiedatum</string>
+    <string name="all_apps_sort_alphabetically">Alfabetisch sorteren</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Apps met snelkoppelingen</string>
     <string name="settings_app_shortcuts_filter_search_engines">Zoekmachines</string>
     <string name="settings_app_shortcuts_query_label">Zoekopdracht</string>
@@ -841,6 +843,8 @@
     <string name="settings_launcher_icon_reset_default">Herstellen naar standaard</string>
     <string name="settings_launcher_icon_title">App-icoon wijzigen</string>
     <string name="settings_search_bar_style_title">Zoekbalk</string>
+    <string name="settings_result_card_style_title">Start- en resultaatkaarten</string>
+    <string name="settings_result_card_blur_desc">Vervaag de achtergrond achter kaarten.</string>
     <string name="settings_search_bar_background_color_label">Achtergrondkleur</string>
     <string name="settings_search_bar_color_accent">Accent</string>
     <string name="settings_layout_option_bottom_desc">Meest relevante items verschijnen onderaan voor eenvoudige toegang</string>

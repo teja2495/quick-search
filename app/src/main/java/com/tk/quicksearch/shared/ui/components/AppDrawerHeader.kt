@@ -23,6 +23,7 @@ internal fun AppDrawerHeader(
     onClose: (() -> Unit)?,
     modifier: Modifier = Modifier,
     leadingContent: (@Composable () -> Unit)? = null,
+    actions: (@Composable () -> Unit)? = null,
     title: @Composable () -> Unit,
 ) {
     Row(
@@ -36,6 +37,7 @@ internal fun AppDrawerHeader(
                 title()
             }
         }
+        actions?.invoke()
         if (onClose != null) {
             AppIconButton(onClick = onClose, modifier = Modifier.size(DesignTokens.Spacing48), tooltip = stringResource(R.string.common_close)) {
                 Icon(

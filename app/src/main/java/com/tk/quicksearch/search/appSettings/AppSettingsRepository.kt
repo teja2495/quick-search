@@ -56,6 +56,13 @@ class AppSettingsRepository(
                     listOf("search bar", "border", "outline", "thickness", "corner", "rounded", "colour", "color", "transparency", "background"),
             )
             addNavigation(
+                id = "app_settings_result_card_style",
+                titleRes = R.string.settings_result_card_style_title,
+                destination = AppSettingsTarget.Page(SettingsDetailType.APPEARANCE),
+                keywords =
+                    listOf("cards", "result cards", "corner", "rounded", "radius", "transparency", "transparent", "opacity", "blur", "blurred", "frosted", "home", "at a glance", "pinned"),
+            )
+            addNavigation(
                 id = "app_settings_icon_packs",
                 titleRes = R.string.settings_icon_pack_title,
                 descriptionRes = R.string.settings_search_description_change_icon_pack,

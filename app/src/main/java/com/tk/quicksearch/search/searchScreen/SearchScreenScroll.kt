@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import com.tk.quicksearch.shared.ui.components.LocalOpenPopupTracker
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -163,6 +164,7 @@ fun ScrollBasedKeyboardBehavior(
     reverseScrolling: Boolean,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+    val openPopupTracker = LocalOpenPopupTracker.current
     
     if (overlayModeEnabled) return
     
@@ -184,7 +186,12 @@ fun ScrollBasedKeyboardBehavior(
                 val scrollDelta = currentScrollValue - previousScrollValue
                 val hasScrolled = kotlin.math.abs(scrollDelta) > 0
                 
-                if (!hasScrolled) {
+                // Only the user's own scrolls close the keyboard. A popup's text field opening its
+                // keyboard resizes this window too, which moves the scroll position; hiding then
+                // would close the popup field's keyboard right after it opens.
+                if (!hasScrolled || !scrollState.isScrollInProgress ||
+                    openPopupTracker?.hasOpenPopup == true
+                ) {
                     previousScrollValue = currentScrollValue
                     return@collect
                 }

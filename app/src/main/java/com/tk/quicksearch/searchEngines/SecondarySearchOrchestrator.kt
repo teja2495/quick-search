@@ -147,7 +147,7 @@ class SecondarySearchOrchestrator(
         sectionRefreshJob =
             scope.launch(workerDispatcher) {
                 unifiedSearchHandler.performSearch(
-                    trimmedQuery, state.enabledFileTypes, config, state.showFolders, state.showSystemFiles,
+                    trimmedQuery, state.fileTypesForSearch(state.detectedAliasSearchSection), config, state.showFolders, state.showSystemFiles,
                     aliasSection = state.detectedAliasSearchSection?.takeIf { it in searched },
                     sectionSearchDelayMillis = emptyMap(),
                 ) { result, recencyIndex ->
@@ -477,7 +477,7 @@ class SecondarySearchOrchestrator(
                 val unifiedResults =
                     unifiedSearchHandler.performSearch(
                         query = trimmedQuery,
-                        enabledFileTypes = currentState.enabledFileTypes,
+                        enabledFileTypes = currentState.fileTypesForSearch(section),
                         sectionSearchConfig = sectionSearchConfig,
                         showFolders = currentState.showFolders,
                         showSystemFiles = currentState.showSystemFiles,

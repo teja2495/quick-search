@@ -456,6 +456,8 @@
     <string name="settings_app_shortcuts_expand_all">Expand all</string>
     <string name="settings_app_shortcuts_filter_all_apps">All Apps</string>
     <string name="all_apps_private_space">Private space</string>
+    <string name="all_apps_sort_by_install_date">Sort by install date</string>
+    <string name="all_apps_sort_alphabetically">Sort alphabetically</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Apps with Shortcuts</string>
     <string name="settings_app_shortcuts_filter_search_engines">Search Engines</string>
     <string name="settings_app_shortcuts_query_label">Query</string>
@@ -837,6 +839,8 @@
     <string name="settings_launcher_icon_reset_default">Reset to default</string>
     <string name="settings_launcher_icon_title">Change App Icon</string>
     <string name="settings_search_bar_style_title">Search Bar</string>
+    <string name="settings_result_card_style_title">Home and Result Cards</string>
+    <string name="settings_result_card_blur_desc">Blur the wallpaper behind cards.</string>
     <string name="settings_search_bar_background_color_label">Background color</string>
     <string name="settings_search_bar_color_accent">Accent</string>
     <string name="settings_layout_option_bottom_desc">Most relevant items appear at bottom for easy access</string>

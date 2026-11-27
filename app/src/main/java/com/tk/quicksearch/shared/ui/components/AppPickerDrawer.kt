@@ -74,6 +74,7 @@ class AppPickerDrawerSearch(
  * change; without one it wraps short lists.
  *
  * @param titleIcon Shown before [title], such as the app's icon.
+ * @param titleActions Icon buttons shown after [title], before the close button.
  * @param header Shown between the search field and [content], such as filter chips or a note.
  * @param footer Pinned below [content], such as an option that applies to the whole list.
  * @param onDismissStarted Called as soon as the drawer starts closing.
@@ -89,6 +90,7 @@ fun AppPickerDrawer(
     dismissOnClickOutside: Boolean = true,
     onDismissStarted: (() -> Unit)? = null,
     titleIcon: (@Composable () -> Unit)? = null,
+    titleActions: (@Composable () -> Unit)? = null,
     header: (@Composable ColumnScope.() -> Unit)? = null,
     footer: (@Composable ColumnScope.() -> Unit)? = null,
     heightFraction: Float = DEFAULT_PICKER_DRAWER_HEIGHT_FRACTION,
@@ -146,6 +148,7 @@ fun AppPickerDrawer(
                     dismiss()
                 },
                 leadingContent = titleIcon,
+                actions = titleActions,
             ) {
                 Text(text = title)
             }

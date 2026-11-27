@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import com.tk.quicksearch.search.files.FileTypeFilterChips
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -588,6 +590,16 @@ internal fun ContentLayout(
                     onActionClick = onOpenPermissionsSettings,
                 )
                 return
+            }
+
+            if (isSectionAliasMode && hasQuery && section == SearchSection.FILES) {
+                // The chip picked before typing keeps filtering the query's results.
+                FileTypeFilterChips(
+                    selectedFileType = state.aliasFileTypeFilter,
+                    onFileTypeSelected = effectiveFilesParams.onAliasFileTypeFilterChange,
+                    showWallpaperBackground = effectiveShowWallpaperBackground,
+                    modifier = Modifier.padding(bottom = DesignTokens.SpacingSmall),
+                )
             }
 
             val sectionContext =

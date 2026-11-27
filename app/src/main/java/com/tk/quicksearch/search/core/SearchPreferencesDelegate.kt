@@ -561,6 +561,13 @@ internal class SearchPreferencesDelegate(
         }
     }
 
+    fun setResultCardStyle(style: ResultCardStyle) {
+        scope.launch(Dispatchers.IO) {
+            userPreferences.setResultCardStyle(style)
+            updateConfigState { it.copy(resultCardStyle = style) }
+        }
+    }
+
     fun resetHomeTextColorForNewWallpaper() {
         scope.launch(Dispatchers.IO) {
             if (stateAccess.homeTextColorOverride == null) return@launch

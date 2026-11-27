@@ -385,6 +385,7 @@ fun SearchScreen(
         LocalHomeTextColorOverride provides state.homeTextColorOverride,
         LocalHomeWidgetEditGuard provides homeWidgetEditGuard,
         LocalSearchCardLayoutEnabled provides state.cardLayoutEnabled,
+        com.tk.quicksearch.search.searchScreen.shared.LocalResultCardStyle provides state.resultCardStyle,
         com.tk.quicksearch.search.searchScreen.searchScreenLayout.glance.LocalGlanceIconPackPackage provides state.selectedIconPackPackage,
         com.tk.quicksearch.search.bookmarks.LocalBookmarksSectionParams provides stateResult.sectionParams.bookmarksParams,
         com.tk.quicksearch.search.noted.LocalNotedSectionParams provides stateResult.sectionParams.notedParams,

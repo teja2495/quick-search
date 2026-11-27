@@ -32,6 +32,9 @@ internal fun SearchBarSectionMenu(
     AppPickerDrawer(
         title = stringResource(R.string.search_section_menu_title),
         onDismiss = onDismiss,
+        // Opening the sheet from the search bar closes the keyboard; following its inset would
+        // leave a keyboard-sized gap below the tiles.
+        avoidKeyboard = false,
     ) { dismiss ->
         Column(
             modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())

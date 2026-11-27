@@ -27,6 +27,7 @@ import com.tk.quicksearch.search.apps.AppIconShape
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.IconPackInfo
 import com.tk.quicksearch.app.LauncherAppIcon
+import com.tk.quicksearch.search.core.ResultCardStyle
 import com.tk.quicksearch.search.core.SearchBarStyle
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchTarget
@@ -112,6 +113,8 @@ fun AppearanceSettingsSection(
         onSetLauncherAppIcon: (LauncherAppIcon) -> Unit,
         searchBarStyle: SearchBarStyle,
         onSetSearchBarStyle: (SearchBarStyle) -> Unit,
+        resultCardStyle: ResultCardStyle,
+        onSetResultCardStyle: (ResultCardStyle) -> Unit,
         themedIconsEnabled: Boolean,
         onThemedIconsToggle: (Boolean) -> Unit,
         deviceThemeEnabled: Boolean,
@@ -150,6 +153,7 @@ fun AppearanceSettingsSection(
     var themeCardExpanded by remember { mutableStateOf(gesturePreferences.isAppearanceCardExpanded(CARD_THEME)) }
     var backgroundCardExpanded by remember { mutableStateOf(gesturePreferences.isAppearanceCardExpanded(CARD_BACKGROUND)) }
     var searchBarCardExpanded by remember { mutableStateOf(gesturePreferences.isAppearanceCardExpanded(CARD_SEARCH_BAR)) }
+    var resultCardsCardExpanded by remember { mutableStateOf(gesturePreferences.isAppearanceCardExpanded(CARD_RESULT_CARDS)) }
     var searchEnginesCardExpanded by remember { mutableStateOf(gesturePreferences.isAppearanceCardExpanded(CARD_SEARCH_ENGINES)) }
     var showIconPackDialog by remember { mutableStateOf(false) }
     var showPinnedSectionOrderDialog by rememberSaveable { mutableStateOf(false) }
@@ -258,6 +262,18 @@ fun AppearanceSettingsSection(
                 onExpandedChange = { expanded ->
                     searchBarCardExpanded = expanded
                     gesturePreferences.setAppearanceCardExpanded(CARD_SEARCH_BAR, expanded)
+                },
+        )
+
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
+
+        ResultCardStyleCard(
+                resultCardStyle = resultCardStyle,
+                onSetResultCardStyle = onSetResultCardStyle,
+                expanded = resultCardsCardExpanded,
+                onExpandedChange = { expanded ->
+                    resultCardsCardExpanded = expanded
+                    gesturePreferences.setAppearanceCardExpanded(CARD_RESULT_CARDS, expanded)
                 },
         )
 
@@ -406,6 +422,7 @@ private const val CARD_THEME = "theme"
 private const val CARD_BACKGROUND = "background"
 private const val CARD_SEARCH_BAR = "search_bar"
 private const val CARD_SEARCH_ENGINES = "search_engines"
+private const val CARD_RESULT_CARDS = "result_cards"
 
 @Composable
 internal fun PinnedSectionsOrderDrawer(

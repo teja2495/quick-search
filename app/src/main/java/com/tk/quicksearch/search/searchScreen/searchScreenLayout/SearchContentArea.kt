@@ -496,7 +496,7 @@ internal fun SearchContentArea(
                             .clip(LocalInsetCardBackdrop.current.resultsClipShape(TopRoundedShape, edgeBleed))
                             .then(
                                 if (roundExpandedViewport) {
-                                    Modifier.clip(ExpandedResultsViewportShape(edgeBleed, LocalInsetCardBackdrop.current?.topTarget == null))
+                                    Modifier.clip(ExpandedResultsViewportShape(edgeBleed, LocalInsetCardBackdrop.current?.topTarget == null, com.tk.quicksearch.search.searchScreen.shared.resultCardOuterCorner()))
                                 } else {
                                     Modifier
                                 },

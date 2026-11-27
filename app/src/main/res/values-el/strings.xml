@@ -442,6 +442,8 @@
     <string name="settings_app_shortcuts_expand_all">Ανάπτυξη όλων</string>
     <string name="settings_app_shortcuts_filter_all_apps">Όλες οι εφαρμογές</string>
     <string name="all_apps_private_space">Ιδιωτικός χώρος</string>
+    <string name="all_apps_sort_by_install_date">Ταξινόμηση κατά ημερομηνία εγκατάστασης</string>
+    <string name="all_apps_sort_alphabetically">Αλφαβητική ταξινόμηση</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Εφαρμογές με συντομεύσεις</string>
     <string name="settings_app_shortcuts_filter_search_engines">Μηχανές αναζήτησης</string>
     <string name="settings_app_shortcuts_query_label">Ερώτημα</string>
@@ -808,6 +810,8 @@
     <string name="settings_launcher_icon_reset_default">Επαναφορά στο προεπιλεγμένο</string>
     <string name="settings_launcher_icon_title">Αλλαγή εικονιδίου εφαρμογής</string>
     <string name="settings_search_bar_style_title">Γραμμή αναζήτησης</string>
+    <string name="settings_result_card_style_title">Κάρτες αρχικής και αποτελεσμάτων</string>
+    <string name="settings_result_card_blur_desc">Θόλωμα της ταπετσαρίας πίσω από τις κάρτες.</string>
     <string name="settings_search_bar_background_color_label">Χρώμα φόντου</string>
     <string name="settings_search_bar_color_accent">Έμφαση</string>
     <string name="settings_layout_option_bottom_desc">Τα πιο σχετικά στοιχεία εμφανίζονται στο κάτω μέρος για εύκολη πρόσβαση</string>

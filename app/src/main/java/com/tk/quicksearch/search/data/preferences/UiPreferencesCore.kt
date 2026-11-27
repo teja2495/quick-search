@@ -587,6 +587,34 @@ open class UiPreferencesCore(context: Context) : BasePreferences(context) {
                 .apply()
     }
 
+    fun getResultCardStyle(): com.tk.quicksearch.search.core.ResultCardStyle =
+            com.tk.quicksearch.search.core.ResultCardStyle(
+                    cornerRadiusDp =
+                            prefs.getFloat(
+                                            UiPreferences.KEY_RESULT_CARD_CORNER_RADIUS_DP,
+                                            com.tk.quicksearch.search.core.ResultCardStyle.DEFAULT_CORNER_RADIUS_DP,
+                                    )
+                                    .coerceIn(
+                                            com.tk.quicksearch.search.core.ResultCardStyle.MIN_CORNER_RADIUS_DP,
+                                            com.tk.quicksearch.search.core.ResultCardStyle.MAX_CORNER_RADIUS_DP,
+                                    ),
+                    transparency =
+                            prefs.getFloat(
+                                            UiPreferences.KEY_RESULT_CARD_TRANSPARENCY,
+                                            com.tk.quicksearch.search.core.ResultCardStyle.DEFAULT_TRANSPARENCY,
+                                    )
+                                    .coerceIn(0f, 1f),
+                    blurEnabled = prefs.getBoolean(UiPreferences.KEY_RESULT_CARD_BLUR_ENABLED, true),
+            )
+
+    fun setResultCardStyle(style: com.tk.quicksearch.search.core.ResultCardStyle) {
+        prefs.edit()
+                .putFloat(UiPreferences.KEY_RESULT_CARD_CORNER_RADIUS_DP, style.cornerRadiusDp)
+                .putFloat(UiPreferences.KEY_RESULT_CARD_TRANSPARENCY, style.transparency)
+                .putBoolean(UiPreferences.KEY_RESULT_CARD_BLUR_ENABLED, style.blurEnabled)
+                .apply()
+    }
+
     fun getAppLanguageTag(): String? = prefs.getString(BasePreferences.KEY_APP_LANGUAGE_TAG, null)?.takeIf { it.isNotBlank() }
 
     fun setAppLanguageTag(languageTag: String?) {

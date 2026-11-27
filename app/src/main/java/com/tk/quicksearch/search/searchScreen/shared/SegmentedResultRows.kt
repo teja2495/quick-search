@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.layout.PaddingValues
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
@@ -96,7 +97,9 @@ internal fun ResultSegment(
         pressMorph = false,
         shape =
             if (cornerIndex != null && cornerCount != null) {
-                animatedSegmentShape(cornerIndex, cornerCount)
+                animatedSegmentShape(cornerIndex, cornerCount, resultCardInnerCorner(), resultCardOuterCorner())
+            } else if (resultCardOuterCorner() != DesignTokens.SegmentedListOuterCorner) {
+                AppShapes.segment(index, count, resultCardInnerCorner(), resultCardOuterCorner())
             } else {
                 null
             },

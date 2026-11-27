@@ -22,6 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -46,7 +47,11 @@ class SearchViewModelManagementApiDelegate internal constructor(
     private val legacyPreferenceState: SearchViewModelLegacyPreferenceState,
     private val lockedAliasSearchSectionProvider: () -> SearchSection?,
     private val refreshRecentItems: () -> Unit,
+    private val uiStateFlow: kotlinx.coroutines.flow.StateFlow<SearchUiState>,
+    private val refreshSecondarySearches: () -> Unit,
 ) {
+    private var aliasFileTypeSearchJob: Job? = null
+
     val folderManager by lazy {
         com.tk.quicksearch.search.folders.FolderManager(
             scope = scope,
@@ -71,6 +76,14 @@ class SearchViewModelManagementApiDelegate internal constructor(
 
     fun setAliasFileTypeFilter(fileType: FileType?) {
         historyDelegate.setAliasFileTypeFilter(fileType)
+        aliasFileTypeSearchJob?.cancel()
+        if (resultsStateProvider().query.isBlank()) return
+        // Searches read the combined UI state, which picks up the new chip a moment later.
+        aliasFileTypeSearchJob =
+            scope.launch {
+                uiStateFlow.first { it.aliasFileTypeFilter == fileType }
+                refreshSecondarySearches()
+            }
     }
 
     suspend fun refreshAppShortcutsAndAwait() {

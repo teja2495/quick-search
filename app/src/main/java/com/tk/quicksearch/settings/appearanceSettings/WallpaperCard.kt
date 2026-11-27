@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.tk.quicksearch.R
 import com.tk.quicksearch.app.HomeActivity
+import com.tk.quicksearch.app.MainActivity
 import com.tk.quicksearch.search.core.AccentColorMode
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
@@ -108,8 +109,10 @@ fun WallpaperCard(
 ) {
     val view = LocalView.current
     val context = LocalContext.current
+    // Search draws the system wallpaper behind its window without the wallpaper permission, so the
+    // source is usable here too; only ask for the permission when the wallpaper can't be shown.
     val canShowSystemWallpaperBackdrop =
-            (context as? HomeActivity)?.canShowSystemWallpaperBackdrop == true
+            (context as? MainActivity)?.canShowSystemWallpaperBackdrop == true
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
 
     val wallpaperPreviewBitmap by
@@ -149,6 +152,10 @@ fun WallpaperCard(
                     canDisplaySystemWallpaper &&
                     !isLiveWallpaperUnsupported
     val isCustomSourceSelected = backgroundSource == BackgroundSource.CUSTOM_IMAGE
+    // Home always has the wallpaper behind its window; elsewhere it is only there while it is the
+    // selected source, and the preview would otherwise show the app underneath.
+    val canPreviewSystemWallpaperBackdrop =
+            canShowSystemWallpaperBackdrop && (context is HomeActivity || isWallpaperSourceSelected)
     // A wallpaper source that can't be shown falls back to the theme gradient.
     val isThemeSourceSelected = !isWallpaperSourceSelected && !isCustomSourceSelected
     val wallpaperPixelEffectsAvailable =
@@ -313,7 +320,7 @@ fun WallpaperCard(
                                     )
                                 }
                             }
-                        } else if (canShowSystemWallpaperBackdrop) {
+                        } else if (canPreviewSystemWallpaperBackdrop) {
                             SystemWallpaperBackdropPreview()
                         } else {
                             Box(

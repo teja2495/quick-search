@@ -1,6 +1,5 @@
 package com.tk.quicksearch.widgetsPanel
 
-import androidx.compose.animation.core.tween
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.graphics.drawable.Drawable
@@ -9,12 +8,8 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RemoteViews
-import androidx.compose.animation.AnimatedVisibility
+import android.util.LruCache
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -27,12 +22,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import com.tk.quicksearch.shared.ui.components.AppLoadingIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -107,7 +103,31 @@ private data class WidgetPickerProvider(
 private data class WidgetPickerPreview(
     val image: ImageBitmap?,
     val icon: ImageBitmap?,
-)
+) {
+    val byteCount: Int
+        get() = (image?.let { it.width * it.height * 4 } ?: 0) + (icon?.let { it.width * it.height * 4 } ?: 0)
+}
+
+/**
+ * Previews decoded while the picker is open, bounded by bytes, so scrolling back through an app
+ * with hundreds of widgets doesn't decode each preview again. Lives only as long as the sheet.
+ */
+private class WidgetPickerPreviewCache {
+    private val cache =
+        object : LruCache<String, WidgetPickerPreview>(MAX_CACHED_PREVIEW_BYTES) {
+            override fun sizeOf(key: String, value: WidgetPickerPreview): Int = value.byteCount.coerceAtLeast(1)
+        }
+
+    fun get(key: String): WidgetPickerPreview? = cache.get(key)
+
+    fun put(key: String, preview: WidgetPickerPreview) {
+        cache.put(key, preview)
+    }
+
+    fun clear() = cache.evictAll()
+}
+
+private const val MAX_CACHED_PREVIEW_BYTES = 24 * 1024 * 1024
 
 @Composable
 internal fun WidgetPickerSheet(
@@ -181,6 +201,8 @@ internal fun WidgetPickerSheet(
             }
         }
     var expandedApps by rememberSaveable { mutableStateOf(setOf<String>()) }
+    val previewCache = remember { WidgetPickerPreviewCache() }
+    DisposableEffect(previewCache) { onDispose { previewCache.clear() } }
     AppPickerDrawer(
         title = stringResource(if (stackFit != null) R.string.widget_add_to_stack else R.string.widgets_picker_title),
         onDismiss = onDismiss,
@@ -205,22 +227,48 @@ internal fun WidgetPickerSheet(
         if (apps == null) {
             WidgetPickerLoading()
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-            ) {
+            // An app's widgets are their own lazy items, so expanding an app with hundreds of
+            // widgets only composes (and loads previews for) the rows on screen.
+            LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 if (showQuickNote) {
-                    item(key = "quick_note") { QuickNotePickerRow(onClick = onAddQuickNote) }
+                    item(key = "quick_note", contentType = "quick_note") { QuickNotePickerRow(onClick = onAddQuickNote) }
                 }
-                items(filteredApps, key = { it.key }) { app ->
-                    WidgetPickerAppGroup(
-                        app = app,
-                        isExpanded = app.key in expandedApps,
-                        onToggleExpanded = {
-                            expandedApps = if (app.key in expandedApps) expandedApps - app.key else expandedApps + app.key
-                        },
-                        onSelectWidget = onSelectWidget,
-                    )
+                filteredApps.forEachIndexed { appIndex, app ->
+                    val isExpanded = app.key in expandedApps
+                    item(key = "app:${app.key}", contentType = "app") {
+                        WidgetPickerAppHeader(
+                            app = app,
+                            isExpanded = isExpanded,
+                            onToggleExpanded = {
+                                expandedApps = if (app.key in expandedApps) expandedApps - app.key else expandedApps + app.key
+                            },
+                            modifier =
+                                Modifier
+                                    .animateItem()
+                                    .padding(top = if (appIndex > 0 || showQuickNote) DesignTokens.SpacingMedium else 0.dp),
+                        )
+                    }
+                    if (isExpanded) {
+                        itemsIndexed(
+                            app.widgets,
+                            key = { _, widget -> "widget:${app.key}:${widget.info.provider.flattenToShortString()}" },
+                            contentType = { _, _ -> "widget" },
+                        ) { index, widget ->
+                            SegmentedTile(
+                                index = index + 1,
+                                count = app.widgets.size + 1,
+                                onClick = { onSelectWidget(widget.info) },
+                                containerColor = widgetPickerTileColor(),
+                                modifier = Modifier.animateItem().padding(top = DesignTokens.SegmentedListGap),
+                            ) {
+                                WidgetPickerRow(
+                                    pickerProvider = widget,
+                                    previewCache = previewCache,
+                                    onClick = { onSelectWidget(widget.info) },
+                                )
+                            }
+                        }
+                    }
                 }
                 if (filteredApps.isEmpty() && !showQuickNote) {
                     item {
@@ -275,11 +323,10 @@ private fun QuickNotePickerRow(
 }
 
 @Composable
-private fun WidgetPickerAppGroup(
+private fun WidgetPickerAppHeader(
     app: WidgetPickerApp,
     isExpanded: Boolean,
     onToggleExpanded: () -> Unit,
-    onSelectWidget: (AppWidgetProviderInfo) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val chevronRotation by animateFloatAsState(
@@ -287,57 +334,39 @@ private fun WidgetPickerAppGroup(
         animationSpec = AppMotion.defaultSpatial(),
         label = "widgetPickerChevronRotation",
     )
-    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap)) {
-        SegmentedTile(
-            index = 0,
-            count = if (isExpanded) app.widgets.size + 1 else 1,
-            onClick = onToggleExpanded,
-            containerColor = widgetPickerTileColor(),
-        ) {
-            SegmentedTileRow(
-                title = app.appLabel,
-                description = stringResource(R.string.widgets_picker_widget_count, app.widgets.size),
-                leading = {
-                    BitmapImage(
-                        bitmap = app.icon,
-                        contentDescription = null,
-                        modifier = Modifier.size(DesignTokens.Spacing40).clip(AppShapes.full),
-                    )
-                },
-                trailing = {
-                    Icon(
-                        imageVector = MaterialSymbols.ExpandMore,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.rotate(chevronRotation),
-                    )
-                },
-            )
-        }
-        AnimatedVisibility(
-            visible = isExpanded,
-            enter = expandVertically(animationSpec = AppMotion.defaultSpatial()) + fadeIn(tween(AppMotion.DurationShort, easing = AppMotion.EmphasizedDecelerateEasing)),
-            exit = shrinkVertically(animationSpec = AppMotion.defaultSpatial()) + fadeOut(tween(AppMotion.DurationExit, easing = AppMotion.EmphasizedAccelerateEasing)),
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap)) {
-                app.widgets.forEachIndexed { index, provider ->
-                    SegmentedTile(
-                        index = index + 1,
-                        count = app.widgets.size + 1,
-                        onClick = { onSelectWidget(provider.info) },
-                        containerColor = widgetPickerTileColor(),
-                    ) {
-                        WidgetPickerRow(provider, onClick = { onSelectWidget(provider.info) })
-                    }
-                }
-            }
-        }
+    SegmentedTile(
+        index = 0,
+        count = if (isExpanded) app.widgets.size + 1 else 1,
+        onClick = onToggleExpanded,
+        containerColor = widgetPickerTileColor(),
+        modifier = modifier,
+    ) {
+        SegmentedTileRow(
+            title = app.appLabel,
+            description = stringResource(R.string.widgets_picker_widget_count, app.widgets.size),
+            leading = {
+                BitmapImage(
+                    bitmap = app.icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(DesignTokens.Spacing40).clip(AppShapes.full),
+                )
+            },
+            trailing = {
+                Icon(
+                    imageVector = MaterialSymbols.ExpandMore,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.rotate(chevronRotation),
+                )
+            },
+        )
     }
 }
 
 @Composable
 private fun WidgetPickerRow(
     pickerProvider: WidgetPickerProvider,
+    previewCache: WidgetPickerPreviewCache,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -350,7 +379,13 @@ private fun WidgetPickerRow(
     val stageWidthPx = with(density) { LocalConfiguration.current.screenWidthDp.dp.roundToPx() }
     val stageHeightPx = with(density) { WidgetPickerStageHeight.roundToPx() }
     val iconSizePx = with(density) { WidgetPickerIconSize.roundToPx() }
-    val preview by produceState<WidgetPickerPreview?>(null, provider, stageWidthPx, stageHeightPx) {
+    val previewKey =
+        remember(provider, stageWidthPx, stageHeightPx, iconSizePx) {
+            "${provider.provider.flattenToShortString()}:${UserHandleUtils.getIdentifier(provider.profile)}:" +
+                "$stageWidthPx:$stageHeightPx:$iconSizePx"
+        }
+    val preview by produceState(previewCache.get(previewKey), previewKey) {
+        if (value != null) return@produceState
         value =
             withContext(Dispatchers.IO) {
                 val previewImage =
@@ -367,7 +402,7 @@ private fun WidgetPickerRow(
                         runCatching { provider.loadIcon(context, densityDpi) }
                             .getOrNull()
                             ?.let { rasterize(it, iconSizePx, iconSizePx) },
-                )
+                ).also { previewCache.put(previewKey, it) }
             }
     }
     val previewLayoutRes = remember(provider) {

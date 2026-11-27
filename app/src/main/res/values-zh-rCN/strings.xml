@@ -440,6 +440,8 @@
     <string name="settings_app_shortcuts_expand_all">全部展开</string>
     <string name="settings_app_shortcuts_filter_all_apps">所有应用</string>
     <string name="all_apps_private_space">私密空间</string>
+    <string name="all_apps_sort_by_install_date">按安装日期排序</string>
+    <string name="all_apps_sort_alphabetically">按字母顺序排序</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">包含快捷方式的应用</string>
     <string name="settings_app_shortcuts_filter_search_engines">搜索引擎</string>
     <string name="settings_app_shortcuts_query_label">查询内容</string>
@@ -796,6 +798,8 @@
     <string name="settings_launcher_icon_reset_default">重置为默认</string>
     <string name="settings_launcher_icon_title">更改应用图标</string>
     <string name="settings_search_bar_style_title">搜索栏</string>
+    <string name="settings_result_card_style_title">主屏幕和结果卡片</string>
+    <string name="settings_result_card_blur_desc">模糊卡片后面的壁纸。</string>
     <string name="settings_search_bar_background_color_label">背景颜色</string>
     <string name="settings_search_bar_color_accent">强调色</string>
     <string name="settings_layout_option_bottom_desc">最相关的匹配项将显示在底部，以便于轻松触达</string>

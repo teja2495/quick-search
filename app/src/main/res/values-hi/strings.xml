@@ -442,6 +442,8 @@
     <string name="settings_app_shortcuts_expand_all">सभी फैलाएं</string>
     <string name="settings_app_shortcuts_filter_all_apps">सभी ऐप्स</string>
     <string name="all_apps_private_space">प्राइवेट स्पेस</string>
+    <string name="all_apps_sort_by_install_date">इंस्टॉल की तारीख के अनुसार क्रमबद्ध करें</string>
+    <string name="all_apps_sort_alphabetically">वर्णानुक्रम में क्रमबद्ध करें</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">शॉर्टकट वाले ऐप्स</string>
     <string name="settings_app_shortcuts_filter_search_engines">सर्च इंजन</string>
     <string name="settings_app_shortcuts_query_label">क्वेरी</string>
@@ -808,6 +810,8 @@
     <string name="settings_launcher_icon_reset_default">डिफ़ॉल्ट पर रीसेट करें</string>
     <string name="settings_launcher_icon_title">ऐप आइकन बदलें</string>
     <string name="settings_search_bar_style_title">सर्च बार</string>
+    <string name="settings_result_card_style_title">होम और परिणाम कार्ड</string>
+    <string name="settings_result_card_blur_desc">कार्ड के पीछे वॉलपेपर धुंधला करें।</string>
     <string name="settings_search_bar_background_color_label">पृष्ठभूमि का रंग</string>
     <string name="settings_search_bar_color_accent">एक्सेंट</string>
     <string name="settings_layout_option_bottom_desc">आसान पहुंच के लिए सबसे प्रासंगिक आइटम नीचे दिखते हैं</string>

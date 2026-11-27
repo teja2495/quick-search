@@ -155,6 +155,9 @@ internal interface SearchViewModelPreferencesApi {
     fun setSearchBarStyle(style: SearchBarStyle) =
         preferencesApiDelegate.setSearchBarStyle(style)
 
+    fun setResultCardStyle(style: ResultCardStyle) =
+        preferencesApiDelegate.setResultCardStyle(style)
+
     fun setBackgroundSource(source: BackgroundSource) =
         preferencesApiDelegate.setBackgroundSource(source)
 
@@ -444,6 +447,8 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
         preferencesDelegate.resetHomeTextColorForNewWallpaper()
 
     fun setSearchBarStyle(style: SearchBarStyle) = preferencesDelegate.setSearchBarStyle(style)
+
+    fun setResultCardStyle(style: ResultCardStyle) = preferencesDelegate.setResultCardStyle(style)
 
     fun setBackgroundSource(source: BackgroundSource) = preferencesDelegate.setBackgroundSource(source)
 

@@ -446,6 +446,8 @@
 <string name="settings_app_shortcuts_expand_all">Развернуть все</string>
 <string name="settings_app_shortcuts_filter_all_apps">Все приложения</string>
 <string name="all_apps_private_space">Частное пространство</string>
+<string name="all_apps_sort_by_install_date">Сортировать по дате установки</string>
+<string name="all_apps_sort_alphabetically">Сортировать по алфавиту</string>
 <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Приложения с ярлыками</string>
 <string name="settings_app_shortcuts_filter_search_engines">Поисковые системы</string>
 <string name="settings_app_shortcuts_query_label">Запрос</string>
@@ -832,6 +834,8 @@
 <string name="settings_launcher_icon_reset_default">Сбросить по умолчанию</string>
 <string name="settings_launcher_icon_title">Изменить значок приложения</string>
 <string name="settings_search_bar_style_title">Строка поиска</string>
+<string name="settings_result_card_style_title">Карточки главного экрана и результатов</string>
+<string name="settings_result_card_blur_desc">Размывать обои за карточками.</string>
 <string name="settings_search_bar_background_color_label">Цвет фона</string>
 <string name="settings_search_bar_color_accent">Акцент</string>
 <string name="settings_layout_option_bottom_desc">Наиболее важные элементы отображаются внизу для удобного доступа</string>

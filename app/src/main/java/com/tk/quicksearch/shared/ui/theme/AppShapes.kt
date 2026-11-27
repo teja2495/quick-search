@@ -181,9 +181,12 @@ fun floatingActionShape(interactionSource: InteractionSource): RoundedCornerShap
  * when it becomes (or stops being) the first or last tile, instead of snapping.
  */
 @Composable
-fun animatedSegmentShape(index: Int, count: Int): RoundedCornerShape {
-    val inner = DesignTokens.SegmentedListInnerCorner
-    val outer = DesignTokens.SegmentedListOuterCorner
+fun animatedSegmentShape(
+    index: Int,
+    count: Int,
+    inner: Dp = DesignTokens.SegmentedListInnerCorner,
+    outer: Dp = DesignTokens.SegmentedListOuterCorner,
+): RoundedCornerShape {
     val firstFraction by animateFloatAsState(
         targetValue = if (index <= 0) 1f else 0f,
         animationSpec = AppMotion.defaultSpatial(),

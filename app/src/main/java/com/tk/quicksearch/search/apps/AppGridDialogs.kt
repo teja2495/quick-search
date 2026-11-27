@@ -31,6 +31,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -47,6 +48,8 @@ import com.tk.quicksearch.search.apps.AppIconShape
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.shared.ui.components.AppIconButton
+import com.tk.quicksearch.shared.ui.components.AppIconButtonStyle
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -82,9 +85,16 @@ internal fun AllAppsDrawer(
 ) {
     val dialogColumns = getAppGridColumns(phoneColumnOverride)
     val context = LocalContext.current
+    val view = LocalView.current
     val addToHomeHandler = remember(context) { AddToHomeHandler(context) }
     val privateSpace = rememberPrivateSpaceController()
     val privateSpaceState by privateSpace.state.collectAsState()
+    // Newest installs first while on; apps arrive sorted by name.
+    var sortByInstallDate by rememberSaveable { mutableStateOf(false) }
+    val displayedApps =
+            remember(apps, sortByInstallDate) {
+                if (sortByInstallDate) apps.sortedByDescending { it.firstInstallTime } else apps
+            }
     // Load every icon in the background up front so they are already cached when scrolled to.
     LaunchedEffect(apps, iconPackPackage, appIconShape) {
         prefetchAppIconRequests(
@@ -101,8 +111,28 @@ internal fun AllAppsDrawer(
             // Opening the drawer closes the Home keyboard; following its inset would grow the
             // sheet and relayout the grid on every frame of that animation.
             avoidKeyboard = false,
+            titleActions = {
+                val sortLabel =
+                        stringResource(
+                                if (sortByInstallDate) R.string.all_apps_sort_alphabetically
+                                else R.string.all_apps_sort_by_install_date,
+                        )
+                AppIconButton(
+                        onClick = {
+                            hapticConfirm(view)()
+                            sortByInstallDate = !sortByInstallDate
+                        },
+                        tooltip = sortLabel,
+                        style = if (sortByInstallDate) AppIconButtonStyle.Tonal else AppIconButtonStyle.Standard,
+                        modifier = Modifier.size(DesignTokens.Spacing48),
+                ) {
+                    Icon(imageVector = MaterialSymbols.Sort, contentDescription = sortLabel)
+                }
+            },
     ) {
         val gridState = rememberLazyGridState()
+        // Jump back to the top when the order changes so the first apps of the new order show.
+        LaunchedEffect(sortByInstallDate) { gridState.scrollToItem(0) }
         var scrollbarDragFraction by remember { mutableStateOf<Float?>(null) }
         Box(modifier = Modifier.fillMaxWidth()) {
             LazyVerticalGrid(
@@ -113,7 +143,7 @@ internal fun AllAppsDrawer(
                     verticalArrangement = Arrangement.spacedBy(AllAppsDialogRowSpacing),
             ) {
                 items(
-                        items = apps,
+                        items = displayedApps,
                         key = { app -> app.launchCountKey() },
                 ) { app ->
                     AllAppsDialogGridItem(
@@ -179,11 +209,14 @@ internal fun AllAppsDrawer(
                     )
                 }
             }
-            AllAppsScrollLetterPopup(
-                    apps = apps,
-                    gridState = gridState,
-                    scrollbarDragFraction = scrollbarDragFraction,
-            )
+            // Letters only make sense for the alphabetical order.
+            if (!sortByInstallDate) {
+                AllAppsScrollLetterPopup(
+                        apps = displayedApps,
+                        gridState = gridState,
+                        scrollbarDragFraction = scrollbarDragFraction,
+                )
+            }
             LazyGridVerticalScrollbar(
                     state = gridState,
                     modifier = Modifier.align(Alignment.CenterEnd),

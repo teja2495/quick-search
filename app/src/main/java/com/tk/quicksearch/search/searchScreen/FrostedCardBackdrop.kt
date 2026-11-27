@@ -46,6 +46,7 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.search.searchScreen.shared.LocalResultCardStyle
 import com.tk.quicksearch.shared.util.isLowRamDevice
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -269,12 +270,21 @@ private class FrostedAnchorNode(var source: FrostedCardSource) : Modifier.Node()
  * Draws the frosted wallpaper behind a card, clipped to [shape]. Draws nothing unless the search
  * background published a frosted wallpaper (Android 12+, not low-RAM, image background on).
  * Place it before the card's own background so the translucent container sits on top.
+ * Home and result cards also follow the user's card blur setting; search chrome passes
+ * [followCardBlurSetting] = false because its blur has a setting of its own.
  */
 @Composable
-internal fun Modifier.frostedCardBackground(shape: Shape): Modifier =
+internal fun Modifier.frostedCardBackground(shape: Shape, followCardBlurSetting: Boolean = true): Modifier =
     // Attached only while a frosted wallpaper exists: position tracking on every card caused
     // stale-frame ghosting with the transparent system wallpaper window (Samsung, Android 16).
-    if (LocalFrostedCardSource.current?.isActive == true) then(FrostedCardElement(shape)) else this
+    if (
+        LocalFrostedCardSource.current?.isActive == true &&
+        (!followCardBlurSetting || LocalResultCardStyle.current.blurEnabled)
+    ) {
+        then(FrostedCardElement(shape))
+    } else {
+        this
+    }
 
 private data class FrostedCardElement(val shape: Shape) : ModifierNodeElement<FrostedCardNode>() {
     override fun create() = FrostedCardNode(shape)

@@ -273,6 +273,7 @@ data class SearchUiConfigState(
         val useSystemFont: Boolean = false,
         val homeTextColorOverride: HomeTextColor? = null,
         val searchBarStyle: SearchBarStyle = SearchBarStyle(),
+        val resultCardStyle: ResultCardStyle = ResultCardStyle(),
         // App display preferences
         val showAppLabels: Boolean = true,
         val phoneAppGridColumns: Int = com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS,

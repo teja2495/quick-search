@@ -442,6 +442,8 @@
     <string name="settings_app_shortcuts_expand_all">Alle aufklappen</string>
     <string name="settings_app_shortcuts_filter_all_apps">Alle Apps</string>
     <string name="all_apps_private_space">Privater Bereich</string>
+    <string name="all_apps_sort_by_install_date">Nach Installationsdatum sortieren</string>
+    <string name="all_apps_sort_alphabetically">Alphabetisch sortieren</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Apps mit Verknüpfungen</string>
     <string name="settings_app_shortcuts_filter_search_engines">Suchmaschinen</string>
     <string name="settings_app_shortcuts_query_label">Suchanfrage</string>
@@ -808,6 +810,8 @@
     <string name="settings_launcher_icon_reset_default">Standard wiederherstellen</string>
     <string name="settings_launcher_icon_title">App-Symbol ändern</string>
     <string name="settings_search_bar_style_title">Suchleiste</string>
+    <string name="settings_result_card_style_title">Start- und Ergebniskarten</string>
+    <string name="settings_result_card_blur_desc">Hintergrundbild hinter Karten weichzeichnen.</string>
     <string name="settings_search_bar_background_color_label">Hintergrundfarbe</string>
     <string name="settings_search_bar_color_accent">Akzent</string>
     <string name="settings_layout_option_bottom_desc">Relevanteste Elemente erscheinen unten für einfachen Zugriff</string>

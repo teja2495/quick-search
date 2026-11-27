@@ -67,6 +67,8 @@ sealed interface SettingsCommand {
 
     data class SearchBarStyleSetting(val style: SearchBarStyle) : SettingsCommand
 
+    data class ResultCardStyleSetting(val style: com.tk.quicksearch.search.core.ResultCardStyle) : SettingsCommand
+
     data class WallpaperBackgroundAlpha(val alpha: Float) : SettingsCommand
 
     data class WallpaperBlurRadius(val radius: Float) : SettingsCommand
@@ -216,6 +218,7 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
         is SettingsCommand.UseSystemFont -> setUseSystemFont(command.enabled)
         is SettingsCommand.HomeTextColorOverride -> setHomeTextColorOverride(command.color)
         is SettingsCommand.SearchBarStyleSetting -> setSearchBarStyle(command.style)
+        is SettingsCommand.ResultCardStyleSetting -> setResultCardStyle(command.style)
         is SettingsCommand.WallpaperBackgroundAlpha -> setWallpaperBackgroundAlpha(command.alpha)
         is SettingsCommand.WallpaperBlurRadius -> setWallpaperBlurRadius(command.radius)
         is SettingsCommand.OverlayThemeIntensity -> setOverlayThemeIntensity(command.intensity)

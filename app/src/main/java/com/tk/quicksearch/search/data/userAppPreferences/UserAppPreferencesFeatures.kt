@@ -444,6 +444,12 @@ open class UserAppPreferencesFeatures(context: Context) : UserAppPreferencesCore
     fun setSearchBarStyle(style: com.tk.quicksearch.search.core.SearchBarStyle) =
             uiPreferences.setSearchBarStyle(style)
 
+    fun getResultCardStyle(): com.tk.quicksearch.search.core.ResultCardStyle =
+            uiPreferences.getResultCardStyle()
+
+    fun setResultCardStyle(style: com.tk.quicksearch.search.core.ResultCardStyle) =
+            uiPreferences.setResultCardStyle(style)
+
     fun getAppLanguageTag(): String? = uiPreferences.getAppLanguageTag()
 
     fun setAppLanguageTag(languageTag: String?) = uiPreferences.setAppLanguageTag(languageTag)
