@@ -3,6 +3,7 @@ package com.tk.quicksearch.shared.util
 import android.app.role.RoleManager
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.provider.Settings
 
@@ -35,3 +36,10 @@ fun Context.defaultAssistantPackage(): String? =
                 ?.takeIf { it.isNotBlank() }
                 ?.let { ComponentName.unflattenFromString(it)?.packageName }
         }
+
+/**
+ * Whether [this] intent opens Quick Search as an assistant: ACTION_ASSIST from the system's
+ * assistant gesture, or ACTION_VOICE_COMMAND from entry points such as the Accessibility Menu.
+ */
+fun Intent?.isAssistantLaunch(): Boolean =
+    this?.action == Intent.ACTION_ASSIST || this?.action == Intent.ACTION_VOICE_COMMAND

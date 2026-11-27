@@ -140,7 +140,7 @@
         </activity>
 
         <!-- Main Activity: handles every other entry point (share, web search,
-             ASSIST, process text, file view, app-icon launches from another
+             ASSIST/VOICE_COMMAND, process text, file view, app-icon launches from another
              launcher via the activity-aliases below). Keeps the translucent
              theme so it can sit on top of the previous app where appropriate. -->
         <activity
@@ -153,6 +153,8 @@
             android:windowSoftInputMode="stateAlwaysVisible|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.ASSIST" />
+                <!-- Sent by the Accessibility Menu's Assistant button, among others. -->
+                <action android:name="android.intent.action.VOICE_COMMAND" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>

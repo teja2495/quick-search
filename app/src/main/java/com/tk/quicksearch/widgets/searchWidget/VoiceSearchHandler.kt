@@ -2,6 +2,7 @@ package com.tk.quicksearch.widgets.searchWidget
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
 import android.speech.RecognizerIntent
@@ -9,6 +10,7 @@ import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import com.tk.quicksearch.R
+import com.tk.quicksearch.app.MainActivity
 import com.tk.quicksearch.shared.util.defaultAssistantPackage
 
 private const val CHATGPT_PACKAGE = "com.openai.chatgpt"
@@ -122,8 +124,8 @@ class VoiceSearchHandler(
     /**
      * Opens the user's default assistant from an intent, used when showAssist() isn't available or
      * fails. VOICE_ASSIST, which the system sends for voice assistant entry, comes first and opens
-     * Google's voice screen. Unscoped VOICE_COMMAND can land on any app that handles it, and on
-     * recent Google app versions it opens nothing. ChatGPT has no voice intent but opens voice mode
+     * Google's voice screen. Unscoped VOICE_COMMAND (minus Quick Search) can land on any app that
+     * handles it, and on recent Google app versions it opens nothing. ChatGPT has no voice intent but opens voice mode
      * from its voice link; other assistants take hands-free voice search, VOICE_COMMAND or ASSIST,
      * and an assistant that handles none of them is opened from its launcher entry.
      */
@@ -143,9 +145,32 @@ class VoiceSearchHandler(
                     // Fallback for every assistant: open the app itself when none of the above launches.
                     packageManager.getLaunchIntentForPackage(assistantPackage)?.let(::add)
                 }
-                add(Intent(Intent.ACTION_VOICE_COMMAND))
+                otherVoiceCommandIntent()?.let(::add)
             }
         return candidates.filter { it.resolveActivity(packageManager) != null }
+    }
+
+    /**
+     * Unscoped VOICE_COMMAND, minus Quick Search itself (it handles VOICE_COMMAND for the
+     * Accessibility Menu), so the fallback never reopens Quick Search. One other handler is
+     * opened directly; several are offered in a chooser that leaves Quick Search out.
+     */
+    private fun otherVoiceCommandIntent(): Intent? {
+        val voiceCommand = Intent(Intent.ACTION_VOICE_COMMAND)
+        val others =
+            context.packageManager
+                .queryIntentActivities(voiceCommand, 0)
+                .mapNotNull { it.activityInfo }
+                .filter { it.packageName != context.packageName }
+        return when (others.size) {
+            0 -> null
+            1 -> voiceCommand.setClassName(others[0].packageName, others[0].name)
+            else ->
+                Intent.createChooser(voiceCommand, null).putExtra(
+                    Intent.EXTRA_EXCLUDE_COMPONENTS,
+                    arrayOf(ComponentName(context, MainActivity::class.java)),
+                )
+        }
     }
 
     fun processVoiceInputResult(

@@ -59,6 +59,7 @@ import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.shared.util.AppLanguageManager
 import com.tk.quicksearch.search.data.preferences.BootstrapPreferences
 import com.tk.quicksearch.shared.util.CrashLogManager
+import com.tk.quicksearch.shared.util.isAssistantLaunch
 import com.tk.quicksearch.widgets.searchWidget.SearchWidget
 import com.tk.quicksearch.widgets.searchWidget.MicAction
 import com.tk.quicksearch.widgets.searchWidget.VoiceSearchHandler
@@ -342,7 +343,7 @@ open class MainActivity : FragmentActivity() {
             if (isWidgetsPanelLaunch) return false
             if (intent?.action == ACTION_OPEN_NOTIFICATION_HISTORY) return false
             if (intent?.action == ACTION_OPEN_MANAGE_APPS) return false
-            val isAssistantLaunch = intent?.action == Intent.ACTION_ASSIST
+            val isAssistantLaunch = intent.isAssistantLaunch()
             val startVoiceForAssistant =
                 isAssistantLaunch && userPreferences.isAssistantLaunchVoiceModeEnabled()
             val startVoiceFromShortcut = isVoiceShortcutLaunch
@@ -640,7 +641,7 @@ open class MainActivity : FragmentActivity() {
                 )
         }
         if (
-            intent?.action == Intent.ACTION_ASSIST &&
+            intent.isAssistantLaunch() &&
                 userPreferences.isAssistantLaunchVoiceModeEnabled()
         ) {
             voiceSearchHandler.handleMicAction(MicAction.DEFAULT_VOICE_SEARCH)
@@ -722,7 +723,6 @@ open class MainActivity : FragmentActivity() {
                     ?: MicAction.DEFAULT_VOICE_SEARCH
             voiceSearchHandler.handleMicAction(micAction)
         }
-        // ACTION_ASSIST can optionally start voice typing based on user preference.
     }
 
     private fun isHomeOrLauncherLaunch(intent: Intent?): Boolean {
